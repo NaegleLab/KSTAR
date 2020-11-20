@@ -1,9 +1,8 @@
-from Bio import SeqIO
+
 import pandas as pd
-import logging
 from collections import defaultdict
-import argparse
-from os import path
+import re
+import numpy as np
 
 ACCESSION_ID = 'KSTAR_ACCESSION'
 SITE_ID = 'KSTAR_SITE'
@@ -11,7 +10,7 @@ PEPTIDE_ID = 'KSTAR_PEPTIDE'
 
 class ExperimentMapper:
 
-    def __init__(self, experiment, sequences, columns, logger, window = 7, data_columns = None):      
+    def __init__(self, experiment, sequences, columns, logger, compendia, window = 7, data_columns = None):      
         """
         Given an experiment object and reference sequences, map the phosphorylation sites to the common reference.
         Inputs
@@ -42,6 +41,7 @@ class ExperimentMapper:
         """ 
         self.experiment = experiment
         self.sequences = sequences
+        self.compendia = compendia
 
         if 'accession_id' not in columns.keys():
             raise ValueError('ExperimentMapper requires accession_id as a dictionary key')
@@ -58,8 +58,9 @@ class ExperimentMapper:
         self.set_data_columns(data_columns)
         self.align_sites(window)
 
-        
-        
+        compendia = self.compendia[['KSTAR_ACCESSION', 'KSTAR_SITE', 'KSTAR_NUM_COMPENDIA', 'KSTAR_NUM_COMPENDIA_CLASS']]
+        self.experiment = pd.merge(self.experiment, compendia, how = 'inner', on = ['KSTAR_ACCESSION', 'KSTAR_SITE'] )
+
     def set_data_columns(self, data_columns):
         self.data_columns = []
         if data_columns is None:
@@ -85,9 +86,8 @@ class ExperimentMapper:
         Gets the sequence that matches the given accession
         """
         if accession in self.sequences.keys():
-            return None
-        sequence = self.sequences[accession]
-        return sequence
+            return self.sequences[accession]
+        return None
 
     
     def align_sites(self, window = 7):
@@ -151,114 +151,258 @@ class ExperimentMapper:
         self.experiment.drop_duplicates(inplace=True)
 
 
-def process_fasta_file(fasta_file):
-    seqs = SeqIO.parse(open(fasta_file), 'fasta')
+def expand_peptide(df, peptide_column):
+    """
+    Expands a dataframe based on the peptide column such that each 
+    peptide contains one modification type. 
+    Example
+        Accession  Peptide  Info
+        P0001      aBCDeF   Good
+        P0002      TUvWXy   Bad
 
-    sequences = defaultdict()
-    for entry in seqs:
-            seq = str(entry.seq)
-            acc = entry.id.split('|')[1].strip()
-            sequences[acc] = seq
-
-def parse_args():
-    parser = argparse.ArgumentParser(description='Parse Mapping Inference Arguments')
-    parser.add_argument('-e', '--exp_file', '--experiment_file', action='store', dest= 'exp_file', help='Experiment file location. csv or tsv file', required=True)
-    parser.add_argument('-r','--rdir','--resource_directory', action='store',dest='rdir', help = 'resource file directory', required=True)
-    parser.add_argument('-o','--odir','--output_directory', action = 'store', dest='odir', help = 'output directory for results',)
-    # parser.add_argument('-p','--pevent','--phosphorylation_events', action = 'store', dest='pevent', help ='phosphorylation event type', choices=['Y','S','T','ST', 'STY'], default='STY')
-    parser.add_argument('-n', '--name', action = 'store', dest='name', help = 'experiment name', default='Experiment')
-    parser.add_argument('-a', '--accession', action = 'store', dest='accession', help = 'Protein Accession column in experiment file', required=True,)
-    parser.add_argument('-s', '--site',action = 'store', dest='site',  help='Site column in experiment file')
-    parser.add_argument('-p', '--peptide', action = 'store', dest='peptide', help = 'Peptide column in experiment file', required=True,)
-    parser.add_argument('-w', '--window', action='store', dest='window', help = 'peptide window', type = int, default=7)
-    parse.add_argument('-d', '--data', '--data_columns', action='store', dest='data_columns', help = 'data_columns to use', nargs='*')
-    results = parser.parse_args()
-    return results
-
-def process_args(results):
-    # get logger
-    logger = get_logger(results.name, filename)
-    if results.odir is None or not (path.exists(results.odir) and path.isdir(results.odir)):
-        logger = logging.get_logger(results.name, f"{results.name}_mapping.log")
-    else:
-        logger = get_logger(results.name, f"{results.odir}/{results.name}_mapping.log")
+        Becomes
+        Accession  Peptide  Info
+        P0001      aBCDEF   Good
+        P0001      ABCDeF   Good
+        P0002      TUvWXY   Bad
+        P0002      TUVWXy   Bad
     
-    #check if resource directory exists
-    if not (path.exists(results.rdir) and path.isdir(results.rdir)):
-        logger.error("Please provide a valid resource directory")
-        exit()
-    #check if output directory exists
-    if not (path.exists(results.odir) and path.isdir(results.odir)):
-        logger.error("Please provide a valid output directory")
-        exit()
-    # check if experiment file exists and is either csv or tsv file. 
-    # Load experiment if valid
-    if path.exists(results.exp_file) and path.isfile(results.exp_file):
-        filetype = results.exp_file.split('.')[-1]
-        if filetype == 'csv':
-            experiment = pd.read_csv(results.exp_file)
-        elif filetype == 'tsv':
-            experiment = pd.read_csv(results.exp_file, sep = '\t')
+    Parameters
+    --------
+    df : pandas df
+        Experiment pandas dataframe
+    peptide_column: str
+        peptide column to expand
+    
+    Returns
+    ---------
+    df : pandas DataFrame
+        expanded dataframe
+
+    """
+    df_list = []
+    for index, row in df.iterrows():
+        if row[peptide_column] is not None:
+            mods = find_modified_sites(row[peptide_column])
+            for mod in mods:
+                tmp = row.copy()
+                tmp[peptide_column] = list(tmp[peptide_column].upper())
+                tmp[peptide_column][mod[1]] = tmp[peptide_column][mod[1]].lower()
+                tmp[peptide_column] = ''.join(tmp[peptide_column])
+                df_list.append(tmp)
         else:
-            logger.error("Unrecognized experiment filetype. Please use a csv or tsv file")
-            exit()
+            df_list.append(row)
+    df = pd.DataFrame(df_list).reset_index(drop=True)
+    return df
+        
+def find_modified_sites(peptide, modification_types = None):
+        """
+        Finds all modification sites, indicated by a lower letter in the peptide column 
+        and returns as a list of lists 
+        Parameters
+        ----------
+        row : pandas row
+        peptide_column : column that contains peptide with mod site
+            mod site identified by being lower case
+
+        Returns : [[modtype, relative_location]]
+        1st element is the modification type
+        2nd element is the relative modification location
+        """
+
+        if modification_types is not None:
+            mod_types = ''.join(modification_types)
+            mod_types = '[' + mod_types + ']'
+            return [[m.group() , m.start()] for m in re.finditer(mod_types, peptide)]
+        return [[m.group() , m.start()] for m in re.finditer('[a-z]', peptide)]
+
+def find_peptide_locations(peptide, sequence):
+    """
+    Finds all start locations of a peptide in a given sequence. 
+    Sequence starts at location 1.
+    Example: Sequence: ABCDEFGABCDHIJK, Peptide: BCD
+    would return [2, 9], as peptide is found at location 2 and 9
+    """
+    return [m.start() + 1 for m in re.finditer(peptide, sequence)]
+
+
+
+
+
+def peptide_site_number(peptide, sequence, site = None, modification_types = None):
+    """
+    Finds the site number by finding the modification site in sequence and the peptide location
+    in the sequence. A modification site is defined as where in a peptide a lower case letter appears.
+    If a site is provided with alphabetical character the alphabetical character is
+    the modification type checked for in the peptide.
+    If a site contains numbers the closest match of the petide in the sequence to the site number is used as the site
+    If no modification sites are found or peptide is not found in sequence None is returned
+    
+    Example: sequence is ZZZZABCDEFGZZZABCDEFGHIZZ, peptide is AbCdEfG
+    If no site is provided and no modification types are provided then B6 is returned
+    If no site is provided and modification_types is ['d','f'] or 'df' then D8 is returned
+    If site is 30 and modification_types is ['d','f'] then F20 is returned
+    If site is D23 then D18 is returned, modification_type is ignored
+    If site is X50 then X50 is returned as modification_type x is not found in peptide
+    Parameters
+    ----------
+
+    peptide :str
+        peptide string where modification site is first lower-case letter found
+    sequence : str
+        sequence string where all characters are uppercase
+    site : str
+        site number to check against. can either have letters or just numbers
+    modification_types: list
+        list of modification types to check against while checking peptide
+        ex: ['s', 't', 'y'] would ingore all modifications except for s,t,y
+        not used if site contains alphabetical characters
+    
+    Returns
+    ---------
+    site : str
+        site of peptide in sequence dataframe in format S123
+        closest to original site if provided, otherwise first location found
+        if no modification sites are found, the sequence cannot be found, or the peptide
+            cannot be found in the sequence then the original site is returned
+    """
+    if pd.isnull(peptide):
+        return None
+
+    peptide = ''.join(filter(str.isalpha, peptide)) # keep only alphabetical letters
+    all_mod_sites = find_modified_sites(peptide, None) # get all mod sites
+        
+    if isinstance(site, str):
+        modification_types = site[0].lower()
+    
+    mod_sites = []
+    if modification_types is not None:
+        for mod_site in all_mod_sites:
+            if mod_site[0] in modification_types:
+                mod_sites.append(mod_site)
     else:
-        logger.error("Please provide a valid experiment file")
-        exit()
+        mod_sites = all_mod_sites
     
-    # Map accession, peptide, site column if valid
-    columns = list(experiment.columns)
-    map_columns = defaultdict()
-    if results.accession in columns:
-        map_columns['accession_id'] = results.accession
-    else:
-        logger.error(f"{results.accession} not found in experiment columns. Please provide a valid accession column")
-        exit()
-    if results.peptide in columns:
-        map_columns['peptide'] = results.peptide
-    else:
-        logger.error(f"{results.peptide} not found in experiment columns. Please provide a valid peptide column")
-        exit()  
-    if results.site is not None and results.site in columns:
-        map_columns['site'] = results.site
-    elif results.site is not None and results.site not in columns:
-        logger.error(f"{results.site} not found in experiment columns. Please provide a valid site column")
-        exit()
+    # if no mod sites are found return None
+    if len(mod_sites) == 0:
+        return None
+
+    peptide_locations = find_peptide_locations(peptide.upper(), sequence) 
+
+
+    relative_location = mod_sites[0][1] # only looking at first mod site location
+    site_type = mod_sites[0][0].upper() # first mod type (STY)
     
-    # Get sequence dict from resource directory fasta file
-    resource_files = os.listdir(results.rdir)
-    sequences = None
-    for f in resource_files:
-        if f.endswith(".fasta"):
-            sequences = process_fasta_file(f)
-    if sequences is None:
-        logger.eror("Fasta file not found. Please provide a UniProt fasta file to use")
-        exit()
+    # get all locations where peptide appears in sequence
+    peptide_locations = find_peptide_locations(peptide.upper(), sequence) 
+    if len(peptide_locations)>0:
+        if site is not None:
+            # get closest peptide location to provided site
+            site_num = int(re.sub("[^0-9]", "", str(site))) #remove all letters and make int
+            closeness = np.inf
+            closest_site = np.inf
+            for loc in peptide_locations:
+                true_location = loc + relative_location
+                if abs(true_location - site_num) < closeness:
+                    closeness = abs(true_location - site_num)
+                    closest_site = true_location
+            return site_type + str(closest_site)
+        else:
+            # no site info provided : return first instance
+            return site_type + str(peptide_locations[0] + relative_location)  
+    return None
 
-    # Check all data columns provided to make sure they exist. 
-    # If a column does not exist in the experiment it is removed
-    data_columns = None
-    if results.data_columns is not None:
-        data_columns = []
-        for col in results.data_columns:
-            if col in columns:
-                data_columns.append(col)
-            else:
-                logger.warning(f"{col} not found in experiment columns")
-        if len(data_columns) == 0:
-            logger.warning("No valid columns were found. Reverting to checking if 'data:' is in column name")
-    if data_columns is not None and len(data_columns) == 0:
-        data_columns = None
+def peptide_site_number_df(peptide, accession, df_sequence, site = None, modification_types = None):
+    """
+    Finds the site number by finding the modification site in sequence and the peptide location
+    in the sequence from the given dataframe.
+    If the sequence cannot be found then the original site is returned.
+    See peptide_site_number(peptide,sequence,site,modification_types) 
+    for details of how site is found once sequence is found
     
-    return experiment, sequences, logger, map_columns, data_columns
+    Parameters
+    ----------
 
-def main():
-    results = parse_args()
-    experiment, sequences, logger, map_columns, data_columns = process_args(results)
-    exp_mapper = ExperimentMapper(experiment, sequences, map_columns, logger, results.window, data_columns)
-
-    exp_mapper.experiment.to_csv(f"{results.odir}/{results.name}_mapped.tsv", sep = '\t', index = False)
+    peptide :str
+        peptide string where modification site is first lower-case letter found
+    accession : str
+        UniProt accession number 
+    df_sequence : pandas DataFrame
+        sequence dataframe pulled from UniProt with columns Entry, Sequence
+    site : str
+        site number to check against. can either have letters or just numbers
+    modification_types: list
+        list of modification types to check against while checking peptide
+        ex: ['s', 't', 'y'] would ingore all modifications except for s,t,y
     
-if __name__ == "__main__":
-    main()
+    Returns
+    ---------
+    site : str
+        site of peptide in sequence dataframe in format S123
+        closest to row[site_column] if provided, otherwise first location found
+        if no modification sites are found, the sequence cannot be found, or the peptide
+            cannot be found in the sequence then the original site is returned
+    """
+    sequence = df_sequence[df_sequence['Entry'] == accession]
+    if len(sequence) > 0: # get first sequence for accession
+        sequence = sequence.iloc[0]['Sequence']
+        return peptide_site_number(peptide, sequence, site, modification_types)
+    return site
 
+def is_valid_site(site, sequence):
+    """
+    Checks whether the site provided is a valid site in the given sequence
+    Valid sites are sites where site has same modification as sequence location
+    
+    Parameters
+    ----------
+    site: str
+        site AA#, e.g. Y12
+    sequence : str
+        sequence to check
+    
+    Returns
+    --------
+    is_valid : bool
+        True if site is valid. False otherwise
+    """
+    site_type  = ''.join(filter(str.isalpha, site)).upper()
+    site_number = int( ''.join( filter(lambda x: x.isdigit(), site) ) )
+    if site_number > 0 and site_number <= len(sequence):
+        return site_type == sequence[site_number - 1]
+    return False
+
+def get_aligned_peptide(site, sequence, window):
+    """
+    Returns aligned peptide where modificaiton site is lowercase. 
+    Aligned peptide contains +/- window AA surrounding modification site. 
+    No buffer characters are added.
+    If the site is not a valid location in the sequence then None is returned
+    
+    Parameters
+    ----------
+    site : str
+        modification site. AA#. e.g. Y12
+    sequence : str
+        sequence to use for generating aligned peptide
+    window : int
+        number of amino acids to pull surrounding modification site
+    
+    Returns
+    ----------
+    peptide : str
+        peptide of AA surrounding mod site. Mod site is lowercase. 
+        None is returned if not a valid site
+            e.g. ABCDeFGHI where site=E5, window=4
+            e.g. AbCDEF    where site=B2, window=4 
+    """
+    if is_valid_site(site, sequence): 
+        site_number = int( ''.join( filter(lambda x: x.isdigit(), site) ) ) - 1
+        start = max(0, site_number - window)
+        stop = min(len(sequence), site_number + window + 1)
+        sequence = list(sequence)
+        sequence[site_number] = sequence[site_number].lower()
+        peptide = sequence[start:stop]
+        peptide = ''.join(peptide)
+        return peptide
+    return None

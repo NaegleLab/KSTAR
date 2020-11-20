@@ -25,9 +25,10 @@ class KinaseActivity:
         self.set_evidence(evidence)
         self.evidence_columns = evidence_columns
         self.network_columns = {
-            'substrate':'substrate_acc', 
-            'site':'site',
+            'substrate':'KSTAR_ACCESSION', 
+            'site':'KSTAR_SITE', 
             'kinase':'Kinase Name'}
+        
 
         self.networks = defaultdict()
         self.network_sizes = defaultdict()
@@ -35,6 +36,8 @@ class KinaseActivity:
         self.normalizers = defaultdict()
 
         self.activities = None
+        self.agg_activities = None
+        self.activity_summary = None
 
         self.set_data_columns()
     
@@ -60,6 +63,9 @@ class KinaseActivity:
         else:
             self.logger.warning("Network Columns Not Changed. Columns must include substrate, site, and kinase keys")
     
+    def add_networks_batch(self,networks):
+        for nid, network in networks.items():
+            self.add_network(nid, network)
 
     def add_network(self, network_id, network, network_size = None):
         """
@@ -77,10 +83,10 @@ class KinaseActivity:
             self.network_sizes[network_id] = network_size
         else:
             self.network_sizes[network_id] = len(network.groupby([self.network_columns['substrate'], self.network_columns['site']]).size())
-            self.logger.info(f'ADD NETWORK : Number of Accession Sites : {self.network_sizes[network_id]}' )
+            self.logger.info(f'ADD NETWORK : Number of Accession Sites : {self.network_sizes[network_id]}')
     
 
-    def set_evidence(self, evidence, columns = {'substrate':'substrate_acc', 'site':'site'}):
+    def set_evidence(self, evidence, columns = {'substrate':'KSTAR_ACCESSION', 'site':'KSTAR_SITE'}):
         """
         Evidence to use in analysis
 
@@ -195,6 +201,7 @@ class KinaseActivity:
             median_p_value : combined p-values of kinase using median
         """
         
+        logger.info(f"Running hypergeometric analysis on {name}")
         # Multicore processing
         #  processes = 4
         # pool = multiprocessing.Pool(processes=processes)
@@ -210,13 +217,14 @@ class KinaseActivity:
         hyp_act = pd.concat(results)
         hyp_act = hyp_act.reset_index()
         hyp_act['data'] = name
-
         return hyp_act
 
 
-    def activity_threshold(self, data_columns = None, threshold = 0.0, agg = 'mean', greater = True):
+    def calculate_kinase_activities(self, data_columns = None, agg = 'count', threshold = 0.0,  greater = True):
         """
         Calculates combined activity of experiments based that uses a threshold value to determine if an experiment sees a site or not
+        To use values use 'mean' as agg
+        To use count use 'count' as agg - present if not na
 
         Parameters
         ----------
@@ -241,16 +249,18 @@ class KinaseActivity:
         if data_columns is None:
             data_columns = self.data_columns
         
-        evidence = self.evidence.groupby([self.evidence_columns['substrate'], self.evidence_columns['site']]).agg(agg)
-        activities_list = []
+        evidence = self.evidence.groupby([self.evidence_columns['substrate'], self.evidence_columns['site']]).agg(agg).reset_index()
 
         # MULTIPROCESSIONG
         pool = multiprocessing.Pool()
         if greater:
-            activities_list = pool.starmap(self.calculate_hypergeometric_activities, [(evidence[evidence[col] > threshold], col) for col in data_columns])
+            filtered_evidence_list  = [evidence[evidence[col] > threshold] for col in data_columns]
+            iterable = zip(filtered_evidence_list, data_columns)
         else:
-            activities_list = pool.starmap(self.calculate_hypergeometric_activities, [(evidence[evidence[col] < threshold], col) for col in data_columns])
-
+            filtered_evidence_list  = [evidence[evidence[col] < threshold] for col in data_columns]
+            iterable = zip(filtered_evidence_list, data_columns)
+        activities_list = pool.starmap(self.calculate_hypergeometric_activities, iterable)
+        
         # SINGLE CORE PROCESSING
         # for col in data_columns:
         #     if greater:
@@ -263,28 +273,6 @@ class KinaseActivity:
         self.activities = pd.concat(activities_list)
         return self.activities
 
-
-    def activity_count(self, data_columns = None):
-        """
-        Calculates combined activity of experiments where non null values in evidence of experiment
-
-        Parameters
-        ----------
-        data_columns : list
-            columns that represent experimental results
-        
-
-        Returns
-        -------
-        activities : dict
-            key : experiment
-            value : pd DataFrame
-                network : network name, from networks key
-                frequency : number of times kinase was seen in subgraph of evidence and network
-                kinase_activity : hypergeometric kinase activity
-
-        """
-        return self.activity_threshold(data_columns, threshold = 0.0, agg = 'count')
 
 
     def summarize_activites(self, activities = None, method = 'median_activity'):
@@ -309,7 +297,7 @@ class KinaseActivity:
         """
         if activities is None:
             activities = self.agg_activities
-        available_methods = list(activites.columns)
+        available_methods = list(activities.columns)
         available_methods.remove('data')
         if method not in available_methods:
             raise ValueError(f"the method '{method}' is not in the availble methods. \nAvailable methods include : {', '.join(available_methods)}")
@@ -337,7 +325,7 @@ class KinaseActivity:
         """
         if activities is None:
             activities = self.activities
-        self.agg_activites = activities.groupby(['data', self.network_columns['kinase'] ]).agg(
+        self.agg_activities = activities.groupby(['data', self.network_columns['kinase'] ]).agg(
             median_activity = ('kinase_activity', 'median'),
         ).reset_index()
         return self.agg_activities
@@ -535,7 +523,7 @@ class KinaseActivity:
         
         norm_activities = []
 
-        for dataset self.data_columns:
+        for dataset in self.data_columns:
             activity = self.activities[self.activities['data'] == dataset]
             for kinase in kinases:
                 if type(self.normalizers) is pd.DataFrame:
@@ -553,7 +541,7 @@ class KinaseActivity:
                 norm_activity['fdr_significant'] = rej * 1
                 norm_activities.append(norm_activity)
         
-        norm_activities pd.concat(norm_activities, ignore_index=True)
+        norm_activities = pd.concat(norm_activities, ignore_index=True)
         return norm_activities
         
 
@@ -565,7 +553,7 @@ class KinaseActivity:
             median_fdr_activity = ('fdr_activity','median')).reset_index()
         return agg_activities
 
-        def complete_fdr_response(self, response, alpha):
+    def complete_fdr_response(self, response, alpha):
         """
         FDR correction performed on response dataframe by first melting all experimental columns before 
         performing FDR correction through Two-stage Benjamini, Krieger, & Yekutieli FDR procedure
