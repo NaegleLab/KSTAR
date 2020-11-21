@@ -96,11 +96,11 @@ def process_args(results):
         exit()
 
     # Load Compendia if found
-    resource_files = os.listdir(f"{results.rdir}/COMPENDIA_MAP")
+    resource_files = os.listdir(f"{results.rdir}/HUMAN_PROTEOME")
     compendia = None
     for f in resource_files:
         if f.startswith("Human_PhosphoProteome_mapped_annotated"):
-            compendia = pd.read_csv(f"{results.rdir}/COMPENDIA_MAP/{f}")
+            compendia = pd.read_csv(f"{results.rdir}/HUMAN_PROTEOME/{f}")
     if compendia is None:
         log.eror("Compendia mp file not found. Please provide a compendia map file to use")
         exit()

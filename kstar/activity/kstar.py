@@ -201,7 +201,7 @@ class KinaseActivity:
             median_p_value : combined p-values of kinase using median
         """
         
-        logger.info(f"Running hypergeometric analysis on {name}")
+        self.logger.info(f"Running hypergeometric analysis on {name}")
         # Multicore processing
         #  processes = 4
         # pool = multiprocessing.Pool(processes=processes)
