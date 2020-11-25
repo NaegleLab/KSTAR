@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>KSTAR &#8212; KSTAR 1 documentation</title>
+    <title>Overview &#8212; KSTAR 1 documentation</title>
     <link rel="stylesheet" href="_static/classic.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     
@@ -18,7 +18,8 @@
     
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Dependencies" href="Dependencies.html" /> 
+    <link rel="next" title="Examples" href="Examples.html" />
+    <link rel="prev" title="Installation" href="Installation.html" /> 
   </head><body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
@@ -30,10 +31,13 @@
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="Dependencies.html" title="Dependencies"
+          <a href="Examples.html" title="Examples"
              accesskey="N">next</a> |</li>
-        <li class="nav-item nav-item-0"><a href="#">KSTAR 1 documentation</a> &#187;</li>
-        <li class="nav-item nav-item-this"><a href="">KSTAR</a></li> 
+        <li class="right" >
+          <a href="Installation.html" title="Installation"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">KSTAR 1 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Overview</a></li> 
       </ul>
     </div>  
 
@@ -42,43 +46,25 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="kstar">
-<h1>KSTAR<a class="headerlink" href="#kstar" title="Permalink to this headline">¶</a></h1>
-<div class="toctree-wrapper compound">
-<p class="caption"><span class="caption-text">Contents:</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="Dependencies.html">Dependencies</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Installation.html">Installation</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="Installation.html#pip">Pip</a></li>
-<li class="toctree-l2"><a class="reference internal" href="Installation.html#conda">Conda</a></li>
-<li class="toctree-l2"><a class="reference internal" href="Installation.html#tarball">Tarball</a></li>
-<li class="toctree-l2"><a class="reference internal" href="Installation.html#git">Git</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="Overview.html">Overview</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="Overview.html#scripts">Scripts</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="Examples.html">Examples</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="Examples.html#mapping">Mapping</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="KSTAR.html">KSTAR</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="KSTAR.html#the-kinaseactivity-class">The “KinaseActivity” class</a></li>
-<li class="toctree-l2"><a class="reference internal" href="KSTAR.html#the-mapper-class">The “Mapper” class</a></li>
-<li class="toctree-l2"><a class="reference internal" href="KSTAR.html#the-plot-class">The “Plot” class</a></li>
-</ul>
-</li>
-</ul>
-</div>
-</div>
-<div class="section" id="indices-and-tables">
-<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="overview">
+<h1>Overview<a class="headerlink" href="#overview" title="Permalink to this headline">¶</a></h1>
+<p>KSTAR is a Python package for inferring kinase actiivities from phosphoproteomic data. It requires the following steps, given a phosphoproteomic dataset of interest.
+1. Mapping: This maps the phosphosites of the dataset the KinPred resource, which is an ontology for substrates for kinase-substrate prediction algorithms.
+2. Kinase Activity Calculation: Given sites identified in an experiment, for each experiment (column) in a dataset, calculate the likelihood that those sites were pulled randomly from the kinase-substrate networks. (Low pvalues means highly unlikely that data is randomly pulled)
+3. Negative set generation and activity calculation: Given the distribution of study bias of the sites in each experiment for a dataset, generate random datasets and repeat activity calculation.
+4. Normalization: Use the random datasets to normalize/interpret the calculations within the real experiments.
+5. Analysis/Plotting: Use the post-normalized activity calculations to plot/infer kinase activities within the dataset of interest.</p>
+<div class="section" id="scripts">
+<h2>Scripts<a class="headerlink" href="#scripts" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li><p><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></p></li>
-<li><p><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></p></li>
-<li><p><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></p></li>
+<li><p>kstar/run_kstar.py performs a full analysis from start to finish in the pipeline, saving output pickle and data files</p></li>
 </ul>
+<p><code class="docutils literal notranslate"><span class="pre">`</span>
+<span class="pre">tar</span> <span class="pre">-xvf</span> <span class="pre">KSTAR-&lt;version&gt;.tar.gz</span>
+<span class="pre">cd</span> <span class="pre">KSTAR-&lt;version&gt;</span>
+<span class="pre">python</span> <span class="pre">setup.py</span> <span class="pre">install</span>
+<span class="pre">`</span></code></p>
+</div>
 </div>
 
 
@@ -88,23 +74,29 @@
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-  <h3><a href="#">Table of Contents</a></h3>
+  <h3><a href="index.html">Table of Contents</a></h3>
   <p class="caption"><span class="caption-text">Contents:</span></p>
-<ul>
+<ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="Dependencies.html">Dependencies</a></li>
 <li class="toctree-l1"><a class="reference internal" href="Installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Overview.html">Overview</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Overview</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#scripts">Scripts</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="Examples.html">Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="KSTAR.html">KSTAR</a></li>
 </ul>
 
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="Installation.html"
+                        title="previous chapter">Installation</a></p>
   <h4>Next topic</h4>
-  <p class="topless"><a href="Dependencies.html"
-                        title="next chapter">Dependencies</a></p>
+  <p class="topless"><a href="Examples.html"
+                        title="next chapter">Examples</a></p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="_sources/index.rst.txt"
+      <li><a href="_sources/Overview.rst.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>
@@ -132,10 +124,13 @@
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="Dependencies.html" title="Dependencies"
+          <a href="Examples.html" title="Examples"
              >next</a> |</li>
-        <li class="nav-item nav-item-0"><a href="#">KSTAR 1 documentation</a> &#187;</li>
-        <li class="nav-item nav-item-this"><a href="">KSTAR</a></li> 
+        <li class="right" >
+          <a href="Installation.html" title="Installation"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">KSTAR 1 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Overview</a></li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
