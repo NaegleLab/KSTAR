@@ -48,12 +48,14 @@
             
   <div class="section" id="overview">
 <h1>Overview<a class="headerlink" href="#overview" title="Permalink to this headline">¶</a></h1>
-<p>KSTAR is a Python package for inferring kinase actiivities from phosphoproteomic data. It requires the following steps, given a phosphoproteomic dataset of interest.
-1. Mapping: This maps the phosphosites of the dataset the KinPred resource, which is an ontology for substrates for kinase-substrate prediction algorithms.
-2. Kinase Activity Calculation: Given sites identified in an experiment, for each experiment (column) in a dataset, calculate the likelihood that those sites were pulled randomly from the kinase-substrate networks. (Low pvalues means highly unlikely that data is randomly pulled)
-3. Negative set generation and activity calculation: Given the distribution of study bias of the sites in each experiment for a dataset, generate random datasets and repeat activity calculation.
-4. Normalization: Use the random datasets to normalize/interpret the calculations within the real experiments.
-5. Analysis/Plotting: Use the post-normalized activity calculations to plot/infer kinase activities within the dataset of interest.</p>
+<p>KSTAR is a Python package for inferring kinase actiivities from phosphoproteomic data. It requires the following steps, given a phosphoproteomic dataset of interest.</p>
+<ol class="arabic simple">
+<li><p>Mapping: This maps the phosphosites of the dataset the KinPred resource, which is an ontology for substrates for kinase-substrate prediction algorithms.</p></li>
+<li><p>Kinase Activity Calculation: Given sites identified in an experiment, for each experiment (column) in a dataset, calculate the likelihood that those sites were pulled randomly from the kinase-substrate networks. (Low pvalues means highly unlikely that data is randomly pulled)</p></li>
+<li><p>Negative set generation and activity calculation: Given the distribution of study bias of the sites in each experiment for a dataset, generate random datasets and repeat activity calculation.</p></li>
+<li><p>Normalization: Use the random datasets to normalize/interpret the calculations within the real experiments.</p></li>
+<li><p>Analysis/Plotting: Use the post-normalized activity calculations to plot/infer kinase activities within the dataset of interest.</p></li>
+</ol>
 <div class="section" id="scripts">
 <h2>Scripts<a class="headerlink" href="#scripts" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
