@@ -1,1 +1,0 @@
-Large files that may be updated to match the increase in the knowledge of the Phosphoproteome should be downloaded from the project FIGSHARE <add url>. Place those files in this directory and the default GLOBAL setup will immediately populate with these updated files.  <Put instructions here on how to edit global file>
