@@ -1,0 +1,31 @@
+Installation
+=============
+KSTAR can be installed via `pip`, `conda`, tarball, and directly from the Git repository. We recommend using conda to install the scientific packages `conda install anaconda` before installing openensembles. 
+
+Pip
+----
+To install via pip, execute `pip install KSTAR`.
+
+Conda
+---------
+To install via conda, execute `conda install -c naeglelab KSTAR`.
+
+Tarball
+---------
+To install via a tarball, head over to the `Releases page <https://github.com/NaegleLab/KSTAR/releases>`_ and download the latest stable tar release.
+
+Afterwards, navigate to your downloads directory and execute the following commands, substituting <version> for the release's version number:
+```
+tar -xvf KSTAR-<version>.tar.gz
+cd KSTAR-<version>
+python setup.py install
+```
+
+Git
+----
+If you want to try out the latest commit, you can install directly from the Git repository by executing the following commands:
+```
+git clone https://github.com/NaegleLab/KSTAR
+cd KSTAR
+python setup.py install
+```

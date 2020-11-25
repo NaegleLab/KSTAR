@@ -1,0 +1,17 @@
+KSTAR
+=============================
+.. automodule:: kstar 
+The "KinaseActivity" class
+--------------------------
+.. autoclass:: kstar.activity.kstar.KinaseActivity
+	:members:
+The "Mapper" class
+--------------------
+.. autoclass:: kstar.mapper.experiment_mapper
+	:members:
+The "Plot" class
+--------------------
+.. autoclass:: kstar.plot.dotplot
+	:members:
+
+

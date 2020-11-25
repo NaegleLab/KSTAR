@@ -1,0 +1,718 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>kstar.activity.kstar &#8212; KSTAR 1 documentation</title>
+    <link rel="stylesheet" href="../../../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/language_data.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">KSTAR 1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" accesskey="U">Module code</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">kstar.activity.kstar</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for kstar.activity.kstar</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">scipy.stats</span> <span class="k">as</span> <span class="nn">stats</span>
+<span class="kn">from</span> <span class="nn">statsmodels.stats</span> <span class="kn">import</span> <span class="n">multitest</span>
+<span class="kn">import</span> <span class="nn">multiprocessing</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">defaultdict</span>
+
+<div class="viewcode-block" id="KinaseActivity"><a class="viewcode-back" href="../../../KSTAR.html#kstar.activity.kstar.KinaseActivity">[docs]</a><span class="k">class</span> <span class="nc">KinaseActivity</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">evidence</span><span class="p">,</span> <span class="n">logger</span><span class="p">,</span> <span class="n">evidence_columns</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;substrate&#39;</span> <span class="p">:</span> <span class="s1">&#39;KSTAR_ACCESSION&#39;</span><span class="p">,</span> <span class="s1">&#39;site&#39;</span><span class="p">:</span> <span class="s1">&#39;KSTAR_SITE&#39;</span><span class="p">}):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Kinase Activity calculates the estimated activity of kinases given an experiment using hypergeometric distribution.</span>
+<span class="sd">        Hypergeometric distribution examines the number of protein sites found to be active in evidence compared to the </span>
+<span class="sd">        number of protein sites attributed to a kinase on a provided network.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        evidence : pandas df</span>
+<span class="sd">            evidence to use in analysis</span>
+<span class="sd">        evidence_columns : dict</span>
+<span class="sd">            columns corresponding to substrate and site</span>
+<span class="sd">            required keys : substrate, site</span>
+<span class="sd">        logger : Logger object</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_evidence</span><span class="p">(</span><span class="n">evidence</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">evidence_columns</span> <span class="o">=</span> <span class="n">evidence_columns</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">network_columns</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;substrate&#39;</span><span class="p">:</span><span class="s1">&#39;KSTAR_ACCESSION&#39;</span><span class="p">,</span> 
+            <span class="s1">&#39;site&#39;</span><span class="p">:</span><span class="s1">&#39;KSTAR_SITE&#39;</span><span class="p">,</span> 
+            <span class="s1">&#39;kinase&#39;</span><span class="p">:</span><span class="s1">&#39;Kinase Name&#39;</span><span class="p">}</span>
+        
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">networks</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">network_sizes</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span> <span class="o">=</span> <span class="n">logger</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">normalizers</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">activities</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">agg_activities</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">activity_summary</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_data_columns</span><span class="p">()</span>
+    
+
+    <span class="k">def</span> <span class="nf">set_data_columns</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data_columns</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">evidence</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">col</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;data:&#39;</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">data_columns</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">col</span><span class="p">)</span>
+        
+
+<div class="viewcode-block" id="KinaseActivity.set_network_columns"><a class="viewcode-back" href="../../../KSTAR.html#kstar.activity.kstar.KinaseActivity.set_network_columns">[docs]</a>    <span class="k">def</span> <span class="nf">set_network_columns</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">network_columns</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        sets the network columns to use in analysis</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        network_columns : dict</span>
+<span class="sd">            required keys : substrate, site, kinase</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="s1">&#39;substrate&#39;</span> <span class="ow">in</span> <span class="n">network_columns</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="ow">and</span> <span class="s1">&#39;site&#39;</span> <span class="ow">in</span> <span class="n">network_columns</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="ow">and</span> <span class="s1">&#39;kinase&#39;</span> <span class="ow">in</span> <span class="n">network_columns</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">network_columns</span> <span class="o">=</span> <span class="n">network_columns</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Network Columns Changed : &quot;</span> <span class="o">+</span> <span class="n">network_columns</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Network Columns Not Changed. Columns must include substrate, site, and kinase keys&quot;</span><span class="p">)</span></div>
+    
+    <span class="k">def</span> <span class="nf">add_networks_batch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">networks</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">nid</span><span class="p">,</span> <span class="n">network</span> <span class="ow">in</span> <span class="n">networks</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_network</span><span class="p">(</span><span class="n">nid</span><span class="p">,</span> <span class="n">network</span><span class="p">)</span>
+
+<div class="viewcode-block" id="KinaseActivity.add_network"><a class="viewcode-back" href="../../../KSTAR.html#kstar.activity.kstar.KinaseActivity.add_network">[docs]</a>    <span class="k">def</span> <span class="nf">add_network</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">network_id</span><span class="p">,</span> <span class="n">network</span><span class="p">,</span> <span class="n">network_size</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Add network to be analyzed</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        network_id : str</span>
+<span class="sd">            name of the network</span>
+<span class="sd">        network : pandas DataFrame</span>
+<span class="sd">            network with columns substrate_id, site, kinase_id</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">networks</span><span class="p">[</span><span class="n">network_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">network</span>
+        <span class="k">if</span> <span class="n">network_size</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">network_size</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">network_sizes</span><span class="p">[</span><span class="n">network_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">network_size</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">network_sizes</span><span class="p">[</span><span class="n">network_id</span><span class="p">]</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">network</span><span class="o">.</span><span class="n">groupby</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">network_columns</span><span class="p">[</span><span class="s1">&#39;substrate&#39;</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">network_columns</span><span class="p">[</span><span class="s1">&#39;site&#39;</span><span class="p">]])</span><span class="o">.</span><span class="n">size</span><span class="p">())</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;ADD NETWORK : Number of Accession Sites : </span><span class="si">{self.network_sizes[network_id]}</span><span class="s1">&#39;</span><span class="p">)</span></div>
+    
+
+<div class="viewcode-block" id="KinaseActivity.set_evidence"><a class="viewcode-back" href="../../../KSTAR.html#kstar.activity.kstar.KinaseActivity.set_evidence">[docs]</a>    <span class="k">def</span> <span class="nf">set_evidence</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">evidence</span><span class="p">,</span> <span class="n">columns</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;substrate&#39;</span><span class="p">:</span><span class="s1">&#39;KSTAR_ACCESSION&#39;</span><span class="p">,</span> <span class="s1">&#39;site&#39;</span><span class="p">:</span><span class="s1">&#39;KSTAR_SITE&#39;</span><span class="p">}):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Evidence to use in analysis</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        evidence : pandas DataFrame</span>
+<span class="sd">            substrate sites with activity seen. </span>
+<span class="sd">            columns : dict for column mapping</span>
+<span class="sd">                substrate : Uniprot ID (P12345)</span>
+<span class="sd">                site : phosphorylation site (Y123)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        
+        <span class="k">if</span> <span class="s1">&#39;substrate&#39;</span> <span class="ow">in</span> <span class="n">columns</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="ow">and</span> <span class="s1">&#39;site&#39;</span> <span class="ow">in</span> <span class="n">columns</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">evidence_columns</span> <span class="o">=</span> <span class="n">columns</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">evidence</span> <span class="o">=</span> <span class="n">evidence</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Evidence not set. Evidence columns must include &#39;substrate&#39; and &#39;site&#39; keys&quot;</span><span class="p">)</span></div>
+    
+
+<div class="viewcode-block" id="KinaseActivity.set_normalizers"><a class="viewcode-back" href="../../../KSTAR.html#kstar.activity.kstar.KinaseActivity.set_normalizers">[docs]</a>    <span class="k">def</span> <span class="nf">set_normalizers</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">normalizers</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Sets the Kinase normalization values to be used in calculating the updated p-values</span>
+<span class="sd">        Updated p-values normalized via original p-value / normalization-factor * normalization_factor</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        normalizers : dict or pandas df</span>
+<span class="sd">            Kinase Activity Normalizers</span>
+<span class="sd">            key : str</span>
+<span class="sd">                Kinase Name</span>
+<span class="sd">            value : float</span>
+<span class="sd">                Normalization Factor</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">normalizers</span> <span class="o">=</span> <span class="n">normalizers</span></div>
+
+
+<div class="viewcode-block" id="KinaseActivity.calculate_hypergeometric_single_network"><a class="viewcode-back" href="../../../KSTAR.html#kstar.activity.kstar.KinaseActivity.calculate_hypergeometric_single_network">[docs]</a>    <span class="k">def</span> <span class="nf">calculate_hypergeometric_single_network</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">evidence</span><span class="p">,</span> <span class="n">network_id</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Hypergeometric Cumulative Distribution Function calculated for each kinase given evidence</span>
+<span class="sd">            k : number of times kinase seen in evidence</span>
+<span class="sd">            M : number of unique sites in network</span>
+<span class="sd">            n : number of times kinase seen in network</span>
+<span class="sd">            N : size of evidence</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        evidence : pandas df</span>
+<span class="sd">            subset of kstar evidence that has been filtered to only include evidence associated with experimetn</span>
+<span class="sd">        network_id : str</span>
+<span class="sd">            network to use for analysis</span>
+<span class="sd">        </span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        results : pandas df</span>
+<span class="sd">            Hypergeometric results of evidence for given network</span>
+<span class="sd">            index : kinase_id</span>
+<span class="sd">            columns</span>
+<span class="sd">                frequency : number of times kinase seen in network</span>
+<span class="sd">                kinase_activity : activity derived from hypergometric cdf </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        
+        <span class="n">network</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">networks</span><span class="p">[</span><span class="n">network_id</span><span class="p">]</span>
+        <span class="n">intersect</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">network</span><span class="p">,</span> <span class="n">evidence</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s1">&#39;inner&#39;</span><span class="p">,</span> 
+            <span class="n">left_on</span><span class="o">=</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">network_columns</span><span class="p">[</span><span class="s1">&#39;substrate&#39;</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">network_columns</span><span class="p">[</span><span class="s1">&#39;site&#39;</span><span class="p">]],</span>
+            <span class="n">right_on</span><span class="o">=</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">evidence_columns</span><span class="p">[</span><span class="s1">&#39;substrate&#39;</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">evidence_columns</span><span class="p">[</span><span class="s1">&#39;site&#39;</span><span class="p">]])</span>
+        <span class="n">counts</span> <span class="o">=</span> <span class="n">intersect</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">network_columns</span><span class="p">[</span><span class="s1">&#39;kinase&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">size</span><span class="p">()</span>
+        <span class="n">N</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">intersect</span><span class="o">.</span><span class="n">groupby</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">evidence_columns</span><span class="p">[</span><span class="s1">&#39;substrate&#39;</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">evidence_columns</span><span class="p">[</span><span class="s1">&#39;site&#39;</span><span class="p">]])</span><span class="o">.</span><span class="n">size</span><span class="p">())</span>
+        <span class="n">results</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">counts</span><span class="p">,</span> <span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;frequency&#39;</span><span class="p">])</span>
+        <span class="n">results</span><span class="p">[</span><span class="s1">&#39;kinase_activity&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.0</span>
+
+        <span class="n">K</span> <span class="o">=</span> <span class="n">network</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">network_columns</span><span class="p">[</span><span class="s1">&#39;kinase&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">size</span><span class="p">()</span>
+        
+        <span class="n">kinases</span> <span class="o">=</span> <span class="n">counts</span><span class="o">.</span><span class="n">index</span>
+        <span class="k">for</span> <span class="n">kin</span> <span class="ow">in</span> <span class="n">kinases</span><span class="p">:</span>
+            <span class="n">k</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">if</span> <span class="n">counts</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">kin</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">k</span> <span class="o">=</span> <span class="n">counts</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">kin</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span>
+            <span class="n">prb</span> <span class="o">=</span> <span class="n">stats</span><span class="o">.</span><span class="n">hypergeom</span><span class="o">.</span><span class="n">sf</span><span class="p">(</span>
+                <span class="n">k</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">k</span><span class="p">),</span> 
+                <span class="n">M</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">network_sizes</span><span class="p">[</span><span class="n">network_id</span><span class="p">]),</span> 
+                <span class="n">n</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">K</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">kin</span><span class="p">]),</span> 
+                <span class="n">N</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">N</span><span class="p">)</span>
+                <span class="p">)</span>
+            <span class="n">results</span><span class="o">.</span><span class="n">at</span><span class="p">[</span><span class="n">kin</span><span class="p">,</span> <span class="s1">&#39;kinase_activity&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">prb</span>
+        <span class="n">results</span><span class="p">[</span><span class="s1">&#39;network&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">network_id</span>
+        <span class="k">return</span> <span class="n">results</span></div>
+        
+
+<div class="viewcode-block" id="KinaseActivity.calculate_hypergeometric_activities"><a class="viewcode-back" href="../../../KSTAR.html#kstar.activity.kstar.KinaseActivity.calculate_hypergeometric_activities">[docs]</a>    <span class="k">def</span> <span class="nf">calculate_hypergeometric_activities</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">evidence</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Perform hypergeometric kinase activity analysis given evidence on all networks</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        evidence : pandas df</span>
+<span class="sd">            subset of class evidence variable where data is filtered based on experiment</span>
+<span class="sd">        name : str</span>
+<span class="sd">            name of experiment being performed</span>
+<span class="sd">            </span>
+<span class="sd">        Returns</span>
+<span class="sd">        ---------</span>
+<span class="sd">        fdr_act : pd DataFrame</span>
+<span class="sd">            network : network name, from networks key</span>
+<span class="sd">            frequency : number of times kinase was seen in subgraph of evidence and network</span>
+<span class="sd">            kinase_activity : hypergeometric kinase activity</span>
+<span class="sd">            fdr_corrected_kinase_activity : kinase activity after fdr correction</span>
+<span class="sd">            significant : whether kinase activity is significant based on fdr alpha</span>
+<span class="sd">        combined : pd DataFrame</span>
+<span class="sd">            significant : number of networks where kinase was found to be significant</span>
+<span class="sd">            fraction_significant : fraction of networks kinase was found to be significant through FDR correction</span>
+<span class="sd">            avg_p_value : combined p-values of kinase using mean</span>
+<span class="sd">            median_p_value : combined p-values of kinase using median</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Running hypergeometric analysis on </span><span class="si">{name}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="c1"># Multicore processing</span>
+        <span class="c1">#  processes = 4</span>
+        <span class="c1"># pool = multiprocessing.Pool(processes=processes)</span>
+        <span class="c1"># results = pool.starmap(self.calculate_hypergeometric_single_network, [(evidence, net) for net in self.networks.keys()])</span>
+
+        <span class="c1">#Single core processing</span>
+        <span class="n">results</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">network_id</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">networks</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span> <span class="c1"># calculate kinase activity within each network </span>
+            <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">calculate_hypergeometric_single_network</span><span class="p">(</span><span class="n">evidence</span><span class="p">,</span> <span class="n">network_id</span><span class="p">)</span> 
+            <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+
+        <span class="c1"># combine results into single dataframe</span>
+        <span class="n">hyp_act</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">results</span><span class="p">)</span>
+        <span class="n">hyp_act</span> <span class="o">=</span> <span class="n">hyp_act</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
+        <span class="n">hyp_act</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">name</span>
+        <span class="k">return</span> <span class="n">hyp_act</span></div>
+
+
+<div class="viewcode-block" id="KinaseActivity.calculate_kinase_activities"><a class="viewcode-back" href="../../../KSTAR.html#kstar.activity.kstar.KinaseActivity.calculate_kinase_activities">[docs]</a>    <span class="k">def</span> <span class="nf">calculate_kinase_activities</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_columns</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">agg</span> <span class="o">=</span> <span class="s1">&#39;count&#39;</span><span class="p">,</span> <span class="n">threshold</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>  <span class="n">greater</span> <span class="o">=</span> <span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Calculates combined activity of experiments based that uses a threshold value to determine if an experiment sees a site or not</span>
+<span class="sd">        To use values use &#39;mean&#39; as agg</span>
+<span class="sd">        To use count use &#39;count&#39; as agg - present if not na</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        data_columns : list</span>
+<span class="sd">            columns that represent experimental result</span>
+<span class="sd">        threshold : float</span>
+<span class="sd">            threshold value used to filter rows </span>
+<span class="sd">        agg : string</span>
+<span class="sd">            method to use when aggregating duplicate substrate-sites</span>
+<span class="sd">        </span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        activities : dict</span>
+<span class="sd">            key : experiment</span>
+<span class="sd">            value : pd DataFrame</span>
+<span class="sd">                network : network name, from networks key</span>
+<span class="sd">                kinase : kinase examined</span>
+<span class="sd">                frequency : number of times kinase was seen in subgraph of evidence and network</span>
+<span class="sd">                kinase_activity : hypergeometric kinase activity</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">data_columns</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">data_columns</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_columns</span>
+        
+        <span class="n">evidence</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">evidence</span><span class="o">.</span><span class="n">groupby</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">evidence_columns</span><span class="p">[</span><span class="s1">&#39;substrate&#39;</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">evidence_columns</span><span class="p">[</span><span class="s1">&#39;site&#39;</span><span class="p">]])</span><span class="o">.</span><span class="n">agg</span><span class="p">(</span><span class="n">agg</span><span class="p">)</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
+
+        <span class="c1"># MULTIPROCESSIONG</span>
+        <span class="n">pool</span> <span class="o">=</span> <span class="n">multiprocessing</span><span class="o">.</span><span class="n">Pool</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">greater</span><span class="p">:</span>
+            <span class="n">filtered_evidence_list</span>  <span class="o">=</span> <span class="p">[</span><span class="n">evidence</span><span class="p">[</span><span class="n">evidence</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">threshold</span><span class="p">]</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">data_columns</span><span class="p">]</span>
+            <span class="n">iterable</span> <span class="o">=</span> <span class="nb">zip</span><span class="p">(</span><span class="n">filtered_evidence_list</span><span class="p">,</span> <span class="n">data_columns</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">filtered_evidence_list</span>  <span class="o">=</span> <span class="p">[</span><span class="n">evidence</span><span class="p">[</span><span class="n">evidence</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">threshold</span><span class="p">]</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">data_columns</span><span class="p">]</span>
+            <span class="n">iterable</span> <span class="o">=</span> <span class="nb">zip</span><span class="p">(</span><span class="n">filtered_evidence_list</span><span class="p">,</span> <span class="n">data_columns</span><span class="p">)</span>
+        <span class="n">activities_list</span> <span class="o">=</span> <span class="n">pool</span><span class="o">.</span><span class="n">starmap</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">calculate_hypergeometric_activities</span><span class="p">,</span> <span class="n">iterable</span><span class="p">)</span>
+        
+        <span class="c1"># SINGLE CORE PROCESSING</span>
+        <span class="c1"># for col in data_columns:</span>
+        <span class="c1">#     if greater:</span>
+        <span class="c1">#         filtered_evidence = evidence[evidence[col] &gt; threshold]</span>
+        <span class="c1">#     else:</span>
+        <span class="c1">#         filtered_evidence = evidence[evidence[col] &lt; threshold]</span>
+        <span class="c1">#     act = self.calculate_hypergeometric_activities(filtered_evidence)</span>
+        <span class="c1">#     act[&#39;data&#39;] = col</span>
+        <span class="c1">#     activities_list.append(act)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">activities</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">activities_list</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">activities</span></div>
+
+
+
+<div class="viewcode-block" id="KinaseActivity.summarize_activites"><a class="viewcode-back" href="../../../KSTAR.html#kstar.activity.kstar.KinaseActivity.summarize_activites">[docs]</a>    <span class="k">def</span> <span class="nf">summarize_activites</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">activities</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">method</span> <span class="o">=</span> <span class="s1">&#39;median_activity&#39;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Builds a single combined dataframe from the provided activites such that </span>
+<span class="sd">        each piece of evidence is given a single column. Values are based on the method selected.</span>
+<span class="sd">        The method must be a column in the activites</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        activities : dict</span>
+<span class="sd">            hypergeometric activities that have previously been summarized by network.</span>
+<span class="sd">            key : experiment name</span>
+<span class="sd">            value : hypergeometric activity</span>
+<span class="sd">        method : str</span>
+<span class="sd">            The column in the hypergeometric activity to use for summaring data</span>
+<span class="sd">        </span>
+<span class="sd">        Returns</span>
+<span class="sd">        ---------</span>
+<span class="sd">        activity_summary : pandas DataFrame</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">activities</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">activities</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">agg_activities</span>
+        <span class="n">available_methods</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">activities</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
+        <span class="n">available_methods</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="s1">&#39;data&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">method</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">available_methods</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;the method &#39;</span><span class="si">{method}</span><span class="s2">&#39; is not in the availble methods. </span><span class="se">\n</span><span class="s2">Available methods include : {&#39;, &#39;.join(available_methods)}&quot;</span><span class="p">)</span>
+
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">activity_summary</span> <span class="o">=</span> <span class="n">activities</span><span class="o">.</span><span class="n">pivot</span><span class="p">(</span><span class="n">index</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">network_columns</span><span class="p">[</span><span class="s1">&#39;kinase&#39;</span><span class="p">],</span> <span class="n">columns</span> <span class="o">=</span><span class="s1">&#39;data&#39;</span><span class="p">,</span> <span class="n">values</span> <span class="o">=</span> <span class="n">method</span><span class="p">)</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span><span class="o">.</span><span class="n">rename_axis</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">activity_summary</span></div>
+
+
+<div class="viewcode-block" id="KinaseActivity.aggregate_activities"><a class="viewcode-back" href="../../../KSTAR.html#kstar.activity.kstar.KinaseActivity.aggregate_activities">[docs]</a>    <span class="k">def</span> <span class="nf">aggregate_activities</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">activities</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Aggregate network activity using median for all activites</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ---------</span>
+<span class="sd">        activities : dict</span>
+<span class="sd">            key : Experiment</span>
+<span class="sd">            value : kinase activity result</span>
+<span class="sd">        </span>
+<span class="sd">        Returns </span>
+<span class="sd">        ---------</span>
+<span class="sd">        summaries : dict</span>
+<span class="sd">            key : experiment</span>
+<span class="sd">            value : summarized kinase activities accross networks</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">activities</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">activities</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">activities</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">agg_activities</span> <span class="o">=</span> <span class="n">activities</span><span class="o">.</span><span class="n">groupby</span><span class="p">([</span><span class="s1">&#39;data&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">network_columns</span><span class="p">[</span><span class="s1">&#39;kinase&#39;</span><span class="p">]</span> <span class="p">])</span><span class="o">.</span><span class="n">agg</span><span class="p">(</span>
+            <span class="n">median_activity</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;kinase_activity&#39;</span><span class="p">,</span> <span class="s1">&#39;median&#39;</span><span class="p">),</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">agg_activities</span></div>
+
+
+<div class="viewcode-block" id="KinaseActivity.normalize_activites"><a class="viewcode-back" href="../../../KSTAR.html#kstar.activity.kstar.KinaseActivity.normalize_activites">[docs]</a>    <span class="k">def</span> <span class="nf">normalize_activites</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">activities</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">default_normalization</span> <span class="o">=</span> <span class="mf">0.05</span><span class="p">,</span> <span class="n">normalization_multiplier</span> <span class="o">=</span> <span class="mf">0.05</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Generates the normalized activites and corresponding summary statistics</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        activites : dict</span>
+<span class="sd">            hypergeometric activites generated by KSTAR algorithm</span>
+<span class="sd">            key : experiment</span>
+<span class="sd">            value : hypergeometric result</span>
+<span class="sd">        </span>
+<span class="sd">        Returns</span>
+<span class="sd">        --------</span>
+<span class="sd">        normalized_activities : dict</span>
+<span class="sd">            normalized Kinase Activity results</span>
+<span class="sd">            key : experiment</span>
+<span class="sd">            value : normalized results</span>
+<span class="sd">        summarized_activites : dict</span>
+<span class="sd">            summary statistics of normalized kinase activity</span>
+<span class="sd">            key : experiment</span>
+<span class="sd">            value : summary statistics</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">activities</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">activities</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">activities</span>
+        <span class="n">normalized_activities</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">data</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_columns</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">normalizers</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">dict</span><span class="p">:</span>
+                <span class="n">normalizers</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">normalizers</span>
+            <span class="k">elif</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">normalizers</span><span class="p">)</span> <span class="ow">is</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span> <span class="ow">and</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">normalizers</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+                <span class="n">normalizers</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">normalizers</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">normalizers</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="n">activity</span> <span class="o">=</span> <span class="n">activites</span><span class="p">[</span><span class="n">activites</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">data</span><span class="p">]</span>
+            <span class="n">normalized_activities</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">calculate_normalized_activity</span><span class="p">(</span>
+                    <span class="n">activity</span><span class="p">,</span> 
+                    <span class="n">normalizers</span><span class="p">,</span> 
+                    <span class="n">default_normalization</span><span class="p">,</span> 
+                    <span class="n">normalization_multiplier</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">normalized_activites</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">normalized_activities</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">aggregate_normalized_activities</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">normalized_activites</span><span class="p">)</span>
+        
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">normalized_activites</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">normalized_agg_activities</span></div>
+
+
+<div class="viewcode-block" id="KinaseActivity.calculate_normalized_activity"><a class="viewcode-back" href="../../../KSTAR.html#kstar.activity.kstar.KinaseActivity.calculate_normalized_activity">[docs]</a>    <span class="k">def</span> <span class="nf">calculate_normalized_activity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">kinase_activity</span><span class="p">,</span> <span class="n">normalizers</span><span class="p">,</span> <span class="n">default_normalization</span> <span class="o">=</span> <span class="mf">0.05</span><span class="p">,</span> <span class="n">normalization_multiplier</span> <span class="o">=</span> <span class="mf">0.05</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Activity is normalized based on kinase normalization factors. </span>
+<span class="sd">        Added Columns : </span>
+<span class="sd">            Normalization Factor : normalization factor for given Kinase</span>
+<span class="sd">            Significant : 1 if Kinase Activity &lt;= Normalization Factor</span>
+<span class="sd">            Normalized Activity : ( Kinase Activity ) / ( Normalization Factor ) * Normalization Multiplier</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        kinase_activity : pandas df</span>
+<span class="sd">            hypergeometric activity calculated through KSTAR algorithm</span>
+<span class="sd">        default_normalization : float</span>
+<span class="sd">            Normalization factor to use if one not provided</span>
+<span class="sd">        normalization_multiplier : float</span>
+<span class="sd">            normalization multiplier to use for calculated normalized kinase activity</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">normalized_activity</span> <span class="o">=</span> <span class="n">kinase_activity</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">normalized_activity</span><span class="p">[</span><span class="s1">&#39;Normalization Factor&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">normalized_activity</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">row</span><span class="p">:</span> <span class="n">normalizers</span><span class="p">[</span><span class="n">row</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">network_columns</span><span class="p">[</span><span class="s1">&#39;kinase&#39;</span><span class="p">]]]</span> <span class="k">if</span> <span class="n">row</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">network_columns</span><span class="p">[</span><span class="s1">&#39;kinase&#39;</span><span class="p">]]</span> <span class="ow">in</span> <span class="n">normalizers</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="k">else</span> <span class="n">default_normalization</span><span class="p">,</span> <span class="n">axis</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">networks</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">normalized_activity</span><span class="p">[</span><span class="s1">&#39;Significant&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">normalized_activity</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">row</span><span class="p">:</span> <span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s1">&#39;kinase_activity&#39;</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">row</span><span class="p">[</span><span class="s1">&#39;Normalization Factor&#39;</span><span class="p">]</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">networks</span> <span class="p">)</span> <span class="p">)</span> <span class="o">*</span> <span class="mi">1</span><span class="p">,</span> <span class="n">axis</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">normalized_activity</span><span class="p">[</span><span class="s1">&#39;Significant&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">normalized_activity</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">row</span><span class="p">:</span> <span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s1">&#39;kinase_activity&#39;</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">row</span><span class="p">[</span><span class="s1">&#39;Normalization Factor&#39;</span><span class="p">])</span> <span class="o">*</span> <span class="mi">1</span><span class="p">,</span> <span class="n">axis</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">normalized_activity</span><span class="p">[</span><span class="s1">&#39;Normalized Activity&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">normalized_activity</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">row</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span> <span class="n">row</span><span class="p">[</span><span class="s1">&#39;kinase_activity&#39;</span><span class="p">]</span> <span class="o">/</span> <span class="n">row</span><span class="p">[</span><span class="s1">&#39;Normalization Factor&#39;</span><span class="p">]</span> <span class="o">*</span> <span class="n">normalization_multiplier</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span> <span class="p">),</span> <span class="n">axis</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">normalized_activity</span></div>
+
+
+<div class="viewcode-block" id="KinaseActivity.aggregate_normalized_activities"><a class="viewcode-back" href="../../../KSTAR.html#kstar.activity.kstar.KinaseActivity.aggregate_normalized_activities">[docs]</a>    <span class="k">def</span> <span class="nf">aggregate_normalized_activities</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">normalized_activities</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Summarizes normalized kinase activity results of all networks by kinase</span>
+<span class="sd">        Summaries provided : </span>
+<span class="sd">            median original activity</span>
+<span class="sd">            average original activity</span>
+<span class="sd">            median normalized activity</span>
+<span class="sd">            average normalized activity</span>
+<span class="sd">            count significant</span>
+<span class="sd">            fraction significant</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        normalized_activity : pandas df</span>
+<span class="sd">            Normalized kinase activty</span>
+<span class="sd">        </span>
+<span class="sd">        Returns</span>
+<span class="sd">        --------</span>
+<span class="sd">        summary : pandas df</span>
+<span class="sd">            summarized data of all networks by kinase</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">normalized_agg_activities</span> <span class="o">=</span> <span class="n">normalized_activity</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;data&#39;</span><span class="p">,[</span><span class="bp">self</span><span class="o">.</span><span class="n">network_columns</span><span class="p">[</span><span class="s1">&#39;kinase&#39;</span><span class="p">]</span> <span class="p">])</span><span class="o">.</span><span class="n">agg</span><span class="p">(</span>
+            <span class="n">median_original_activity</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;kinase_activity&#39;</span><span class="p">,</span> <span class="s1">&#39;median&#39;</span><span class="p">),</span>
+            <span class="n">median_normalized_activity</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;Normalized Activity&#39;</span><span class="p">,</span> <span class="s1">&#39;median&#39;</span><span class="p">),</span>
+            <span class="n">count_significant</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;Significant&#39;</span><span class="p">,</span> <span class="s1">&#39;sum&#39;</span><span class="p">),</span>
+            <span class="n">fraction_significant</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;Significant&#39;</span><span class="p">,</span> <span class="s1">&#39;mean&#39;</span><span class="p">)</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">normalized_agg_activities</span></div>
+
+
+<div class="viewcode-block" id="KinaseActivity.find_pvalue_limits"><a class="viewcode-back" href="../../../KSTAR.html#kstar.activity.kstar.KinaseActivity.find_pvalue_limits">[docs]</a>    <span class="k">def</span>  <span class="nf">find_pvalue_limits</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_columns</span><span class="p">,</span> <span class="n">agg</span> <span class="o">=</span> <span class="s1">&#39;count&#39;</span><span class="p">,</span> <span class="n">threshold</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        For each data column and network find the lowest p-value achievable and how many </span>
+<span class="sd">        seen sites are required to get to that limit.</span>
+<span class="sd">        Assumptions</span>
+<span class="sd">            - kinase size in network is same for all kinases</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        data_columns : list</span>
+<span class="sd">            what columns in evidence to compare</span>
+<span class="sd">        agg : str</span>
+<span class="sd">            aggregate function - what function to use for determining if site is present</span>
+<span class="sd">                count : use when using activity_count</span>
+<span class="sd">                mean : use when using activity_threshold</span>
+<span class="sd">        threshold : float</span>
+<span class="sd">            threshold to use in determining if site present in evidence</span>
+<span class="sd">        </span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        all_limits : pandas DataFrame</span>
+<span class="sd">            p-value limits of each column for each network</span>
+<span class="sd">            columns:</span>
+<span class="sd">                evidence        evidence data column</span>
+<span class="sd">                network         network being compared</span>
+<span class="sd">                kinase          kinase being evaluated</span>
+<span class="sd">                evidence_size   size of evidence</span>
+<span class="sd">                limit_size      number of sites to get non-zero p-value</span>
+<span class="sd">                p-value          p-value generated</span>
+<span class="sd">        limit_summary : pandas DataFrame</span>
+<span class="sd">            summary of all_limits by taking average over by evidence</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        
+        <span class="n">evidence</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">evidence</span><span class="o">.</span><span class="n">groupby</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">evidence_columns</span><span class="p">[</span><span class="s1">&#39;substrate&#39;</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">evidence_columns</span><span class="p">[</span><span class="s1">&#39;site&#39;</span><span class="p">]])</span><span class="o">.</span><span class="n">agg</span><span class="p">(</span><span class="n">agg</span><span class="p">)</span>
+        <span class="n">all_rows</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="n">kinase_sizes</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">nid</span><span class="p">,</span> <span class="n">network</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">networks</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="c1"># kinase_sizes[nid] = network.groupby(self.network_columns[&#39;kinase&#39;]).size()</span>
+            <span class="n">kinase_sizes</span><span class="p">[</span><span class="n">nid</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">network</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">network_columns</span><span class="p">[</span><span class="s1">&#39;kinase&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">size</span><span class="p">()</span><span class="o">.</span><span class="n">mean</span><span class="p">())</span>
+            
+
+        <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">data_columns</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">col</span><span class="p">)</span>
+            <span class="n">filtered_evidence</span> <span class="o">=</span> <span class="n">evidence</span><span class="p">[</span><span class="n">evidence</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">threshold</span><span class="p">]</span>
+            <span class="n">N</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">filtered_evidence</span><span class="o">.</span><span class="n">groupby</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">evidence_columns</span><span class="p">[</span><span class="s1">&#39;substrate&#39;</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">evidence_columns</span><span class="p">[</span><span class="s1">&#39;site&#39;</span><span class="p">]])</span><span class="o">.</span><span class="n">size</span><span class="p">())</span>
+            <span class="k">for</span> <span class="n">nid</span><span class="p">,</span> <span class="n">M</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">network_sizes</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="c1"># kinases = list(kinase_sizes[nid].index)</span>
+                <span class="c1"># for kinase in kinases:</span>
+                <span class="c1"># n = int(kinase_sizes[nid].loc[kinase])</span>
+                <span class="n">n</span> <span class="o">=</span> <span class="n">kinase_sizes</span><span class="p">[</span><span class="n">nid</span><span class="p">]</span>
+
+                <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+                    <span class="n">pvalue</span> <span class="o">=</span> <span class="n">stats</span><span class="o">.</span><span class="n">hypergeom</span><span class="o">.</span><span class="n">sf</span><span class="p">(</span>
+                        <span class="n">k</span> <span class="o">=</span> <span class="n">k</span><span class="p">,</span> 
+                        <span class="n">M</span> <span class="o">=</span> <span class="n">M</span><span class="p">,</span> 
+                        <span class="n">n</span> <span class="o">=</span> <span class="n">n</span><span class="p">,</span> 
+                        <span class="n">N</span> <span class="o">=</span> <span class="n">N</span>
+                    <span class="p">)</span>
+                    <span class="c1"># pvalue = 1 - prb</span>
+                    <span class="k">if</span> <span class="n">pvalue</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                        <span class="k">break</span>
+                <span class="n">row</span> <span class="o">=</span> <span class="p">{</span>
+                    <span class="s1">&#39;evidence&#39;</span> <span class="p">:</span> <span class="n">col</span><span class="p">,</span>
+                    <span class="s1">&#39;network&#39;</span> <span class="p">:</span> <span class="n">nid</span><span class="p">,</span>
+                    <span class="c1"># &#39;kinase&#39; : kinase,</span>
+                    <span class="s1">&#39;evidence_size&#39;</span> <span class="p">:</span> <span class="n">N</span><span class="p">,</span>
+                    <span class="s1">&#39;limit_size&#39;</span> <span class="p">:</span> <span class="n">k</span><span class="p">,</span>
+                    <span class="s1">&#39;kinase_size&#39;</span> <span class="p">:</span> <span class="n">n</span><span class="p">,</span>
+                    <span class="s1">&#39;network_size&#39;</span> <span class="p">:</span> <span class="n">M</span><span class="p">,</span>
+                    <span class="s1">&#39;p-value&#39;</span> <span class="p">:</span> <span class="n">pvalue</span>
+                    <span class="p">}</span>
+                <span class="n">all_rows</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">row</span><span class="p">)</span>
+        <span class="n">all_limits</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">all_rows</span><span class="p">)</span>
+        <span class="n">limit_summary</span> <span class="o">=</span> <span class="n">all_limits</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;evidence&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">all_limits</span><span class="p">,</span> <span class="n">limit_summary</span></div>
+    
+
+<div class="viewcode-block" id="KinaseActivity.calculate_fdr"><a class="viewcode-back" href="../../../KSTAR.html#kstar.activity.kstar.KinaseActivity.calculate_fdr">[docs]</a>    <span class="k">def</span> <span class="nf">calculate_fdr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">activities</span><span class="p">,</span> <span class="n">default_alpha</span> <span class="o">=</span> <span class="mf">0.05</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Given raw kinase activities and the normalizaiton factors, FDR correction is </span>
+<span class="sd">        performed on activities for all networks using normalizaiton factor</span>
+<span class="sd">        as FDR alpha.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">exp_activities</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">activities</span><span class="p">,</span> <span class="n">names</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Data&#39;</span><span class="p">,</span><span class="s1">&#39;__drop__&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="s1">&#39;__drop__&#39;</span><span class="p">)</span>
+        <span class="n">kinases</span> <span class="o">=</span> <span class="n">exp_activities</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">network_columns</span><span class="p">[</span><span class="s1">&#39;kinase&#39;</span><span class="p">]]</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span>
+        
+        <span class="n">norm_activities</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">for</span> <span class="n">dataset</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_columns</span><span class="p">:</span>
+            <span class="n">activity</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">activities</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">activities</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">dataset</span><span class="p">]</span>
+            <span class="k">for</span> <span class="n">kinase</span> <span class="ow">in</span> <span class="n">kinases</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">normalizers</span><span class="p">)</span> <span class="ow">is</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">kinase</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">normalizers</span><span class="o">.</span><span class="n">index</span> <span class="ow">and</span> <span class="n">dataset</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">normalizers</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+                        <span class="n">alpha</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">normalizers</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">kinase</span><span class="p">][</span><span class="n">dataset</span><span class="p">]</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">alpha</span> <span class="o">=</span> <span class="n">default_alpha</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;FDR Correction : Normalization not found </span><span class="si">{dataset}</span><span class="s2">:</span><span class="si">{kinase}</span><span class="s2">. Default alpha of </span><span class="si">{default_alpha}</span><span class="s2"> used&quot;</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">alpha</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">normalizers</span><span class="p">[</span><span class="n">kinase</span><span class="p">]</span> <span class="k">if</span> <span class="n">kinase</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">normalizers</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="k">else</span> <span class="n">default_alpha</span>
+                
+                <span class="n">norm_activity</span> <span class="o">=</span> <span class="n">activity</span><span class="p">[</span><span class="n">activity</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">network_columns</span><span class="p">[</span><span class="s1">&#39;kinase&#39;</span><span class="p">]]</span> <span class="o">==</span> <span class="n">kinase</span><span class="p">]</span>
+                <span class="n">rej</span><span class="p">,</span> <span class="n">cor</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">multitest</span><span class="o">.</span><span class="n">multipletests</span><span class="p">(</span><span class="n">norm_activity</span><span class="p">[</span><span class="s1">&#39;kinase_activity&#39;</span><span class="p">],</span> <span class="n">method</span> <span class="o">=</span> <span class="s1">&#39;fdr_tsbky&#39;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="n">alpha</span><span class="p">)</span>
+                <span class="n">norm_activity</span><span class="p">[</span><span class="s1">&#39;fdr_activity&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">cor</span>
+                <span class="n">norm_activity</span><span class="p">[</span><span class="s1">&#39;fdr_significant&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">rej</span> <span class="o">*</span> <span class="mi">1</span>
+                <span class="n">norm_activities</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">norm_activity</span><span class="p">)</span>
+        
+        <span class="n">norm_activities</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">norm_activities</span><span class="p">,</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">norm_activities</span></div>
+        
+
+    <span class="k">def</span> <span class="nf">aggregate_fdr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">activities</span><span class="p">):</span>
+        <span class="n">agg_activities</span> <span class="o">=</span><span class="n">defaultdict</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">activity</span> <span class="ow">in</span> <span class="n">activities</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">agg_activities</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">activity</span><span class="o">.</span><span class="n">groupby</span><span class="p">([</span><span class="s1">&#39;data&#39;</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">network_columns</span><span class="p">[</span><span class="s1">&#39;kinase&#39;</span><span class="p">]])</span><span class="o">.</span><span class="n">agg</span><span class="p">(</span>
+            <span class="n">median_activity</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;kinase_activity&#39;</span><span class="p">,</span> <span class="s1">&#39;median&#39;</span><span class="p">),</span>
+            <span class="n">median_fdr_activity</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;fdr_activity&#39;</span><span class="p">,</span><span class="s1">&#39;median&#39;</span><span class="p">))</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">agg_activities</span>
+
+<div class="viewcode-block" id="KinaseActivity.complete_fdr_response"><a class="viewcode-back" href="../../../KSTAR.html#kstar.activity.kstar.KinaseActivity.complete_fdr_response">[docs]</a>    <span class="k">def</span> <span class="nf">complete_fdr_response</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">response</span><span class="p">,</span> <span class="n">alpha</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        FDR correction performed on response dataframe by first melting all experimental columns before </span>
+<span class="sd">        performing FDR correction through Two-stage Benjamini, Krieger, &amp; Yekutieli FDR procedure</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        response : pandas df</span>
+<span class="sd">        alpha : float</span>
+<span class="sd">            fdr alpha to use for significance</span>
+<span class="sd">        </span>
+<span class="sd">        Returns</span>
+<span class="sd">        ----------</span>
+<span class="sd">        fdr : pandas df</span>
+<span class="sd">            fdr corrected values</span>
+<span class="sd">        significant : pandas df</span>
+<span class="sd">            binary significant/not based on FDR </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">reshaped</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">melt</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(),</span> <span class="n">id_vars</span><span class="o">=</span><span class="s1">&#39;index&#39;</span><span class="p">)</span>
+
+        <span class="n">rej</span><span class="p">,</span> <span class="n">cor</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">multitest</span><span class="o">.</span><span class="n">multipletests</span><span class="p">(</span><span class="n">reshaped</span><span class="p">[</span><span class="s1">&#39;value&#39;</span><span class="p">],</span> <span class="n">method</span> <span class="o">=</span> <span class="s1">&#39;fdr_tsbky&#39;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="n">alpha</span><span class="p">)</span>
+        <span class="n">reshaped</span><span class="p">[</span><span class="s1">&#39;significant&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">rej</span> <span class="o">*</span> <span class="mi">1</span>
+        <span class="n">reshaped</span><span class="p">[</span><span class="s1">&#39;fdr&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">cor</span>
+
+        <span class="n">pivot</span> <span class="o">=</span> <span class="n">reshaped</span><span class="o">.</span><span class="n">pivot</span><span class="p">(</span><span class="n">index</span> <span class="o">=</span> <span class="s1">&#39;index&#39;</span><span class="p">,</span> <span class="n">columns</span> <span class="o">=</span> <span class="s1">&#39;variable&#39;</span><span class="p">)</span>
+
+        <span class="n">fdr</span> <span class="o">=</span> <span class="n">pivot</span><span class="p">[</span><span class="s1">&#39;fdr&#39;</span><span class="p">]</span>
+        <span class="n">fdr</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="kc">None</span>
+        
+        <span class="n">significant</span> <span class="o">=</span> <span class="n">pivot</span><span class="p">[</span><span class="s1">&#39;significant&#39;</span><span class="p">]</span>
+        <span class="n">significant</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="k">return</span> <span class="n">fdr</span><span class="p">,</span> <span class="n">significant</span></div>
+
+
+    <span class="k">def</span> <span class="nf">experiment_fdr_response</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">response</span><span class="p">,</span> <span class="n">alpha</span><span class="p">):</span>
+        <span class="n">fdr</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">index</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
+        <span class="n">significant</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">index</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">experiment</span> <span class="ow">in</span> <span class="n">response</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+            <span class="n">rej</span><span class="p">,</span> <span class="n">cor</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">multitest</span><span class="o">.</span><span class="n">multipletests</span><span class="p">(</span><span class="n">response</span><span class="p">[</span><span class="n">experiment</span><span class="p">],</span> <span class="n">method</span> <span class="o">=</span> <span class="s1">&#39;fdr_tsbky&#39;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="n">alpha</span><span class="p">)</span>
+            <span class="n">fdr</span><span class="p">[</span><span class="n">experiment</span><span class="p">]</span> <span class="o">=</span> <span class="n">cor</span>
+            <span class="n">significant</span><span class="p">[</span><span class="n">experiment</span><span class="p">]</span> <span class="o">=</span> <span class="n">rej</span><span class="o">*</span><span class="mi">1</span>
+        <span class="k">return</span> <span class="n">fdr</span><span class="p">,</span> <span class="n">significant</span>
+
+
+<div class="viewcode-block" id="KinaseActivity.fdr_corrected_activity"><a class="viewcode-back" href="../../../KSTAR.html#kstar.activity.kstar.KinaseActivity.fdr_corrected_activity">[docs]</a>    <span class="k">def</span> <span class="nf">fdr_corrected_activity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">kinase_activity</span><span class="p">,</span> <span class="n">alpha</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Performs False Discovery Rate correction using Two-stage Benjamini, Krieger, &amp; Yekutieli FDR procedure</span>
+<span class="sd">        Benjamini, Yoav, Abba M. Krieger, and Daniel Yekutieli. 2006. </span>
+<span class="sd">        “Adaptive Linear Step-up Procedures That Control the False Discovery Rate.” </span>
+<span class="sd">        Biometrika 93 (3) (September 1): 491–507. doi:10.1093/biomet/93.3.491.</span>
+<span class="sd">    </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        kianse_activity : pandas df</span>
+<span class="sd">            kinase activity p-values</span>
+<span class="sd">        alpha : flaot</span>
+<span class="sd">            FWER, family-wise error rate</span>
+<span class="sd">        </span>
+<span class="sd">        Returns </span>
+<span class="sd">        -------</span>
+<span class="sd">        results : pandas df</span>
+<span class="sd">            kianse_activity dataframe with added columns </span>
+<span class="sd">                significant : 1 if p-value is statistically significant given alpha</span>
+<span class="sd">                fdr_corrected_kinase_activity : fdr corrected activity by tsbky method</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">results</span> <span class="o">=</span> <span class="n">kinase_activity</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">rej</span><span class="p">,</span> <span class="n">cor</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">multitest</span><span class="o">.</span><span class="n">multipletests</span><span class="p">(</span><span class="n">results</span><span class="p">[</span><span class="s1">&#39;kinase_activity&#39;</span><span class="p">],</span> <span class="n">method</span> <span class="o">=</span> <span class="s1">&#39;fdr_tsbky&#39;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="n">alpha</span><span class="p">)</span>
+        <span class="n">results</span><span class="p">[</span><span class="s1">&#39;fdr_significant&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">rej</span> <span class="o">*</span> <span class="mi">1</span>
+        <span class="n">results</span><span class="p">[</span><span class="s1">&#39;fdr_activity&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">cor</span>
+        <span class="k">return</span> <span class="n">results</span></div></div>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../../../index.html">Table of Contents</a></h3>
+  <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../Dependencies.html">Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../Installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../KSTAR.html">KSTAR</a></li>
+</ul>
+
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">KSTAR 1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">kstar.activity.kstar</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2020, Naegle Lab.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.2.1.
+    </div>
+  </body>
+</html>

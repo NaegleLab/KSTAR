@@ -1,0 +1,606 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>KSTAR &#8212; KSTAR 1 documentation</title>
+    <link rel="stylesheet" href="_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/language_data.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="Installation" href="Installation.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="Installation.html" title="Installation"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">KSTAR 1 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">KSTAR</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-kstar">
+<span id="kstar"></span><h1>KSTAR<a class="headerlink" href="#module-kstar" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="the-kinaseactivity-class">
+<h2>The “KinaseActivity” class<a class="headerlink" href="#the-kinaseactivity-class" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="kstar.activity.kstar.KinaseActivity">
+<em class="property">class </em><code class="sig-prename descclassname">kstar.activity.kstar.</code><code class="sig-name descname">KinaseActivity</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">evidence</span></em>, <em class="sig-param"><span class="n">logger</span></em>, <em class="sig-param"><span class="n">evidence_columns</span><span class="o">=</span><span class="default_value">{'site': 'KSTAR_SITE', 'substrate': 'KSTAR_ACCESSION'}</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/kstar/activity/kstar.html#KinaseActivity"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#kstar.activity.kstar.KinaseActivity" title="Permalink to this definition">¶</a></dt>
+<dd><p class="rubric">Methods</p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#kstar.activity.kstar.KinaseActivity.add_network" title="kstar.activity.kstar.KinaseActivity.add_network"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_network</span></code></a>(network_id, network[, network_size])</p></td>
+<td><p>Add network to be analyzed</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#kstar.activity.kstar.KinaseActivity.aggregate_activities" title="kstar.activity.kstar.KinaseActivity.aggregate_activities"><code class="xref py py-obj docutils literal notranslate"><span class="pre">aggregate_activities</span></code></a>([activities])</p></td>
+<td><p>Aggregate network activity using median for all activites</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#kstar.activity.kstar.KinaseActivity.aggregate_normalized_activities" title="kstar.activity.kstar.KinaseActivity.aggregate_normalized_activities"><code class="xref py py-obj docutils literal notranslate"><span class="pre">aggregate_normalized_activities</span></code></a>(…)</p></td>
+<td><p>Summarizes normalized kinase activity results of all networks by kinase Summaries provided :      median original activity     average original activity     median normalized activity     average normalized activity     count significant     fraction significant</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#kstar.activity.kstar.KinaseActivity.calculate_fdr" title="kstar.activity.kstar.KinaseActivity.calculate_fdr"><code class="xref py py-obj docutils literal notranslate"><span class="pre">calculate_fdr</span></code></a>(activities[, default_alpha])</p></td>
+<td><p>Given raw kinase activities and the normalizaiton factors, FDR correction is  performed on activities for all networks using normalizaiton factor as FDR alpha.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#kstar.activity.kstar.KinaseActivity.calculate_hypergeometric_activities" title="kstar.activity.kstar.KinaseActivity.calculate_hypergeometric_activities"><code class="xref py py-obj docutils literal notranslate"><span class="pre">calculate_hypergeometric_activities</span></code></a>(…)</p></td>
+<td><p>Perform hypergeometric kinase activity analysis given evidence on all networks</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#kstar.activity.kstar.KinaseActivity.calculate_hypergeometric_single_network" title="kstar.activity.kstar.KinaseActivity.calculate_hypergeometric_single_network"><code class="xref py py-obj docutils literal notranslate"><span class="pre">calculate_hypergeometric_single_network</span></code></a>(…)</p></td>
+<td><p>Hypergeometric Cumulative Distribution Function calculated for each kinase given evidence</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#kstar.activity.kstar.KinaseActivity.calculate_kinase_activities" title="kstar.activity.kstar.KinaseActivity.calculate_kinase_activities"><code class="xref py py-obj docutils literal notranslate"><span class="pre">calculate_kinase_activities</span></code></a>([data_columns, …])</p></td>
+<td><p>Calculates combined activity of experiments based that uses a threshold value to determine if an experiment sees a site or not To use values use ‘mean’ as agg To use count use ‘count’ as agg - present if not na</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#kstar.activity.kstar.KinaseActivity.calculate_normalized_activity" title="kstar.activity.kstar.KinaseActivity.calculate_normalized_activity"><code class="xref py py-obj docutils literal notranslate"><span class="pre">calculate_normalized_activity</span></code></a>(…[, …])</p></td>
+<td><p>Activity is normalized based on kinase normalization factors. Added Columns :      Normalization Factor : normalization factor for given Kinase     Significant : 1 if Kinase Activity &lt;= Normalization Factor     Normalized Activity : ( Kinase Activity ) / ( Normalization Factor ) * Normalization Multiplier.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#kstar.activity.kstar.KinaseActivity.complete_fdr_response" title="kstar.activity.kstar.KinaseActivity.complete_fdr_response"><code class="xref py py-obj docutils literal notranslate"><span class="pre">complete_fdr_response</span></code></a>(response, alpha)</p></td>
+<td><p>FDR correction performed on response dataframe by first melting all experimental columns before  performing FDR correction through Two-stage Benjamini, Krieger, &amp; Yekutieli FDR procedure</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#kstar.activity.kstar.KinaseActivity.fdr_corrected_activity" title="kstar.activity.kstar.KinaseActivity.fdr_corrected_activity"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fdr_corrected_activity</span></code></a>(kinase_activity, alpha)</p></td>
+<td><p>Performs False Discovery Rate correction using Two-stage Benjamini, Krieger, &amp; Yekutieli FDR procedure Benjamini, Yoav, Abba M.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#kstar.activity.kstar.KinaseActivity.find_pvalue_limits" title="kstar.activity.kstar.KinaseActivity.find_pvalue_limits"><code class="xref py py-obj docutils literal notranslate"><span class="pre">find_pvalue_limits</span></code></a>(data_columns[, agg, …])</p></td>
+<td><p>For each data column and network find the lowest p-value achievable and how many  seen sites are required to get to that limit. Assumptions     - kinase size in network is same for all kinases.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#kstar.activity.kstar.KinaseActivity.normalize_activites" title="kstar.activity.kstar.KinaseActivity.normalize_activites"><code class="xref py py-obj docutils literal notranslate"><span class="pre">normalize_activites</span></code></a>([activities, …])</p></td>
+<td><p>Generates the normalized activites and corresponding summary statistics</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#kstar.activity.kstar.KinaseActivity.set_evidence" title="kstar.activity.kstar.KinaseActivity.set_evidence"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_evidence</span></code></a>(evidence[, columns])</p></td>
+<td><p>Evidence to use in analysis</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#kstar.activity.kstar.KinaseActivity.set_network_columns" title="kstar.activity.kstar.KinaseActivity.set_network_columns"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_network_columns</span></code></a>(network_columns)</p></td>
+<td><p>sets the network columns to use in analysis Parameters ———- network_columns : dict     required keys : substrate, site, kinase</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#kstar.activity.kstar.KinaseActivity.set_normalizers" title="kstar.activity.kstar.KinaseActivity.set_normalizers"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_normalizers</span></code></a>(normalizers)</p></td>
+<td><p>Sets the Kinase normalization values to be used in calculating the updated p-values Updated p-values normalized via original p-value / normalization-factor * normalization_factor</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#kstar.activity.kstar.KinaseActivity.summarize_activites" title="kstar.activity.kstar.KinaseActivity.summarize_activites"><code class="xref py py-obj docutils literal notranslate"><span class="pre">summarize_activites</span></code></a>([activities, method])</p></td>
+<td><p>Builds a single combined dataframe from the provided activites such that  each piece of evidence is given a single column.</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 73%" />
+<col style="width: 27%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><strong>add_networks_batch</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><strong>aggregate_fdr</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p><strong>experiment_fdr_response</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><strong>set_data_columns</strong></p></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<dl class="py method">
+<dt id="kstar.activity.kstar.KinaseActivity.add_network">
+<code class="sig-name descname">add_network</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">network_id</span></em>, <em class="sig-param"><span class="n">network</span></em>, <em class="sig-param"><span class="n">network_size</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/kstar/activity/kstar.html#KinaseActivity.add_network"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#kstar.activity.kstar.KinaseActivity.add_network" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add network to be analyzed</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>network_id</strong><span class="classifier">str</span></dt><dd><p>name of the network</p>
+</dd>
+<dt><strong>network</strong><span class="classifier">pandas DataFrame</span></dt><dd><p>network with columns substrate_id, site, kinase_id</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="kstar.activity.kstar.KinaseActivity.aggregate_activities">
+<code class="sig-name descname">aggregate_activities</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">activities</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/kstar/activity/kstar.html#KinaseActivity.aggregate_activities"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#kstar.activity.kstar.KinaseActivity.aggregate_activities" title="Permalink to this definition">¶</a></dt>
+<dd><p>Aggregate network activity using median for all activites</p>
+<dl class="simple">
+<dt>activities<span class="classifier">dict</span></dt><dd><p>key : Experiment
+value : kinase activity result</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>summaries</strong><span class="classifier">dict</span></dt><dd><p>key : experiment
+value : summarized kinase activities accross networks</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="kstar.activity.kstar.KinaseActivity.aggregate_normalized_activities">
+<code class="sig-name descname">aggregate_normalized_activities</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">normalized_activities</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/kstar/activity/kstar.html#KinaseActivity.aggregate_normalized_activities"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#kstar.activity.kstar.KinaseActivity.aggregate_normalized_activities" title="Permalink to this definition">¶</a></dt>
+<dd><p>Summarizes normalized kinase activity results of all networks by kinase
+Summaries provided :</p>
+<blockquote>
+<div><p>median original activity
+average original activity
+median normalized activity
+average normalized activity
+count significant
+fraction significant</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>normalized_activity</strong><span class="classifier">pandas df</span></dt><dd><p>Normalized kinase activty</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>summary</strong><span class="classifier">pandas df</span></dt><dd><p>summarized data of all networks by kinase</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="kstar.activity.kstar.KinaseActivity.calculate_fdr">
+<code class="sig-name descname">calculate_fdr</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">activities</span></em>, <em class="sig-param"><span class="n">default_alpha</span><span class="o">=</span><span class="default_value">0.05</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/kstar/activity/kstar.html#KinaseActivity.calculate_fdr"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#kstar.activity.kstar.KinaseActivity.calculate_fdr" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given raw kinase activities and the normalizaiton factors, FDR correction is 
+performed on activities for all networks using normalizaiton factor
+as FDR alpha.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="kstar.activity.kstar.KinaseActivity.calculate_hypergeometric_activities">
+<code class="sig-name descname">calculate_hypergeometric_activities</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">evidence</span></em>, <em class="sig-param"><span class="n">name</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/kstar/activity/kstar.html#KinaseActivity.calculate_hypergeometric_activities"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#kstar.activity.kstar.KinaseActivity.calculate_hypergeometric_activities" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform hypergeometric kinase activity analysis given evidence on all networks</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>evidence</strong><span class="classifier">pandas df</span></dt><dd><p>subset of class evidence variable where data is filtered based on experiment</p>
+</dd>
+<dt><strong>name</strong><span class="classifier">str</span></dt><dd><p>name of experiment being performed</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>fdr_act</strong><span class="classifier">pd DataFrame</span></dt><dd><p>network : network name, from networks key
+frequency : number of times kinase was seen in subgraph of evidence and network
+kinase_activity : hypergeometric kinase activity
+fdr_corrected_kinase_activity : kinase activity after fdr correction
+significant : whether kinase activity is significant based on fdr alpha</p>
+</dd>
+<dt><strong>combined</strong><span class="classifier">pd DataFrame</span></dt><dd><p>significant : number of networks where kinase was found to be significant
+fraction_significant : fraction of networks kinase was found to be significant through FDR correction
+avg_p_value : combined p-values of kinase using mean
+median_p_value : combined p-values of kinase using median</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="kstar.activity.kstar.KinaseActivity.calculate_hypergeometric_single_network">
+<code class="sig-name descname">calculate_hypergeometric_single_network</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">evidence</span></em>, <em class="sig-param"><span class="n">network_id</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/kstar/activity/kstar.html#KinaseActivity.calculate_hypergeometric_single_network"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#kstar.activity.kstar.KinaseActivity.calculate_hypergeometric_single_network" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="simple">
+<dt>Hypergeometric Cumulative Distribution Function calculated for each kinase given evidence</dt><dd><p>k : number of times kinase seen in evidence
+M : number of unique sites in network
+n : number of times kinase seen in network
+N : size of evidence</p>
+</dd>
+</dl>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>evidence</strong><span class="classifier">pandas df</span></dt><dd><p>subset of kstar evidence that has been filtered to only include evidence associated with experimetn</p>
+</dd>
+<dt><strong>network_id</strong><span class="classifier">str</span></dt><dd><p>network to use for analysis</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl>
+<dt><strong>results</strong><span class="classifier">pandas df</span></dt><dd><p>Hypergeometric results of evidence for given network
+index : kinase_id
+columns</p>
+<blockquote>
+<div><p>frequency : number of times kinase seen in network
+kinase_activity : activity derived from hypergometric cdf</p>
+</div></blockquote>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="kstar.activity.kstar.KinaseActivity.calculate_kinase_activities">
+<code class="sig-name descname">calculate_kinase_activities</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data_columns</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">agg</span><span class="o">=</span><span class="default_value">'count'</span></em>, <em class="sig-param"><span class="n">threshold</span><span class="o">=</span><span class="default_value">0.0</span></em>, <em class="sig-param"><span class="n">greater</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/kstar/activity/kstar.html#KinaseActivity.calculate_kinase_activities"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#kstar.activity.kstar.KinaseActivity.calculate_kinase_activities" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates combined activity of experiments based that uses a threshold value to determine if an experiment sees a site or not
+To use values use ‘mean’ as agg
+To use count use ‘count’ as agg - present if not na</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>data_columns</strong><span class="classifier">list</span></dt><dd><p>columns that represent experimental result</p>
+</dd>
+<dt><strong>threshold</strong><span class="classifier">float</span></dt><dd><p>threshold value used to filter rows</p>
+</dd>
+<dt><strong>agg</strong><span class="classifier">string</span></dt><dd><p>method to use when aggregating duplicate substrate-sites</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl>
+<dt><strong>activities</strong><span class="classifier">dict</span></dt><dd><p>key : experiment
+value : pd DataFrame</p>
+<blockquote>
+<div><p>network : network name, from networks key
+kinase : kinase examined
+frequency : number of times kinase was seen in subgraph of evidence and network
+kinase_activity : hypergeometric kinase activity</p>
+</div></blockquote>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="kstar.activity.kstar.KinaseActivity.calculate_normalized_activity">
+<code class="sig-name descname">calculate_normalized_activity</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">kinase_activity</span></em>, <em class="sig-param"><span class="n">normalizers</span></em>, <em class="sig-param"><span class="n">default_normalization</span><span class="o">=</span><span class="default_value">0.05</span></em>, <em class="sig-param"><span class="n">normalization_multiplier</span><span class="o">=</span><span class="default_value">0.05</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/kstar/activity/kstar.html#KinaseActivity.calculate_normalized_activity"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#kstar.activity.kstar.KinaseActivity.calculate_normalized_activity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Activity is normalized based on kinase normalization factors. 
+Added Columns :</p>
+<blockquote>
+<div><p>Normalization Factor : normalization factor for given Kinase
+Significant : 1 if Kinase Activity &lt;= Normalization Factor
+Normalized Activity : ( Kinase Activity ) / ( Normalization Factor ) * Normalization Multiplier</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>kinase_activity</strong><span class="classifier">pandas df</span></dt><dd><p>hypergeometric activity calculated through KSTAR algorithm</p>
+</dd>
+<dt><strong>default_normalization</strong><span class="classifier">float</span></dt><dd><p>Normalization factor to use if one not provided</p>
+</dd>
+<dt><strong>normalization_multiplier</strong><span class="classifier">float</span></dt><dd><p>normalization multiplier to use for calculated normalized kinase activity</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="kstar.activity.kstar.KinaseActivity.complete_fdr_response">
+<code class="sig-name descname">complete_fdr_response</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">response</span></em>, <em class="sig-param"><span class="n">alpha</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/kstar/activity/kstar.html#KinaseActivity.complete_fdr_response"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#kstar.activity.kstar.KinaseActivity.complete_fdr_response" title="Permalink to this definition">¶</a></dt>
+<dd><p>FDR correction performed on response dataframe by first melting all experimental columns before 
+performing FDR correction through Two-stage Benjamini, Krieger, &amp; Yekutieli FDR procedure</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>response</strong><span class="classifier">pandas df</span></dt><dd></dd>
+<dt><strong>alpha</strong><span class="classifier">float</span></dt><dd><p>fdr alpha to use for significance</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>fdr</strong><span class="classifier">pandas df</span></dt><dd><p>fdr corrected values</p>
+</dd>
+<dt><strong>significant</strong><span class="classifier">pandas df</span></dt><dd><p>binary significant/not based on FDR</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="kstar.activity.kstar.KinaseActivity.fdr_corrected_activity">
+<code class="sig-name descname">fdr_corrected_activity</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">kinase_activity</span></em>, <em class="sig-param"><span class="n">alpha</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/kstar/activity/kstar.html#KinaseActivity.fdr_corrected_activity"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#kstar.activity.kstar.KinaseActivity.fdr_corrected_activity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Performs False Discovery Rate correction using Two-stage Benjamini, Krieger, &amp; Yekutieli FDR procedure
+Benjamini, Yoav, Abba M. Krieger, and Daniel Yekutieli. 2006. 
+“Adaptive Linear Step-up Procedures That Control the False Discovery Rate.” 
+Biometrika 93 (3) (September 1): 491–507. doi:10.1093/biomet/93.3.491.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>kianse_activity</strong><span class="classifier">pandas df</span></dt><dd><p>kinase activity p-values</p>
+</dd>
+<dt><strong>alpha</strong><span class="classifier">flaot</span></dt><dd><p>FWER, family-wise error rate</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>results</strong><span class="classifier">pandas df</span></dt><dd><dl class="simple">
+<dt>kianse_activity dataframe with added columns </dt><dd><p>significant : 1 if p-value is statistically significant given alpha
+fdr_corrected_kinase_activity : fdr corrected activity by tsbky method</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="kstar.activity.kstar.KinaseActivity.find_pvalue_limits">
+<code class="sig-name descname">find_pvalue_limits</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data_columns</span></em>, <em class="sig-param"><span class="n">agg</span><span class="o">=</span><span class="default_value">'count'</span></em>, <em class="sig-param"><span class="n">threshold</span><span class="o">=</span><span class="default_value">0.0</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/kstar/activity/kstar.html#KinaseActivity.find_pvalue_limits"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#kstar.activity.kstar.KinaseActivity.find_pvalue_limits" title="Permalink to this definition">¶</a></dt>
+<dd><p>For each data column and network find the lowest p-value achievable and how many 
+seen sites are required to get to that limit.
+Assumptions</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>kinase size in network is same for all kinases</p></li>
+</ul>
+</div></blockquote>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>data_columns</strong><span class="classifier">list</span></dt><dd><p>what columns in evidence to compare</p>
+</dd>
+<dt><strong>agg</strong><span class="classifier">str</span></dt><dd><dl class="simple">
+<dt>aggregate function - what function to use for determining if site is present</dt><dd><p>count : use when using activity_count
+mean : use when using activity_threshold</p>
+</dd>
+</dl>
+</dd>
+<dt><strong>threshold</strong><span class="classifier">float</span></dt><dd><p>threshold to use in determining if site present in evidence</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl>
+<dt><strong>all_limits</strong><span class="classifier">pandas DataFrame</span></dt><dd><p>p-value limits of each column for each network
+columns:</p>
+<blockquote>
+<div><p>evidence        evidence data column
+network         network being compared
+kinase          kinase being evaluated
+evidence_size   size of evidence
+limit_size      number of sites to get non-zero p-value
+p-value          p-value generated</p>
+</div></blockquote>
+</dd>
+<dt><strong>limit_summary</strong><span class="classifier">pandas DataFrame</span></dt><dd><p>summary of all_limits by taking average over by evidence</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="kstar.activity.kstar.KinaseActivity.normalize_activites">
+<code class="sig-name descname">normalize_activites</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">activities</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">default_normalization</span><span class="o">=</span><span class="default_value">0.05</span></em>, <em class="sig-param"><span class="n">normalization_multiplier</span><span class="o">=</span><span class="default_value">0.05</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/kstar/activity/kstar.html#KinaseActivity.normalize_activites"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#kstar.activity.kstar.KinaseActivity.normalize_activites" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generates the normalized activites and corresponding summary statistics</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>activites</strong><span class="classifier">dict</span></dt><dd><p>hypergeometric activites generated by KSTAR algorithm
+key : experiment
+value : hypergeometric result</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>normalized_activities</strong><span class="classifier">dict</span></dt><dd><p>normalized Kinase Activity results
+key : experiment
+value : normalized results</p>
+</dd>
+<dt><strong>summarized_activites</strong><span class="classifier">dict</span></dt><dd><p>summary statistics of normalized kinase activity
+key : experiment
+value : summary statistics</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="kstar.activity.kstar.KinaseActivity.set_evidence">
+<code class="sig-name descname">set_evidence</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">evidence</span></em>, <em class="sig-param"><span class="n">columns</span><span class="o">=</span><span class="default_value">{'site': 'KSTAR_SITE', 'substrate': 'KSTAR_ACCESSION'}</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/kstar/activity/kstar.html#KinaseActivity.set_evidence"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#kstar.activity.kstar.KinaseActivity.set_evidence" title="Permalink to this definition">¶</a></dt>
+<dd><p>Evidence to use in analysis</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl>
+<dt><strong>evidence</strong><span class="classifier">pandas DataFrame</span></dt><dd><p>substrate sites with activity seen. 
+columns : dict for column mapping</p>
+<blockquote>
+<div><p>substrate : Uniprot ID (P12345)
+site : phosphorylation site (Y123)</p>
+</div></blockquote>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="kstar.activity.kstar.KinaseActivity.set_network_columns">
+<code class="sig-name descname">set_network_columns</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">network_columns</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/kstar/activity/kstar.html#KinaseActivity.set_network_columns"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#kstar.activity.kstar.KinaseActivity.set_network_columns" title="Permalink to this definition">¶</a></dt>
+<dd><p>sets the network columns to use in analysis
+Parameters
+———-
+network_columns : dict</p>
+<blockquote>
+<div><p>required keys : substrate, site, kinase</p>
+</div></blockquote>
+</dd></dl>
+
+<dl class="py method">
+<dt id="kstar.activity.kstar.KinaseActivity.set_normalizers">
+<code class="sig-name descname">set_normalizers</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">normalizers</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/kstar/activity/kstar.html#KinaseActivity.set_normalizers"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#kstar.activity.kstar.KinaseActivity.set_normalizers" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets the Kinase normalization values to be used in calculating the updated p-values
+Updated p-values normalized via original p-value / normalization-factor * normalization_factor</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl>
+<dt><strong>normalizers</strong><span class="classifier">dict or pandas df</span></dt><dd><p>Kinase Activity Normalizers
+key : str</p>
+<blockquote>
+<div><p>Kinase Name</p>
+</div></blockquote>
+<dl class="simple">
+<dt>value<span class="classifier">float</span></dt><dd><p>Normalization Factor</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="kstar.activity.kstar.KinaseActivity.summarize_activites">
+<code class="sig-name descname">summarize_activites</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">activities</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">method</span><span class="o">=</span><span class="default_value">'median_activity'</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/kstar/activity/kstar.html#KinaseActivity.summarize_activites"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#kstar.activity.kstar.KinaseActivity.summarize_activites" title="Permalink to this definition">¶</a></dt>
+<dd><p>Builds a single combined dataframe from the provided activites such that 
+each piece of evidence is given a single column. Values are based on the method selected.
+The method must be a column in the activites</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>activities</strong><span class="classifier">dict</span></dt><dd><p>hypergeometric activities that have previously been summarized by network.
+key : experiment name
+value : hypergeometric activity</p>
+</dd>
+<dt><strong>method</strong><span class="classifier">str</span></dt><dd><p>The column in the hypergeometric activity to use for summaring data</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>activity_summary</strong><span class="classifier">pandas DataFrame</span></dt><dd></dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="the-mapper-class">
+<h2>The “Mapper” class<a class="headerlink" href="#the-mapper-class" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="the-plot-class">
+<h2>The “Plot” class<a class="headerlink" href="#the-plot-class" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table of Contents</a></h3>
+  <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="Dependencies.html">Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Installation.html">Installation</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">KSTAR</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#the-kinaseactivity-class">The “KinaseActivity” class</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#the-mapper-class">The “Mapper” class</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#the-plot-class">The “Plot” class</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="Installation.html"
+                        title="previous chapter">Installation</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/KSTAR.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="Installation.html" title="Installation"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">KSTAR 1 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">KSTAR</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2020, Naegle Lab.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.2.1.
+    </div>
+  </body>
+</html>
