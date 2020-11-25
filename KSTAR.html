@@ -532,9 +532,178 @@ value : hypergeometric activity</p>
 </div>
 <div class="section" id="the-mapper-class">
 <h2>The “Mapper” class<a class="headerlink" href="#the-mapper-class" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="kstar.mapper.experiment_mapper.ExperimentMapper">
+<em class="property">class </em><code class="sig-prename descclassname">kstar.mapper.experiment_mapper.</code><code class="sig-name descname">ExperimentMapper</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">experiment</span></em>, <em class="sig-param"><span class="n">sequences</span></em>, <em class="sig-param"><span class="n">columns</span></em>, <em class="sig-param"><span class="n">logger</span></em>, <em class="sig-param"><span class="n">compendia</span></em>, <em class="sig-param"><span class="n">window</span><span class="o">=</span><span class="default_value">7</span></em>, <em class="sig-param"><span class="n">data_columns</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/kstar/mapper/experiment_mapper.html#ExperimentMapper"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#kstar.mapper.experiment_mapper.ExperimentMapper" title="Permalink to this definition">¶</a></dt>
+<dd><p class="rubric">Methods</p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#kstar.mapper.experiment_mapper.ExperimentMapper.align_sites" title="kstar.mapper.experiment_mapper.ExperimentMapper.align_sites"><code class="xref py py-obj docutils literal notranslate"><span class="pre">align_sites</span></code></a>([window])</p></td>
+<td><p>Map the peptide/sites to the common sequence reference and remove and report errors for sites that do not align as expected.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#kstar.mapper.experiment_mapper.ExperimentMapper.get_sequence" title="kstar.mapper.experiment_mapper.ExperimentMapper.get_sequence"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_sequence</span></code></a>(accession)</p></td>
+<td><p>Gets the sequence that matches the given accession</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 67%" />
+<col style="width: 33%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><strong>get_experiment</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><strong>set_data_columns</strong></p></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<dl class="py method">
+<dt id="kstar.mapper.experiment_mapper.ExperimentMapper.align_sites">
+<code class="sig-name descname">align_sites</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">window</span><span class="o">=</span><span class="default_value">7</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/kstar/mapper/experiment_mapper.html#ExperimentMapper.align_sites"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#kstar.mapper.experiment_mapper.ExperimentMapper.align_sites" title="Permalink to this definition">¶</a></dt>
+<dd><p>Map the peptide/sites to the common sequence reference and remove and report errors for sites that do not align as expected.
+expMapper.align_sites(window=7). Operates on the experiment dataframe of class.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Attributes</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>window: int</strong></dt><dd><p>The length of amino acids to the N- and C-terminal sides of the central phosphoprotein to map a site to.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="kstar.mapper.experiment_mapper.ExperimentMapper.get_sequence">
+<code class="sig-name descname">get_sequence</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">accession</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/kstar/mapper/experiment_mapper.html#ExperimentMapper.get_sequence"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#kstar.mapper.experiment_mapper.ExperimentMapper.get_sequence" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets the sequence that matches the given accession</p>
+</dd></dl>
+
+</dd></dl>
+
 </div>
 <div class="section" id="the-plot-class">
 <h2>The “Plot” class<a class="headerlink" href="#the-plot-class" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="kstar.plot.dotplot.DotPlot">
+<em class="property">class </em><code class="sig-prename descclassname">kstar.plot.dotplot.</code><code class="sig-name descname">DotPlot</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">values</span></em>, <em class="sig-param"><span class="n">colors</span></em>, <em class="sig-param"><span class="n">dotsize</span><span class="o">=</span><span class="default_value">20</span></em>, <em class="sig-param"><span class="n">colormap</span><span class="o">=</span><span class="default_value">{0: '#CFD8DC', 1: '#FF3300'}</span></em>, <em class="sig-param"><span class="n">labelmap</span><span class="o">=</span><span class="default_value">{0: 'Not Significant', 1: 'Significant'}</span></em>, <em class="sig-param"><span class="n">facecolor</span><span class="o">=</span><span class="default_value">'#455A64'</span></em>, <em class="sig-param"><span class="n">size_title</span><span class="o">=</span><span class="default_value">'p-value'</span></em>, <em class="sig-param"><span class="n">size_number</span><span class="o">=</span><span class="default_value">5</span></em>, <em class="sig-param"><span class="n">size_color</span><span class="o">=</span><span class="default_value">'gray'</span></em>, <em class="sig-param"><span class="n">color_title</span><span class="o">=</span><span class="default_value">'Significant'</span></em>, <em class="sig-param"><span class="n">markersize</span><span class="o">=</span><span class="default_value">10</span></em>, <em class="sig-param"><span class="n">legend_distance</span><span class="o">=</span><span class="default_value">1.0</span></em>, <em class="sig-param"><span class="n">figsize</span><span class="o">=</span><span class="default_value">20, 4</span></em>, <em class="sig-param"><span class="n">title</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">xlabel</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">ylabel</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/kstar/plot/dotplot.html#DotPlot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#kstar.plot.dotplot.DotPlot" title="Permalink to this definition">¶</a></dt>
+<dd><p>The DotPlot class is used for plotting dotplots, with the option to add clustering and context plots.
+The size of the dots based on the values dataframe, where the size of the dot is the area of the value * dotsize</p>
+<p class="rubric">Methods</p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#kstar.plot.dotplot.DotPlot.cluster" title="kstar.plot.dotplot.DotPlot.cluster"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cluster</span></code></a>(ax[, method, metric, orientation])</p></td>
+<td><p>Performs hierarchical clustering on data and plots result to provided Axes.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#kstar.plot.dotplot.DotPlot.context" title="kstar.plot.dotplot.DotPlot.context"><code class="xref py py-obj docutils literal notranslate"><span class="pre">context</span></code></a>(ax, info, id_column, context_columns)</p></td>
+<td><p>Context plot is generated and returned.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#kstar.plot.dotplot.DotPlot.dotplot" title="kstar.plot.dotplot.DotPlot.dotplot"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dotplot</span></code></a>([ax, orientation, size_legend, …])</p></td>
+<td><p>Generates the dotplot plot, where size is determined by values dataframe and color is determined by significant dataframe</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 58%" />
+<col style="width: 42%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><strong>set_colors</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><strong>set_values</strong></p></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<dl class="py method">
+<dt id="kstar.plot.dotplot.DotPlot.cluster">
+<code class="sig-name descname">cluster</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ax</span></em>, <em class="sig-param"><span class="n">method</span><span class="o">=</span><span class="default_value">'single'</span></em>, <em class="sig-param"><span class="n">metric</span><span class="o">=</span><span class="default_value">'euclidean'</span></em>, <em class="sig-param"><span class="n">orientation</span><span class="o">=</span><span class="default_value">'top'</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/kstar/plot/dotplot.html#DotPlot.cluster"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#kstar.plot.dotplot.DotPlot.cluster" title="Permalink to this definition">¶</a></dt>
+<dd><p>Performs hierarchical clustering on data and plots result to provided Axes. 
+result and significant dataframes are ordered according to clustering</p>
+<dl>
+<dt>ax<span class="classifier">matplotlib Axes instance</span></dt><dd><p>Axes to plot dendogram to</p>
+</dd>
+<dt>method<span class="classifier">str, optional</span></dt><dd><p>The linkage algorithm to use.</p>
+</dd>
+<dt>metric<span class="classifier">str or function, optional</span></dt><dd><p>The distance metric to use in the case that y is a collection of observation vectors; 
+ignored otherwise. See the pdist function for a list of valid distance metrics. A custom distance function can also be used.</p>
+</dd>
+<dt>orientation<span class="classifier">str, optional</span></dt><dd><p>The direction to plot the dendrogram, which can be any of the following strings:
+‘top’</p>
+<blockquote>
+<div><p>Plots the root at the top, and plot descendent links going downwards. (default).</p>
+</div></blockquote>
+<dl class="simple">
+<dt>‘bottom’</dt><dd><p>Plots the root at the bottom, and plot descendent links going upwards.</p>
+</dd>
+<dt>‘left’</dt><dd><p>Plots the root at the left, and plot descendent links going right.</p>
+</dd>
+<dt>‘right’</dt><dd><p>Plots the root at the right, and plot descendent links going left.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="kstar.plot.dotplot.DotPlot.context">
+<code class="sig-name descname">context</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ax</span></em>, <em class="sig-param"><span class="n">info</span></em>, <em class="sig-param"><span class="n">id_column</span></em>, <em class="sig-param"><span class="n">context_columns</span></em>, <em class="sig-param"><span class="n">index</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">dotsize</span><span class="o">=</span><span class="default_value">200</span></em>, <em class="sig-param"><span class="n">markersize</span><span class="o">=</span><span class="default_value">20</span></em>, <em class="sig-param"><span class="n">orientation</span><span class="o">=</span><span class="default_value">'left'</span></em>, <em class="sig-param"><span class="n">color_palette</span><span class="o">=</span><span class="default_value">'colorblind'</span></em>, <em class="sig-param"><span class="n">margin</span><span class="o">=</span><span class="default_value">0.2</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/kstar/plot/dotplot.html#DotPlot.context"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#kstar.plot.dotplot.DotPlot.context" title="Permalink to this definition">¶</a></dt>
+<dd><p>Context plot is generated and returned. The context plot contains the categorical data used for describing the data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>ax</strong><span class="classifier">maptlotlib axis</span></dt><dd><p>where to map subtype information to</p>
+</dd>
+<dt><strong>info</strong><span class="classifier">pandas df</span></dt><dd><p>Dataframe where context information is pulled from</p>
+</dd>
+<dt><strong>id_column: str</strong></dt><dd><p>Column used to map the subtype information to</p>
+</dd>
+<dt><strong>context_columns</strong><span class="classifier">list</span></dt><dd><p>list of columns to pull context informaiton from</p>
+</dd>
+<dt><strong>index: list, optional</strong></dt><dd><p>list order to map context to</p>
+</dd>
+<dt><strong>dotsize</strong><span class="classifier">int, optional</span></dt><dd><p>size of context dots</p>
+</dd>
+<dt><strong>markersize: int, optional</strong></dt><dd><p>size of legend markers</p>
+</dd>
+<dt><strong>orientation</strong><span class="classifier">str, optional</span></dt><dd><p>orientation to plot context plots to - determines where legends are placed
+options : left, right, top, bottom</p>
+</dd>
+<dt><strong>color_palette</strong><span class="classifier">str, optional</span></dt><dd><p>seaborn color palette to use</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="kstar.plot.dotplot.DotPlot.dotplot">
+<code class="sig-name descname">dotplot</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ax</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">orientation</span><span class="o">=</span><span class="default_value">'left'</span></em>, <em class="sig-param"><span class="n">size_legend</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">color_legend</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/kstar/plot/dotplot.html#DotPlot.dotplot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#kstar.plot.dotplot.DotPlot.dotplot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generates the dotplot plot, where size is determined by values dataframe and color is determined by significant dataframe</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>ax</strong><span class="classifier">matplotlib Axes instance, optional</span></dt><dd><p>axes dotplot will be plotted on. If None then new plot generated</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
 </div>
 </div>
 

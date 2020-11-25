@@ -4,3 +4,13 @@ Examples
 Mapping
 -------
 
+
+Calculating Activities
+----------------------
+NO: Not going to copy the cols into a list of '' separted lists. Implement and add special flag for designated data columns. INCLUDE usage here
+``` python run_kstar.py --exp_file=./../analysis/TCGA/tcga_mapped.csv. -rdir=../RESOURCE_FILES --acc='KSTAR_ACCESSION' -pep='KSTAR_PEPTIDE' --agg=count --num=150 --normalize=True --cols=[]
+```
+
+
+FAILS: FILE NOT FOUND, even though file is there
+```python run_kstar.py  --exp_file ='../analysis/BCR-ABL/PRE-MAPPED/experiment.1704.csv' --rdir='../RESOURCE_FILES/' --odir='./' --acc='query_accession' --pep='aligned_peptides' --agg='mean' --thresh=0.5 --cols='average:data:treated_to_untreated:EOE(drug washout)','average:data:treated_to_untreated:HDP3(3hrs post treatment)','average:data:treated_to_untreated:HDP6(6hrs post treatment)','average:data:treated_to_untreated:pre-treatment' ```

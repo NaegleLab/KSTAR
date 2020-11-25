@@ -7,11 +7,11 @@ The "KinaseActivity" class
 	:members:
 The "Mapper" class
 --------------------
-.. autoclass:: kstar.mapper.experiment_mapper
+.. autoclass:: kstar.mapper.experiment_mapper.ExperimentMapper
 	:members:
 The "Plot" class
 --------------------
-.. autoclass:: kstar.plot.dotplot
+.. autoclass:: kstar.plot.dotplot.DotPlot
 	:members:
 
 
