@@ -1,6 +1,8 @@
 import pickle
 import os
 import pandas as pd
+from kstar import helpers
+
 """
 These are the GLOBAL variables for the KSTAR project and are set for default procedures for the current release
 of KinPred and KSTAR. 
@@ -9,11 +11,8 @@ Update these if you want to update:
 1. Where resources are placed from KSTAR and KINPRED projects: RESOURCE_DIR
 2. Reference proteome: HUMAN_REF_FASTA_FILE
 3. Phosphoprotoeme: HUMAN_REF_PHOSPHO
-4. Networks Directory: 
+4. Networks Directory: Downloaded from KSTAR Figshare repository, this includes heuristic networks suggested for 
 5. Networks Pickle: 
-
-
-
 
 """
 
@@ -25,7 +24,11 @@ RESOURCE_DIR = f"{PROJECT_DIR}/RESOURCE_FILES"
 
 # RESOURCE_DIR depedencies
 HUMAN_REF_FASTA_FILE = f"{RESOURCE_DIR}/Raw/HumanProteome/humanProteome_2020-02-26.fasta"  #download from KinPred https://doi.org/10.1101/2020.08.10.244426
-HUMAN_REF_PHOSPHO = f"{RESOURCE_DIR}/Human_PhosphoProteome_mapped_annotated_02_26_20.csv"
+HUMAN_REF_SEQUENCES = helpers.process_fasta_file(HUMAN_REF_FASTA_FILE)
+
+HUMAN_REF_PHOSPHO_FILE = f"{RESOURCE_DIR}/Human_PhosphoProteome_mapped_annotated_02_26_20.csv"
+HUMAN_REF_COMPENDIA = pd.read_csv(HUMAN_REF_PHOSPHO_FILE)
+
 NETWORK_DIR = f"{RESOURCE_DIR}/NETWORKS/Networkin/"
 NETWORK_Y_PICKLE = f"{NETWORK_DIR}/network_Y.p" # created by create_networkin_pickles()
 NETWORK_ST_PICKLE = f"{NETWORK_DIR}/network_ST.p" #created by create_networkin_pickles()
@@ -34,6 +37,7 @@ NETWORK_ST_PICKLE = f"{NETWORK_DIR}/network_ST.p" #created by create_networkin_p
 
 
 ## END DECLARATION OF GLOBALS
+
 
 def create_network_pickles():
 	"""
