@@ -3,6 +3,7 @@ import pandas as pd
 from collections import defaultdict
 import re
 import numpy as np
+from kstar import config
 
 ACCESSION_ID = 'KSTAR_ACCESSION'
 SITE_ID = 'KSTAR_SITE'
@@ -10,7 +11,7 @@ PEPTIDE_ID = 'KSTAR_PEPTIDE'
 
 class ExperimentMapper:
 
-    def __init__(self, experiment, sequences, columns, logger, compendia, window = 7, data_columns = None):      
+    def __init__(self, experiment, columns, logger, sequences=config.HUMAN_REF_SEQUENCES, compendia=config.HUMAN_REF_COMPENDIA, window = 7, data_columns = None):      
         """
         Given an experiment object and reference sequences, map the phosphorylation sites to the common reference.
         Inputs
@@ -23,15 +24,19 @@ class ExperimentMapper:
             Pandas dataframe of an experiment that has a reference accession, a peptide column and/or a site column. 
             The peptide column should be upper case, with lower case indicating the site of phosphorylation - this is preferred
             The site column should be in the format S/T/Y<pos>, e.g. Y15 or S345
-        sequences: dict
-            Dictionary of sequences. Key : accession. Value : protein sequence
         columns: dict
             Dictionary with mappings of the experiment dataframe column names for the required names 'accession_id', 'peptide', or 'site'. 
             One of 'peptide' or 'site' is required. 
-        logger: Looger object
+        logger: Logger object
             used for logging when peptides cannot be matched and when a site location changes
+        sequences: dict
+            Dictionary of sequences. Key : accession. Value : protein sequence. Default is imported from kstar.config
+        compendia: pd.DataFrame
+            Human phosphoproteome compendia, mapped to KinPred and annotated with number of compendia. Default is imported from kstar.config
         window : int
             The length of amino acids to the N- and C-terminal sides of the central phosphoprotein to map a site to.
+        data_columns: list, or empty
+            The list of data columns to use. If this is empty, logger will look for anything that starts with statement data: and those values
 
 
         Returns
