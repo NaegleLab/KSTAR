@@ -229,7 +229,8 @@ class KinaseActivity:
         Parameters
         ----------
         data_columns : list
-            columns that represent experimental result
+            columns that represent experimental result, if None, takes the data: columns of the experiment. Pass this value in, if seeking to 
+            calculate on fewere than all available data columns
         threshold : float
             threshold value used to filter rows 
         agg : string
@@ -248,7 +249,13 @@ class KinaseActivity:
         """
         if data_columns is None:
             data_columns = self.data_columns
+        #log here what datacolumns will be operated on, report number of experiments found
+
+        #for each phosphoType, check that the 
         
+
+
+
         evidence = self.evidence.groupby([self.evidence_columns['substrate'], self.evidence_columns['site']]).agg(agg).reset_index()
 
         # MULTIPROCESSIONG
@@ -607,7 +614,7 @@ class KinaseActivity:
     
         Parameters
         ----------
-        kianse_activity : pandas df
+        kinase_activity : pandas df
             kinase activity p-values
         alpha : flaot
             FWER, family-wise error rate
@@ -615,7 +622,7 @@ class KinaseActivity:
         Returns 
         -------
         results : pandas df
-            kianse_activity dataframe with added columns 
+            kinase_activity dataframe with added columns 
                 significant : 1 if p-value is statistically significant given alpha
                 fdr_corrected_kinase_activity : fdr corrected activity by tsbky method
         """
@@ -624,3 +631,69 @@ class KinaseActivity:
         results['fdr_significant'] = rej * 1
         results['fdr_activity'] = cor
         return results
+
+    def run_kstar_analysis(experiment, log, networks, phosphoTypes =['Y', 'ST'], data_columns = None, agg = 'count', threshold = 0.0,  greater = True):
+        """
+        A super method to establish a kstar KinaseActivity object from an experiment with an activity log
+        add the networks, calculate, aggregate, and summarize the activities into a final activity object
+
+        Parameters
+        ----------
+        experiment: pandas df
+            experiment dataframe that has been mapped, includes KSTAR_SITE, KSTAR_ACCESSION, etc.
+        log: string
+            File name to write activity log error and update to
+        networks: dictionary of dictionaries
+            Outer dictionary keys are 'Y' and 'ST'.
+            Establish a network by loading a pickle of desired networks. See the helpers and config file for this.
+            If downloaded from FigShare, then the GLOBAL network pickles in config file can be loaded
+            For example: networks['Y'] = pickle.load(open(config.NETWORK_Y_PICKLE, "rb" ))
+        phosphoTypes: {['Y', 'ST'], ['Y'], ['ST']}
+            Which substrate/kinaset-type to run activity for: Both ['Y, 'ST'] (default), Tyrosine ['Y'], or Serine/Threonine ['ST']
+        data_columns : list
+            columns that represent experimental result, if None, takes the columns that start with `data:'' in experiment. 
+            Pass this value in as a list, if seeking to calculate on fewer than all available data columns
+        agg : {'count', 'mean'}
+            method to use when aggregating duplicate substrate-sites. Count combines multiple representations and adds if values are non-NaN
+            'mean' uses the mean value of numerical data from multiple representations of the same peptide 
+        threshold : float
+            threshold value used to filter rows
+        greater: Boolean
+            whether to keep sites that have a numerical value >=threshold (TRUE, default) or <=threshold (FALSE)
+        
+        Returns
+        -------
+        kinactDict: dictionary of Kinase Activity Objects
+            Outer keys are phosphoTypes run 'Y' and 'ST'
+            Includes the activities dictionary (see calculate_kinase_activities)
+            aggregation of activities across networks (see aggregate activities)
+            activity summary (see summarize_activities)
+
+        """
+
+
+        kinactDict = {}
+
+        # For each phosphoType of interest, establish a kinase activity object on a filtered dataset and run, aggregate, and summarize activity
+        for phosphoType in phosphoTypes:
+            #first check that networks for the phosphotypes were passed in
+            if phosphoType not in networks:
+                print("ERROR: Please pass networks as dictionary with phosphotype key")
+            #filter the experiment (log how many are of that type)
+            if phosphoType == 'ST':
+                experiment_sub = experiment[(experiment.KSTAR_SITE.str.contains('S')) | (experiment.KSTAR_SITE.str.contains('T'))]
+                log.log("Running Serine/Threonine Kinase Activity Analysis")
+            elif phosphoType == 'Y':
+                experiment_sub = experiment[(experiment.KSTAR_SITE.str.contains('Y'))]
+                log.info("Running Tyrosine Kinase Activity Analysis")
+
+            else:
+                print("ERROR: Did not recognize phosphoType %s, which should only include 'Y' or 'ST' "%(phosphoType))
+                return
+            kinact = KinaseActivity(experiment_sub, log)
+            kinact.add_networks_batch(networks[phosphoType])
+            kinact.calculate_kinase_activities(data_columns, agg=agg, threshold=threshold, greater=greater)
+            kinact.aggregate_activities()
+            kinact.summarize_activites()
+            kinactDict[phosphoType] = kinact
+        return kinactDict
