@@ -4,6 +4,7 @@ import scipy.stats as stats
 from statsmodels.stats import multitest
 import multiprocessing
 from collections import defaultdict
+import pickle
 
 class KinaseActivity:
     def __init__(self, evidence, logger, evidence_columns = {'substrate' : 'KSTAR_ACCESSION', 'site': 'KSTAR_SITE'}):
@@ -697,3 +698,36 @@ class KinaseActivity:
             kinact.summarize_activites()
             kinactDict[phosphoType] = kinact
         return kinactDict
+
+
+    def save_kstar(kinactDict, name, odir):
+        """
+        Having performed kinase activities (run_kstar_analyis), save each of the important dataframes to files and the final pickle
+        Saves an activities, aggregated_activities, summarized_activities tab-separated files
+        Saves a pickle file of dictionary 
+        
+        Parameters
+        ----------
+        kinactDict: dictionary of Kinase Activity Objects
+            Outer keys are phosphoTypes run 'Y' and 'ST'
+            Includes the activities dictionary (see calculate_kinase_activities)
+            aggregation of activities across networks (see aggregate activities)
+            activity summary (see summarize_activities)
+        name: string 
+            The name to use when saving activities
+        odir:  string
+            Outputdirectory to save files and pickle to
+
+        Returns
+        -------
+        Nothing
+
+        """
+        for phosphoType in kinactDict:
+            name_out = f"{name}_{phosphoType}"
+            kinactDict[phosphoType].activities.to_csv(f"{odir}/{name_out}_activities.tsv", sep = '\t', index = False)
+            kinactDict[phosphoType].agg_activities.to_csv(f"{odir}/{name_out}_aggregated_activities.tsv", sep = '\t', index = False)
+            kinactDict[phosphoType].activity_summary.to_csv(f"{odir}/{name_out}_summarized_activities.tsv", sep = '\t', index = False)
+        
+        pickle.dump( kinactDict, open( f"{odir}/{name}_kinact.p", "wb" ) )
+
