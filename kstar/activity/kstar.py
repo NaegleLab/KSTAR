@@ -16,7 +16,7 @@ class KinaseActivity:
         Parameters
         ----------
         evidence : pandas df
-            evidence to use in analysis
+            a dataframe that contains (at minimum, but can have more) data columms as evidence to use in analysis and KSTAR_ACCESSION and KSTAR_SITE
         evidence_columns : dict
             columns corresponding to substrate and site
             required keys : substrate, site
