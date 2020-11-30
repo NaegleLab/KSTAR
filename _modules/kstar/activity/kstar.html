@@ -46,6 +46,7 @@
 <span class="kn">from</span> <span class="nn">statsmodels.stats</span> <span class="kn">import</span> <span class="n">multitest</span>
 <span class="kn">import</span> <span class="nn">multiprocessing</span>
 <span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">defaultdict</span>
+<span class="kn">import</span> <span class="nn">pickle</span>
 
 <div class="viewcode-block" id="KinaseActivity"><a class="viewcode-back" href="../../../KSTAR.html#kstar.activity.kstar.KinaseActivity">[docs]</a><span class="k">class</span> <span class="nc">KinaseActivity</span><span class="p">:</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">evidence</span><span class="p">,</span> <span class="n">logger</span><span class="p">,</span> <span class="n">evidence_columns</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;substrate&#39;</span> <span class="p">:</span> <span class="s1">&#39;KSTAR_ACCESSION&#39;</span><span class="p">,</span> <span class="s1">&#39;site&#39;</span><span class="p">:</span> <span class="s1">&#39;KSTAR_SITE&#39;</span><span class="p">}):</span>
@@ -57,7 +58,7 @@
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        evidence : pandas df</span>
-<span class="sd">            evidence to use in analysis</span>
+<span class="sd">            a dataframe that contains (at minimum, but can have more) data columms as evidence to use in analysis and KSTAR_ACCESSION and KSTAR_SITE</span>
 <span class="sd">        evidence_columns : dict</span>
 <span class="sd">            columns corresponding to substrate and site</span>
 <span class="sd">            required keys : substrate, site</span>
@@ -271,7 +272,8 @@
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        data_columns : list</span>
-<span class="sd">            columns that represent experimental result</span>
+<span class="sd">            columns that represent experimental result, if None, takes the data: columns of the experiment. Pass this value in, if seeking to </span>
+<span class="sd">            calculate on fewere than all available data columns</span>
 <span class="sd">        threshold : float</span>
 <span class="sd">            threshold value used to filter rows </span>
 <span class="sd">        agg : string</span>
@@ -290,7 +292,13 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">data_columns</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">data_columns</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_columns</span>
+        <span class="c1">#log here what datacolumns will be operated on, report number of experiments found</span>
+
+        <span class="c1">#for each phosphoType, check that the </span>
         
+
+
+
         <span class="n">evidence</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">evidence</span><span class="o">.</span><span class="n">groupby</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">evidence_columns</span><span class="p">[</span><span class="s1">&#39;substrate&#39;</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">evidence_columns</span><span class="p">[</span><span class="s1">&#39;site&#39;</span><span class="p">]])</span><span class="o">.</span><span class="n">agg</span><span class="p">(</span><span class="n">agg</span><span class="p">)</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
 
         <span class="c1"># MULTIPROCESSIONG</span>
@@ -649,7 +657,7 @@
 <span class="sd">    </span>
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        kianse_activity : pandas df</span>
+<span class="sd">        kinase_activity : pandas df</span>
 <span class="sd">            kinase activity p-values</span>
 <span class="sd">        alpha : flaot</span>
 <span class="sd">            FWER, family-wise error rate</span>
@@ -657,7 +665,7 @@
 <span class="sd">        Returns </span>
 <span class="sd">        -------</span>
 <span class="sd">        results : pandas df</span>
-<span class="sd">            kianse_activity dataframe with added columns </span>
+<span class="sd">            kinase_activity dataframe with added columns </span>
 <span class="sd">                significant : 1 if p-value is statistically significant given alpha</span>
 <span class="sd">                fdr_corrected_kinase_activity : fdr corrected activity by tsbky method</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -665,7 +673,106 @@
         <span class="n">rej</span><span class="p">,</span> <span class="n">cor</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">multitest</span><span class="o">.</span><span class="n">multipletests</span><span class="p">(</span><span class="n">results</span><span class="p">[</span><span class="s1">&#39;kinase_activity&#39;</span><span class="p">],</span> <span class="n">method</span> <span class="o">=</span> <span class="s1">&#39;fdr_tsbky&#39;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="n">alpha</span><span class="p">)</span>
         <span class="n">results</span><span class="p">[</span><span class="s1">&#39;fdr_significant&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">rej</span> <span class="o">*</span> <span class="mi">1</span>
         <span class="n">results</span><span class="p">[</span><span class="s1">&#39;fdr_activity&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">cor</span>
-        <span class="k">return</span> <span class="n">results</span></div></div>
+        <span class="k">return</span> <span class="n">results</span></div>
+
+<div class="viewcode-block" id="KinaseActivity.run_kstar_analysis"><a class="viewcode-back" href="../../../KSTAR.html#kstar.activity.kstar.KinaseActivity.run_kstar_analysis">[docs]</a>    <span class="k">def</span> <span class="nf">run_kstar_analysis</span><span class="p">(</span><span class="n">experiment</span><span class="p">,</span> <span class="n">log</span><span class="p">,</span> <span class="n">networks</span><span class="p">,</span> <span class="n">phosphoTypes</span> <span class="o">=</span><span class="p">[</span><span class="s1">&#39;Y&#39;</span><span class="p">,</span> <span class="s1">&#39;ST&#39;</span><span class="p">],</span> <span class="n">data_columns</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">agg</span> <span class="o">=</span> <span class="s1">&#39;count&#39;</span><span class="p">,</span> <span class="n">threshold</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>  <span class="n">greater</span> <span class="o">=</span> <span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        A super method to establish a kstar KinaseActivity object from an experiment with an activity log</span>
+<span class="sd">        add the networks, calculate, aggregate, and summarize the activities into a final activity object</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        experiment: pandas df</span>
+<span class="sd">            experiment dataframe that has been mapped, includes KSTAR_SITE, KSTAR_ACCESSION, etc.</span>
+<span class="sd">        log: string</span>
+<span class="sd">            File name to write activity log error and update to</span>
+<span class="sd">        networks: dictionary of dictionaries</span>
+<span class="sd">            Outer dictionary keys are &#39;Y&#39; and &#39;ST&#39;.</span>
+<span class="sd">            Establish a network by loading a pickle of desired networks. See the helpers and config file for this.</span>
+<span class="sd">            If downloaded from FigShare, then the GLOBAL network pickles in config file can be loaded</span>
+<span class="sd">            For example: networks[&#39;Y&#39;] = pickle.load(open(config.NETWORK_Y_PICKLE, &quot;rb&quot; ))</span>
+<span class="sd">        phosphoTypes: {[&#39;Y&#39;, &#39;ST&#39;], [&#39;Y&#39;], [&#39;ST&#39;]}</span>
+<span class="sd">            Which substrate/kinaset-type to run activity for: Both [&#39;Y, &#39;ST&#39;] (default), Tyrosine [&#39;Y&#39;], or Serine/Threonine [&#39;ST&#39;]</span>
+<span class="sd">        data_columns : list</span>
+<span class="sd">            columns that represent experimental result, if None, takes the columns that start with `data:&#39;&#39; in experiment. </span>
+<span class="sd">            Pass this value in as a list, if seeking to calculate on fewer than all available data columns</span>
+<span class="sd">        agg : {&#39;count&#39;, &#39;mean&#39;}</span>
+<span class="sd">            method to use when aggregating duplicate substrate-sites. Count combines multiple representations and adds if values are non-NaN</span>
+<span class="sd">            &#39;mean&#39; uses the mean value of numerical data from multiple representations of the same peptide </span>
+<span class="sd">        threshold : float</span>
+<span class="sd">            threshold value used to filter rows</span>
+<span class="sd">        greater: Boolean</span>
+<span class="sd">            whether to keep sites that have a numerical value &gt;=threshold (TRUE, default) or &lt;=threshold (FALSE)</span>
+<span class="sd">        </span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        kinactDict: dictionary of Kinase Activity Objects</span>
+<span class="sd">            Outer keys are phosphoTypes run &#39;Y&#39; and &#39;ST&#39;</span>
+<span class="sd">            Includes the activities dictionary (see calculate_kinase_activities)</span>
+<span class="sd">            aggregation of activities across networks (see aggregate activities)</span>
+<span class="sd">            activity summary (see summarize_activities)</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+
+        <span class="n">kinactDict</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="c1"># For each phosphoType of interest, establish a kinase activity object on a filtered dataset and run, aggregate, and summarize activity</span>
+        <span class="k">for</span> <span class="n">phosphoType</span> <span class="ow">in</span> <span class="n">phosphoTypes</span><span class="p">:</span>
+            <span class="c1">#first check that networks for the phosphotypes were passed in</span>
+            <span class="k">if</span> <span class="n">phosphoType</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">networks</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;ERROR: Please pass networks as dictionary with phosphotype key&quot;</span><span class="p">)</span>
+            <span class="c1">#filter the experiment (log how many are of that type)</span>
+            <span class="k">if</span> <span class="n">phosphoType</span> <span class="o">==</span> <span class="s1">&#39;ST&#39;</span><span class="p">:</span>
+                <span class="n">experiment_sub</span> <span class="o">=</span> <span class="n">experiment</span><span class="p">[(</span><span class="n">experiment</span><span class="o">.</span><span class="n">KSTAR_SITE</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">contains</span><span class="p">(</span><span class="s1">&#39;S&#39;</span><span class="p">))</span> <span class="o">|</span> <span class="p">(</span><span class="n">experiment</span><span class="o">.</span><span class="n">KSTAR_SITE</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">contains</span><span class="p">(</span><span class="s1">&#39;T&#39;</span><span class="p">))]</span>
+                <span class="n">log</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;Running Serine/Threonine Kinase Activity Analysis&quot;</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">phosphoType</span> <span class="o">==</span> <span class="s1">&#39;Y&#39;</span><span class="p">:</span>
+                <span class="n">experiment_sub</span> <span class="o">=</span> <span class="n">experiment</span><span class="p">[(</span><span class="n">experiment</span><span class="o">.</span><span class="n">KSTAR_SITE</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">contains</span><span class="p">(</span><span class="s1">&#39;Y&#39;</span><span class="p">))]</span>
+                <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Running Tyrosine Kinase Activity Analysis&quot;</span><span class="p">)</span>
+
+            <span class="k">else</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;ERROR: Did not recognize phosphoType </span><span class="si">%s</span><span class="s2">, which should only include &#39;Y&#39; or &#39;ST&#39; &quot;</span><span class="o">%</span><span class="p">(</span><span class="n">phosphoType</span><span class="p">))</span>
+                <span class="k">return</span>
+            <span class="n">kinact</span> <span class="o">=</span> <span class="n">KinaseActivity</span><span class="p">(</span><span class="n">experiment_sub</span><span class="p">,</span> <span class="n">log</span><span class="p">)</span>
+            <span class="n">kinact</span><span class="o">.</span><span class="n">add_networks_batch</span><span class="p">(</span><span class="n">networks</span><span class="p">[</span><span class="n">phosphoType</span><span class="p">])</span>
+            <span class="n">kinact</span><span class="o">.</span><span class="n">calculate_kinase_activities</span><span class="p">(</span><span class="n">data_columns</span><span class="p">,</span> <span class="n">agg</span><span class="o">=</span><span class="n">agg</span><span class="p">,</span> <span class="n">threshold</span><span class="o">=</span><span class="n">threshold</span><span class="p">,</span> <span class="n">greater</span><span class="o">=</span><span class="n">greater</span><span class="p">)</span>
+            <span class="n">kinact</span><span class="o">.</span><span class="n">aggregate_activities</span><span class="p">()</span>
+            <span class="n">kinact</span><span class="o">.</span><span class="n">summarize_activites</span><span class="p">()</span>
+            <span class="n">kinactDict</span><span class="p">[</span><span class="n">phosphoType</span><span class="p">]</span> <span class="o">=</span> <span class="n">kinact</span>
+        <span class="k">return</span> <span class="n">kinactDict</span></div>
+
+
+<div class="viewcode-block" id="KinaseActivity.save_kstar"><a class="viewcode-back" href="../../../KSTAR.html#kstar.activity.kstar.KinaseActivity.save_kstar">[docs]</a>    <span class="k">def</span> <span class="nf">save_kstar</span><span class="p">(</span><span class="n">kinactDict</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">odir</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Having performed kinase activities (run_kstar_analyis), save each of the important dataframes to files and the final pickle</span>
+<span class="sd">        Saves an activities, aggregated_activities, summarized_activities tab-separated files</span>
+<span class="sd">        Saves a pickle file of dictionary </span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        kinactDict: dictionary of Kinase Activity Objects</span>
+<span class="sd">            Outer keys are phosphoTypes run &#39;Y&#39; and &#39;ST&#39;</span>
+<span class="sd">            Includes the activities dictionary (see calculate_kinase_activities)</span>
+<span class="sd">            aggregation of activities across networks (see aggregate activities)</span>
+<span class="sd">            activity summary (see summarize_activities)</span>
+<span class="sd">        name: string </span>
+<span class="sd">            The name to use when saving activities</span>
+<span class="sd">        odir:  string</span>
+<span class="sd">            Outputdirectory to save files and pickle to</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Nothing</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">phosphoType</span> <span class="ow">in</span> <span class="n">kinactDict</span><span class="p">:</span>
+            <span class="n">name_out</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{name}</span><span class="s2">_</span><span class="si">{phosphoType}</span><span class="s2">&quot;</span>
+            <span class="n">kinactDict</span><span class="p">[</span><span class="n">phosphoType</span><span class="p">]</span><span class="o">.</span><span class="n">activities</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{odir}</span><span class="s2">/</span><span class="si">{name_out}</span><span class="s2">_activities.tsv&quot;</span><span class="p">,</span> <span class="n">sep</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\t</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">index</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span>
+            <span class="n">kinactDict</span><span class="p">[</span><span class="n">phosphoType</span><span class="p">]</span><span class="o">.</span><span class="n">agg_activities</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{odir}</span><span class="s2">/</span><span class="si">{name_out}</span><span class="s2">_aggregated_activities.tsv&quot;</span><span class="p">,</span> <span class="n">sep</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\t</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">index</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span>
+            <span class="n">kinactDict</span><span class="p">[</span><span class="n">phosphoType</span><span class="p">]</span><span class="o">.</span><span class="n">activity_summary</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{odir}</span><span class="s2">/</span><span class="si">{name_out}</span><span class="s2">_summarized_activities.tsv&quot;</span><span class="p">,</span> <span class="n">sep</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\t</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">index</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span>
+        
+        <span class="n">pickle</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span> <span class="n">kinactDict</span><span class="p">,</span> <span class="nb">open</span><span class="p">(</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{odir}</span><span class="s2">/</span><span class="si">{name}</span><span class="s2">_kinact.p&quot;</span><span class="p">,</span> <span class="s2">&quot;wb&quot;</span> <span class="p">)</span> <span class="p">)</span></div></div>
+
 </pre></div>
 
             <div class="clearer"></div>

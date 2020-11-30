@@ -1,5 +1,8 @@
 KSTAR
 =============================
+.. automodule:: kstar.config 
+The "Conifg" class
+--------------------------
 .. automodule:: kstar 
 The "KinaseActivity" class
 --------------------------

@@ -45,6 +45,7 @@
 <span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">defaultdict</span>
 <span class="kn">import</span> <span class="nn">re</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">kstar</span> <span class="kn">import</span> <span class="n">config</span>
 
 <span class="n">ACCESSION_ID</span> <span class="o">=</span> <span class="s1">&#39;KSTAR_ACCESSION&#39;</span>
 <span class="n">SITE_ID</span> <span class="o">=</span> <span class="s1">&#39;KSTAR_SITE&#39;</span>
@@ -52,7 +53,7 @@
 
 <div class="viewcode-block" id="ExperimentMapper"><a class="viewcode-back" href="../../../KSTAR.html#kstar.mapper.experiment_mapper.ExperimentMapper">[docs]</a><span class="k">class</span> <span class="nc">ExperimentMapper</span><span class="p">:</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">experiment</span><span class="p">,</span> <span class="n">sequences</span><span class="p">,</span> <span class="n">columns</span><span class="p">,</span> <span class="n">logger</span><span class="p">,</span> <span class="n">compendia</span><span class="p">,</span> <span class="n">window</span> <span class="o">=</span> <span class="mi">7</span><span class="p">,</span> <span class="n">data_columns</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>      
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">experiment</span><span class="p">,</span> <span class="n">columns</span><span class="p">,</span> <span class="n">logger</span><span class="p">,</span> <span class="n">sequences</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">HUMAN_REF_SEQUENCES</span><span class="p">,</span> <span class="n">compendia</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">HUMAN_REF_COMPENDIA</span><span class="p">,</span> <span class="n">window</span> <span class="o">=</span> <span class="mi">7</span><span class="p">,</span> <span class="n">data_columns</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>      
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Given an experiment object and reference sequences, map the phosphorylation sites to the common reference.</span>
 <span class="sd">        Inputs</span>
@@ -65,15 +66,19 @@
 <span class="sd">            Pandas dataframe of an experiment that has a reference accession, a peptide column and/or a site column. </span>
 <span class="sd">            The peptide column should be upper case, with lower case indicating the site of phosphorylation - this is preferred</span>
 <span class="sd">            The site column should be in the format S/T/Y&lt;pos&gt;, e.g. Y15 or S345</span>
-<span class="sd">        sequences: dict</span>
-<span class="sd">            Dictionary of sequences. Key : accession. Value : protein sequence</span>
 <span class="sd">        columns: dict</span>
 <span class="sd">            Dictionary with mappings of the experiment dataframe column names for the required names &#39;accession_id&#39;, &#39;peptide&#39;, or &#39;site&#39;. </span>
 <span class="sd">            One of &#39;peptide&#39; or &#39;site&#39; is required. </span>
-<span class="sd">        logger: Looger object</span>
+<span class="sd">        logger: Logger object</span>
 <span class="sd">            used for logging when peptides cannot be matched and when a site location changes</span>
+<span class="sd">        sequences: dict</span>
+<span class="sd">            Dictionary of sequences. Key : accession. Value : protein sequence. Default is imported from kstar.config</span>
+<span class="sd">        compendia: pd.DataFrame</span>
+<span class="sd">            Human phosphoproteome compendia, mapped to KinPred and annotated with number of compendia. Default is imported from kstar.config</span>
 <span class="sd">        window : int</span>
 <span class="sd">            The length of amino acids to the N- and C-terminal sides of the central phosphoprotein to map a site to.</span>
+<span class="sd">        data_columns: list, or empty</span>
+<span class="sd">            The list of data columns to use. If this is empty, logger will look for anything that starts with statement data: and those values</span>
 
 
 <span class="sd">        Returns</span>
