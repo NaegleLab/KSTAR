@@ -4,13 +4,15 @@ import itertools
 import argparse
 
 
-def build_filtered_experiment(experiment, proteomescout, filtered_proteomescout, num_random_experiments, name):
-    rand_experiments = proteomescout[['KSTAR_ACCESSION', 'KSTAR_SITE']].copy()
+def build_filtered_experiment(experiment, compendia, filtered_compendia, num_random_experiments, name):
+
+
+    rand_experiments = compendia[['KSTAR_ACCESSION', 'KSTAR_SITE']].copy()
     sizes = experiment.groupby('KSTAR_NUM_COMPENDIA').size()
     for i in range(num_random_experiments):
         rand_experiment_list = []
         for num, size in sizes.iteritems():
-            filtered = filtered_proteomescout[num]
+            filtered = filtered_compendia[num]
             filtered_random = filtered.sample(size)
             filtered_random[f"{name}:{i}"] = 1
             rand_experiment_list.append(filtered_random)
@@ -19,29 +21,31 @@ def build_filtered_experiment(experiment, proteomescout, filtered_proteomescout,
     return rand_experiments
 
 
-def build_random_experiments(experiment, proteomescout, agg, threshold, num_random_experiments, phosphorylation_event, data_columns = None):
+def build_random_experiments(experiment, compendia, agg, threshold, num_random_experiments, phosphorylation_event, data_columns = None):
     phosphorylation_event = tuple(phosphorylation_event)
-    proteomescout = proteomescout[proteomescout['KSTAR_SITE'].str.startswith(phosphorylation_event)]
+    compendia = compendia[compendia['KSTAR_SITE'].str.startswith(phosphorylation_event)]
     experiment = experiment[experiment['KSTAR_SITE'].str.startswith(phosphorylation_event)]
     experiment = experiment.groupby(['KSTAR_ACCESSION', 'KSTAR_SITE']).agg(agg).reset_index()
     if data_columns is None:
         data_columns =[c for c in experiment.columns if c.startswith('data:')]
-    sizes = proteomescout['KSTAR_NUM_COMPENDIA'].unique()
-    filtered_proteomescout = {}
+    sizes = compendia['KSTAR_NUM_COMPENDIA'].unique()
+    filtered_compendia = {}
     for s in sizes:
-        filtered_proteomescout[s] = proteomescout[proteomescout['KSTAR_NUM_COMPENDIA'] == s][['KSTAR_ACCESSION', 'KSTAR_SITE']]
+        filtered_compendia[s] = compendia[compendia['KSTAR_NUM_COMPENDIA'] == s][['KSTAR_ACCESSION', 'KSTAR_SITE']]
+
+    
     
     pool = multiprocessing.Pool()
     iterable = zip(
         [experiment[experiment[col] > threshold] for col in data_columns], 
-        itertools.repeat(proteomescout), 
-        itertools.repeat(filtered_proteomescout), 
+        itertools.repeat(compendia), 
+        itertools.repeat(filtered_compendia), 
         itertools.repeat(num_random_experiments), 
         [col for col in data_columns])
         
     rand_experiments_list =  pool.starmap(build_filtered_experiment, iterable)
 
-    rand_experiments = proteomescout[['KSTAR_ACCESSION', 'KSTAR_SITE']].copy()
+    rand_experiments = compendia[['KSTAR_ACCESSION', 'KSTAR_SITE']].copy()
     for r in rand_experiments_list:
         rand_experiments = pd.merge(rand_experiments, r, how = 'left', on = ['KSTAR_ACCESSION', 'KSTAR_SITE'])
     return rand_experiments

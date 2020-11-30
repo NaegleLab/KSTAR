@@ -1,10 +1,10 @@
 import pandas as pd
-from kinase_activity.src import logger
 import argparse
 from os import path
 import os
 import kstar
 import pickle
+from helpers import get_logger
 
 
 def parse_args():
@@ -24,9 +24,9 @@ def parse_args():
 def process_args(results):
     # get logger
     if results.odir is None or not (path.exists(results.odir) and path.isdir(results.odir)):
-        log = logger.get_logger(results.name, f"{results.name}_activity.log")
+        log = get_logger(results.name, f"{results.name}_activity.log")
     else:
-        log = logger.get_logger(results.name, f"{results.odir}/{results.name}_activity.log")
+        log = get_logger(results.name, f"{results.odir}/{results.name}_activity.log")
     
     #check if resource directory exists
     if not (path.exists(results.rdir) and path.isdir(results.rdir)):

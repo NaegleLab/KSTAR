@@ -14,8 +14,5 @@ python run_kstar.py \
 "average:data:treated_to_untreated:pre-treatment" \
 --activity_agg mean \
 --threshold 0.0 \
---normalize false \
+--normalize yes \
 --num_random_experiments 10
-
-
-
