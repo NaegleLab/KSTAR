@@ -7,10 +7,6 @@ import numpy as np
 from kstar import config, helpers
 
 
-ACCESSION_ID = 'KSTAR_ACCESSION'
-SITE_ID = 'KSTAR_SITE'
-PEPTIDE_ID = 'KSTAR_PEPTIDE'
-
 class ExperimentMapper:
 
     def __init__(self, experiment, columns, logger, sequences=config.HUMAN_REF_SEQUENCES, compendia=config.HUMAN_REF_COMPENDIA, window = 7, data_columns = None):      
@@ -27,7 +23,7 @@ class ExperimentMapper:
             The peptide column should be upper case, with lower case indicating the site of phosphorylation - this is preferred
             The site column should be in the format S/T/Y<pos>, e.g. Y15 or S345
         columns: dict
-            Dictionary with mappings of the experiment dataframe column names for the required names 'accession_id', 'peptide', or 'site'. 
+            Dictionary with mappings of the experiment dataframe column names for the required names 'config.KSTAR_ACCESSION', 'peptide', or 'site'. 
             One of 'peptide' or 'site' is required. 
         logger: Logger object
             used for logging when peptides cannot be matched and when a site location changes
@@ -49,27 +45,27 @@ class ExperimentMapper:
         self.experiment = experiment
         self.sequences = sequences
         self.compendia = compendia
-        def set_accession_id(accession):
+        def set_config.KSTAR_ACCESSION(accession):
             return '-'.join(accession.split('-')[:-1])
 
 
-        if 'accession_id' not in columns.keys():
-            raise ValueError('ExperimentMapper requires accession_id as a dictionary key')
+        if 'config.KSTAR_ACCESSION' not in columns.keys():
+            raise ValueError('ExperimentMapper requires config.KSTAR_ACCESSION as a dictionary key')
         else:
-            self.experiment[ACCESSION_ID] = self.experiment[columns['accession_id']].apply(set_accession_id) 
+            self.experiment[config.KSTAR_ACCESSION] = self.experiment[columns['config.KSTAR_ACCESSION']].apply(set_config.KSTAR_ACCESSION) 
 
         if 'peptide' not in columns.keys() and 'site' not in columns.keys():
             raise ValueError('ExperimentMapper requires either site or peptide as keys in dictionary')
 
-        self.experiment[PEPTIDE_ID] = self.experiment[columns['peptide']] if 'peptide' in columns.keys() else None
-        self.experiment[SITE_ID] = self.experiment[columns['site']] if 'site' in columns.keys() else None
+        self.experiment[config.KSTAR_PEPTIDE] = self.experiment[columns['peptide']] if 'peptide' in columns.keys() else None
+        self.experiment[config.KSTAR_SITE] = self.experiment[columns['site']] if 'site' in columns.keys() else None
 
         self.logger = logger
         self.set_data_columns(data_columns)
         self.align_sites(window)
 
-        compendia = self.compendia[['KSTAR_ACCESSION', 'KSTAR_SITE', 'KSTAR_NUM_COMPENDIA', 'KSTAR_NUM_COMPENDIA_CLASS']]
-        self.experiment = pd.merge(self.experiment, compendia, how = 'inner', on = ['KSTAR_ACCESSION', 'KSTAR_SITE'] )
+        compendia = self.compendia[[config.KSTAR_ACCESSION, config.KSTAR_SITE, 'KSTAR_NUM_COMPENDIA', 'KSTAR_NUM_COMPENDIA_CLASS']]
+        self.experiment = pd.merge(self.experiment, compendia, how = 'inner', on = [config.KSTAR_ACCESSION, config.KSTAR_SITE] )
 
     def set_data_columns(self, data_columns):
         self.data_columns = []
@@ -112,52 +108,52 @@ class ExperimentMapper:
 
         """
 
-        self.experiment = expand_peptide(self.experiment, PEPTIDE_ID)
+        self.experiment = expand_peptide(self.experiment, config.KSTAR_PEPTIDE)
 
         for index, row in self.experiment.iterrows():
-            sequence = self.get_sequence(row[ACCESSION_ID])
+            sequence = self.get_sequence(row[config.KSTAR_ACCESSION])
             if sequence is not None:
                 # If peptide provided then find site
-                if row[PEPTIDE_ID] is not None:
+                if row[config.KSTAR_PEPTIDE] is not None:
                     
-                    site =  peptide_site_number(peptide = row[PEPTIDE_ID], 
-                                                site = row[SITE_ID],
+                    site =  peptide_site_number(peptide = row[config.KSTAR_PEPTIDE], 
+                                                site = row[config.KSTAR_SITE],
                                                 sequence = sequence)
                     if site is None:
-                        self.logger.warning(f"SITE NOT FOUND : {row[ACCESSION_ID]}\t{row[PEPTIDE_ID]}")
-                        self.experiment.loc[index, SITE_ID] = None
-                        self.experiment.loc[index, PEPTIDE_ID] = None
+                        self.logger.warning(f"SITE NOT FOUND : {row[config.KSTAR_ACCESSION]}\t{row[config.KSTAR_PEPTIDE]}")
+                        self.experiment.loc[index, config.KSTAR_SITE] = None
+                        self.experiment.loc[index, config.KSTAR_PEPTIDE] = None
                         continue
-                    elif site != row[SITE_ID]:
-                        self.logger.info(f"SITE CHANGED : {row[ACCESSION_ID]} {row[SITE_ID]} -> {site}")
-                        self.experiment.loc[index, SITE_ID] = site
+                    elif site != row[config.KSTAR_SITE]:
+                        self.logger.info(f"SITE CHANGED : {row[config.KSTAR_ACCESSION]} {row[config.KSTAR_SITE]} -> {site}")
+                        self.experiment.loc[index, config.KSTAR_SITE] = site
                     
                     peptide = get_aligned_peptide(site = site,
                                                   sequence = sequence, 
                                                   window = window)
                     if peptide is not None:
-                        self.experiment.loc[index, PEPTIDE_ID] = peptide
+                        self.experiment.loc[index, config.KSTAR_PEPTIDE] = peptide
                         
                 # Peptide not provided but site is provided - build peptide
-                elif row[SITE_ID] is not None:
-                    peptide = get_aligned_peptide(site = row[SITE_ID],
+                elif row[config.KSTAR_SITE] is not None:
+                    peptide = get_aligned_peptide(site = row[config.KSTAR_SITE],
                                                   sequence = sequence, 
                                                   window = window)
                     if peptide is not None:
-                        self.experiment.loc[index, PEPTIDE_ID] = peptide
+                        self.experiment.loc[index, config.KSTAR_PEPTIDE] = peptide
                     else:
-                        self.logger.warning(f"PEPTIDE MISMATCH : {row[ACCESSION_ID]} {row[SITE_ID]}")
-                        self.experiment.loc[index, SITE_ID] = None
-                        self.experiment.loc[index, PEPTIDE_ID] = None
+                        self.logger.warning(f"PEPTIDE MISMATCH : {row[config.KSTAR_ACCESSION]} {row[config.KSTAR_SITE]}")
+                        self.experiment.loc[index, config.KSTAR_SITE] = None
+                        self.experiment.loc[index, config.KSTAR_PEPTIDE] = None
                 else:
-                    self.logger.warning(f"SITE NOT FOUND : {self.experiment[ACCESSION_ID]}\t{self.experiment[SITE_ID]}")
+                    self.logger.warning(f"SITE NOT FOUND : {self.experiment[config.KSTAR_ACCESSION]}\t{self.experiment[config.KSTAR_SITE]}")
             
             # Sequence not found in compendia
             else:
-                self.logger.warning(f"SEQUENCE NOT FOUND : {row[ACCESSION_ID]}")
-                self.experiment.loc[index, SITE_ID] = None
-                self.experiment.loc[index, PEPTIDE_ID] = None
-        self.experiment.dropna(axis = 'rows', subset = [ACCESSION_ID, SITE_ID, PEPTIDE_ID], inplace = True)
+                self.logger.warning(f"SEQUENCE NOT FOUND : {row[config.KSTAR_ACCESSION]}")
+                self.experiment.loc[index, config.KSTAR_SITE] = None
+                self.experiment.loc[index, config.KSTAR_PEPTIDE] = None
+        self.experiment.dropna(axis = 'rows', subset = [config.KSTAR_ACCESSION, config.KSTAR_SITE, config.KSTAR_PEPTIDE], inplace = True)
         self.experiment.drop_duplicates(inplace=True)
 
 
