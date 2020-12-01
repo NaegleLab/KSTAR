@@ -12,7 +12,7 @@ from kstar import config
 from kstar.normalize import generate_random_experiments, calculate_fpr
 
 class KinaseActivity:
-    def __init__(self, evidence, logger, evidence_columns = {'substrate' : 'KSTAR_ACCESSION', 'site': 'KSTAR_SITE'}, phospho_type = 'Y'):
+    def __init__(self, evidence, logger, phospho_type = 'Y'):
         """
         Kinase Activity calculates the estimated activity of kinases given an experiment using hypergeometric distribution.
         Hypergeometric distribution examines the number of protein sites found to be active in evidence compared to the 
@@ -29,11 +29,6 @@ class KinaseActivity:
         """
         self.phospho_type = phospho_type
         self.set_evidence(evidence)
-        self.evidence_columns = evidence_columns
-        self.network_columns = {
-            'substrate':'KSTAR_ACCESSION', 
-            'site':'KSTAR_SITE', 
-            'kinase':'Kinase Name'}
         
 
         self.networks = defaultdict()
@@ -130,13 +125,13 @@ class KinaseActivity:
         if network_size is not None and isinstance(network_size, int):
             self.network_sizes[network_id] = network_size
         else:
-            self.network_sizes[network_id] = len(network.groupby([self.network_columns['substrate'], self.network_columns['site']]).size())
+            self.network_sizes[network_id] = len(network.groupby([config.KSTAR_ACCESSION, config.KSTAR_SITE]).size())
             self.logger.info(f'ADD NETWORK : Number of Accession Sites : {self.network_sizes[network_id]}')
     
     def get_run_date(self):
         return self.run_date
 
-    def set_evidence(self, evidence, columns = {'substrate':'KSTAR_ACCESSION', 'site':'KSTAR_SITE'}):
+    def set_evidence(self, evidence):
         """
         Evidence to use in analysis
 
@@ -148,13 +143,12 @@ class KinaseActivity:
                 substrate : Uniprot ID (P12345)
                 site : phosphorylation site (Y123)
         """
-        
-        if 'substrate' in columns.keys() and 'site' in columns.keys():
-            self.evidence_columns = columns
+        columns = list(evidence.columns)
+        if config.KSTAR_ACCESSION in columns and config.KSTAR_SITE in columns:
             phospho_type = tuple(self.phospho_type)
-            self.evidence = evidence[evidence[self.evidence_columns['site'].str.startswith(phospho_type)]].copy()
+            self.evidence = evidence[evidence[config.KSTAR_SITE].str.startswith(phospho_type)].copy()
         else:
-            self.logger.warning("Evidence not set. Evidence columns must include 'substrate' and 'site' keys")
+            self.logger.warning(f"Evidence not set. Evidence columns must include '{config.KSTAR_ACCESSION}' and '{config.KSTAR_SITE}' keys")
     
 
     def set_normalizers(self, normalizers):
@@ -200,15 +194,14 @@ class KinaseActivity:
         """
         
         network = self.networks[network_id]
-        intersect = pd.merge(network, evidence, how='inner', 
-            left_on=[self.network_columns['substrate'], self.network_columns['site']],
-            right_on=[self.evidence_columns['substrate'], self.evidence_columns['site']])
-        counts = intersect.groupby(self.network_columns['kinase']).size()
-        N = len(intersect.groupby([self.evidence_columns['substrate'], self.evidence_columns['site']]).size())
+        intersect = pd.merge(network, evidence, how='inner',
+            on=[config.KSTAR_ACCESSION, config.KSTAR_SITE])
+        counts = intersect.groupby(config.KSTAR_KINASE).size()
+        N = len(intersect.groupby([config.KSTAR_ACCESSION, config.KSTAR_SITE]).size())
         results = pd.DataFrame(counts, columns = ['frequency'])
         results['kinase_activity'] = 1.0
 
-        K = network.groupby(self.network_columns['kinase']).size()
+        K = network.groupby(config.KSTAR_KINASE).size()
         
         kinases = counts.index
         for kin in kinases:
@@ -315,7 +308,7 @@ class KinaseActivity:
 
 
 
-        evidence = self.evidence.groupby([self.evidence_columns['substrate'], self.evidence_columns['site']]).agg(agg).reset_index()
+        evidence = self.evidence.groupby([config.KSTAR_ACCESSION, config.KSTAR_SITE]).agg(agg).reset_index()
 
         # MULTIPROCESSIONG
         pool = multiprocessing.Pool()
@@ -368,7 +361,7 @@ class KinaseActivity:
             raise ValueError(f"the method '{method}' is not in the availble methods. \nAvailable methods include : {', '.join(available_methods)}")
 
 
-        activity_summary = activities.pivot(index = self.network_columns['kinase'], columns ='data', values = method).reset_index().rename_axis(None, axis=1)
+        activity_summary = activities.pivot(index = config.KSTAR_KINASE, columns ='data', values = method).reset_index().rename_axis(None, axis=1)
         return activity_summary
 
     
@@ -390,7 +383,7 @@ class KinaseActivity:
         """
         if activities is None:
             activities = self.activities
-        self.agg_activities = activities.groupby(['data', self.network_columns['kinase'] ]).agg(
+        self.agg_activities = activities.groupby(['data', config.KSTAR_KINASE ]).agg(
             median_activity = ('kinase_activity', 'median'),
         ).reset_index()
         return self.agg_activities
@@ -461,7 +454,7 @@ class KinaseActivity:
             normalization multiplier to use for calculated normalized kinase activity
         """
         normalized_activity = kinase_activity.copy()
-        normalized_activity['Normalization Factor'] = normalized_activity.apply(lambda row: normalizers[row[self.network_columns['kinase']]] if row[self.network_columns['kinase']] in normalizers.keys() else default_normalization, axis = 1)
+        normalized_activity['Normalization Factor'] = normalized_activity.apply(lambda row: normalizers[row[config.KSTAR_KINASE]] if row[config.KSTAR_KINASE] in normalizers.keys() else default_normalization, axis = 1)
         if len(self.networks) > 0:
             normalized_activity['Significant'] = normalized_activity.apply(lambda row: (row['kinase_activity'] <= row['Normalization Factor'] / len( self.networks ) ) * 1, axis = 1)
         else:
@@ -491,7 +484,7 @@ class KinaseActivity:
         summary : pandas df
             summarized data of all networks by kinase
         """
-        self.normalized_agg_activities = normalized_activities.groupby(['data',self.network_columns['kinase'] ]).agg(
+        self.normalized_agg_activities = normalized_activities.groupby(['data',config.KSTAR_KINASE ]).agg(
             median_original_activity = ('kinase_activity', 'median'),
             median_normalized_activity = ('Normalized Activity', 'median'),
             count_significant = ('Significant', 'sum'),
@@ -534,19 +527,19 @@ class KinaseActivity:
         """
 
         
-        evidence = self.evidence.groupby([self.evidence_columns['substrate'], self.evidence_columns['site']]).agg(agg)
+        evidence = self.evidence.groupby([config.KSTAR_ACCESSION, config.KSTAR_SITE]).agg(agg)
         all_rows = []
 
         kinase_sizes = {}
         for nid, network in self.networks.items():
-            # kinase_sizes[nid] = network.groupby(self.network_columns['kinase']).size()
-            kinase_sizes[nid] = int(network.groupby(self.network_columns['kinase']).size().mean())
+            # kinase_sizes[nid] = network.groupby(config.KSTAR_KINASE).size()
+            kinase_sizes[nid] = int(network.groupby(config.KSTAR_KINASE).size().mean())
             
 
         for col in data_columns:
             print(col)
             filtered_evidence = evidence[evidence[col] > threshold]
-            N = len(filtered_evidence.groupby([self.evidence_columns['substrate'], self.evidence_columns['site']]).size())
+            N = len(filtered_evidence.groupby([config.KSTAR_ACCESSION, config.KSTAR_SITE]).size())
             for nid, M in self.network_sizes.items():
                 # kinases = list(kinase_sizes[nid].index)
                 # for kinase in kinases:
@@ -586,7 +579,7 @@ class KinaseActivity:
         as FDR alpha.
         """
         exp_activities = pd.concat(activities, names = ['Data','__drop__']).reset_index().drop(columns='__drop__')
-        kinases = exp_activities[self.network_columns['kinase']].unique()
+        kinases = exp_activities[config.KSTAR_KINASE].unique()
         
         norm_activities = []
 
@@ -602,7 +595,7 @@ class KinaseActivity:
                 else:
                     alpha = self.normalizers[kinase] if kinase in self.normalizers.keys() else default_alpha
                 
-                norm_activity = activity[activity[self.network_columns['kinase']] == kinase]
+                norm_activity = activity[activity[config.KSTAR_KINASE] == kinase]
                 rej, cor, _, _ = multitest.multipletests(norm_activity['kinase_activity'], method = 'fdr_tsbky', alpha=alpha)
                 norm_activity['fdr_activity'] = cor
                 norm_activity['fdr_significant'] = rej * 1
@@ -615,7 +608,7 @@ class KinaseActivity:
     def aggregate_fdr(self, activities):
         agg_activities =defaultdict()
         for key, activity in activities.items():
-            agg_activities[key] = activity.groupby(['data',self.network_columns['kinase']]).agg(
+            agg_activities[key] = activity.groupby(['data',config.KSTAR_KINASE]).agg(
             median_activity = ('kinase_activity', 'median'),
             median_fdr_activity = ('fdr_activity','median')).reset_index()
         return agg_activities

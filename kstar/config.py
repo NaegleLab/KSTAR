@@ -33,6 +33,11 @@ NETWORK_DIR = f"{RESOURCE_DIR}/NETWORKS/NetworKIN/"
 NETWORK_Y_PICKLE = f"{NETWORK_DIR}/network_Y.p" # created by create_networkin_pickles()
 NETWORK_ST_PICKLE = f"{NETWORK_DIR}/network_ST.p" #created by create_networkin_pickles()
 
+# COLUMN NAMES USED FOR KSTAR
+KSTAR_ACCESSION = 'KSTAR_ACCESSION'
+KSTAR_PEPTIDE = 'KSTAR_PEPTIDE'
+KSTAR_SITE = 'KSTAR_SITE'
+KSTAR_KINASE = 'Kinase Name'
 
 
 
