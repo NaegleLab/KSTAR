@@ -26,7 +26,7 @@ class KinaseActivity:
             required keys : substrate, site
         logger : Logger object
         """
-
+        self.phospho_type = phospho_type
         self.set_evidence(evidence)
         self.evidence_columns = evidence_columns
         self.network_columns = {
@@ -54,7 +54,7 @@ class KinaseActivity:
         self.aggregate = 'count'
         self.threshold = 0.0
         self.greater = True
-        self.phospho_type = phospho_type
+        
 
         self.set_data_columns()
     
@@ -146,7 +146,8 @@ class KinaseActivity:
         
         if 'substrate' in columns.keys() and 'site' in columns.keys():
             self.evidence_columns = columns
-            self.evidence = evidence
+            phospho_type = tuple(self.phospho_type)
+            self.evidence = evidence[evidence[self.evidence_columns['site'].str.startswith(phospho_type)]].copy()
         else:
             self.logger.warning("Evidence not set. Evidence columns must include 'substrate' and 'site' keys")
     
@@ -824,7 +825,7 @@ def save_kstar(kinact_dict, name, odir):
                 kinact.random_kinact.activities.to_csv(f"{odir}/RANDOM_ANALYSIS/{name_out}_random_activities.tsv", sep = '\t', index = False)
                 kinact.random_kinact.agg_activities.to_csv(f"{odir}/RANDOM_ANALYSIS/{name_out}_random_aggregated_activities.tsv", sep = '\t', index = False)
                 kinact.random_kinact.activity_summary.to_csv(f"{odir}/RANDOM_ANALYSIS/{name_out}_random_summarized_activities.tsv", sep = '\t', index = False)
-                
+
                 kinact.normalized_activities.to_csv(f"{odir}/RESULTS/{name_out}_normalized_activities.tsv", sep = '\t', index = False)
                 kinact.normalized_agg_activities.to_csv(f"{odir}/RESULTS/{name_out}_normalized_aggregated_activities.tsv", sep = '\t', index = False)
                 kinact.normalized_summary.to_csv(f"{odir}/RESULTS/{name_out}_normalized_summarized_activities.tsv", sep = '\t', index = False)
