@@ -275,17 +275,23 @@ class KinaseActivity:
         """
         Calculates combined activity of experiments based that uses a threshold value to determine if an experiment sees a site or not
         To use values use 'mean' as agg
+            mean aggregation drops NA values from consideration
         To use count use 'count' as agg - present if not na
 
         Parameters
         ----------
         data_columns : list
-            columns that represent experimental result, if None, takes the data: columns of the experiment. Pass this value in, if seeking to 
-            calculate on fewere than all available data columns
+            columns that represent experimental result, if None, takes the columns that start with `data:'' in experiment. 
+            Pass this value in as a list, if seeking to calculate on fewer than all available data columns
         threshold : float
             threshold value used to filter rows 
-        agg : string
-            method to use when aggregating duplicate substrate-sites
+        agg : {'count', 'mean'}
+            method to use when aggregating duplicate substrate-sites. 
+            'count' combines multiple representations and adds if values are non-NaN
+            'mean' uses the mean value of numerical data from multiple representations of the same peptide.
+                NA values are droped from consideration.
+        greater: Boolean
+            whether to keep sites that have a numerical value >=threshold (TRUE, default) or <=threshold (FALSE)
         
         Returns
         -------
@@ -708,8 +714,10 @@ def run_kstar_analysis(experiment, log, networks, phospho_types =['Y', 'ST'], da
         columns that represent experimental result, if None, takes the columns that start with `data:'' in experiment. 
         Pass this value in as a list, if seeking to calculate on fewer than all available data columns
     agg : {'count', 'mean'}
-        method to use when aggregating duplicate substrate-sites. Count combines multiple representations and adds if values are non-NaN
-        'mean' uses the mean value of numerical data from multiple representations of the same peptide 
+        method to use when aggregating duplicate substrate-sites. 
+        'count' combines multiple representations and adds if values are non-NaN
+        'mean' uses the mean value of numerical data from multiple representations of the same peptide.
+            NA values are droped from consideration.
     threshold : float
         threshold value used to filter rows
     greater: Boolean
