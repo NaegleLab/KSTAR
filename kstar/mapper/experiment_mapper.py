@@ -7,6 +7,7 @@ import numpy as np
 from kstar import config, helpers
 
 
+
 class ExperimentMapper:
 
     def __init__(self, experiment, columns, logger, sequences=config.HUMAN_REF_SEQUENCES, compendia=config.HUMAN_REF_COMPENDIA, window = 7, data_columns = None):      
@@ -23,7 +24,7 @@ class ExperimentMapper:
             The peptide column should be upper case, with lower case indicating the site of phosphorylation - this is preferred
             The site column should be in the format S/T/Y<pos>, e.g. Y15 or S345
         columns: dict
-            Dictionary with mappings of the experiment dataframe column names for the required names 'config.KSTAR_ACCESSION', 'peptide', or 'site'. 
+            Dictionary with mappings of the experiment dataframe column names for the required names 'accession_id', 'peptide', or 'site'. 
             One of 'peptide' or 'site' is required. 
         logger: Logger object
             used for logging when peptides cannot be matched and when a site location changes
@@ -45,14 +46,14 @@ class ExperimentMapper:
         self.experiment = experiment
         self.sequences = sequences
         self.compendia = compendia
-        def set_config.KSTAR_ACCESSION(accession):
+        def set_accession_id(accession):
             return '-'.join(accession.split('-')[:-1])
 
 
-        if 'config.KSTAR_ACCESSION' not in columns.keys():
-            raise ValueError('ExperimentMapper requires config.KSTAR_ACCESSION as a dictionary key')
+        if 'accession_id' not in columns.keys():
+            raise ValueError('ExperimentMapper requires accession_id as a dictionary key')
         else:
-            self.experiment[config.KSTAR_ACCESSION] = self.experiment[columns['config.KSTAR_ACCESSION']].apply(set_config.KSTAR_ACCESSION) 
+            self.experiment[config.KSTAR_ACCESSION] = self.experiment[columns['accession_id']].apply(set_accession_id) 
 
         if 'peptide' not in columns.keys() and 'site' not in columns.keys():
             raise ValueError('ExperimentMapper requires either site or peptide as keys in dictionary')
@@ -144,7 +145,7 @@ class ExperimentMapper:
                     else:
                         self.logger.warning(f"PEPTIDE MISMATCH : {row[config.KSTAR_ACCESSION]} {row[config.KSTAR_SITE]}")
                         self.experiment.loc[index, config.KSTAR_SITE] = None
-                        self.experiment.loc[index, config.KSTAR_PEPTIDE] = None
+                        self.experiment.loc[index, PEPTIDE_ID] = None
                 else:
                     self.logger.warning(f"SITE NOT FOUND : {self.experiment[config.KSTAR_ACCESSION]}\t{self.experiment[config.KSTAR_SITE]}")
             
