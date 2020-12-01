@@ -47,8 +47,10 @@ class ExperimentMapper:
         self.sequences = sequences
         self.compendia = compendia
         def set_accession_id(accession):
-            return '-'.join(accession.split('-')[:-1])
-
+            acc = accession.split('-')
+            if len(acc) > 1:
+                acc = acc[:-1]
+            return '-'.join(acc)
 
         if 'accession_id' not in columns.keys():
             raise ValueError('ExperimentMapper requires accession_id as a dictionary key')

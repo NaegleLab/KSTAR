@@ -51,7 +51,6 @@ class KinaseActivity:
         self.threshold = 0.0
         self.greater = True
         
-
         self.set_data_columns()
 
         self.run_date = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
@@ -828,6 +827,7 @@ def save_kstar(kinact_dict, name, odir):
             kinact.activity_summary.to_csv(f"{odir}/RESULTS/{name_out}_summarized_activities.tsv", sep = '\t', index = False)
 
             if kinact.normalized:
+
                 kinact.random_kinact.activities.to_csv(f"{odir}/RANDOM_ANALYSIS/{name_out}_random_activities.tsv", sep = '\t', index = False)
                 kinact.random_kinact.agg_activities.to_csv(f"{odir}/RANDOM_ANALYSIS/{name_out}_random_aggregated_activities.tsv", sep = '\t', index = False)
                 kinact.random_kinact.activity_summary.to_csv(f"{odir}/RANDOM_ANALYSIS/{name_out}_random_summarized_activities.tsv", sep = '\t', index = False)
@@ -835,6 +835,8 @@ def save_kstar(kinact_dict, name, odir):
                 kinact.normalized_activities.to_csv(f"{odir}/RESULTS/{name_out}_normalized_activities.tsv", sep = '\t', index = False)
                 kinact.normalized_agg_activities.to_csv(f"{odir}/RESULTS/{name_out}_normalized_aggregated_activities.tsv", sep = '\t', index = False)
                 kinact.normalized_summary.to_csv(f"{odir}/RESULTS/{name_out}_normalized_summarized_activities.tsv", sep = '\t', index = False)
+
+                kinact.random_experiments.to_csv(f"{odir}/RANDOM_ANALYSIS/{name_out}_random_experiments.tsv", sep = '\t', index = False)
 
         pickle.dump( kinact_dict, open( f"{odir}/RESULTS/{name}_kinact.p", "wb" ) )
 
