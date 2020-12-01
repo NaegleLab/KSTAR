@@ -82,7 +82,7 @@ def process_args(results):
 def parse_args():
     parser = argparse.ArgumentParser(description='Parse KSTAR Arguments')
     parser.add_argument('--exp_file', '--experiment_file', action='store', dest= 'exp_file', help='Experiment file location. csv or tsv file', required=True)
-    parser.add_argument('--odir','--output_directory', action = 'store', dest='odir', help = 'output directory for results',)
+    parser.add_argument('--odir','--output_directory', action = 'store', dest='odir', help = 'output directory for results', required=True)
     parser.add_argument('--phospho_types', action = 'store', dest='phospho_types', help ='phosphorylation event type', choices=['Y','ST'], default=['Y','ST'], nargs='*')
     parser.add_argument('--name', action = 'store', dest='name', help = 'experiment name', default='Experiment')
     parser.add_argument('--accession', action = 'store', dest='accession', help = 'Protein Accession column in experiment file', default='accession')
