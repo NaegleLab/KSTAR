@@ -6,6 +6,7 @@ import multiprocessing
 from collections import defaultdict
 import pickle
 import os
+from datetime import datetime
 
 from kstar import config
 from kstar.normalize import generate_random_experiments, calculate_fpr
@@ -57,6 +58,8 @@ class KinaseActivity:
         
 
         self.set_data_columns()
+
+        self.run_date = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
     
 
     def set_data_columns(self):
@@ -130,6 +133,8 @@ class KinaseActivity:
             self.network_sizes[network_id] = len(network.groupby([self.network_columns['substrate'], self.network_columns['site']]).size())
             self.logger.info(f'ADD NETWORK : Number of Accession Sites : {self.network_sizes[network_id]}')
     
+    def get_run_date(self):
+        return self.run_date
 
     def set_evidence(self, evidence, columns = {'substrate':'KSTAR_ACCESSION', 'site':'KSTAR_SITE'}):
         """
