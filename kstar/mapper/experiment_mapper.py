@@ -49,11 +49,14 @@ class ExperimentMapper:
         self.experiment = experiment
         self.sequences = sequences
         self.compendia = compendia
+        def set_accession_id(accession):
+            return '-'.join(accession.split('-')[:-1])
+
 
         if 'accession_id' not in columns.keys():
             raise ValueError('ExperimentMapper requires accession_id as a dictionary key')
         else:
-            self.experiment[ACCESSION_ID] = self.experiment[columns['accession_id']] 
+            self.experiment[ACCESSION_ID] = self.experiment[columns['accession_id']].apply(set_accession_id) 
 
         if 'peptide' not in columns.keys() and 'site' not in columns.keys():
             raise ValueError('ExperimentMapper requires either site or peptide as keys in dictionary')
