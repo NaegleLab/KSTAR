@@ -5,6 +5,7 @@ from statsmodels.stats import multitest
 import multiprocessing
 from collections import defaultdict
 import pickle
+import os
 
 from kstar import config
 from kstar.normalize import generate_random_experiments, calculate_fpr
@@ -43,6 +44,11 @@ class KinaseActivity:
         self.agg_activities = None
         self.activity_summary = None
 
+        self.normalized = False
+        self.random_experiments = None
+        self.random_kinact = None
+        self.normalized_activities = None
+        self.normalized_agg_activities = None
         self.normalized_summary = None
 
         self.aggregate = 'count'
@@ -74,10 +80,13 @@ class KinaseActivity:
         else:
             self.logger.warning("Network Columns Not Changed. Columns must include substrate, site, and kinase keys")
     
-    def run_normalization(self,num_random_experiments=150, target_alpha=0.05):
+    def run_normalization(self, logger, num_random_experiments=150, target_alpha=0.05):
         """
         Run entire normaliation pipeline
         """
+
+        self.normalized = True
+
         self.random_experiments = generate_random_experiments.build_random_experiments(
             self.evidence, 
             config.HUMAN_REF_COMPENDIA, 
@@ -85,18 +94,19 @@ class KinaseActivity:
             self.threshold, 
             num_random_experiments,
             self.phospho_type, 
-            self.data_columns  )
+            self.data_columns )
         
-        self.random_kinact = KinaseActivity(self.random_experiments, self.logger, phospho_type=self.phospho_type)
+        
+        self.random_kinact = KinaseActivity(self.random_experiments, logger, phospho_type=self.phospho_type)
         self.random_kinact.add_networks_batch(self.networks)
         self.random_kinact.calculate_kinase_activities( agg=self.aggregate, threshold=self.threshold, greater=self.greater)
         self.random_kinact.aggregate_activities()
-        self.random_kinact.summarize_activities()
+        self.random_kinact.activity_summary = self.random_kinact.summarize_activities()
 
         self.normalizers = calculate_fpr.generate_fpr_values(self.random_kinact.activity_summary, target_alpha)
 
         self.normalize_activities()
-        self.summarize_activities(self.normalized_agg_activities,'median_normalized_activity',normalized=True)
+        self.normalized_summary = self.summarize_activities(self.normalized_agg_activities,'median_normalized_activity',normalized=True)
 
     def add_networks_batch(self,networks):
         for nid, network in networks.items():
@@ -318,7 +328,6 @@ class KinaseActivity:
         return self.activities
 
 
-
     def summarize_activities(self, activities = None, method = 'median_activity', normalized = False):
         """
         Builds a single combined dataframe from the provided activities such that 
@@ -348,13 +357,9 @@ class KinaseActivity:
 
 
         activity_summary = activities.pivot(index = self.network_columns['kinase'], columns ='data', values = method).reset_index().rename_axis(None, axis=1)
-        if normalized:
-            self.normalized_summary = activity_summary
-        else:
-            self.activity_summary = activity_summary
-        return self.activity_summary
+        return activity_summary
 
-
+    
     def aggregate_activities(self, activities = None):
         """
         Aggregate network activity using median for all activities
@@ -401,6 +406,8 @@ class KinaseActivity:
             key : experiment
             value : summary statistics
         """
+        self.normalized = True
+        
         if activities is None:
             activities = self.activities
         normalized_activities = []
@@ -735,35 +742,44 @@ def run_kstar_analysis(experiment, log, networks, phospho_types =['Y', 'ST'], da
         kinact.add_networks_batch(networks[phospho_type])
         kinact.calculate_kinase_activities(data_columns, agg=agg, threshold=threshold, greater=greater)
         kinact.aggregate_activities()
-        kinact.summarize_activities()
+        kinact.activity_summary = kinact.summarize_activities()
         kinact_dict[phospho_type] = kinact
     return kinact_dict
 
 
 def normalize_analysis(kinact_dict, log, num_random_experiments=150, target_alpha = 0.05):
-    rand_experiments = {}
-    rand_kinact = {}
-    networks = {}
     for phospho_type, kinact in kinact_dict.items():
-        rand_experiments[phospho_type] = generate_random_experiments.build_random_experiments(
-            kinact.evidence, 
-            config.HUMAN_REF_COMPENDIA, 
-            kinact.aggregate, 
-            kinact.threshold, 
-            num_random_experiments,
-            phospho_type, 
-            kinact.data_columns  )
+        kinact.run_normalization(log, num_random_experiments, target_alpha)
+    
+    # rand_experiments = {}
+    # rand_kinact = {}
+    # networks = {}
+    # for phospho_type, kinact in kinact_dict.items():
+    #     print(kinact.evidence.head())
+    #     print(kinact.aggregate)
+    #     print(kinact.threshold)
+    #     print(num_random_experiments)
+    #     print(phospho_type)
+    #     print(kinact.data_columns)
+    #     rand_experiments[phospho_type] = generate_random_experiments.build_random_experiments(
+    #         kinact.evidence, 
+    #         config.HUMAN_REF_COMPENDIA, 
+    #         kinact.aggregate, 
+    #         kinact.threshold, 
+    #         num_random_experiments,
+    #         phospho_type, 
+    #         kinact.data_columns  )
         
-        networks[phospho_type] = kinact.networks
+    #     networks[phospho_type] = kinact.networks
 
-        rand_kinact[phospho_type] = run_kstar_analysis(rand_experiments[phospho_type], log, networks, kinact.phospho_type, agg='count', threshold=0.0, greater=True)[phospho_type]
-        normalized_fpr_values = calculate_fpr.generate_fpr_values(rand_kinact[phospho_type].activity_summary, target_alpha)
+    #     rand_kinact[phospho_type] = run_kstar_analysis(rand_experiments[phospho_type], log, networks, kinact.phospho_type, agg='count', threshold=0.0, greater=True)[phospho_type]
+    #     normalized_fpr_values = calculate_fpr.generate_fpr_values(rand_kinact[phospho_type].activity_summary, target_alpha)
 
-        kinact.set_normalizers(normalized_fpr_values)
-        kinact.normalize_activities()
-        kinact.summarize_activities(kinact.normalized_agg_activities,'median_normalized_activity',normalized=True)
+    #     kinact.set_normalizers(normalized_fpr_values)
+    #     kinact.normalize_activities()
+    #     kinact.summarize_activities(kinact.normalized_agg_activities,'median_normalized_activity',normalized=True)
 
-        return rand_experiments, rand_kinact
+    #     return rand_experiments, rand_kinact
     
 
 
@@ -790,11 +806,28 @@ def save_kstar(kinact_dict, name, odir):
         Nothing
 
         """
-        for phospho_type in kinact_dict:
-            name_out = f"{name}_{phospho_type}"
-            kinact_dict[phospho_type].activities.to_csv(f"{odir}/{name_out}_activities.tsv", sep = '\t', index = False)
-            kinact_dict[phospho_type].agg_activities.to_csv(f"{odir}/{name_out}_aggregated_activities.tsv", sep = '\t', index = False)
-            kinact_dict[phospho_type].activity_summary.to_csv(f"{odir}/{name_out}_summarized_activities.tsv", sep = '\t', index = False)
+
+        if not os.path.exists(f"{odir}/RESULTS"): 
+            os.mkdir(f"{odir}/RESULTS") 
+
+        if not os.path.exists(f"{odir}/RANDOM_ANALYSIS"): 
+            os.mkdir(f"{odir}/RANDOM_ANALYSIS") 
         
-        pickle.dump( kinact_dict, open( f"{odir}/{name}_kinact.p", "wb" ) )
+        for phospho_type in kinact_dict:
+            kinact = kinact_dict[phospho_type]
+            name_out = f"{name}_{phospho_type}"
+            kinact.activities.to_csv(f"{odir}/RESULTS/{name_out}_activities.tsv", sep = '\t', index = False)
+            kinact.agg_activities.to_csv(f"{odir}/RESULTS/{name_out}_aggregated_activities.tsv", sep = '\t', index = False)
+            kinact.activity_summary.to_csv(f"{odir}/RESULTS/{name_out}_summarized_activities.tsv", sep = '\t', index = False)
+
+            if kinact.normalized:
+                kinact.random_kinact.activities.to_csv(f"{odir}/RANDOM_ANALYSIS/{name_out}_random_activities.tsv", sep = '\t', index = False)
+                kinact.random_kinact.agg_activities.to_csv(f"{odir}/RANDOM_ANALYSIS/{name_out}_random_aggregated_activities.tsv", sep = '\t', index = False)
+                kinact.random_kinact.activity_summary.to_csv(f"{odir}/RANDOM_ANALYSIS/{name_out}_random_summarized_activities.tsv", sep = '\t', index = False)
+                
+                kinact.normalized_activities.to_csv(f"{odir}/RESULTS/{name_out}_normalized_activities.tsv", sep = '\t', index = False)
+                kinact.normalized_agg_activities.to_csv(f"{odir}/RESULTS/{name_out}_normalized_aggregated_activities.tsv", sep = '\t', index = False)
+                kinact.normalized_summary.to_csv(f"{odir}/RESULTS/{name_out}_normalized_summarized_activities.tsv", sep = '\t', index = False)
+
+        pickle.dump( kinact_dict, open( f"{odir}/RESULTS/{name}_kinact.p", "wb" ) )
 

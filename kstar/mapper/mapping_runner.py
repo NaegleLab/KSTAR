@@ -7,17 +7,7 @@ import argparse
 from os import path
 import os
 import experiment_mapper
-
-
-def process_fasta_file(fasta_file):
-    seqs = SeqIO.parse(open(fasta_file), 'fasta')
-
-    sequences = defaultdict()
-    for entry in seqs:
-            seq = str(entry.seq)
-            acc = entry.id.split('|')[1].strip()
-            sequences[acc] = seq
-    return sequences
+from kstar.helpers import process_fasta_file
 
 def parse_args():
     parser = argparse.ArgumentParser(description='Parse Mapping Inference Arguments')

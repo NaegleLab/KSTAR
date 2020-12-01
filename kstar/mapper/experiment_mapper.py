@@ -2,8 +2,10 @@
 import pandas as pd
 from collections import defaultdict
 import re
+import os
 import numpy as np
-from kstar import config
+from kstar import config, helpers
+
 
 ACCESSION_ID = 'KSTAR_ACCESSION'
 SITE_ID = 'KSTAR_SITE'
@@ -230,10 +232,6 @@ def find_peptide_locations(peptide, sequence):
     """
     return [m.start() + 1 for m in re.finditer(peptide, sequence)]
 
-
-
-
-
 def peptide_site_number(peptide, sequence, site = None, modification_types = None):
     """
     Finds the site number by finding the modification site in sequence and the peptide location
@@ -411,3 +409,21 @@ def get_aligned_peptide(site, sequence, window):
         peptide = ''.join(peptide)
         return peptide
     return None
+
+def run_mapping(experiment, odir, name, map_columns, window=7, data_columns=None):
+    if not os.path.exists(f"{odir}/MAPPED_DATA"): 
+        os.mkdir(f"{odir}/MAPPED_DATA")   
+    mapping_log = helpers.get_logger(f"mapping_{name}", f"{odir}/MAPPED_DATA/mapping_{name}.log")
+    exp_mapper = ExperimentMapper(
+        experiment = experiment,
+        sequences = config.HUMAN_REF_SEQUENCES, 
+        columns = map_columns, 
+        logger = mapping_log, 
+        compendia = config.HUMAN_REF_COMPENDIA, 
+        window = window, 
+        data_columns = data_columns)
+     
+    experiment = exp_mapper.experiment 
+    experiment.to_csv(f"{odir}/MAPPED_DATA/{name}_mapped.tsv", sep = '\t', index = False)
+    
+    return experiment
