@@ -79,7 +79,7 @@ class KinaseActivity:
     
     def run_normalization(self, logger, num_random_experiments=150, target_alpha=0.05):
         """
-        Run entire normaliation pipeline
+        Run entire normaliation pipeline 
         """
 
         self.normalized = True
@@ -754,6 +754,33 @@ def run_kstar_analysis(experiment, log, networks, phospho_types =['Y', 'ST'], da
 
 
 def normalize_analysis(kinact_dict, log, num_random_experiments=150, target_alpha = 0.05):
+    """
+    Creates random experiments, drawn from the human phosphoproteome, according to the distribution of the number of compendia
+    that each data column in the experiment has for num_random_experiments. Kinase activity calculation is then run on every random experiment
+    and then assembled for each data column to calculate the pvalue at which a kinase hits the target_alpha value of false positives. 
+    Finally, it takes these empirically defined pvalue corrections and normalizes the kinase activities according to these, such that
+    the real experimental data also has the target_alpha value. 
+
+    Params
+    ------
+    kinact_dict: KinaseActivities dictionary
+        Has keys ['Y'] and/or ['ST'] and values that are KinaseActivity objects. These objects are modified to add normalization
+    log: logger 
+        Logger for logging activity messages
+    num_random_experiments: int
+        Number of random experiments, for each data column, to create and run activity from
+    target_alpha: float 
+        Value between 0 and 1 that is the target false positive rate. 
+
+    Returns
+    -------
+
+
+    """
+
+    if target_alpha > 1 or target_alpha < 0: 
+        raise ValueError('ERROR: target_alpha must be value between 0 and 1')
+
     for phospho_type, kinact in kinact_dict.items():
         kinact.run_normalization(log, num_random_experiments, target_alpha)
     
