@@ -48,7 +48,7 @@ class KinaseActivity:
         self.normalized_summary = None
 
         self.aggregate = 'count'
-        self.threshold = 0.0
+        self.threshold = 1.0
         self.greater = True
         
         self.set_data_columns()
@@ -114,7 +114,7 @@ class KinaseActivity:
         self.logger.info("Calculating random kinase activities")
         self.random_kinact = KinaseActivity(self.random_experiments, logger, phospho_type=self.phospho_type)
         self.random_kinact.add_networks_batch(self.networks)
-        self.random_kinact.calculate_kinase_activities( agg='count', threshold=0.0, greater=True )
+        self.random_kinact.calculate_kinase_activities( agg='count', threshold=1.0, greater=True )
         self.random_kinact.aggregate_activities()
         self.random_kinact.activity_summary = self.random_kinact.summarize_activities()
 
@@ -282,7 +282,7 @@ class KinaseActivity:
         return hyp_act
 
 
-    def calculate_kinase_activities(self, data_columns = None, agg = 'count', threshold = 0.0,  greater = True):
+    def calculate_kinase_activities(self, data_columns = None, agg = 'count', threshold = 1.0,  greater = True):
         """
         Calculates combined activity of experiments based that uses a threshold value to determine if an experiment sees a site or not
         To use values use 'mean' as agg
@@ -515,7 +515,7 @@ class KinaseActivity:
         return self.normalized_agg_activities
 
 
-    def  find_pvalue_limits(self, data_columns, agg = 'count', threshold = 0.0):
+    def  find_pvalue_limits(self, data_columns, agg = 'count', threshold = 1.0):
         """
         For each data column and network find the lowest p-value achievable and how many 
         seen sites are required to get to that limit.
@@ -707,7 +707,7 @@ class KinaseActivity:
         results['fdr_activity'] = cor
         return results
 
-def run_kstar_analysis(experiment, log, networks, phospho_types =['Y', 'ST'], data_columns = None, agg = 'count', threshold = 0.0,  greater = True):
+def run_kstar_analysis(experiment, log, networks, phospho_types =['Y', 'ST'], data_columns = None, agg = 'count', threshold = 1.0,  greater = True):
     """
     A super method to establish a kstar KinaseActivity object from an experiment with an activity log
     add the networks, calculate, aggregate, and summarize the activities into a final activity object
