@@ -2,10 +2,11 @@ import pandas as pd
 import multiprocessing
 import itertools
 import argparse
+from kstar import config
 
 
 def build_filtered_experiment(experiment, compendia, filtered_compendia, num_random_experiments, name):
-    rand_experiments = compendia[['KSTAR_ACCESSION', 'KSTAR_SITE']].copy()
+    rand_experiments = compendia[[config.KSTAR_ACCESSION, config.KSTAR_SITE]]
     if len(experiment) == 0:
         empty_columns = [f"{name}:{i}" for i in range(num_random_experiments)]
         rand_experiments = pd.concat([rand_experiments,pd.DataFrame(columns=empty_columns)])
@@ -21,50 +22,51 @@ def build_filtered_experiment(experiment, compendia, filtered_compendia, num_ran
             filtered_random[f"{name}:{i}"] = 1
             rand_experiment_list.append(filtered_random)
         rand_experiment = pd.concat(rand_experiment_list)
-        rand_experiments = pd.merge(rand_experiments, rand_experiment, how = 'left', on = ['KSTAR_ACCESSION', 'KSTAR_SITE'])
+        rand_experiments = pd.merge(rand_experiments, rand_experiment, how = 'left', on = [config.KSTAR_ACCESSION, config.KSTAR_SITE])
+    
     return rand_experiments
 
 
 def build_random_experiments(experiment, compendia, agg, threshold, greater, num_random_experiments, phosphorylation_event, data_columns = None):
+
+
     phosphorylation_event = tuple(phosphorylation_event)
-    compendia = compendia[compendia['KSTAR_SITE'].str.startswith(phosphorylation_event)]
-    experiment = experiment[experiment['KSTAR_SITE'].str.startswith(phosphorylation_event)]
-    experiment = experiment.groupby(['KSTAR_ACCESSION', 'KSTAR_SITE']).agg(agg).reset_index()
+    compendia = compendia[compendia[config.KSTAR_SITE].str.startswith(phosphorylation_event)]
+    compendia = compendia[[config.KSTAR_ACCESSION, config.KSTAR_SITE, 'KSTAR_NUM_COMPENDIA']]
+    compendia = compendia.groupby([config.KSTAR_ACCESSION, config.KSTAR_SITE]).max().reset_index()
+    experiment = experiment[experiment[config.KSTAR_SITE].str.startswith(phosphorylation_event)]
+    experiment = experiment.groupby([config.KSTAR_ACCESSION, config.KSTAR_SITE]).agg(agg).reset_index()
     if data_columns is None:
         data_columns =[c for c in experiment.columns if c.startswith('data:')]
     sizes = compendia['KSTAR_NUM_COMPENDIA'].unique()
     filtered_compendia = {}
     for s in sizes:
-        filtered_compendia[s] = compendia[compendia['KSTAR_NUM_COMPENDIA'] == s][['KSTAR_ACCESSION', 'KSTAR_SITE']]
-
+        filtered_compendia[s] = compendia[compendia['KSTAR_NUM_COMPENDIA'] == s][[config.KSTAR_ACCESSION, config.KSTAR_SITE]]
     
-    
-    pool = multiprocessing.Pool()
     if greater:
         filtered_experiments = [experiment[experiment[col] >= threshold] for col in data_columns]
     else:
-        filtered_experiments = [experiment[experiment[col] >= threshold] for col in data_columns]
+        filtered_experiments = [experiment[experiment[col] <= threshold] for col in data_columns]
 
+    # ************ PARALELLIZATION ************
+    pool = multiprocessing.Pool()
     iterable = zip(
-<<<<<<< HEAD
             filtered_experiments, 
             itertools.repeat(compendia), 
             itertools.repeat(filtered_compendia), 
             itertools.repeat(num_random_experiments), 
-            [col for col in data_columns])
-=======
-        [experiment[experiment[col] >= threshold] for col in data_columns], 
-        itertools.repeat(compendia), 
-        itertools.repeat(filtered_compendia), 
-        itertools.repeat(num_random_experiments), 
-        [col for col in data_columns])
->>>>>>> fff0df4710eaa341163701a28203bf494d07d978
-        
+            [col for col in data_columns]   
     rand_experiments_list =  pool.starmap(build_filtered_experiment, iterable)
 
-    rand_experiments = compendia[['KSTAR_ACCESSION', 'KSTAR_SITE']].copy()
+    # ********** NO PARALLELIZATION ***********
+    # rand_experiments_list = []
+    # for exeriment, data_column in zip(filtered_experiments, data_columns):
+    #     rand_exp = build_filtered_experiment(experiment, compendia, filtered_compendia, num_random_experiments, data_column)
+    #     rand_experiments_list.append(rand_exp)
+
+    rand_experiments = compendia[[config.KSTAR_ACCESSION, config.KSTAR_SITE]]
     for r in rand_experiments_list:
-        rand_experiments = pd.merge(rand_experiments, r, how = 'left', on = ['KSTAR_ACCESSION', 'KSTAR_SITE'])
+        rand_experiments = pd.merge(rand_experiments, r, how = 'left', on = [config.KSTAR_ACCESSION, config.KSTAR_SITE])
     return rand_experiments
         
 
