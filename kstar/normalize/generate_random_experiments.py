@@ -41,7 +41,7 @@ def build_random_experiments(experiment, compendia, agg, threshold, num_random_e
     
     pool = multiprocessing.Pool()
     iterable = zip(
-        [experiment[experiment[col] > threshold] for col in data_columns], 
+        [experiment[experiment[col] >= threshold] for col in data_columns], 
         itertools.repeat(compendia), 
         itertools.repeat(filtered_compendia), 
         itertools.repeat(num_random_experiments), 
