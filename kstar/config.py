@@ -23,10 +23,10 @@ PROJECT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 RESOURCE_DIR = f"{PROJECT_DIR}/RESOURCE_FILES" 
 
 # RESOURCE_DIR depedencies
-HUMAN_REF_FASTA_FILE = f"{RESOURCE_DIR}/HUMAN_PROTEOME/humanProteome_2020-02-26.fasta"  #download from KinPred https://doi.org/10.1101/2020.08.10.244426
+HUMAN_REF_FASTA_FILE = f"{RESOURCE_DIR}/Raw/humanProteome/humanProteome_2020-02-26.fasta"  #download from KinPred https://doi.org/10.1101/2020.08.10.244426
 HUMAN_REF_SEQUENCES = helpers.process_fasta_file(HUMAN_REF_FASTA_FILE)
 
-HUMAN_REF_PHOSPHO_FILE = f"{RESOURCE_DIR}/HUMAN_PROTEOME/Human_PhosphoProteome_mapped_annotated_02_26_20.csv"
+HUMAN_REF_PHOSPHO_FILE = f"{RESOURCE_DIR}/Human_PhosphoProteome_mapped_annotated_02_26_20.csv" #download from KSTAR FIGSHARE, or use helpers folder generate to create a new one
 HUMAN_REF_COMPENDIA = pd.read_csv(HUMAN_REF_PHOSPHO_FILE)
 
 NETWORK_DIR = f"{RESOURCE_DIR}/NETWORKS/NetworKIN/"
