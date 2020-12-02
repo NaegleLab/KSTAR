@@ -106,7 +106,8 @@ class KinaseActivity:
             self.evidence, 
             config.HUMAN_REF_COMPENDIA, 
             self.aggregate, 
-            self.threshold, 
+            self.threshold,
+            self.greater, 
             num_random_experiments,
             self.phospho_type, 
             self.data_columns )
@@ -806,36 +807,6 @@ def normalize_analysis(kinact_dict, log, num_random_experiments=150, target_alph
 
     for phospho_type, kinact in kinact_dict.items():
         kinact.run_normalization(log, num_random_experiments, target_alpha)
-    
-    # rand_experiments = {}
-    # rand_kinact = {}
-    # networks = {}
-    # for phospho_type, kinact in kinact_dict.items():
-    #     print(kinact.evidence.head())
-    #     print(kinact.aggregate)
-    #     print(kinact.threshold)
-    #     print(num_random_experiments)
-    #     print(phospho_type)
-    #     print(kinact.data_columns)
-    #     rand_experiments[phospho_type] = generate_random_experiments.build_random_experiments(
-    #         kinact.evidence, 
-    #         config.HUMAN_REF_COMPENDIA, 
-    #         kinact.aggregate, 
-    #         kinact.threshold, 
-    #         num_random_experiments,
-    #         phospho_type, 
-    #         kinact.data_columns  )
-        
-    #     networks[phospho_type] = kinact.networks
-
-    #     rand_kinact[phospho_type] = run_kstar_analysis(rand_experiments[phospho_type], log, networks, kinact.phospho_type, agg='count', threshold=0.0, greater=True)[phospho_type]
-    #     normalized_fpr_values = calculate_fpr.generate_fpr_values(rand_kinact[phospho_type].activity_summary, target_alpha)
-
-    #     kinact.set_normalizers(normalized_fpr_values)
-    #     kinact.normalize_activities()
-    #     kinact.summarize_activities(kinact.normalized_agg_activities,'median_normalized_activity',normalized=True)
-
-    #     return rand_experiments, rand_kinact
     
 
 

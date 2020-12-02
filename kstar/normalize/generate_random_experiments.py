@@ -25,7 +25,7 @@ def build_filtered_experiment(experiment, compendia, filtered_compendia, num_ran
     return rand_experiments
 
 
-def build_random_experiments(experiment, compendia, agg, threshold, num_random_experiments, phosphorylation_event, data_columns = None):
+def build_random_experiments(experiment, compendia, agg, threshold, greater, num_random_experiments, phosphorylation_event, data_columns = None):
     phosphorylation_event = tuple(phosphorylation_event)
     compendia = compendia[compendia['KSTAR_SITE'].str.startswith(phosphorylation_event)]
     experiment = experiment[experiment['KSTAR_SITE'].str.startswith(phosphorylation_event)]
@@ -40,12 +40,17 @@ def build_random_experiments(experiment, compendia, agg, threshold, num_random_e
     
     
     pool = multiprocessing.Pool()
+    if greater:
+        filtered_experiments = [experiment[experiment[col] >= threshold] for col in data_columns]
+    else:
+        filtered_experiments = [experiment[experiment[col] >= threshold] for col in data_columns]
+
     iterable = zip(
-        [experiment[experiment[col] > threshold] for col in data_columns], 
-        itertools.repeat(compendia), 
-        itertools.repeat(filtered_compendia), 
-        itertools.repeat(num_random_experiments), 
-        [col for col in data_columns])
+            filtered_experiments, 
+            itertools.repeat(compendia), 
+            itertools.repeat(filtered_compendia), 
+            itertools.repeat(num_random_experiments), 
+            [col for col in data_columns])
         
     rand_experiments_list =  pool.starmap(build_filtered_experiment, iterable)
 
