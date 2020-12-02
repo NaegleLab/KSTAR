@@ -46,11 +46,19 @@ def build_random_experiments(experiment, compendia, agg, threshold, greater, num
         filtered_experiments = [experiment[experiment[col] >= threshold] for col in data_columns]
 
     iterable = zip(
+<<<<<<< HEAD
             filtered_experiments, 
             itertools.repeat(compendia), 
             itertools.repeat(filtered_compendia), 
             itertools.repeat(num_random_experiments), 
             [col for col in data_columns])
+=======
+        [experiment[experiment[col] >= threshold] for col in data_columns], 
+        itertools.repeat(compendia), 
+        itertools.repeat(filtered_compendia), 
+        itertools.repeat(num_random_experiments), 
+        [col for col in data_columns])
+>>>>>>> fff0df4710eaa341163701a28203bf494d07d978
         
     rand_experiments_list =  pool.starmap(build_filtered_experiment, iterable)
 
