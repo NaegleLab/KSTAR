@@ -37,7 +37,7 @@ def generate_fpr_values(random_activities, target_alpha):
     Paramters
     ---------
     random_activities : pands DataFrame
-        index : Kianse
+        index : Kinase
         columns : random experiments where each iteration is name:#
     target_alpha: float
         target alpha to use
@@ -45,7 +45,7 @@ def generate_fpr_values(random_activities, target_alpha):
     Returns
     --------
     fpr : pandas DataFrame
-        index : Kinsae
+        index : Kinase
         column : experiment name
     """
     df_rename = {col:':'.join(col.split(':')[:-1]) for col in random_activities.columns}

@@ -56,12 +56,30 @@ class KinaseActivity:
         self.run_date = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
     
 
+    def check_data_columns(self, data_columns):
+        new_data_columns = []
+        evidence = self.evidence.groupby([config.KSTAR_ACCESSION, config.KSTAR_SITE]).agg(self.aggregate).reset_index()
+        for col in data_columns:
+            if col in self.evidence.columns:
+                if self.greater:
+                    if len(evidence[evidence[col] >= self.threshold]) > 0:
+                        new_data_columns.append(col)
+                    else:
+                        self.logger.warning(f"{col} does not have any evidence")
+                else:
+                    if len(evidence[evidence[col] <= self.threshold]) > 0:
+                        new_data_columns.append(col)
+                    else:
+                        self.logger.warning(f"{col} does not have any evidence")
+            else:
+                self.logger.warning(f"{col} not in evidence")
+        return new_data_columns
+
     def set_data_columns(self):
         self.data_columns = []
         for col in self.evidence.columns:
             if col.startswith('data:'):
-                self.data_columns.append(col)
-        
+                self.data_columns.append(col)        
 
     def set_network_columns(self, network_columns):
         """
@@ -81,9 +99,9 @@ class KinaseActivity:
         """
         Run entire normaliation pipeline 
         """
-
+        self.logger.info("Running Normalization Pipeline")
         self.normalized = True
-
+        self.logger.info("Generation random experiments")
         self.random_experiments = generate_random_experiments.build_random_experiments(
             self.evidence, 
             config.HUMAN_REF_COMPENDIA, 
@@ -93,13 +111,14 @@ class KinaseActivity:
             self.phospho_type, 
             self.data_columns )
         
-        
+        self.logger.info("Calculating random kinase activities")
         self.random_kinact = KinaseActivity(self.random_experiments, logger, phospho_type=self.phospho_type)
         self.random_kinact.add_networks_batch(self.networks)
-        self.random_kinact.calculate_kinase_activities( agg=self.aggregate, threshold=self.threshold, greater=self.greater)
+        self.random_kinact.calculate_kinase_activities( agg='count', threshold=0.0, greater=True )
         self.random_kinact.aggregate_activities()
         self.random_kinact.activity_summary = self.random_kinact.summarize_activities()
 
+        self.logger.info("Normalizing Activities")
         self.normalizers = calculate_fpr.generate_fpr_values(self.random_kinact.activity_summary, target_alpha)
 
         self.normalize_activities()
@@ -296,27 +315,31 @@ class KinaseActivity:
                 kinase_activity : hypergeometric kinase activity
         
         """
-        if data_columns is None:
-            data_columns = self.data_columns
-        #log here what datacolumns will be operated on, report number of experiments found
 
         #for each phosphoType, check that the 
         self.aggregate = agg
         self.threshold = threshold
         self.greater = greater
 
+        if data_columns is None:
+            data_columns = self.data_columns
+        
+        self.data_columns = self.check_data_columns(self.data_columns)
 
+        #log here what datacolumns will be operated on, report number of experiments found
+
+        
 
         evidence = self.evidence.groupby([config.KSTAR_ACCESSION, config.KSTAR_SITE]).agg(agg).reset_index()
 
         # MULTIPROCESSIONG
         pool = multiprocessing.Pool()
         if greater:
-            filtered_evidence_list  = [evidence[evidence[col] > threshold] for col in data_columns]
-            iterable = zip(filtered_evidence_list, data_columns)
+            filtered_evidence_list  = [evidence[evidence[col] >= threshold] for col in self.data_columns]
+            iterable = zip(filtered_evidence_list, self.data_columns)
         else:
-            filtered_evidence_list  = [evidence[evidence[col] < threshold] for col in data_columns]
-            iterable = zip(filtered_evidence_list, data_columns)
+            filtered_evidence_list  = [evidence[evidence[col] <= threshold] for col in self.data_columns]
+            iterable = zip(filtered_evidence_list, self.data_columns)
         activities_list = pool.starmap(self.calculate_hypergeometric_activities, iterable)
         
         # SINGLE CORE PROCESSING
@@ -360,7 +383,7 @@ class KinaseActivity:
             raise ValueError(f"the method '{method}' is not in the availble methods. \nAvailable methods include : {', '.join(available_methods)}")
 
 
-        activity_summary = activities.pivot(index = config.KSTAR_KINASE, columns ='data', values = method).reset_index().rename_axis(None, axis=1)
+        activity_summary = activities.pivot(index = config.KSTAR_KINASE, columns ='data', values = method).reset_index().rename_axis(None, axis=1).set_index(config.KSTAR_KINASE)
         return activity_summary
 
     
@@ -453,7 +476,7 @@ class KinaseActivity:
             normalization multiplier to use for calculated normalized kinase activity
         """
         normalized_activity = kinase_activity.copy()
-        normalized_activity['Normalization Factor'] = normalized_activity.apply(lambda row: normalizers[row[config.KSTAR_KINASE]] if row[config.KSTAR_KINASE] in normalizers.keys() else default_normalization, axis = 1)
+        normalized_activity['Normalization Factor'] = normalized_activity[config.KSTAR_KINASE].apply(lambda name: normalizers[name] if name in normalizers.keys() else default_normalization)
         if len(self.networks) > 0:
             normalized_activity['Significant'] = normalized_activity.apply(lambda row: (row['kinase_activity'] <= row['Normalization Factor'] / len( self.networks ) ) * 1, axis = 1)
         else:

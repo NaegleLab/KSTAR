@@ -5,9 +5,13 @@ import argparse
 
 
 def build_filtered_experiment(experiment, compendia, filtered_compendia, num_random_experiments, name):
-
-
     rand_experiments = compendia[['KSTAR_ACCESSION', 'KSTAR_SITE']].copy()
+    if len(experiment) == 0:
+        empty_columns = [f"{name}:{i}" for i in range(num_random_experiments)]
+        rand_experiments = pd.concat([rand_experiments,pd.DataFrame(columns=empty_columns)])
+        return rand_experiments
+
+
     sizes = experiment.groupby('KSTAR_NUM_COMPENDIA').size()
     for i in range(num_random_experiments):
         rand_experiment_list = []
