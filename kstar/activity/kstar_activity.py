@@ -265,12 +265,7 @@ class KinaseActivity:
         """
         
         self.logger.info(f"Running hypergeometric analysis on {name}")
-        # Multicore processing
-        #  processes = 4
-        # pool = multiprocessing.Pool(processes=processes)
-        # results = pool.starmap(self.calculate_hypergeometric_single_network, [(evidence, net) for net in self.networks.keys()])
-
-        #Single core processing
+        
         results = []
         for network_id in self.networks.keys(): # calculate kinase activity within each network 
             result = self.calculate_hypergeometric_single_network(evidence, network_id) 
@@ -333,8 +328,9 @@ class KinaseActivity:
 
         evidence = self.evidence.groupby([config.KSTAR_ACCESSION, config.KSTAR_SITE]).agg(agg).reset_index()
 
-        # MULTIPROCESSIONG
-        pool = multiprocessing.Pool()
+        # MULTIPROCESSING
+        num_cores_available = multiprocessing.cpu_count()
+        pool = multiprocessing.Pool(processes = num_cores_available - 2)
         if greater:
             filtered_evidence_list  = [evidence[evidence[col] >= threshold] for col in self.data_columns]
             iterable = zip(filtered_evidence_list, self.data_columns)
