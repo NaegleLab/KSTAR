@@ -319,24 +319,26 @@ class KinaseActivity:
         evidence = self.evidence.groupby([config.KSTAR_ACCESSION, config.KSTAR_SITE]).agg(agg).reset_index()
 
         # MULTIPROCESSING
-        pool = multiprocessing.Pool(processes = config.PROCESSES)
-        if greater:
-            filtered_evidence_list  = [evidence[evidence[col] >= threshold] for col in self.data_columns] 
-        else:
-            filtered_evidence_list  = [evidence[evidence[col] <= threshold] for col in self.data_columns]
-            
-        iterable = zip(filtered_evidence_list, self.data_columns)
-        activities_list = pool.starmap(self.calculate_hypergeometric_activities, iterable)
+        if config.PROCESSES > 1:
+            pool = multiprocessing.Pool(processes = config.PROCESSES)
+            if greater:
+                filtered_evidence_list  = [evidence[evidence[col] >= threshold] for col in self.data_columns] 
+            else:
+                filtered_evidence_list  = [evidence[evidence[col] <= threshold] for col in self.data_columns]
+                
+            iterable = zip(filtered_evidence_list, self.data_columns)
+            activities_list = pool.starmap(self.calculate_hypergeometric_activities, iterable)
         
         # SINGLE CORE PROCESSING
-        # for col in data_columns:
-        #     if greater:
-        #         filtered_evidence = evidence[evidence[col] > threshold]
-        #     else:
-        #         filtered_evidence = evidence[evidence[col] < threshold]
-        #     act = self.calculate_hypergeometric_activities(filtered_evidence)
-        #     act['data'] = col
-        #     activities_list.append(act)
+        else:
+            for col in data_columns:
+                if greater:
+                    filtered_evidence = evidence[evidence[col] > threshold]
+                else:
+                    filtered_evidence = evidence[evidence[col] < threshold]
+                act = self.calculate_hypergeometric_activities(filtered_evidence)
+                act['data'] = col
+                activities_list.append(act)
         self.activities = pd.concat(activities_list)
         return self.activities
 
