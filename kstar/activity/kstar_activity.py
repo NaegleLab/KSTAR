@@ -331,6 +331,7 @@ class KinaseActivity:
         
         # SINGLE CORE PROCESSING
         else:
+            activities_list =[]
             for col in data_columns:
                 if greater:
                     filtered_evidence = evidence[evidence[col] > threshold]
