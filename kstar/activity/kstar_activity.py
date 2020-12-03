@@ -324,6 +324,8 @@ class KinaseActivity:
 
         if data_columns is None:
             data_columns = self.data_columns
+        else:
+            self.data_columns = data_columns
         
         self.data_columns = self.check_data_columns(self.data_columns)
 
