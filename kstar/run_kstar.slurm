@@ -4,9 +4,11 @@
 #SBATCH -o test_kstar.out
 #SBATCH -p standard
 
+module load anaconda/2019.10-py3.7
+
 python kstar_runner.py \
 --experiment_file /home/bj8th/Documents/NaegleLab/KSTAR/analysis/BCR-ABL/PRE-MAPPED/experiment.1704.tsv \
---output_directory /Users/bj8th/Documents/GitHub/KSTAR/analysis/BCR-ABL \
+--output_directory /home/bj8th/Documents/NaegleLab/KSTAR/analysis/BCR-ABL \
 --phospho_types Y \
 --name BCR-ABL \
 --accession query_accession \

@@ -15,7 +15,7 @@ import pickle
 def process_args(results):
     # get logger
     if results.odir is None or not (path.exists(results.odir) and path.isdir(results.odir)):
-        log = helpers.get_logger(results.name, f"{results.name}_activity.log")
+        log = logging.getLogger(results.name)
     else:
         log = helpers.get_logger(results.name, f"{results.odir}/{results.name}_activity.log")
     
