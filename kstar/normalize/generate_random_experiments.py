@@ -57,7 +57,7 @@ def build_random_experiments(experiment, compendia, agg, threshold, greater, num
             itertools.repeat(compendia), 
             itertools.repeat(filtered_compendia), 
             itertools.repeat(num_random_experiments), 
-            [col for col in data_columns]   
+            [col for col in data_columns] ) 
     rand_experiments_list =  pool.starmap(build_filtered_experiment, iterable)
 
     # ********** NO PARALLELIZATION ***********

@@ -319,6 +319,8 @@ class KinaseActivity:
 
         if data_columns is None:
             data_columns = self.data_columns
+        else:
+            self.data_columns = data_columns
         
         self.data_columns = self.check_data_columns(self.data_columns)
 
@@ -756,7 +758,7 @@ def run_kstar_analysis(experiment, log, networks, phospho_types =['Y', 'ST'], da
         #filter the experiment (log how many are of that type)
         if phospho_type == 'ST':
             experiment_sub = experiment[(experiment.KSTAR_SITE.str.contains('S')) | (experiment.KSTAR_SITE.str.contains('T'))]
-            log.log("Running Serine/Threonine Kinase Activity Analysis")
+            log.info("Running Serine/Threonine Kinase Activity Analysis")
         elif phospho_type == 'Y':
             experiment_sub = experiment[(experiment.KSTAR_SITE.str.contains('Y'))]
             log.info("Running Tyrosine Kinase Activity Analysis")
