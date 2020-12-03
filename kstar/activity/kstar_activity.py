@@ -50,16 +50,18 @@ class KinaseActivity:
         self.aggregate = 'count'
         self.threshold = 1.0
         self.greater = True
-        
-        self.set_data_columns()
 
         self.run_date = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
     
 
-    def check_data_columns(self, data_columns):
+    def check_data_columns(self):
+        """
+        Checks data columns to make sure column is in evidence and that evidence filtered on that data column 
+        has at least one point of evidence. Removes all columns that do not meet criteria
+        """
         new_data_columns = []
         evidence = self.evidence.groupby([config.KSTAR_ACCESSION, config.KSTAR_SITE]).agg(self.aggregate).reset_index()
-        for col in data_columns:
+        for col in self.data_columns:
             if col in self.evidence.columns:
                 if self.greater:
                     if len(evidence[evidence[col] >= self.threshold]) > 0:
@@ -73,27 +75,24 @@ class KinaseActivity:
                         self.logger.warning(f"{col} does not have any evidence")
             else:
                 self.logger.warning(f"{col} not in evidence")
-        return new_data_columns
+        self.data_columns = new_data_columns
 
-    def set_data_columns(self):
-        self.data_columns = []
-        for col in self.evidence.columns:
-            if col.startswith('data:'):
-                self.data_columns.append(col)        
+    def set_data_columns(self, data_columns = None):
+        """
+        Sets the data columns to use in the kinase activity calculation
+        If data_columns is None or an empty list then set data_columns to 
+        be all columns that start with data:
 
-    def set_network_columns(self, network_columns):
+        Checks all set columns to make sure columns are vaild after filtering evidence
         """
-        sets the network columns to use in analysis
-        Parameters
-        ----------
-        network_columns : dict
-            required keys : substrate, site, kinase
-        """
-        if 'substrate' in network_columns.keys() and 'site' in network_columns.keys() and 'kinase' in network_columns.keys():
-            self.network_columns = network_columns
-            self.logger.info("Network Columns Changed : " + network_columns)
+        if data_columns is None or data_columns == []:
+            self.data_columns = []
+            for col in self.evidence.columns:
+                if col.startswith('data:'):
+                    self.data_columns.append(col)  
         else:
-            self.logger.warning("Network Columns Not Changed. Columns must include substrate, site, and kinase keys")
+            self.data_columns = data_columns
+        self.check_data_columns()      
     
     def run_normalization(self, logger, num_random_experiments=150, target_alpha=0.05):
         """
@@ -169,7 +168,6 @@ class KinaseActivity:
         else:
             self.logger.warning(f"Evidence not set. Evidence columns must include '{config.KSTAR_ACCESSION}' and '{config.KSTAR_SITE}' keys")
     
-
     def set_normalizers(self, normalizers):
         """
         Sets the Kinase normalization values to be used in calculating the updated p-values
@@ -179,13 +177,10 @@ class KinaseActivity:
         ----------
         normalizers : dict or pandas df
             Kinase Activity Normalizers
-            key : str
-                Kinase Name
-            value : float
-                Normalization Factor
+            index : kinase
+            columns : data_column normalization values
         """
         self.normalizers = normalizers
-
 
     def calculate_hypergeometric_single_network(self, evidence, network_id):
         """
@@ -237,7 +232,6 @@ class KinaseActivity:
         results['network'] = network_id
         return results
         
-
     def calculate_hypergeometric_activities(self, evidence, name):
         """
         Perform hypergeometric kinase activity analysis given evidence on all networks
@@ -277,7 +271,6 @@ class KinaseActivity:
         hyp_act['data'] = name
         return hyp_act
 
-
     def calculate_kinase_activities(self, data_columns = None, agg = 'count', threshold = 1.0,  greater = True):
         """
         Calculates combined activity of experiments based that uses a threshold value to determine if an experiment sees a site or not
@@ -316,16 +309,11 @@ class KinaseActivity:
         self.aggregate = agg
         self.threshold = threshold
         self.greater = greater
-
-        if data_columns is None:
-            data_columns = self.data_columns
-        else:
-            self.data_columns = data_columns
         
-        self.data_columns = self.check_data_columns(self.data_columns)
-
-        #log here what datacolumns will be operated on, report number of experiments found
-
+        # if no data columns are provided use all columns that start with data:
+        # data columns that filtered have no evidence are removed
+        self.set_data_columns(data_columns)
+        self.logger.info(f"Kinase Activity run on following data columns : {','.join(self.data_columns)}")
         
 
         evidence = self.evidence.groupby([config.KSTAR_ACCESSION, config.KSTAR_SITE]).agg(agg).reset_index()
@@ -333,11 +321,11 @@ class KinaseActivity:
         # MULTIPROCESSING
         pool = multiprocessing.Pool(processes = config.PROCESSES)
         if greater:
-            filtered_evidence_list  = [evidence[evidence[col] >= threshold] for col in self.data_columns]
-            iterable = zip(filtered_evidence_list, self.data_columns)
+            filtered_evidence_list  = [evidence[evidence[col] >= threshold] for col in self.data_columns] 
         else:
             filtered_evidence_list  = [evidence[evidence[col] <= threshold] for col in self.data_columns]
-            iterable = zip(filtered_evidence_list, self.data_columns)
+            
+        iterable = zip(filtered_evidence_list, self.data_columns)
         activities_list = pool.starmap(self.calculate_hypergeometric_activities, iterable)
         
         # SINGLE CORE PROCESSING
@@ -351,7 +339,6 @@ class KinaseActivity:
         #     activities_list.append(act)
         self.activities = pd.concat(activities_list)
         return self.activities
-
 
     def summarize_activities(self, activities = None, method = 'median_activity', normalized = False):
         """
@@ -382,9 +369,9 @@ class KinaseActivity:
 
 
         activity_summary = activities.pivot(index = config.KSTAR_KINASE, columns ='data', values = method).reset_index().rename_axis(None, axis=1).set_index(config.KSTAR_KINASE)
+        activity_summary = activity_summary[self.data_columns]
         return activity_summary
 
-    
     def aggregate_activities(self, activities = None):
         """
         Aggregate network activity using median for all activities
@@ -407,7 +394,6 @@ class KinaseActivity:
             median_activity = ('kinase_activity', 'median'),
         ).reset_index()
         return self.agg_activities
-
 
     def normalize_activities(self, activities = None, default_normalization = 0.05, normalization_multiplier = 0.05):
         """
@@ -455,7 +441,6 @@ class KinaseActivity:
         
         return self.normalized_activities, self.normalized_agg_activities
 
-
     def calculate_normalized_activity(self, kinase_activity, normalizers, default_normalization = 0.05, normalization_multiplier = 0.05):
         """
         Activity is normalized based on kinase normalization factors. 
@@ -481,7 +466,6 @@ class KinaseActivity:
             normalized_activity['Significant'] = normalized_activity.apply(lambda row: (row['kinase_activity'] <= row['Normalization Factor']) * 1, axis = 1)
         normalized_activity['Normalized Activity'] = normalized_activity.apply(lambda row: np.clip( row['kinase_activity'] / row['Normalization Factor'] * normalization_multiplier, 0.0, 1.0 ), axis = 1)
         return normalized_activity
-
 
     def aggregate_normalized_activities(self, normalized_activities):
         """
@@ -511,7 +495,6 @@ class KinaseActivity:
             fraction_significant = ('Significant', 'mean')
         ).reset_index()
         return self.normalized_agg_activities
-
 
     def  find_pvalue_limits(self, data_columns, agg = 'count', threshold = 1.0):
         """
@@ -591,7 +574,6 @@ class KinaseActivity:
         limit_summary = all_limits.groupby('evidence').mean()
         return all_limits, limit_summary
     
-
     def calculate_fdr(self, activities, default_alpha = 0.05):
         """
         Given raw kinase activities and the normalizaiton factors, FDR correction is 
@@ -624,7 +606,6 @@ class KinaseActivity:
         norm_activities = pd.concat(norm_activities, ignore_index=True)
         return norm_activities
         
-
     def aggregate_fdr(self, activities):
         agg_activities =defaultdict()
         for key, activity in activities.items():
@@ -667,7 +648,6 @@ class KinaseActivity:
 
         return fdr, significant
 
-
     def experiment_fdr_response(self, response, alpha):
         fdr = pd.DataFrame(index = response.index)
         significant = pd.DataFrame(index = response.index)
@@ -676,7 +656,6 @@ class KinaseActivity:
             fdr[experiment] = cor
             significant[experiment] = rej*1
         return fdr, significant
-
 
     def fdr_corrected_activity(self, kinase_activity, alpha):
         """
@@ -705,6 +684,11 @@ class KinaseActivity:
         results['fdr_activity'] = cor
         return results
 
+"""
+****************************************
+Methods for running KSTAR pipeline
+****************************************
+"""
 def run_kstar_analysis(experiment, log, networks, phospho_types =['Y', 'ST'], data_columns = None, agg = 'count', threshold = 1.0,  greater = True):
     """
     A super method to establish a kstar KinaseActivity object from an experiment with an activity log
@@ -773,7 +757,6 @@ def run_kstar_analysis(experiment, log, networks, phospho_types =['Y', 'ST'], da
         kinact_dict[phospho_type] = kinact
     return kinact_dict
 
-
 def normalize_analysis(kinact_dict, log, num_random_experiments=150, target_alpha = 0.05):
     """
     Creates random experiments, drawn from the human phosphoproteome, according to the distribution of the number of compendia
@@ -805,8 +788,6 @@ def normalize_analysis(kinact_dict, log, num_random_experiments=150, target_alph
     for phospho_type, kinact in kinact_dict.items():
         kinact.run_normalization(log, num_random_experiments, target_alpha)
     
-
-
 def save_kstar(kinact_dict, name, odir):
         """
         Having performed kinase activities (run_kstar_analyis), save each of the important dataframes to files and the final pickle
