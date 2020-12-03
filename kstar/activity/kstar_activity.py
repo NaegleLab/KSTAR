@@ -331,8 +331,7 @@ class KinaseActivity:
         evidence = self.evidence.groupby([config.KSTAR_ACCESSION, config.KSTAR_SITE]).agg(agg).reset_index()
 
         # MULTIPROCESSING
-        num_cores_available = multiprocessing.cpu_count()
-        pool = multiprocessing.Pool(processes = num_cores_available - 2)
+        pool = multiprocessing.Pool(processes = config.PROCESSES)
         if greater:
             filtered_evidence_list  = [evidence[evidence[col] >= threshold] for col in self.data_columns]
             iterable = zip(filtered_evidence_list, self.data_columns)

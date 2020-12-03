@@ -49,9 +49,7 @@ def build_random_experiments(experiment, compendia, agg, threshold, greater, num
         filtered_experiments = [experiment[experiment[col] <= threshold] for col in data_columns]
 
     # ************ PARALELLIZATION ************
-    # pool = multiprocessing.Pool()
-    num_cores_available = multiprocessing.cpu_count()
-    pool = multiprocessing.Pool(processes = num_cores_available - 2)
+    pool = multiprocessing.Pool(processes = config.PROCESSES)
     iterable = zip(
             filtered_experiments, 
             itertools.repeat(compendia), 
