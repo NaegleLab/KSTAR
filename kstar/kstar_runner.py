@@ -38,9 +38,6 @@ def process_args(results):
         log.error("Please provide a valid experiment file")
         exit()
     
-    # Get sequence dict from resource directory fasta file
-    resource_files = os.listdir(results.rdir)
-
     # Check all data columns provided to make sure they exist. 
     # If a column does not exist in the experiment it is removed
     columns = list(experiment.columns)
@@ -94,7 +91,7 @@ def parse_args():
     parser.add_argument('--threshold',  action='store', dest='threshold', help = 'threshold to use for analysis', type = float, default=0.0)
     parser.add_argument('--greater', action='store', dest='greater', default='yes')
     parser.add_argument('--normalize',  action='store', dest='normalize', help = 'Whether to normalize experiments',default='yes')
-    parser.add_argument('--num_random_experiments',  action='store', dest='num', help = 'Number of random experiments to generate', type = int, default=150)
+    parser.add_argument('--num_random_experiments',  action='store', dest='num_random_experiments', help = 'Number of random experiments to generate', type = int, default=150)
     parser.add_argument('--target_alpha', action='store', dest='target_alpha', type=float, default=0.05)
     results = parser.parse_args()
     return results
@@ -133,14 +130,13 @@ def run_kstar_analysis(run_log, odir, name, experiment, data_columns, map_column
     kstar_activity.save_kstar(kinact_dict, name, odir)
     
 
-
 def main():
     results = parse_args()
     experiment, run_log, data_columns, map_columns, greater, normalize,  = process_args(results)
     run_kstar_analysis(
         run_log, results.odir, results.name, 
         experiment, data_columns, map_columns, results.window, 
-        results.phospho_types, results.activity_agg, greater, 
+        results.phospho_types, results.activity_agg, results.threshold, greater, 
         normalize, results.num_random_experiments, results.target_alpha )
     
     

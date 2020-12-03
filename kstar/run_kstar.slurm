@@ -1,5 +1,11 @@
+#!/bin/bash
+#SBATCH -n 1
+#SBATCH -t 01:00:00
+#SBATCH -o test_kstar.out
+#SBATCH -p standard
+
 python kstar_runner.py \
---experiment_file /Users/bj8th/Documents/GitHub/KSTAR/analysis/BCR-ABL/PRE-MAPPED/experiment.1704.tsv \
+--experiment_file /home/bj8th/Documents/NaegleLab/KSTAR/analysis/BCR-ABL/PRE-MAPPED/experiment.1704.tsv \
 --output_directory /Users/bj8th/Documents/GitHub/KSTAR/analysis/BCR-ABL \
 --phospho_types Y \
 --name BCR-ABL \

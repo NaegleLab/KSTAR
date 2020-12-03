@@ -39,7 +39,8 @@ KSTAR_PEPTIDE = 'KSTAR_PEPTIDE'
 KSTAR_SITE = 'KSTAR_SITE'
 KSTAR_KINASE = 'Kinase Name'
 
-
+# Number of cores to use for parallelization
+PROCESSES = 4
 
 ## END DECLARATION OF GLOBALS
 
