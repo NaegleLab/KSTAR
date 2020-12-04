@@ -28,9 +28,9 @@ class DotPlot:
                  colormap = {0 : '#CFD8DC', 1 : '#FF3300'}, 
                  labelmap = {0 : 'Not Significant', 1 : 'Significant'},
                  facecolor = '#455A64',
-                 size_title = 'p-value', size_number = 5, size_color = 'gray', 
+                 legend_title = 'p-value', size_number = 5, size_color = 'gray', 
                  color_title = 'Significant', markersize = 10, 
-                 legend_distance = 1.0, figsize = (20,4), title = None, 
+                 legend_distance = 1.0, figsize = (20,4), title = None,
                  xlabel = True, ylabel = True,):
         """
         Parameters
@@ -50,8 +50,8 @@ class DotPlot:
         facecolor : color, optional
             Background color of dotplot
             default : '#455A64',
-        size_title : str, optional
-            Legend Title for dot sizes
+        legend_title : str, optional
+            Legend Title for dot sizes, default is `p-value'
         size_number : int, optional 
             Number of dots to attempt to generate for dot size legend
         size_color : color, optional
@@ -87,7 +87,7 @@ class DotPlot:
 
         self.dotsize = dotsize
         
-        self.size_title = size_title
+        self.legend_title = legend_title
         self.size_number = size_number
         self.size_color = size_color
         self.markersize = markersize
@@ -167,7 +167,7 @@ class DotPlot:
         if size_legend:
             kw = dict(prop="sizes", num=self.size_number, color=self.size_color, func=lambda s: s/self.dotsize) 
             legend2 = ax.legend(*scatter.legend_elements(**kw),
-                    loc=f'lower {orientation}', title=self.size_title, bbox_to_anchor=(self.legend_distance,0)) 
+                    loc=f'lower {orientation}', title=self.legend_title, bbox_to_anchor=(self.legend_distance,0)) 
         
         # Add Additional Plotting Information
         ax.tick_params(axis = 'x', rotation = 90)
