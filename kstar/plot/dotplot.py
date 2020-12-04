@@ -31,7 +31,7 @@ class DotPlot:
                  legend_title = 'p-value', size_number = 5, size_color = 'gray', 
                  color_title = 'Significant', markersize = 10, 
                  legend_distance = 1.0, figsize = (20,4), title = None,
-                 xlabel = True, ylabel = True,):
+                 xlabel = True, ylabel = True, x_label_dict = None):
         """
         Parameters
         ----------
@@ -70,6 +70,8 @@ class DotPlot:
             Show xlabel on graph if True
         ylabel : bool, optional
             Show ylabel on graph if True
+        x_label_dict: dict, optional
+            Mapping dictionary of labels as they appear in values dataframe (keys) to how they should appear on plot (values)
         """
 
         self.values = values
@@ -98,7 +100,7 @@ class DotPlot:
         self.multiplier = 10
         self.offset = 5
 
-        self.columns = self.set_column_labels(values)
+        self.columns = self.set_column_labels(values, x_label_dict)
     
     def set_values(self, values):
         self.values = values
@@ -106,10 +108,21 @@ class DotPlot:
     def set_colors(self, colors):
         self.colors = colors
 
-    def set_column_labels(self, values):
+    def set_column_labels(self, values, x_label_dict):
         self.column_labels = list(self.values.columns)
-        #strip data: from columns
-        self.column_labels = [x.strip('data:') for x in self.column_labels]
+
+        if x_label_dict is None: #just strip the data: string
+            self.column_labels = [x.strip('data:') for x in self.column_labels]
+        else:
+            #check that the label dictionary keys matches the columns
+            labels = x_label_dict.keys()
+            if set(labels) != set(self.column_labels):
+                raise ValueError("The x_label_dict must have the same elements as the value columns")
+            else:
+                label_arr = []
+                for col in self.column_labels:
+                    label_arr.append(x_label_dict[col])
+            self.column_labels = label_arr
 
     def dotplot(self, ax = None, orientation = 'left', size_legend = True, color_legend = True):
         """
