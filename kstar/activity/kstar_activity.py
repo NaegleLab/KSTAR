@@ -101,6 +101,7 @@ class KinaseActivity:
         """
         self.logger.info("Running Normalization Pipeline")
         self.normalized = True
+        self.num_random_experiments = num_random_experiments
         self.logger.info("Generating random experiments")
         self.random_experiments = generate_random_experiments.build_random_experiments(
             self.evidence, 
@@ -183,94 +184,94 @@ class KinaseActivity:
         """
         self.normalizers = normalizers
 
-    def calculate_hypergeometric_single_network(self, evidence, network_id):
-        """
-        Hypergeometric Cumulative Distribution Function calculated for each kinase given evidence
-            k : number of times kinase seen in evidence
-            M : number of unique sites in network
-            n : number of times kinase seen in network
-            N : size of evidence
+    # def calculate_hypergeometric_single_network(self, evidence, network_id):
+    #     """
+    #     Hypergeometric Cumulative Distribution Function calculated for each kinase given evidence
+    #         k : number of times kinase seen in evidence
+    #         M : number of unique sites in network
+    #         n : number of times kinase seen in network
+    #         N : size of evidence
         
-        Parameters
-        ----------
-        evidence : pandas df
-            subset of kstar evidence that has been filtered to only include evidence associated with experimetn
-        network_id : str
-            network to use for analysis
+    #     Parameters
+    #     ----------
+    #     evidence : pandas df
+    #         subset of kstar evidence that has been filtered to only include evidence associated with experimetn
+    #     network_id : str
+    #         network to use for analysis
         
-        Returns
-        -------
-        results : pandas df
-            Hypergeometric results of evidence for given network
-            index : kinase_id
-            columns
-                frequency : number of times kinase seen in network
-                kinase_activity : activity derived from hypergometric cdf 
-        """
+    #     Returns
+    #     -------
+    #     results : pandas df
+    #         Hypergeometric results of evidence for given network
+    #         index : kinase_id
+    #         columns
+    #             frequency : number of times kinase seen in network
+    #             kinase_activity : activity derived from hypergometric cdf 
+    #     """
         
-        network = self.networks[network_id]
-        intersect = pd.merge(network, evidence, how='inner',
-            on=[config.KSTAR_ACCESSION, config.KSTAR_SITE])
-        counts = intersect.groupby(config.KSTAR_KINASE).size()
-        N = len(intersect.groupby([config.KSTAR_ACCESSION, config.KSTAR_SITE]).size())
-        results = pd.DataFrame(counts, columns = ['frequency'])
-        results['kinase_activity'] = 1.0
+    #     network = self.networks[network_id]
+    #     intersect = pd.merge(network, evidence, how='inner',
+    #         on=[config.KSTAR_ACCESSION, config.KSTAR_SITE])
+    #     counts = intersect.groupby(config.KSTAR_KINASE).size()
+    #     N = len(intersect.groupby([config.KSTAR_ACCESSION, config.KSTAR_SITE]).size())
+    #     results = pd.DataFrame(counts, columns = ['frequency'])
+    #     results['kinase_activity'] = 1.0
 
-        K = network.groupby(config.KSTAR_KINASE).size()
+    #     K = network.groupby(config.KSTAR_KINASE).size()
         
-        kinases = counts.index
-        for kin in kinases:
-            k = 0
-            if counts.loc[kin] > 0:
-                k = counts.loc[kin] - 1
-            prb = stats.hypergeom.sf(
-                k = int(k), 
-                M = int(self.network_sizes[network_id]), 
-                n = int(K.loc[kin]), 
-                N = int(N)
-                )
-            results.at[kin, 'kinase_activity'] = prb
-        results['network'] = network_id
-        return results
+    #     kinases = counts.index
+    #     for kin in kinases:
+    #         k = 0
+    #         if counts.loc[kin] > 0:
+    #             k = counts.loc[kin] - 1
+    #         prb = stats.hypergeom.sf(
+    #             k = int(k), 
+    #             M = int(self.network_sizes[network_id]), 
+    #             n = int(K.loc[kin]), 
+    #             N = int(N)
+    #             )
+    #         results.at[kin, 'kinase_activity'] = prb
+    #     results['network'] = network_id
+    #     return results
         
-    def calculate_hypergeometric_activities(self, evidence, name):
-        """
-        Perform hypergeometric kinase activity analysis given evidence on all networks
+    # def calculate_hypergeometric_activities(self, evidence, name):
+    #     """
+    #     Perform hypergeometric kinase activity analysis given evidence on all networks
         
-        Parameters
-        ----------
-        evidence : pandas df
-            subset of class evidence variable where data is filtered based on experiment
-        name : str
-            name of experiment being performed
+    #     Parameters
+    #     ----------
+    #     evidence : pandas df
+    #         subset of class evidence variable where data is filtered based on experiment
+    #     name : str
+    #         name of experiment being performed
             
-        Returns
-        ---------
-        fdr_act : pd DataFrame
-            network : network name, from networks key
-            frequency : number of times kinase was seen in subgraph of evidence and network
-            kinase_activity : hypergeometric kinase activity
-            fdr_corrected_kinase_activity : kinase activity after fdr correction
-            significant : whether kinase activity is significant based on fdr alpha
-        combined : pd DataFrame
-            significant : number of networks where kinase was found to be significant
-            fraction_significant : fraction of networks kinase was found to be significant through FDR correction
-            avg_p_value : combined p-values of kinase using mean
-            median_p_value : combined p-values of kinase using median
-        """
+    #     Returns
+    #     ---------
+    #     fdr_act : pd DataFrame
+    #         network : network name, from networks key
+    #         frequency : number of times kinase was seen in subgraph of evidence and network
+    #         kinase_activity : hypergeometric kinase activity
+    #         fdr_corrected_kinase_activity : kinase activity after fdr correction
+    #         significant : whether kinase activity is significant based on fdr alpha
+    #     combined : pd DataFrame
+    #         significant : number of networks where kinase was found to be significant
+    #         fraction_significant : fraction of networks kinase was found to be significant through FDR correction
+    #         avg_p_value : combined p-values of kinase using mean
+    #         median_p_value : combined p-values of kinase using median
+    #     """
         
-        self.logger.info(f"Running hypergeometric analysis on {name}")
+    #     self.logger.info(f"Running hypergeometric analysis on {name}")
         
-        results = []
-        for network_id in self.networks.keys(): # calculate kinase activity within each network 
-            result = self.calculate_hypergeometric_single_network(evidence, network_id) 
-            results.append(result)
+    #     results = []
+    #     for network_id in self.networks.keys(): # calculate kinase activity within each network 
+    #         result = self.calculate_hypergeometric_single_network(evidence, network_id) 
+    #         results.append(result)
 
-        # combine results into single dataframe
-        hyp_act = pd.concat(results)
-        hyp_act = hyp_act.reset_index()
-        hyp_act['data'] = name
-        return hyp_act
+    #     # combine results into single dataframe
+    #     hyp_act = pd.concat(results)
+    #     hyp_act = hyp_act.reset_index()
+    #     hyp_act['data'] = name
+    #     return hyp_act
 
     def calculate_kinase_activities(self, data_columns = None, agg = 'count', threshold = 1.0,  greater = True):
         """
@@ -719,9 +720,11 @@ def calculate_hypergeometric_single_network(evidence, network, network_size, net
         
         intersect = pd.merge(network, evidence, how='inner',
             on=[config.KSTAR_ACCESSION, config.KSTAR_SITE])
+        
         counts = intersect.groupby(config.KSTAR_KINASE).size()
         N = len(intersect.groupby([config.KSTAR_ACCESSION, config.KSTAR_SITE]).size())
         results = pd.DataFrame(counts, columns = ['frequency'])
+
         results['kinase_activity'] = 1.0
 
         K = network.groupby(config.KSTAR_KINASE).size()
@@ -738,6 +741,12 @@ def calculate_hypergeometric_single_network(evidence, network, network_size, net
                 N = int(N)
                 )
             results.at[kin, 'kinase_activity'] = prb
+
+        kinases = network[config.KSTAR_KINASE].unique()
+        for kin in kinases:
+            if kin not in results.index:
+                results.at[kin,'frequency'] = 0
+                results.at[kin,'kinase_activity'] = 1.0
         results['network'] = network_id
         return results
         

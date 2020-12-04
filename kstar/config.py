@@ -40,7 +40,7 @@ KSTAR_SITE = 'KSTAR_SITE'
 KSTAR_KINASE = 'Kinase Name'
 
 # Number of cores to use for parallelization, set to 1 to avoid multiprocessing
-PROCESSES = 8
+PROCESSES = 4
 
 ## END DECLARATION OF GLOBALS
 
