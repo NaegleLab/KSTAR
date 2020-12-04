@@ -255,7 +255,7 @@ class DotPlot:
         
         
         
-    def context(self, ax, info, id_column, context_columns, index = None, dotsize = 200, markersize = 20, orientation = 'left', color_palette='colorblind', margin = 0.2):
+    def context(self, ax, info, id_column, context_columns, dotsize = 200, markersize = 20, orientation = 'left', color_palette='colorblind', margin = 0.2):
         """
         Context plot is generated and returned. The context plot contains the categorical data used for describing the data.
         
