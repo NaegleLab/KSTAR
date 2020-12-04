@@ -309,7 +309,7 @@ def run_pruning(network, log, map_columns, use_compendia, phospho_type, kinase_s
         pruned_networks = pruner.build_multiple_networks(kinase_size, site_limit, num_networks, network_id)
     return pruned_networks
 
-def save_pruning(network_map, phospho_type, network_id, kinase_size, site_limit, use_compendia, odir):
+def save_pruning(network_map, phospho_type, network_id, kinase_size, site_limit, use_compendia, odir, log):
     log.info("Saving pruning results")
     if not os.path.exists(f"{odir}/INDIVIDUAL_NETWORKS"): 
             os.mkdir(f"{odir}/INDIVIDUAL_NETWORKS") 
@@ -319,8 +319,8 @@ def save_pruning(network_map, phospho_type, network_id, kinase_size, site_limit,
     else:
         suffix = f"{phospho_type}_kinase_sites:{kinase_size}_limit:{site_limit}"
     for nid, network in network_map.items():
-        networkd.to_csv(f"{odir}/INDIVIDUAL_NETWORKS/{nid}_{suffix}.tsv", sep = '\t', index=False)
-    pickle.dump( kinact_dict, open( f"{odir}/{network_id}_{suffix}.p", "wb" ) )
+        network.to_csv(f"{odir}/INDIVIDUAL_NETWORKS/{nid}_{suffix}.tsv", sep = '\t', index=False)
+    pickle.dump( network_map, open( f"{odir}/{network_id}_{suffix}.p", "wb" ) )
     
     
 def main():
@@ -334,7 +334,7 @@ def main():
     odir = results.odir
     log.info("Beginning to build pruning networks")
     pruned_networks = run_pruning(network, log, map_columns, use_compendia, phospho_type, kinase_size, site_limit, num_networks, network_id)
-    save_pruning(pruned_networks, phospho_type, network_id, kinase_size, site_limit, use_compendia, odir)
+    save_pruning(pruned_networks, phospho_type, network_id, kinase_size, site_limit, use_compendia, odir, log)
     
 if __name__ == "__main__":
     main()
