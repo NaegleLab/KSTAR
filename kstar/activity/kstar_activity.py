@@ -7,6 +7,7 @@ from collections import defaultdict
 import pickle
 import os
 from datetime import datetime
+import itertools
 
 from kstar import config
 from kstar.normalize import generate_random_experiments, calculate_fpr
@@ -320,14 +321,16 @@ class KinaseActivity:
 
         # MULTIPROCESSING
         if config.PROCESSES > 1:
+            manager = multiprocessing.Manager()
             pool = multiprocessing.Pool(processes = config.PROCESSES)
             if greater:
                 filtered_evidence_list  = [evidence[evidence[col] >= threshold] for col in self.data_columns] 
             else:
                 filtered_evidence_list  = [evidence[evidence[col] <= threshold] for col in self.data_columns]
-                
-            iterable = zip(filtered_evidence_list, self.data_columns)
-            activities_list = pool.starmap(self.calculate_hypergeometric_activities, iterable)
+            networks = itertools.repeat(self.networks)  
+            network_sizes = itertools.repeat(self.network_sizes)
+            iterable = zip(filtered_evidence_list, networks, network_sizes, self.data_columns)
+            activities_list = pool.starmap(calculate_hypergeometric_activities, iterable)
         
         # SINGLE CORE PROCESSING
         else:
@@ -686,6 +689,97 @@ class KinaseActivity:
         results['fdr_significant'] = rej * 1
         results['fdr_activity'] = cor
         return results
+
+
+def calculate_hypergeometric_single_network(evidence, network, network_size, network_id ):
+        """
+        Hypergeometric Cumulative Distribution Function calculated for each kinase given evidence
+            k : number of times kinase seen in evidence
+            M : number of unique sites in network
+            n : number of times kinase seen in network
+            N : size of evidence
+        
+        Parameters
+        ----------
+        evidence : pandas df
+            subset of kstar evidence that has been filtered to only include evidence associated with experimetn
+        network_id : str
+            network to use for analysis
+        
+        Returns
+        -------
+        results : pandas df
+            Hypergeometric results of evidence for given network
+            index : kinase_id
+            columns
+                frequency : number of times kinase seen in network
+                kinase_activity : activity derived from hypergometric cdf 
+        """
+        
+        
+        intersect = pd.merge(network, evidence, how='inner',
+            on=[config.KSTAR_ACCESSION, config.KSTAR_SITE])
+        counts = intersect.groupby(config.KSTAR_KINASE).size()
+        N = len(intersect.groupby([config.KSTAR_ACCESSION, config.KSTAR_SITE]).size())
+        results = pd.DataFrame(counts, columns = ['frequency'])
+        results['kinase_activity'] = 1.0
+
+        K = network.groupby(config.KSTAR_KINASE).size()
+        
+        kinases = counts.index
+        for kin in kinases:
+            k = 0
+            if counts.loc[kin] > 0:
+                k = counts.loc[kin] - 1
+            prb = stats.hypergeom.sf(
+                k = int(k), 
+                M = int(network_size), 
+                n = int(K.loc[kin]), 
+                N = int(N)
+                )
+            results.at[kin, 'kinase_activity'] = prb
+        results['network'] = network_id
+        return results
+        
+def calculate_hypergeometric_activities(evidence, networks, network_sizes, name):
+        """
+        Perform hypergeometric kinase activity analysis given evidence on all networks
+        
+        Parameters
+        ----------
+        evidence : pandas df
+            subset of class evidence variable where data is filtered based on experiment
+        name : str
+            name of experiment being performed
+            
+        Returns
+        ---------
+        fdr_act : pd DataFrame
+            network : network name, from networks key
+            frequency : number of times kinase was seen in subgraph of evidence and network
+            kinase_activity : hypergeometric kinase activity
+            fdr_corrected_kinase_activity : kinase activity after fdr correction
+            significant : whether kinase activity is significant based on fdr alpha
+        combined : pd DataFrame
+            significant : number of networks where kinase was found to be significant
+            fraction_significant : fraction of networks kinase was found to be significant through FDR correction
+            avg_p_value : combined p-values of kinase using mean
+            median_p_value : combined p-values of kinase using median
+        """
+        
+        # self.logger.info(f"Running hypergeometric analysis on {name}")
+        
+        results = []
+        for network_id in networks.keys(): # calculate kinase activity within each network 
+            result =calculate_hypergeometric_single_network(evidence, networks[network_id], network_sizes[network_id], network_id) 
+            results.append(result)
+
+        # combine results into single dataframe
+        hyp_act = pd.concat(results)
+        hyp_act = hyp_act.reset_index()
+        hyp_act['data'] = name
+        return hyp_act
+
 
 """
 ****************************************
