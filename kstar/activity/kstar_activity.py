@@ -100,7 +100,7 @@ class KinaseActivity:
         """
         self.logger.info("Running Normalization Pipeline")
         self.normalized = True
-        self.logger.info("Generation random experiments")
+        self.logger.info("Generating random experiments")
         self.random_experiments = generate_random_experiments.build_random_experiments(
             self.evidence, 
             config.HUMAN_REF_COMPENDIA, 
@@ -334,9 +334,9 @@ class KinaseActivity:
             activities_list =[]
             for col in self.data_columns:
                 if greater:
-                    filtered_evidence = evidence[evidence[col] > threshold]
+                    filtered_evidence = evidence[evidence[col] >= threshold]
                 else:
-                    filtered_evidence = evidence[evidence[col] < threshold]
+                    filtered_evidence = evidence[evidence[col] <= threshold]
                 act = self.calculate_hypergeometric_activities(filtered_evidence, col)
                 act['data'] = col
                 activities_list.append(act)
