@@ -68,7 +68,6 @@ class Prune:
         kinases = network[self.columns['kinase']].unique()
         pruned_network = pd.DataFrame(columns = network.columns)
         for i in range(kinase_size):
-            self.logger.info(f"Pruning {i}")
             random.shuffle(kinases)
             for kinase in kinases:
                 kinase_network = network[network[self.columns['kinase']] == kinase]
@@ -77,7 +76,7 @@ class Prune:
                 network.drop(sample.index, inplace = True)                              # Remove edge from remaining network
                 pruned_network = pd.concat([pruned_network, sample])                    # add edge to pruned network
                 
-                # Remove substrate site from network if 
+                # Remove substrate site from network if over limit
                 sample = sample.iloc[0]
                 pruned_site = pruned_network[config.KSTAR_SITE] == sample[config.KSTAR_SITE]
                 pruned_accession = pruned_network[config.KSTAR_ACCESSION] == sample[config.KSTAR_ACCESSION]
@@ -184,6 +183,10 @@ class Prune:
         return pruned_dict
 
     def build_multiple_networks(self, kinase_size, site_limit, num_networks, network_id):
+        """
+        Basic Network Generation - only takes into account score when determining sites a kinase 
+        connects to
+        """
         # MULTIPROCESSING
         if config.PROCESSES > 1:
             pool = multiprocessing.Pool(processes = config.PROCESSES)
@@ -210,18 +213,20 @@ class Prune:
 ********************** RUNNING PRUNING ALGORITHM FROM COMMAND LINE ****************************
 Arguments
 ---------
---network_file          Experiment file location. csv or tsv file       (required)
---output_directory      output directory for results (required)
+--network_file          Experiment file location. csv or tsv file           (required)
+--output_directory      output directory for results                        (required)
 --accession             Accession Column
 --site                  site column
 --score                 score column
 --kinase                kinase column
---phospho_type          phospho type
+--phospho_type          phospho type (Y, ST, ...)
 --kinase_size           number of sites a kinase connects to (required)
---site_limit            upper limit of number of kinases can connect to (required)
---num_networks          number of networks to generate (required)
+--site_limit            upper limit of number of kinases can connect to     (required)
+--num_networks          number of networks to generate                      (required)
 --network_id            name of network to use in building dictionary
---use_compendia         whether to use compendia ratios to build network    
+--use_compendia         whether to use compendia ratios to build network  
+
+
 
 """
 def parse_args():
