@@ -41,35 +41,35 @@ class DotPlot:
             color each value should be plotted as
         dotsize : float, optional
             multiplier to use for scaling size of dots
-         colormap : dict, optional
-             maps color values to actual color to use in plotting
-             default : {0 : '#CFD8DC', 1 : '#FF3300'}, 
-         labelmap = 
-             maps labels of colors
-             default : {0 : 'Not Significant', 1 : 'Significant'},
-         facecolor : color, optional
-             Background color of dotplot
-             default : '#455A64',
-         size_title : str, optional
-             Legend Title for dot sizes
-         size_number : int, optional 
-             Number of dots to attempt to generate for dot size legend
-         size_color : color, optional
-             Size Legend Color to use 
-         color_title : str, optional
-             Legend Title for the Color Legend
-         markersize : int, optional
-             Size of dots for Color Legend
-         legend_distance : int, optional
-             relative distance to place legends 
-         figsize : tuple, optional 
-             size of dotplot figure
-         title : str, optional
-             Title of dotplot
-         xlabel : bool, optional
-             Show xlabel on graph if True
-         ylabel : bool, optional
-             Show ylabel on graph if True
+        colormap : dict, optional
+            maps color values to actual color to use in plotting
+            default : {0 : '#CFD8DC', 1 : '#FF3300'}, 
+        labelmap = 
+            maps labels of colors
+            default : {0 : 'Not Significant', 1 : 'Significant'},
+        facecolor : color, optional
+            Background color of dotplot
+            default : '#455A64',
+        size_title : str, optional
+            Legend Title for dot sizes
+        size_number : int, optional 
+            Number of dots to attempt to generate for dot size legend
+        size_color : color, optional
+            Size Legend Color to use 
+        color_title : str, optional
+            Legend Title for the Color Legend
+        markersize : int, optional
+            Size of dots for Color Legend
+        legend_distance : int, optional
+            relative distance to place legends 
+        figsize : tuple, optional 
+            size of dotplot figure
+        title : str, optional
+            Title of dotplot
+        xlabel : bool, optional
+            Show xlabel on graph if True
+        ylabel : bool, optional
+            Show ylabel on graph if True
         """
 
         self.values = values
@@ -97,13 +97,19 @@ class DotPlot:
 
         self.multiplier = 10
         self.offset = 5
+
+        self.columns = self.set_column_labels(values)
     
     def set_values(self, values):
         self.values = values
 
     def set_colors(self, colors):
         self.colors = colors
-    
+
+    def set_column_labels(self, values):
+        self.column_labels = list(self.values.columns)
+        #strip data: from columns
+        self.column_labels = [x.strip('data:') for x in self.column_labels]
 
     def dotplot(self, ax = None, orientation = 'left', size_legend = True, color_legend = True):
         """
@@ -167,7 +173,8 @@ class DotPlot:
         ax.tick_params(axis = 'x', rotation = 90)
         ax.yaxis.set_ticks(np.arange(len(self.values)) * self.multiplier + self.offset)
         ax.xaxis.set_ticks(np.arange(len(columns)) * self.multiplier + self.offset)
-        ax.set_xticklabels(self.values.columns)
+        
+        ax.set_xticklabels(self.column_labels)
         ax.set_yticklabels(self.values.index)
         
         if not self.xlabel:
