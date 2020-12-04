@@ -100,7 +100,7 @@ class KinaseActivity:
         """
         self.logger.info("Running Normalization Pipeline")
         self.normalized = True
-        self.logger.info("Generation random experiments")
+        self.logger.info("Generating random experiments")
         self.random_experiments = generate_random_experiments.build_random_experiments(
             self.evidence, 
             config.HUMAN_REF_COMPENDIA, 
@@ -313,7 +313,7 @@ class KinaseActivity:
         # if no data columns are provided use all columns that start with data:
         # data columns that filtered have no evidence are removed
         self.set_data_columns(data_columns)
-        self.logger.info(f"Kinase Activity run on following data columns : {','.join(self.data_columns)}")
+        self.logger.info(f"Kinase Activity will be run on the following data columns: {','.join(self.data_columns)}")
         
 
         evidence = self.evidence.groupby([config.KSTAR_ACCESSION, config.KSTAR_SITE]).agg(agg).reset_index()
@@ -331,12 +331,13 @@ class KinaseActivity:
         
         # SINGLE CORE PROCESSING
         else:
-            for col in data_columns:
+            activities_list =[]
+            for col in self.data_columns:
                 if greater:
-                    filtered_evidence = evidence[evidence[col] > threshold]
+                    filtered_evidence = evidence[evidence[col] >= threshold]
                 else:
-                    filtered_evidence = evidence[evidence[col] < threshold]
-                act = self.calculate_hypergeometric_activities(filtered_evidence)
+                    filtered_evidence = evidence[evidence[col] <= threshold]
+                act = self.calculate_hypergeometric_activities(filtered_evidence, col)
                 act['data'] = col
                 activities_list.append(act)
         self.activities = pd.concat(activities_list)
