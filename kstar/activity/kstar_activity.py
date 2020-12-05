@@ -1072,5 +1072,10 @@ def save_kstar(kinact_dict, name, odir):
 
                 kinact.random_experiments.to_csv(f"{odir}/RANDOM_ANALYSIS/{name_out}_random_experiments.tsv", sep = '\t', index = False)
 
+            if hasattr(kinact, 'activities_mann_whitney'):
+                kinact.activities_mann_whitney.to_csv(f"{odir}/RESULTS/{name_out}_mann_whitney_activities.tsv", sep='\t', index = False) 
+                kinact.significance_mann_whitney.to_csv(f"{odir}/RESULTS/{name_out}_mann_whitney_significance.tsv", sep='\t', index = False) 
+
+
         pickle.dump( kinact_dict, open( f"{odir}/RESULTS/{name}_kinact.p", "wb" ) )
 
