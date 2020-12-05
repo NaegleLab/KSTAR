@@ -580,6 +580,43 @@ class KinaseActivity:
         all_limits = pd.DataFrame(all_rows)
         limit_summary = all_limits.groupby('evidence').mean()
         return all_limits, limit_summary
+
+    def calculate_Mann_Whitney_activities_sig(self, log, number_sig_trials = 100, sig_auto=False, target_alpha=0.05):
+        """
+        For a kinact_dict, where random generation and activity has already been run for the phospho_types of interest, 
+        this will calculate the Mann-Whitney U test for comparing the array of p-values for real data 
+        to those of random data, across the number of networks used.
+        It will also calculate the significance value for the given test 
+        based on the target_alpha value by using each random set as a real set to bootstrap, using number_sig_trials.
+        
+        Parameters
+        ----------
+        kinact_dict: dictionary
+            A dictionary of kinact objects, with keys 'Y' and/or 'ST'
+        log: logger 
+            Logger for logging activity messages
+        phospho_types: {['Y', 'ST'], ['Y'], ['ST']}
+            Which substrate/kinaset-type to run activity for: Both ['Y, 'ST'] (default), Tyrosine ['Y'], or Serine/Threonine ['ST']
+        number_sig_trials: int
+            Maximum number of significant trials to run
+        sig_auto: bool
+            Whether to automatically detect convergence for significance during bootstrap trials
+        target_alpha: float
+            target false positive rate, value between 0 and 1, default =0.05
+            
+        
+        Returns
+        -------
+
+        """
+        self.activities_mann_whitney = pd.DataFrame(index=self.normalized_summary.index, columns=self.normalized_summary.columns)
+        self.significance_mann_whitney = pd.DataFrame(index=self.normalized_summary.index, columns=self.normalized_summary.columns)
+        #for every kinase and every dataset, calculate and assemble dataframes of activities and significance values
+        for exp in self.data_columns:
+            log.info("Working on %s: "%(exp))
+            for kinase in self.normalized_summary.index:
+                log.info("\tKinase: %s"%(kinase))
+                self.activities_mann_whitney.at[kinase, exp], self.significance_mann_whitney.at[kinase, exp] = calculate_MannWhitney_one_experiment_one_kinase(self, kinase, exp, self.num_random_experiments, number_sig_trials, target_alpha=target_alpha)
     
     def calculate_fdr(self, activities, default_alpha = 0.05):
         """
@@ -789,6 +826,94 @@ def calculate_hypergeometric_activities(evidence, networks, network_sizes, name)
         hyp_act['data'] = name
         return hyp_act
 
+"""
+****************************************
+Methods for Mann Whitney analysis
+****************************************
+"""
+
+def calculate_fpr_Mann_Whitney(random_kinase_activity_array, number_sig_trials, target_alpha=0.05):
+    """
+    Given an mxn array of kinase activities from m random experiments across n networks
+    use bootstrapping to calculate an empirical p-value at which the false positive rate is controlled. 
+    This function takes one of m random experiments and calculates the Mann Whitney U pvalue 
+    then finds the pvalue at which the target_alpha is achieved
+    Parameters
+    ----------
+    random_kinase_activity_array: np.array
+        See calculate_MannWhitney_one_experiment_one_kinase for unwrapping all activities for a kinase and experiment
+    target_alpha: float
+        false positive rate between 0 and 1
+    
+    Returns
+    -------
+    random_stats: np.array 
+        A vector of Mann Whitney p-values that is m long, representing pvalues from m bootstrap tests
+    
+    """
+    #calculate the significance by taking each experiment 
+    [m, n] = random_kinase_activity_array.shape
+    if number_sig_trials > m: 
+        print("Warning, using %d, maximum number for significance"%(m))
+        number_sig_trials = m
+    random_stats = np.empty([number_sig_trials])
+    for i in range(0, number_sig_trials):
+        #take out one vector as real
+        sample = random_kinase_activity_array[i,:]
+        bgnd = np.delete(random_kinase_activity_array, i, 0) #remove the sample before testing
+        [stat, random_stats[i]] = stats.mannwhitneyu(-np.log10(sample), -np.log10(bgnd.reshape(bgnd.size)), alternative='greater')
+    return random_stats
+
+def calculate_MannWhitney_one_experiment_one_kinase(kinact, kinase, experiment, num_rand_experiments, number_sig_trials, target_alpha=0.05):
+    """
+    For a given kinact object, where random generation and activity has already been run, this will calculate
+    the Mann-Whitney U test between the p-values across all networks for the given experiment name 
+    and from the random networks. It will also calculate the significance value for the given test 
+    based on the target_alpha value by using each random set as a real set to bootstrap. 
+    
+    Parameters
+    ----------
+    kinact: kinact object
+        A kinact object (not a dictionary)
+    kinase: str
+        Kinase name to measure significance for
+    experiment: str
+        Experiment name to measure significance for
+    target_alpha: float
+        target false positive rate, value between 0 and 1, default =0.05
+        
+    
+    Returns
+    -------
+    p-value: float
+        p-value that results from Mann Whitney U test
+    fpr_significance: float
+        the p-value where target_alpha is achieved
+    """
+    rand_activities = kinact.random_kinact.activities
+    #First, check that objects are correct and values can be found
+    if not isinstance(rand_activities, pd.DataFrame):
+        raise ValueError("Random activities do not exist, please run kstar_activity.normalize_analysis")
+    
+    
+    kinase_activity_list = kinact.activities[(kinact.activities['Kinase Name']==kinase) & (kinact.activities['data']==experiment)].kinase_activity.values
+    
+    number_networks = len(kinact.networks)
+    random_kinase_activity_array = np.empty([num_rand_experiments, number_networks])
+
+    for i in range(0, num_rand_experiments):
+        # get the kinase activity values for all networks for a random set
+        experiment_name = experiment+':'+str(i)
+        random_kinase_activity_array[i,:]=rand_activities[(rand_activities['Kinase Name']==kinase) & (rand_activities['data']==experiment_name)].kinase_activity.values
+       
+    [stat, p_value] = stats.mannwhitneyu(-np.log10(kinase_activity_list), -np.log10(random_kinase_activity_array.reshape(random_kinase_activity_array.size)), alternative='greater')
+    
+    randomStats = calculate_fpr_Mann_Whitney(random_kinase_activity_array, number_sig_trials, target_alpha=target_alpha)
+    
+    sig_value = calculate_fpr.single_experiment_kinase_fpr(randomStats, target_alpha)
+    
+    
+    return p_value, sig_value
 
 """
 ****************************************
@@ -804,14 +929,14 @@ def run_kstar_analysis(experiment, log, networks, phospho_types =['Y', 'ST'], da
     ----------
     experiment: pandas df
         experiment dataframe that has been mapped, includes KSTAR_SITE, KSTAR_ACCESSION, etc.
-    log: string
-        File name to write activity log error and update to
+    log: logger object
+        Log to write activity log error and update to
     networks: dictionary of dictionaries
         Outer dictionary keys are 'Y' and 'ST'.
         Establish a network by loading a pickle of desired networks. See the helpers and config file for this.
         If downloaded from FigShare, then the GLOBAL network pickles in config file can be loaded
         For example: networks['Y'] = pickle.load(open(config.NETWORK_Y_PICKLE, "rb" ))
-    phosphoTypes: {['Y', 'ST'], ['Y'], ['ST']}
+    phospho_types: {['Y', 'ST'], ['Y'], ['ST']}
         Which substrate/kinaset-type to run activity for: Both ['Y, 'ST'] (default), Tyrosine ['Y'], or Serine/Threonine ['ST']
     data_columns : list
         columns that represent experimental result, if None, takes the columns that start with `data:'' in experiment. 
