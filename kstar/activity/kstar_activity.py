@@ -341,7 +341,7 @@ class KinaseActivity:
                     filtered_evidence = evidence[evidence[col] >= threshold]
                 else:
                     filtered_evidence = evidence[evidence[col] <= threshold]
-                act = self.calculate_hypergeometric_activities(filtered_evidence, col)
+                act = calculate_hypergeometric_activities(filtered_evidence, self.networks, self.network_sizes, col)
                 act['data'] = col
                 activities_list.append(act)
         self.activities = pd.concat(activities_list)
