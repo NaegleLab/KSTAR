@@ -77,7 +77,6 @@ class Prune:
 
         pruned_network = pd.DataFrame(index = network.index, columns = network.columns, data=np.nan)
         for i in range(kinase_size):
-            print(i)
             random.shuffle(self.kinases)
             for kinase in self.kinases:
                 sample = network.sample(weights=kinase).iloc[0]
