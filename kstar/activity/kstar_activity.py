@@ -609,6 +609,10 @@ class KinaseActivity:
         -------
 
         """
+        if number_sig_trials > self.num_random_experiments:
+            log.info("Warning: number of trials for Mann Whitney exceeds number available, using %d instead of %d"%(self.num_random_experiments, number_sig_trials))
+            number_sig_trials = self.num_random_experiments
+
         self.activities_mann_whitney = pd.DataFrame(index=self.normalized_summary.index, columns=self.normalized_summary.columns)
         self.significance_mann_whitney = pd.DataFrame(index=self.normalized_summary.index, columns=self.normalized_summary.columns)
         #for every kinase and every dataset, calculate and assemble dataframes of activities and significance values
@@ -616,7 +620,7 @@ class KinaseActivity:
             log.info("Working on %s: "%(exp))
             for kinase in self.normalized_summary.index:
                 log.info("\tKinase: %s"%(kinase))
-                self.activities_mann_whitney.at[kinase, exp], self.significance_mann_whitney.at[kinase, exp] = calculate_MannWhitney_one_experiment_one_kinase(self, kinase, exp, self.num_random_experiments, number_sig_trials, target_alpha=target_alpha)
+                self.activities_mann_whitney.at[kinase, exp], self.significance_mann_whitney.at[kinase, exp] = calculate_MannWhitney_one_experiment_one_kinase(self, kinase, exp, number_sig_trials, target_alpha=target_alpha)
     
     def calculate_fdr(self, activities, default_alpha = 0.05):
         """
@@ -864,7 +868,7 @@ def calculate_fpr_Mann_Whitney(random_kinase_activity_array, number_sig_trials, 
         [stat, random_stats[i]] = stats.mannwhitneyu(-np.log10(sample), -np.log10(bgnd.reshape(bgnd.size)), alternative='greater')
     return random_stats
 
-def calculate_MannWhitney_one_experiment_one_kinase(kinact, kinase, experiment, num_rand_experiments, number_sig_trials, target_alpha=0.05):
+def calculate_MannWhitney_one_experiment_one_kinase(kinact, kinase, experiment, number_sig_trials, target_alpha=0.05):
     """
     For a given kinact object, where random generation and activity has already been run, this will calculate
     the Mann-Whitney U test between the p-values across all networks for the given experiment name 
@@ -899,9 +903,9 @@ def calculate_MannWhitney_one_experiment_one_kinase(kinact, kinase, experiment, 
     kinase_activity_list = kinact.activities[(kinact.activities['Kinase Name']==kinase) & (kinact.activities['data']==experiment)].kinase_activity.values
     
     number_networks = len(kinact.networks)
-    random_kinase_activity_array = np.empty([num_rand_experiments, number_networks])
+    random_kinase_activity_array = np.empty([number_sig_trials, number_networks])
 
-    for i in range(0, num_rand_experiments):
+    for i in range(0, number_sig_trials):
         # get the kinase activity values for all networks for a random set
         experiment_name = experiment+':'+str(i)
         random_kinase_activity_array[i,:]=rand_activities[(rand_activities['Kinase Name']==kinase) & (rand_activities['data']==experiment_name)].kinase_activity.values
@@ -911,7 +915,7 @@ def calculate_MannWhitney_one_experiment_one_kinase(kinact, kinase, experiment, 
     randomStats = calculate_fpr_Mann_Whitney(random_kinase_activity_array, number_sig_trials, target_alpha=target_alpha)
     
     sig_value = calculate_fpr.single_experiment_kinase_fpr(randomStats, target_alpha)
-    
+    #sig_value = 1
     
     return p_value, sig_value
 
