@@ -37,7 +37,7 @@ NETWORK_ST_PICKLE = f"{NETWORK_DIR}/network_ST.p" #created by create_networkin_p
 KSTAR_ACCESSION = 'KSTAR_ACCESSION'
 KSTAR_PEPTIDE = 'KSTAR_PEPTIDE'
 KSTAR_SITE = 'KSTAR_SITE'
-KSTAR_KINASE = 'Kinase Name'
+KSTAR_KINASE = 'KSTAR_KINASE'
 
 # Number of cores to use for parallelization, set to 1 to avoid multiprocessing
 PROCESSES = 4
