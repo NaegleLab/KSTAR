@@ -49,20 +49,22 @@ def build_random_experiments(experiment, compendia, agg, threshold, greater, num
         filtered_experiments = [experiment[experiment[col] <= threshold] for col in data_columns]
 
     # ************ PARALELLIZATION ************
-    pool = multiprocessing.Pool(processes = config.PROCESSES)
-    iterable = zip(
-            filtered_experiments, 
-            itertools.repeat(compendia), 
-            itertools.repeat(filtered_compendia), 
-            itertools.repeat(num_random_experiments), 
-            [col for col in data_columns] ) 
-    rand_experiments_list =  pool.starmap(build_filtered_experiment, iterable)
+    if config.PROCESSES > 1:
+        pool = multiprocessing.Pool(processes = config.PROCESSES)
+        iterable = zip(
+                filtered_experiments, 
+                itertools.repeat(compendia), 
+                itertools.repeat(filtered_compendia), 
+                itertools.repeat(num_random_experiments), 
+                [col for col in data_columns] ) 
+        rand_experiments_list =  pool.starmap(build_filtered_experiment, iterable)
 
     # ********** NO PARALLELIZATION ***********
-    # rand_experiments_list = []
-    # for exeriment, data_column in zip(filtered_experiments, data_columns):
-    #     rand_exp = build_filtered_experiment(experiment, compendia, filtered_compendia, num_random_experiments, data_column)
-    #     rand_experiments_list.append(rand_exp)
+    else:
+        rand_experiments_list = []
+        for exeriment, data_column in zip(filtered_experiments, data_columns):
+            rand_exp = build_filtered_experiment(experiment, compendia, filtered_compendia, num_random_experiments, data_column)
+            rand_experiments_list.append(rand_exp)
 
     rand_experiments = compendia[[config.KSTAR_ACCESSION, config.KSTAR_SITE]]
     for r in rand_experiments_list:

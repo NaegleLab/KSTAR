@@ -13,8 +13,7 @@ from kstar import helpers, config
 
 
 class Prune:
-    def __init__(self, network, logger, phospho_type = 'Y',
-        columns = {'accession' : 'substrate_acc','site' : 'site', 'kinase' : 'Kinase Name', 'score' : 'score' }):
+    def __init__(self, network, logger, phospho_type = 'Y',):
 
         """
         Pruning Algorithm used for Kinase Activity Algorithm. 
@@ -31,18 +30,24 @@ class Prune:
         """
         self.phospho_type = tuple(phospho_type)
         self.logger = logger
-        self.columns = columns
-        self.network = network[network[self.columns['site']].str.startswith(self.phospho_type)]
-        self.network = self.network[self.network[self.columns['score']]>0]
-        self.kinases = self.network[self.columns['kinase']].unique()
+        self.network = network[network['site'].str.startswith(self.phospho_type)]
+        
 
         self.compendia = config.HUMAN_REF_COMPENDIA
         self.compendia = self.compendia[self.compendia[config.KSTAR_SITE].str.startswith(self.phospho_type)]
         self.compendia = self.compendia[[config.KSTAR_ACCESSION, config.KSTAR_SITE, 'KSTAR_NUM_COMPENDIA']]
         self.compendia = self.compendia.groupby([config.KSTAR_ACCESSION, config.KSTAR_SITE]).max().reset_index()
 
-        self.network = pd.merge(self.network, self.compendia, how = 'inner', left_on = [self.columns['accession'], self.columns['site']], right_on=[config.KSTAR_ACCESSION, config.KSTAR_SITE] )
-        self.network = self.network[[config.KSTAR_ACCESSION, config.KSTAR_SITE, self.columns['kinase'], self.columns['score'], 'KSTAR_NUM_COMPENDIA']]
+        self.network = pd.merge(self.network, self.compendia, how = 'inner', left_on = ['substrate_acc', 'site'], right_on=[config.KSTAR_ACCESSION, config.KSTAR_SITE] )
+        self.network = self.network.drop(columns=['substrate_acc','site','substrate_id', 'substrate_name', 'pep'])
+        self.network = self.network.set_index([config.KSTAR_ACCESSION, config.KSTAR_SITE])
+
+        self.network = self.network.replace('-',np.nan)
+        self.network = self.network.dropna(axis='columns', how ='all')
+
+        self.kinases = list(self.network.columns)
+        self.kinases.remove('KSTAR_NUM_COMPENDIA')
+
         self.logger.info("Pruning initialization complete")
     
     def build_pruned_network(self, network, kinase_size, site_limit):
@@ -65,28 +70,28 @@ class Prune:
             subset of network that has been pruned
         """
         network = network.copy()
-        kinases = network[self.columns['kinase']].unique()
-        pruned_network = pd.DataFrame(columns = network.columns)
+        
+        site_sizes = defaultdict()
+        for i in network.index:
+            site_sizes[i] = 0
+
+        pruned_network = pd.DataFrame(index = network.index, columns = network.columns, data=np.nan)
         for i in range(kinase_size):
-            random.shuffle(kinases)
-            for kinase in kinases:
-                kinase_network = network[network[self.columns['kinase']] == kinase]
-                
-                sample = kinase_network.sample(weights=self.columns['score'])           # Heuristically select kinase-substrate edge
-                network.drop(sample.index, inplace = True)                              # Remove edge from remaining network
-                pruned_network = pd.concat([pruned_network, sample])                    # add edge to pruned network
-                
-                # Remove substrate site from network if over limit
-                sample = sample.iloc[0]
-                pruned_site = pruned_network[config.KSTAR_SITE] == sample[config.KSTAR_SITE]
-                pruned_accession = pruned_network[config.KSTAR_ACCESSION] == sample[config.KSTAR_ACCESSION]
-                pruned_match = pruned_network[pruned_site & pruned_accession]
-                if len(pruned_match) >= site_limit:
-                    network_site = network[config.KSTAR_SITE] == sample[config.KSTAR_SITE]
-                    network_accession = network[config.KSTAR_ACCESSION] == sample[config.KSTAR_ACCESSION]
-                    network = network[~(network_site & network_accession)]
-                    # network.drop(network_match.index, inplace=True)
+            random.shuffle(self.kinases)
+            for kinase in self.kinases:
+                sample = network.sample(weights=kinase).iloc[0]
+                # return sample
+                network.at[sample.name, kinase] = np.nan
+                pruned_network.at[sample.name, kinase] = 1
+                site_sizes[sample.name] = site_sizes[sample.name] + 1
+                if site_sizes[sample.name] >= site_limit:
+                    network.at[sample.name,:] = np.nan 
+        
+        pruned_network = pruned_network.reset_index().melt(id_vars=[config.KSTAR_ACCESSION, config.KSTAR_SITE]).dropna()
+        pruned_network = pruned_network.rename(columns={'variable':config.KSTAR_KINASE})
+        pruned_network = pruned_network.drop(columns=['value'])   
         return pruned_network
+        
     
     def compendia_pruned_network(self, compendia_sizes, site_limit):
         """
@@ -215,10 +220,6 @@ Arguments
 ---------
 --network_file          Experiment file location. csv or tsv file           (required)
 --output_directory      output directory for results                        (required)
---accession             Accession Column
---site                  site column
---score                 score column
---kinase                kinase column
 --phospho_type          phospho type (Y, ST, ...)
 --kinase_size           number of sites a kinase connects to (required)
 --site_limit            upper limit of number of kinases can connect to     (required)
@@ -233,10 +234,6 @@ def parse_args():
     parser = argparse.ArgumentParser(description='Parse Network Pruning Arguments')
     parser.add_argument('--network_file', action='store', dest= 'network_file', help='Experiment file location. csv or tsv file', required=True)
     parser.add_argument('--odir','--output_directory', action = 'store', dest='odir', help = 'output directory for results', required=True)
-    parser.add_argument('--accession', action = 'store', dest = 'accession', help = 'Accession Column', default = 'substrate_acc', required = False)
-    parser.add_argument('--site', action = 'store', dest = 'site', help='site column', default='site',required = False)
-    parser.add_argument('--score', action = 'store', dest = 'score', help='score column', default='score', required = False)
-    parser.add_argument('--kinase', action = 'store', dest = 'kinase', help='kinase column', default='Kinase Name', required = False)
     parser.add_argument('--phospho_type', action='store', dest = 'phospho_type', help = 'phospho type', default='Y', choices = ['Y','ST'], required = False)
     parser.add_argument('--kinase_size', action='store', dest = 'kinase_size', type = int,help='number of sites a kinase connects to',required=True)
     parser.add_argument('--site_limit', action='store', dest='site_limit', type=int,help='upper limit of number of kinases can connect to',required=True)
@@ -272,40 +269,15 @@ def process_args(results):
     else:
         log.error("Please provide a valid network file")
         exit()
-    
-    # Map accession, peptide, site column if valid
-    log.info("Mapping Network Columns")
-    map_columns = defaultdict()
-    columns = list(network.columns)
-    if results.accession in columns:
-        map_columns['accession'] = results.accession
-    else:
-        log.error(f"{results.accession} not found in network columns. Please provide a valid accession column")
-        exit() 
-    if results.site in columns:
-        map_columns['site'] = results.site
-    else:
-        log.error(f"{results.site} not found in network columns. Please provide a valid site column")
-        exit() 
-    
-    if results.score in columns:
-        map_columns['score'] = results.score
-    else:
-        log.error(f"{results.score} not found in network columns. Please provide a valid score column")
-        exit() 
-    if results.kinase in columns:
-        map_columns['kinase'] = results.kinase
-    else:
-        log.error(f"{results.kinase} not found in experiment columns. Please provide a valid site column")
-        exit()
+
 
     use_compendia = helpers.string_to_boolean(results.use_compendia)
-    return network, log, map_columns, use_compendia
+    return network, log, use_compendia
 
 
-def run_pruning(network, log, map_columns, use_compendia, phospho_type, kinase_size, site_limit, num_networks, network_id):
+def run_pruning(network, log, use_compendia, phospho_type, kinase_size, site_limit, num_networks, network_id):
     log.info("Running pruning algorithm")
-    pruner = Prune(network, log, phospho_type, map_columns)
+    pruner = Prune(network, log, phospho_type)
     if use_compendia:
         log.info("Pruning using compendia ratios")
         pruned_networks = pruner.build_multiple_compendia_networks(kinase_size, site_limit, num_networks, network_id)
@@ -330,7 +302,7 @@ def save_pruning(network_map, phospho_type, network_id, kinase_size, site_limit,
     
 def main():
     results = parse_args()
-    network, log, map_columns, use_compendia = process_args(results)
+    network, log, use_compendia = process_args(results)
     phospho_type = results.phospho_type
     kinase_size = results.kinase_size
     site_limit = results.site_limit
@@ -338,7 +310,7 @@ def main():
     network_id = results.network_id
     odir = results.odir
     log.info("Beginning to build pruning networks")
-    pruned_networks = run_pruning(network, log, map_columns, use_compendia, phospho_type, kinase_size, site_limit, num_networks, network_id)
+    pruned_networks = run_pruning(network, log, use_compendia, phospho_type, kinase_size, site_limit, num_networks, network_id)
     save_pruning(pruned_networks, phospho_type, network_id, kinase_size, site_limit, use_compendia, odir, log)
     
 if __name__ == "__main__":
