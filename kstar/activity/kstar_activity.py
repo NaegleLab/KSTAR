@@ -116,7 +116,7 @@ class KinaseActivity:
         self.logger.info("Calculating random kinase activities")
         self.random_kinact = KinaseActivity(self.random_experiments, logger, phospho_type=self.phospho_type)
         self.random_kinact.add_networks_batch(self.networks)
-        self.random_kinact.calculate_kinase_activities( agg='count', threshold=1.0, greater=True )
+        self.random_kinact.calculate_MannWhitney_one_experiment_one_kinasease_activities( agg='count', threshold=1.0, greater=True )
         self.random_kinact.aggregate_activities()
         self.random_kinact.activity_summary = self.random_kinact.summarize_activities()
 
@@ -609,6 +609,10 @@ class KinaseActivity:
         -------
 
         """
+        #First, check that objects are correct and values can be found
+        if not isinstance(self.random_kinact.activities, pd.DataFrame):
+            raise ValueError("Random activities do not exist, please run kstar_activity.normalize_analysis")
+
         if number_sig_trials > self.num_random_experiments:
             log.info("Warning: number of trials for Mann Whitney exceeds number available, using %d instead of %d"%(self.num_random_experiments, number_sig_trials))
             number_sig_trials = self.num_random_experiments
@@ -616,11 +620,18 @@ class KinaseActivity:
         self.activities_mann_whitney = pd.DataFrame(index=self.normalized_summary.index, columns=self.normalized_summary.columns)
         self.significance_mann_whitney = pd.DataFrame(index=self.normalized_summary.index, columns=self.normalized_summary.columns)
         #for every kinase and every dataset, calculate and assemble dataframes of activities and significance values
+
         for exp in self.data_columns:
             log.info("Working on %s: "%(exp))
+            #Get a subset of the random and real activites for this experiment
+            activities_sub = self.activities[self.activities['data']==exp]
+
+            rand_activities_sub = self.random_kinact.activities[self.random_kinact.activities['data'].str.startswith(exp)]
+            print("DEBUG: found %d random for experiment"%(len(rand_activities_sub)))
             for kinase in self.normalized_summary.index:
                 log.info("\tKinase: %s"%(kinase))
-                self.activities_mann_whitney.at[kinase, exp], self.significance_mann_whitney.at[kinase, exp] = calculate_MannWhitney_one_experiment_one_kinase(self, kinase, exp, number_sig_trials, target_alpha=target_alpha)
+                self.activities_mann_whitney.at[kinase, exp], self.significance_mann_whitney.at[kinase, exp] = calculate_MannWhitney_one_experiment_one_kinase(
+                    activities_sub, rand_activities_sub, len(self.networks), kinase, exp, number_sig_trials, target_alpha=target_alpha)
     
     def calculate_fdr(self, activities, default_alpha = 0.05):
         """
@@ -868,7 +879,7 @@ def calculate_fpr_Mann_Whitney(random_kinase_activity_array, number_sig_trials, 
         [stat, random_stats[i]] = stats.mannwhitneyu(-np.log10(sample), -np.log10(bgnd.reshape(bgnd.size)), alternative='greater')
     return random_stats
 
-def calculate_MannWhitney_one_experiment_one_kinase(kinact, kinase, experiment, number_sig_trials, target_alpha=0.05):
+def calculate_MannWhitney_one_experiment_one_kinase(kinact_activities, rand_activities, number_networks, kinase, experiment, number_sig_trials, target_alpha=0.05):
     """
     For a given kinact object, where random generation and activity has already been run, this will calculate
     the Mann-Whitney U test between the p-values across all networks for the given experiment name 
@@ -894,15 +905,10 @@ def calculate_MannWhitney_one_experiment_one_kinase(kinact, kinase, experiment, 
     fpr_significance: float
         the p-value where target_alpha is achieved
     """
-    rand_activities = kinact.random_kinact.activities
-    #First, check that objects are correct and values can be found
-    if not isinstance(rand_activities, pd.DataFrame):
-        raise ValueError("Random activities do not exist, please run kstar_activity.normalize_analysis")
     
     
-    kinase_activity_list = kinact.activities[(kinact.activities['Kinase Name']==kinase) & (kinact.activities['data']==experiment)].kinase_activity.values
+    kinase_activity_list = kinact_activities[(kinact_activities['Kinase Name']==kinase) & (kinact_activities['data']==experiment)].kinase_activity.values
     
-    number_networks = len(kinact.networks)
     random_kinase_activity_array = np.empty([number_sig_trials, number_networks])
 
     for i in range(0, number_sig_trials):
@@ -1023,7 +1029,7 @@ def normalize_analysis(kinact_dict, log, num_random_experiments=150, target_alph
     for phospho_type, kinact in kinact_dict.items():
         kinact.run_normalization(log, num_random_experiments, target_alpha)
     
-def save_kstar(kinact_dict, name, odir):
+def save_kstar(kinact_dict, name, odir, PICKLE=True):
         """
         Having performed kinase activities (run_kstar_analyis), save each of the important dataframes to files and the final pickle
         Saves an activities, aggregated_activities, summarized_activities tab-separated files
@@ -1040,6 +1046,8 @@ def save_kstar(kinact_dict, name, odir):
             The name to use when saving activities
         odir:  string
             Outputdirectory to save files and pickle to
+        PICKLE: boolean
+            Whether to save the entire pickle file 
 
         Returns
         -------
