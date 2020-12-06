@@ -8,6 +8,8 @@ import pickle
 import os
 from datetime import datetime
 import itertools
+from itertools import repeat
+import concurrent.futures
 
 from kstar import config
 from kstar.normalize import generate_random_experiments, calculate_fpr
@@ -622,16 +624,25 @@ class KinaseActivity:
         #for every kinase and every dataset, calculate and assemble dataframes of activities and significance values
 
         for exp in self.data_columns:
-            log.info("Working on %s: "%(exp))
+            log.info("MW Working on %s: "%(exp))
+
             #Get a subset of the random and real activites for this experiment
             activities_sub = self.activities[self.activities['data']==exp]
-
             rand_activities_sub = self.random_kinact.activities[self.random_kinact.activities['data'].str.startswith(exp)]
-            print("DEBUG: found %d random for experiment"%(len(rand_activities_sub)))
-            for kinase in self.normalized_summary.index:
-                log.info("\tKinase: %s"%(kinase))
-                self.activities_mann_whitney.at[kinase, exp], self.significance_mann_whitney.at[kinase, exp] = calculate_MannWhitney_one_experiment_one_kinase(
-                    activities_sub, rand_activities_sub, len(self.networks), kinase, exp, number_sig_trials, target_alpha=target_alpha)
+
+            pval_arr = []
+            sig_arr = []
+            with concurrent.futures.ProcessPoolExecutor(max_workers=config.PROCESSES) as executor:
+                for pval, sig in executor.map(calculate_MannWhitney_one_experiment_one_kinase, repeat(activities_sub), repeat(rand_activities_sub), repeat(len(self.networks)), self.normalized_summary.index, repeat(exp), repeat(number_sig_trials), repeat(target_alpha)):
+                    pval_arr.append(pval)
+                    sig_arr.append(sig)
+                #print(pval_arr)
+            self.activities_mann_whitney[exp] = pval_arr
+            self.significance_mann_whitney[exp] = sig_arr
+            #for kinase in self.normalized_summary.index:
+            #    log.info("\tKinase: %s"%(kinase))
+            #    self.activities_mann_whitney.at[kinase, exp], self.significance_mann_whitney.at[kinase, exp] = calculate_MannWhitney_one_experiment_one_kinase(
+            #        activities_sub, rand_activities_sub, len(self.networks), kinase, exp, number_sig_trials, target_alpha=target_alpha)
     
     def calculate_fdr(self, activities, default_alpha = 0.05):
         """
