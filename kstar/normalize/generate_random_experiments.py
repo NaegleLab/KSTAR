@@ -27,7 +27,7 @@ def build_filtered_experiment(experiment, compendia, filtered_compendia, num_ran
     return rand_experiments
 
 
-def build_random_experiments(experiment, compendia, agg, threshold, greater, num_random_experiments, phosphorylation_event, data_columns = None, selection_type='KSTAR_NUM_COMPENDIA_CLASS'):
+def build_random_experiments(binary_evidence, compendia, num_random_experiments, phosphorylation_event, data_columns, selection_type='KSTAR_NUM_COMPENDIA_CLASS'):
     """
     Given an experimental dataframe and the human phospho compendia, build random experiments such that each random experiment takes on the same
     distribution with respect to the study bias defined as either NUM_COMPENDIA (total number of compendia a site is annotated in) or 
@@ -35,26 +35,16 @@ def build_random_experiments(experiment, compendia, agg, threshold, greater, num
     
     Parameters
     ----------
-    experiment: df
-        KSTAR mapped experimental dataframe
-    compendia: df
-        KSTAR mapped human reference phosphorylation compendia (see helpers/generateHumanPhosphoProteome), but also the Figshare project folder 
-    agg : {'count', 'mean'}
-        method to use when aggregating duplicate substrate-sites. 
-        'count' combines multiple representations and adds if values are non-NaN
-        'mean' uses the mean value of numerical data from multiple representations of the same peptide.
-            NA values are droped from consideration.
-    threshold : float
-        threshold value used to filter rows
+    binary_evidence: df
+        KSTAR mapped experimental dataframe that has been binarized by kstar_activity generation
     greater: Boolean
         whether to keep sites that have a numerical value >=threshold (TRUE, default) or <=threshold (FALSE)
     num_random_experiments: int
         Number of random experiments to generate for each data_column
-    phosphorylation_event: {['Y', 'ST'], ['Y'], ['ST']}
-        Which substrate/kinaset-type to run activity for: Both ['Y, 'ST'] (default), Tyrosine ['Y'], or Serine/Threonine ['ST']
+    phosphorylation_event: {'Y', 'ST'}
+        Which substrate/kinaset-type to generate random experiments for
     data_columns : list
-        columns that represent experimental result, if None, takes the columns that start with `data:'' in experiment. 
-        Pass this value in as a list, if seeking to calculate on fewer than all available data columns
+        columns that represent experimental result
     selection_type: {'KSTAR_NUM_COMPENDIA', 'KSTAR_NUM_COMPENDIA_CLASS'}
         Whether to sample according to the absolute number of compendia or low, medium, or high study bias groupings
 
@@ -68,7 +58,7 @@ def build_random_experiments(experiment, compendia, agg, threshold, greater, num
         if selection_type != 'KSTAR_NUM_COMPENDIA_CLASS':
             raise ValueError('selection_type must be either KSTAR_NUM_COMPENDIA or KSTAR_NUM_COMPENDIA_CLASS')
 
-    
+    experiment = binary_evidence
     if phosphorylation_event == 'ST':
         compendia = compendia[(compendia.KSTAR_SITE.str.contains('S')) | (compendia.KSTAR_SITE.str.contains('T'))]
         experiment = experiment[(experiment.KSTAR_SITE.str.contains('S')) | (experiment.KSTAR_SITE.str.contains('T'))]
@@ -79,23 +69,21 @@ def build_random_experiments(experiment, compendia, agg, threshold, greater, num
     else:
         raise ValueError('phosphorylation_event must be Y or ST')
 
+
     compendia = compendia[[config.KSTAR_ACCESSION, config.KSTAR_SITE, selection_type]]
     compendia = compendia.groupby([config.KSTAR_ACCESSION, config.KSTAR_SITE]).max().reset_index() #uniquify the compendia by KSTAR_ACCESSION and KSTAR_SITE
     
 
-    experiment = experiment.groupby([config.KSTAR_ACCESSION, config.KSTAR_SITE]).agg(agg).reset_index()
-    if data_columns is None:
-        data_columns =[c for c in experiment.columns if c.startswith('data:')]
+    #experiment = experiment.groupby([config.KSTAR_ACCESSION, config.KSTAR_SITE]).agg(agg).reset_index()
     
     sizes = compendia[selection_type].unique()
     filtered_compendia = {}
     for s in sizes:
         filtered_compendia[s] = compendia[compendia[selection_type] == s][[config.KSTAR_ACCESSION, config.KSTAR_SITE]]
     
-    if greater:
-        filtered_experiments = [experiment[experiment[col] >= threshold] for col in data_columns]
-    else:
-        filtered_experiments = [experiment[experiment[col] <= threshold] for col in data_columns]
+    
+    filtered_experiments  = [experiment[experiment[col] ==1 ] for col in data_columns] 
+
 
     # ************ PARALELLIZATION ************
     if config.PROCESSES > 1:
@@ -111,7 +99,7 @@ def build_random_experiments(experiment, compendia, agg, threshold, greater, num
     # ********** NO PARALLELIZATION ***********
     else:
         rand_experiments_list = []
-        for exeriment, data_column in zip(filtered_experiments, data_columns):
+        for experiment, data_column in zip(filtered_experiments, data_columns):
             rand_exp = build_filtered_experiment(experiment, compendia, filtered_compendia, num_random_experiments, data_column)
             rand_experiments_list.append(rand_exp)
 

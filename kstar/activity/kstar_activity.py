@@ -106,11 +106,8 @@ class KinaseActivity:
         self.num_random_experiments = num_random_experiments
         self.logger.info("Generating random experiments")
         self.random_experiments = generate_random_experiments.build_random_experiments(
-            self.evidence, 
+            self.evidence_binary, 
             config.HUMAN_REF_COMPENDIA, 
-            self.aggregate, 
-            self.threshold,
-            self.greater, 
             num_random_experiments,
             self.phospho_type, 
             self.data_columns )
