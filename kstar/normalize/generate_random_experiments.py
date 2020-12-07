@@ -27,7 +27,7 @@ def build_filtered_experiment(experiment, compendia, filtered_compendia, num_ran
     return rand_experiments
 
 
-def build_random_experiments(experiment, compendia, agg, threshold, greater, num_random_experiments, phosphorylation_event, data_columns = None, warning_threshold=0.25, selection_type='KSTAR_NUM_COMPENDIA_CLASS'):
+def build_random_experiments(experiment, compendia, agg, threshold, greater, num_random_experiments, phosphorylation_event, data_columns = None, selection_type='KSTAR_NUM_COMPENDIA_CLASS'):
     """
     Given an experimental dataframe and the human phospho compendia, build random experiments such that each random experiment takes on the same
     distribution with respect to the study bias defined as either NUM_COMPENDIA (total number of compendia a site is annotated in) or 
@@ -55,8 +55,6 @@ def build_random_experiments(experiment, compendia, agg, threshold, greater, num
     data_columns : list
         columns that represent experimental result, if None, takes the columns that start with `data:'' in experiment. 
         Pass this value in as a list, if seeking to calculate on fewer than all available data columns
-    warning_threshold: float
-        The fraction of sampling at which a warning message is printed
     selection_type: {'KSTAR_NUM_COMPENDIA', 'KSTAR_NUM_COMPENDIA_CLASS'}
         Whether to sample according to the absolute number of compendia or low, medium, or high study bias groupings
 
@@ -66,8 +64,6 @@ def build_random_experiments(experiment, compendia, agg, threshold, greater, num
         Dataframe of random experiments with NaN where phosphorylation sites are not selected, and 1 if they are for that experiment
     """
     #check parameters
-    if warning_threshold < 0 or warning_threshold > 1:
-        raise ValueError("warning_threshold must be between 0 and 1")
     if selection_type != 'KSTAR_NUM_COMPENDIA':
         if selection_type != 'KSTAR_NUM_COMPENDIA_CLASS':
             raise ValueError('selection_type must be either KSTAR_NUM_COMPENDIA or KSTAR_NUM_COMPENDIA_CLASS')
@@ -125,7 +121,6 @@ def parse_args():
     parser.add_argument('-a', '--arg', '--activity_agg', action='store', dest='agg', help = 'activity agg to use', default='count', choices =['count','mean'])
     parser.add_argument('-t', '--threshold',  action='store', dest='threshold', help = 'threshold to use for analysis', type = float, default=0.0)
     parser.add_argument('-num', '--num_random_experiments',  action='store', dest='num', help = 'Number of random experiments to generate', type = int, default=150)
-    parser.add_argument('-w', '--warning_threshold', action='store', dest='warning_threshold', help='Fraction of sample to warn at', type=float, default=0.25)
     parser.add_argument('-s', '--selection_type', action='store', dest='selection_type', help='KSTAR_NUM_COMPENDIA or KSTAR_NUM_COMPENDIA_CLASS', type=str, default='KSTAR_NUM_COMPENDIA_CLASS')
     results = parser.parse_args()
     return results
@@ -192,7 +187,7 @@ def process_args(results):
 def main():
     results = parse_args()
     experiment, proteomescout, log, data_columns  = process_args(results)
-    random_experiments = build_random_experiments(experiment, proteomescout, results.agg, results.threshold, results.num, results.pevent, data_columns = None, warning_threshold=0.25, selection_type='KSTAR_NUM_COMPENDIA_CLASS')
+    random_experiments = build_random_experiments(experiment, proteomescout, results.agg, results.threshold, results.num, results.pevent, data_columns = None, selection_type='KSTAR_NUM_COMPENDIA_CLASS')
     random_experiments.to_csv(f"{results.odir}/{results.name}_random_experiments_{results.pevent}.tsv", sep = '\t', index=False)
 
 
