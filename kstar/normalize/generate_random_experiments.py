@@ -68,14 +68,25 @@ def build_random_experiments(experiment, compendia, agg, threshold, greater, num
         if selection_type != 'KSTAR_NUM_COMPENDIA_CLASS':
             raise ValueError('selection_type must be either KSTAR_NUM_COMPENDIA or KSTAR_NUM_COMPENDIA_CLASS')
 
-    phosphorylation_event = tuple(phosphorylation_event)
-    compendia = compendia[compendia[config.KSTAR_SITE].str.startswith(phosphorylation_event)]
+    
+    if phosphorylation_event == 'ST':
+        compendia = compendia[(compendia.KSTAR_SITE.str.contains('S')) | (compendia.KSTAR_SITE.str.contains('T'))]
+        experiment = experiment[(experiment.KSTAR_SITE.str.contains('S')) | (experiment.KSTAR_SITE.str.contains('T'))]
+            
+    elif phosphorylation_event == 'Y':
+        compendia = compendia[(compendia.KSTAR_SITE.str.contains('Y'))]
+        experiment = experiment[(experiment.KSTAR_SITE.str.contains('Y'))]
+    else:
+        raise ValueError('phosphorylation_event must be Y or ST')
+
     compendia = compendia[[config.KSTAR_ACCESSION, config.KSTAR_SITE, selection_type]]
-    compendia = compendia.groupby([config.KSTAR_ACCESSION, config.KSTAR_SITE]).max().reset_index()
-    experiment = experiment[experiment[config.KSTAR_SITE].str.startswith(phosphorylation_event)]
+    compendia = compendia.groupby([config.KSTAR_ACCESSION, config.KSTAR_SITE]).max().reset_index() #uniquify the compendia by KSTAR_ACCESSION and KSTAR_SITE
+    
+
     experiment = experiment.groupby([config.KSTAR_ACCESSION, config.KSTAR_SITE]).agg(agg).reset_index()
     if data_columns is None:
         data_columns =[c for c in experiment.columns if c.startswith('data:')]
+    
     sizes = compendia[selection_type].unique()
     filtered_compendia = {}
     for s in sizes:
