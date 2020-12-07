@@ -5,7 +5,7 @@ import argparse
 from kstar import config
 
 
-def build_filtered_experiment(experiment, compendia, filtered_compendia, num_random_experiments, name):
+def build_filtered_experiment(experiment, compendia, filtered_compendia, num_random_experiments, name, selection_type='KSTAR_NUM_COMPENDIA_CLASS'):
     rand_experiments = compendia[[config.KSTAR_ACCESSION, config.KSTAR_SITE]]
     if len(experiment) == 0:
         empty_columns = [f"{name}:{i}" for i in range(num_random_experiments)]
@@ -13,7 +13,7 @@ def build_filtered_experiment(experiment, compendia, filtered_compendia, num_ran
         return rand_experiments
 
 
-    sizes = experiment.groupby('KSTAR_NUM_COMPENDIA').size()
+    sizes = experiment.groupby(selection_type).size()
     for i in range(num_random_experiments):
         rand_experiment_list = []
         for num, size in sizes.iteritems():
@@ -27,21 +27,63 @@ def build_filtered_experiment(experiment, compendia, filtered_compendia, num_ran
     return rand_experiments
 
 
-def build_random_experiments(experiment, compendia, agg, threshold, greater, num_random_experiments, phosphorylation_event, data_columns = None):
+def build_random_experiments(experiment, compendia, agg, threshold, greater, num_random_experiments, phosphorylation_event, data_columns = None, warning_threshold=0.25, selection_type='KSTAR_NUM_COMPENDIA_CLASS'):
+    """
+    Given an experimental dataframe and the human phospho compendia, build random experiments such that each random experiment takes on the same
+    distribution with respect to the study bias defined as either NUM_COMPENDIA (total number of compendia a site is annotated in) or 
+    NUM_COMPENDIA_CLASS (whether it has low < 1, medium (1-3), or high study bias(>3)).
+    
+    Parameters
+    ----------
+    experiment: df
+        KSTAR mapped experimental dataframe
+    compendia: df
+        KSTAR mapped human reference phosphorylation compendia (see helpers/generateHumanPhosphoProteome), but also the Figshare project folder 
+    agg : {'count', 'mean'}
+        method to use when aggregating duplicate substrate-sites. 
+        'count' combines multiple representations and adds if values are non-NaN
+        'mean' uses the mean value of numerical data from multiple representations of the same peptide.
+            NA values are droped from consideration.
+    threshold : float
+        threshold value used to filter rows
+    greater: Boolean
+        whether to keep sites that have a numerical value >=threshold (TRUE, default) or <=threshold (FALSE)
+    num_random_experiments: int
+        Number of random experiments to generate for each data_column
+    phosphorylation_event: {['Y', 'ST'], ['Y'], ['ST']}
+        Which substrate/kinaset-type to run activity for: Both ['Y, 'ST'] (default), Tyrosine ['Y'], or Serine/Threonine ['ST']
+    data_columns : list
+        columns that represent experimental result, if None, takes the columns that start with `data:'' in experiment. 
+        Pass this value in as a list, if seeking to calculate on fewer than all available data columns
+    warning_threshold: float
+        The fraction of sampling at which a warning message is printed
+    selection_type: {'KSTAR_NUM_COMPENDIA', 'KSTAR_NUM_COMPENDIA_CLASS'}
+        Whether to sample according to the absolute number of compendia or low, medium, or high study bias groupings
 
+    Returns
+    -------
+    rand_experiments: pandas.DataFrame
+        Dataframe of random experiments with NaN where phosphorylation sites are not selected, and 1 if they are for that experiment
+    """
+    #check parameters
+    if warning_threshold < 0 or warning_threshold > 1:
+        raise ValueError("warning_threshold must be between 0 and 1")
+    if selection_type != 'KSTAR_NUM_COMPENDIA':
+        if selection_type != 'KSTAR_NUM_COMPENDIA_CLASS':
+            raise ValueError('selection_type must be either KSTAR_NUM_COMPENDIA or KSTAR_NUM_COMPENDIA_CLASS')
 
     phosphorylation_event = tuple(phosphorylation_event)
     compendia = compendia[compendia[config.KSTAR_SITE].str.startswith(phosphorylation_event)]
-    compendia = compendia[[config.KSTAR_ACCESSION, config.KSTAR_SITE, 'KSTAR_NUM_COMPENDIA']]
+    compendia = compendia[[config.KSTAR_ACCESSION, config.KSTAR_SITE, selection_type]]
     compendia = compendia.groupby([config.KSTAR_ACCESSION, config.KSTAR_SITE]).max().reset_index()
     experiment = experiment[experiment[config.KSTAR_SITE].str.startswith(phosphorylation_event)]
     experiment = experiment.groupby([config.KSTAR_ACCESSION, config.KSTAR_SITE]).agg(agg).reset_index()
     if data_columns is None:
         data_columns =[c for c in experiment.columns if c.startswith('data:')]
-    sizes = compendia['KSTAR_NUM_COMPENDIA'].unique()
+    sizes = compendia[selection_type].unique()
     filtered_compendia = {}
     for s in sizes:
-        filtered_compendia[s] = compendia[compendia['KSTAR_NUM_COMPENDIA'] == s][[config.KSTAR_ACCESSION, config.KSTAR_SITE]]
+        filtered_compendia[s] = compendia[compendia[selection_type] == s][[config.KSTAR_ACCESSION, config.KSTAR_SITE]]
     
     if greater:
         filtered_experiments = [experiment[experiment[col] >= threshold] for col in data_columns]
@@ -83,6 +125,8 @@ def parse_args():
     parser.add_argument('-a', '--arg', '--activity_agg', action='store', dest='agg', help = 'activity agg to use', default='count', choices =['count','mean'])
     parser.add_argument('-t', '--threshold',  action='store', dest='threshold', help = 'threshold to use for analysis', type = float, default=0.0)
     parser.add_argument('-num', '--num_random_experiments',  action='store', dest='num', help = 'Number of random experiments to generate', type = int, default=150)
+    parser.add_argument('-w', '--warning_threshold', action='store', dest='warning_threshold', help='Fraction of sample to warn at', type=float, default=0.25)
+    parser.add_argument('-s', '--selection_type', action='store', dest='selection_type', help='KSTAR_NUM_COMPENDIA or KSTAR_NUM_COMPENDIA_CLASS', type=str, default='KSTAR_NUM_COMPENDIA_CLASS')
     results = parser.parse_args()
     return results
 
@@ -126,7 +170,7 @@ def process_args(results):
         if f.startswith("ProteomeScout_KSTAR"):
             proteomescout = pd.read_csv(f"{results.rdir}/COMPENDIA_MAP/{f}")
     if proteomescout is None:
-        log.eror("ProteomeScout file not found. Please provide a compendia map file to use")
+        log.error("ProteomeScout file not found. Please provide a compendia map file to use")
         exit()
     # Check all data columns provided to make sure they exist. 
     # If a column does not exist in the experiment it is removed
@@ -147,8 +191,8 @@ def process_args(results):
 
 def main():
     results = parse_args()
-    experiment, proteomescout, log, data_columns = process_args(results)
-    random_experiments = build_random_experiments(experiment, proteomescout, results.agg, results.threshold, results.num, results.pevent, data_columns = None)
+    experiment, proteomescout, log, data_columns  = process_args(results)
+    random_experiments = build_random_experiments(experiment, proteomescout, results.agg, results.threshold, results.num, results.pevent, data_columns = None, warning_threshold=0.25, selection_type='KSTAR_NUM_COMPENDIA_CLASS')
     random_experiments.to_csv(f"{results.odir}/{results.name}_random_experiments_{results.pevent}.tsv", sep = '\t', index=False)
 
 

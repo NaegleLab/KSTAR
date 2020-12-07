@@ -114,11 +114,12 @@ class KinaseActivity:
             num_random_experiments,
             self.phospho_type, 
             self.data_columns )
+
         
         self.logger.info("Calculating random kinase activities")
         self.random_kinact = KinaseActivity(self.random_experiments, logger, phospho_type=self.phospho_type)
         self.random_kinact.add_networks_batch(self.networks)
-        self.random_kinact.calculate_MannWhitney_one_experiment_one_kinasease_activities( agg='count', threshold=1.0, greater=True )
+        self.random_kinact.calculate_kinase_activities( agg='count', threshold=1.0, greater=True )
         self.random_kinact.aggregate_activities()
         self.random_kinact.activity_summary = self.random_kinact.summarize_activities()
 
