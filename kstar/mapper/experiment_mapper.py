@@ -69,6 +69,9 @@ class ExperimentMapper:
 
         compendia = self.compendia[[config.KSTAR_ACCESSION, config.KSTAR_SITE, 'KSTAR_NUM_COMPENDIA', 'KSTAR_NUM_COMPENDIA_CLASS']]
         self.experiment = pd.merge(self.experiment, compendia, how = 'inner', on = [config.KSTAR_ACCESSION, config.KSTAR_SITE] )
+        #after merge, NUM_COMPENDIA/CLASS as become a float, likely due to mismatches, so assume those evidences are 0
+        self.experiment['KSTAR_NUM_COMPENDIA'] = self.experiment['KSTAR_NUM_COMPENDIA'].fillna(0.0).astype(int)
+        self.experiment['KSTAR_NUM_COMPENDIA_CLASS'] = self.experiment['KSTAR_NUM_COMPENDIA_CLASS'].fillna(0.0).astype(int)
 
     def set_data_columns(self, data_columns):
         self.data_columns = []

@@ -17,7 +17,7 @@ def build_filtered_experiment(experiment, compendia, filtered_compendia, num_ran
     for i in range(num_random_experiments):
         rand_experiment_list = []
         for num, size in sizes.iteritems():
-            filtered = filtered_compendia[num]
+            filtered = filtered_compendia[int(num)]
             filtered_random = filtered.sample(size)
             filtered_random[f"{name}:{i}"] = 1
             rand_experiment_list.append(filtered_random)
