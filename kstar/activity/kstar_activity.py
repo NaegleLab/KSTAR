@@ -322,15 +322,24 @@ class KinaseActivity:
         
 
         evidence = self.evidence.groupby([config.KSTAR_ACCESSION, config.KSTAR_SITE]).agg(agg).reset_index()
+        
+        #set the binary evidence for whether a site is included
+        evidence_binary = evidence.copy()
+        for col in self.data_columns:
+            if greater:
+                evidence_binary[col].mask(evidence[col] >= threshold, 1, inplace=True)
+                evidence_binary[col].mask(evidence[col] < threshold, 0, inplace=True)
+            else:
+                evidence_binary[col].mask(evidence[col] <= threshold, 1, inplace=True)
+                evidence_binary[col].mask(evidence[col] > threshold, 0, inplace=True)
+
+
 
         # MULTIPROCESSING
         if config.PROCESSES > 1:
             manager = multiprocessing.Manager()
             pool = multiprocessing.Pool(processes = config.PROCESSES)
-            if greater:
-                filtered_evidence_list  = [evidence[evidence[col] >= threshold] for col in self.data_columns] 
-            else:
-                filtered_evidence_list  = [evidence[evidence[col] <= threshold] for col in self.data_columns]
+            filtered_evidence_list  = [evidence_binary[evidence_binary[col] ==1 ] for col in self.data_columns] 
             networks = itertools.repeat(self.networks)  
             network_sizes = itertools.repeat(self.network_sizes)
             iterable = zip(filtered_evidence_list, networks, network_sizes, self.data_columns)
@@ -340,14 +349,13 @@ class KinaseActivity:
         else:
             activities_list =[]
             for col in self.data_columns:
-                if greater:
-                    filtered_evidence = evidence[evidence[col] >= threshold]
-                else:
-                    filtered_evidence = evidence[evidence[col] <= threshold]
+                filtered_evidence = evidence_binary[evidence_binary[col] == 1]
                 act = calculate_hypergeometric_activities(filtered_evidence, self.networks, self.network_sizes, col)
                 act['data'] = col
                 activities_list.append(act)
+
         self.activities = pd.concat(activities_list)
+        self.evidence_binary = evidence_binary
         return self.activities
 
     def summarize_activities(self, activities = None, method = 'median_activity', normalized = False):
@@ -657,7 +665,7 @@ def calculate_hypergeometric_single_network(evidence, network, network_size, net
         Parameters
         ----------
         evidence : pandas df
-            subset of kstar evidence that has been filtered to only include evidence associated with experimetn
+            subset of kstar evidence that has been filtered to only include evidence associated with experiment
         network_id : str
             network to use for analysis
         
