@@ -584,7 +584,7 @@ class KinaseActivity:
         limit_summary = all_limits.groupby('evidence').mean()
         return all_limits, limit_summary
 
-    def calculate_Mann_Whitney_activities_sig(self, log, number_sig_trials = 100, sig_auto=False, target_alpha=0.05):
+    def calculate_Mann_Whitney_activities_sig(self, log, number_sig_trials = 100, target_alpha=0.05):
         """
         For a kinact_dict, where random generation and activity has already been run for the phospho_types of interest, 
         this will calculate the Mann-Whitney U test for comparing the array of p-values for real data 
@@ -602,8 +602,6 @@ class KinaseActivity:
             Which substrate/kinaset-type to run activity for: Both ['Y, 'ST'] (default), Tyrosine ['Y'], or Serine/Threonine ['ST']
         number_sig_trials: int
             Maximum number of significant trials to run
-        sig_auto: bool
-            Whether to automatically detect convergence for significance during bootstrap trials
         target_alpha: float
             target false positive rate, value between 0 and 1, default =0.05
             
