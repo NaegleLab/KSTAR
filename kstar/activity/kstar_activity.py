@@ -333,7 +333,8 @@ class KinaseActivity:
                 evidence_binary[col].mask(evidence[col] <= threshold, 1, inplace=True)
                 evidence_binary[col].mask(evidence[col] > threshold, 0, inplace=True)
 
-
+        #remove phosphorylation sites that were not selected in any experiment (useful for very large experiments where removing the need to copy data reduces time)
+        evidence_binary.drop(evidence_binary[evidence_binary[self.data_columns].sum(axis=1) == 0].index, inplace = True) 
 
         # MULTIPROCESSING
         if config.PROCESSES > 1:
