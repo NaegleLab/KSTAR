@@ -29,7 +29,7 @@ HUMAN_REF_SEQUENCES = helpers.process_fasta_file(HUMAN_REF_FASTA_FILE)
 HUMAN_REF_PHOSPHO_FILE = f"{RESOURCE_DIR}/Human_PhosphoProteome_mapped_annotated_02_26_20.csv" #download from KSTAR FIGSHARE, or use helpers folder generate to create a new one
 HUMAN_REF_COMPENDIA = pd.read_csv(HUMAN_REF_PHOSPHO_FILE)
 
-NETWORK_DIR = f"{RESOURCE_DIR}/NETWORKS/NetworKIN/"
+NETWORK_DIR = f"{RESOURCE_DIR}/NETWORKS/NetworKIN"
 NETWORK_Y_PICKLE = f"{NETWORK_DIR}/network_Y.p" # created by create_networkin_pickles()
 NETWORK_ST_PICKLE = f"{NETWORK_DIR}/network_ST.p" #created by create_networkin_pickles()
 
@@ -57,12 +57,12 @@ def create_network_pickles():
 		directory = f"{NETWORK_DIR}/{phosphoType}/"
 		#get all csv files in that directory 
 		for file in os.listdir(directory):
-			if file.endswith(".csv"):
+			if file.endswith(".tsv"):
 				#get the value of the network number
-				file_noext = file.strip(".csv").split('_')
-				key_name = 'nkin'+str(file_noext[-1])
+				file_noext = file.strip(".tsv").split('_')
+				key_name = 'nkin'+str(file_noext[1])
 				#print("Debug: key name is %s"%(key_name))
-				network[key_name] = pd.read_csv(f"{directory}{file}")
+				network[key_name] = pd.read_csv(f"{directory}{file}", sep='\t')
 		print("Loaded %d number of networks for phosphoType %s"%(len(network), phosphoType))
 		pickle.dump(network, open(f"{NETWORK_DIR}/network_{phosphoType}.p", "wb"))
 
