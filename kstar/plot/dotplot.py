@@ -259,7 +259,29 @@ class DotPlot:
             
         ax.tick_params(axis='both', which='both', length=0)
         
+    def drop_kinases_with_no_significance(self):
+        """
+        Drop kinases from the values dataframe (inplace) when plotting if they are never observed as significant
         
+        """
+
+        kinase_list = self.colors[self.colors.sum(axis=1) ==0].index.values
+        self.drop_kinases(kinase_list)
+
+    def drop_kinases(self, kinase_list):
+        """
+        Given a list of kinases, drop these from the dot.values dataframe in all future plotting of this object. Removal 
+        is in place
+
+        Parameters
+        ----------
+        kinase_list: list
+            list of kinase names to remove
+
+        """ 
+
+        self.values.drop(index=kinase_list, inplace=True)
+        self.colors.drop(index = kinase_list, inplace=True)
         
     def context(self, ax, info, id_column, context_columns, dotsize = 200, markersize = 20, orientation = 'left', color_palette='colorblind', margin = 0.2):
         """
