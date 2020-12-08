@@ -123,6 +123,7 @@ class DotPlot:
                 for col in self.column_labels:
                     label_arr.append(x_label_dict[col])
             self.column_labels = label_arr
+            self.x_label_dict = x_label_dict
 
     def dotplot(self, ax = None, orientation = 'left', size_legend = True, color_legend = True):
         """
@@ -187,6 +188,8 @@ class DotPlot:
         ax.yaxis.set_ticks(np.arange(len(self.values)) * self.multiplier + self.offset)
         ax.xaxis.set_ticks(np.arange(len(columns)) * self.multiplier + self.offset)
         
+        # set column labels in case values has changed
+        self.set_column_labels(self.values, self.x_label_dict)
         ax.set_xticklabels(self.column_labels)
         ax.set_yticklabels(self.values.index)
         
@@ -235,6 +238,7 @@ class DotPlot:
                         show_leaf_counts = False) 
             self.values = self.values.iloc[den_row['leaves']].copy()
             self.colors = self.colors.iloc[den_row['leaves']].copy()
+
         
         elif orientation in ['top', 'bottom']:
             col_linkage = linkage(self.values.T, method=method, metric = metric)
@@ -248,6 +252,8 @@ class DotPlot:
                             show_leaf_counts = False)
             self.values = self.values.iloc[:, den_col['leaves']].copy()
             self.colors = self.colors.iloc[:,den_col['leaves']].copy()
+            self.set_column_labels(self.values, self.x_label_dict)
+
         else:
             raise OrientationError()
             
@@ -269,8 +275,6 @@ class DotPlot:
             Column used to map the subtype information to
         context_columns : list
             list of columns to pull context informaiton from
-        index: list, optional
-            list order to map context to
         dotsize : int, optional
             size of context dots
         markersize: int, optional
@@ -279,7 +283,9 @@ class DotPlot:
             orientation to plot context plots to - determines where legends are placed
             options : left, right, top, bottom
         color_palette : str, optional
-            seaborn color palette to use    
+            seaborn color palette to use  
+        margin: float, optional
+            margin  
         """
         
         orientation_values = {
