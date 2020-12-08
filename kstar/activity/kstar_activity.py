@@ -815,14 +815,14 @@ def calculate_MannWhitney_one_experiment_one_kinase(kinact_activities, rand_acti
     """
     
     
-    kinase_activity_list = kinact_activities[(kinact_activities['Kinase Name']==kinase) & (kinact_activities['data']==experiment)].kinase_activity.values
+    kinase_activity_list = kinact_activities[(kinact_activities[config.KSTAR_KINASE]==kinase) & (kinact_activities['data']==experiment)].kinase_activity.values
     
     random_kinase_activity_array = np.empty([number_sig_trials, number_networks])
 
     for i in range(0, number_sig_trials):
         # get the kinase activity values for all networks for a random set
         experiment_name = experiment+':'+str(i)
-        random_kinase_activity_array[i,:]=rand_activities[(rand_activities['Kinase Name']==kinase) & (rand_activities['data']==experiment_name)].kinase_activity.values
+        random_kinase_activity_array[i,:]=rand_activities[(rand_activities[config.KSTAR_KINASE]==kinase) & (rand_activities['data']==experiment_name)].kinase_activity.values
        
     [stat, p_value] = stats.mannwhitneyu(-np.log10(kinase_activity_list), -np.log10(random_kinase_activity_array.reshape(random_kinase_activity_array.size)), alternative='greater')
     
@@ -975,6 +975,7 @@ def save_kstar(kinact_dict, name, odir, PICKLE=True):
             kinact.activities.to_csv(f"{odir}/RESULTS/{name_out}_activities.tsv", sep = '\t', index = False)
             kinact.agg_activities.to_csv(f"{odir}/RESULTS/{name_out}_aggregated_activities.tsv", sep = '\t', index = False)
             kinact.activity_summary.to_csv(f"{odir}/RESULTS/{name_out}_summarized_activities.tsv", sep = '\t', index = False)
+            kinact.evidence_binary.to_csv(f"{odir}/RESULTS/{name_out}_binarized_experiment.tsv", sep='\t', index=False)
 
             if kinact.normalized:
 
