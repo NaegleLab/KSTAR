@@ -9,6 +9,7 @@ from collections import defaultdict
 import pickle
 import os
 from os import path
+from datetime import datetime
 from kstar import helpers, config
 
 
@@ -284,7 +285,7 @@ def run_pruning(network, log, use_compendia, phospho_type, kinase_size, site_lim
     else:
         log.info("Pruning without using compendia")
         pruned_networks = pruner.build_multiple_networks(kinase_size, site_limit, num_networks, network_id)
-    return pruned_networks
+    return pruned_networks, pruner
 
 def save_pruning(network_map, phospho_type, network_id, kinase_size, site_limit, use_compendia, odir, log):
     log.info("Saving pruning results")
@@ -292,14 +293,33 @@ def save_pruning(network_map, phospho_type, network_id, kinase_size, site_limit,
             os.mkdir(f"{odir}/INDIVIDUAL_NETWORKS") 
     
     if use_compendia:
-        suffix = f"{phospho_type}_compendia_kinase_sites:{kinase_size}_limit:{site_limit}"
+        suffix = f"{phospho_type}_compendia_{kinase_size}_limit_{site_limit}"
     else:
-        suffix = f"{phospho_type}_kinase_sites:{kinase_size}_limit:{site_limit}"
+        suffix = f"{phospho_type}_{kinase_size}_limit_{site_limit}"
     for nid, network in network_map.items():
         network.to_csv(f"{odir}/INDIVIDUAL_NETWORKS/{nid}_{suffix}.tsv", sep = '\t', index=False)
     pickle.dump( network_map, open( f"{odir}/{network_id}_{suffix}.p", "wb" ) )
     
-    
+def save_run_information(results, use_compendia, pruner):
+    with open(f"{results.odir}/RUN_INFORMATION.txt", "w") as info_file:
+        info_file.write("*************************************************\n")
+        info_file.write(f"Pruning Information for {results.network_id}\n")
+        info_file.write("*************************************************\n")
+        info_file.write(f"Date Run\t\t{datetime.now()}\n")
+        info_file.write(f"Network Used\t{results.network_file}\n")
+        info_file.write(f"Phospho Type\t{results.phospho_type}\n")
+        info_file.write(f"Kinase Size\t\t{results.kinase_size}\n")
+        info_file.write(f"Site Limit\t\t{results.site_limit}\n")
+        info_file.write(f"# of Networks\t{results.num_networks}\n")
+        info_file.write(f"Use Compendia\t{results.use_compendia}\n")
+        if use_compendia:
+            compendia_sizes = pruner.calculate_compendia_sizes(results.kinase_size)
+            for comp, size in compendia_sizes.items():
+                info_file.write(f"\tCompendia {comp}\t{size}\n")
+
+
+
+
 def main():
     results = parse_args()
     network, log, use_compendia = process_args(results)
@@ -310,8 +330,9 @@ def main():
     network_id = results.network_id
     odir = results.odir
     log.info("Beginning to build pruning networks")
-    pruned_networks = run_pruning(network, log, use_compendia, phospho_type, kinase_size, site_limit, num_networks, network_id)
+    pruned_networks, pruner = run_pruning(network, log, use_compendia, phospho_type, kinase_size, site_limit, num_networks, network_id)
     save_pruning(pruned_networks, phospho_type, network_id, kinase_size, site_limit, use_compendia, odir, log)
+    save_run_information(results, use_compendia, pruner)
     
 if __name__ == "__main__":
     main()
