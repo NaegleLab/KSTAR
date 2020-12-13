@@ -358,11 +358,10 @@ class KinaseActivity:
         self.greater = greater
         self.set_data_columns(data_columns)
 
-        self.evidence_binary = self.create_binary_evidence(data_columns = None, agg = 'count', threshold = 1.0,  greater = True)
+        self.evidence_binary = self.create_binary_evidence(data_columns = self.data_columns, agg = self.aggregate, threshold = self.threshold,  greater = self.greater)
         
         # if no data columns are provided use all columns that start with data:
         # data columns that filtered have no evidence are removed
-        self.set_data_columns(data_columns)
         self.logger.info(f"Kinase Activity will be run on the following data columns: {','.join(self.data_columns)}")
         
 
