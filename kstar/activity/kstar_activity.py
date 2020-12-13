@@ -273,6 +273,51 @@ class KinaseActivity:
     #     hyp_act['data'] = name
     #     return hyp_act
 
+    def create_binary_evidence(self, data_columns = None, agg = 'count', threshold = 1.0,  greater = True):
+        """
+        Returns a binary evidence data frame according to the parameters passed in for method for aggregating
+        duplicates and considering whether a site is included as evidence or not
+
+        Parameters
+        ----------
+        data_columns : list
+            columns that represent experimental result, if None, takes the columns that start with `data:'' in experiment. 
+            Pass this value in as a list, if seeking to calculate on fewer than all available data columns
+        threshold : float
+            threshold value used to filter rows 
+        agg : {'count', 'mean'}
+            method to use when aggregating duplicate substrate-sites. 
+            'count' combines multiple representations and adds if values are non-NaN
+            'mean' uses the mean value of numerical data from multiple representations of the same peptide.
+                NA values are droped from consideration.
+        greater: Boolean
+            whether to keep sites that have a numerical value >=threshold (TRUE, default) or <=threshold (FALSE)
+        
+        Returns
+        -------
+        evidence_binary : pd.DataFrame
+            Matches the evidence dataframe of the kinact object, but with 0 or 1 if a site is included or not.
+            This is uniquified and rows that are never used are removed.
+        
+        """
+
+        evidence = self.evidence.groupby([config.KSTAR_ACCESSION, config.KSTAR_SITE]).agg(agg).reset_index()
+        
+        #set the binary evidence for whether a site is included
+        evidence_binary = evidence.copy()
+        for col in self.data_columns:
+            if greater:
+                evidence_binary[col].mask(evidence[col] >= threshold, 1, inplace=True)
+                evidence_binary[col].mask(evidence[col] < threshold, 0, inplace=True)
+            else:
+                evidence_binary[col].mask(evidence[col] <= threshold, 1, inplace=True)
+                evidence_binary[col].mask(evidence[col] > threshold, 0, inplace=True)
+
+        #remove phosphorylation sites that were not selected in any experiment (useful for very large experiments where removing the need to copy data reduces time)
+        evidence_binary.drop(evidence_binary[evidence_binary[self.data_columns].sum(axis=1) == 0].index, inplace = True) 
+        return evidence_binary
+
+
     def calculate_kinase_activities(self, data_columns = None, agg = 'count', threshold = 1.0,  greater = True):
         """
         Calculates combined activity of experiments based that uses a threshold value to determine if an experiment sees a site or not
@@ -311,6 +356,9 @@ class KinaseActivity:
         self.aggregate = agg
         self.threshold = threshold
         self.greater = greater
+        self.set_data_columns(data_columns)
+
+        self.evidence_binary = self.create_binary_evidence(data_columns = None, agg = 'count', threshold = 1.0,  greater = True)
         
         # if no data columns are provided use all columns that start with data:
         # data columns that filtered have no evidence are removed
@@ -318,26 +366,11 @@ class KinaseActivity:
         self.logger.info(f"Kinase Activity will be run on the following data columns: {','.join(self.data_columns)}")
         
 
-        evidence = self.evidence.groupby([config.KSTAR_ACCESSION, config.KSTAR_SITE]).agg(agg).reset_index()
-        
-        #set the binary evidence for whether a site is included
-        evidence_binary = evidence.copy()
-        for col in self.data_columns:
-            if greater:
-                evidence_binary[col].mask(evidence[col] >= threshold, 1, inplace=True)
-                evidence_binary[col].mask(evidence[col] < threshold, 0, inplace=True)
-            else:
-                evidence_binary[col].mask(evidence[col] <= threshold, 1, inplace=True)
-                evidence_binary[col].mask(evidence[col] > threshold, 0, inplace=True)
-
-        #remove phosphorylation sites that were not selected in any experiment (useful for very large experiments where removing the need to copy data reduces time)
-        evidence_binary.drop(evidence_binary[evidence_binary[self.data_columns].sum(axis=1) == 0].index, inplace = True) 
-
         # MULTIPROCESSING
         if config.PROCESSES > 1:
             manager = multiprocessing.Manager()
             pool = multiprocessing.Pool(processes = config.PROCESSES)
-            filtered_evidence_list  = [evidence_binary[evidence_binary[col] ==1 ] for col in self.data_columns] 
+            filtered_evidence_list  = [self.evidence_binary[self.evidence_binary[col] ==1 ] for col in self.data_columns] 
             networks = itertools.repeat(self.networks)  
             network_sizes = itertools.repeat(self.network_sizes)
             iterable = zip(filtered_evidence_list, networks, network_sizes, self.data_columns)
@@ -347,13 +380,12 @@ class KinaseActivity:
         else:
             activities_list =[]
             for col in self.data_columns:
-                filtered_evidence = evidence_binary[evidence_binary[col] == 1]
+                filtered_evidence = self.evidence_binary[self.evidence_binary[col] == 1]
                 act = calculate_hypergeometric_activities(filtered_evidence, self.networks, self.network_sizes, col)
                 act['data'] = col
                 activities_list.append(act)
 
         self.activities = pd.concat(activities_list)
-        self.evidence_binary = evidence_binary
         return self.activities
 
     def summarize_activities(self, activities = None, method = 'median_activity', normalized = False):

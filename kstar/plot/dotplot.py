@@ -112,7 +112,13 @@ class DotPlot:
         self.column_labels = list(self.values.columns)
 
         if x_label_dict is None: #just strip the data: string
+            self.x_label_dict = {}
+            
+            #build an x_label_dict 
+            for col in self.column_labels:
+                self.x_label_dict[col] = col.strip('data:')
             self.column_labels = [x.strip('data:') for x in self.column_labels]
+
         else:
             #check that the label dictionary keys matches the columns
             labels = x_label_dict.keys()
