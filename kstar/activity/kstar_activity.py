@@ -55,7 +55,7 @@ class KinaseActivity:
         self.greater = True
 
         self.run_date = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
-    
+
 
     def check_data_columns(self):
         """
@@ -1010,20 +1010,146 @@ def save_kstar(kinact_dict, name, odir, PICKLE=True):
 
             if kinact.normalized:
 
-                kinact.random_kinact.activities.to_csv(f"{odir}/RANDOM_ANALYSIS/{name_out}_random_activities.tsv", sep = '\t', index = False)
-                kinact.random_kinact.agg_activities.to_csv(f"{odir}/RANDOM_ANALYSIS/{name_out}_random_aggregated_activities.tsv", sep = '\t', index = False)
-                kinact.random_kinact.activity_summary.to_csv(f"{odir}/RANDOM_ANALYSIS/{name_out}_random_summarized_activities.tsv", sep = '\t', index = False)
+                kinact.random_kinact.activities.to_csv(f"{odir}/RESULTS/{name_out}_random_activities.tsv", sep = '\t', index = False)
+                kinact.random_kinact.agg_activities.to_csv(f"{odir}/RESULTS/{name_out}_random_aggregated_activities.tsv", sep = '\t', index = False)
+                kinact.random_kinact.activity_summary.to_csv(f"{odir}/RESULTS/{name_out}_random_summarized_activities.tsv", sep = '\t', index = False)
 
                 kinact.normalized_activities.to_csv(f"{odir}/RESULTS/{name_out}_normalized_activities.tsv", sep = '\t', index = False)
                 kinact.normalized_agg_activities.to_csv(f"{odir}/RESULTS/{name_out}_normalized_aggregated_activities.tsv", sep = '\t', index = False)
                 kinact.normalized_summary.to_csv(f"{odir}/RESULTS/{name_out}_normalized_summarized_activities.tsv", sep = '\t', index = False)
 
-                kinact.random_experiments.to_csv(f"{odir}/RANDOM_ANALYSIS/{name_out}_random_experiments.tsv", sep = '\t', index = False)
+                kinact.random_experiments.to_csv(f"{odir}/RESULTS/{name_out}_random_experiments.tsv", sep = '\t', index = False)
 
             if hasattr(kinact, 'activities_mann_whitney'):
                 kinact.activities_mann_whitney.to_csv(f"{odir}/RESULTS/{name_out}_mann_whitney_activities.tsv", sep='\t', index = False) 
                 kinact.significance_mann_whitney.to_csv(f"{odir}/RESULTS/{name_out}_mann_whitney_significance.tsv", sep='\t', index = False) 
 
+        if PICKLE:
+            pickle.dump( kinact_dict, open( f"{odir}/RESULTS/{name}_kinact.p", "wb" ) )
 
-        pickle.dump( kinact_dict, open( f"{odir}/RESULTS/{name}_kinact.p", "wb" ) )
+def save_kstar_slim(kinact_dict, name, odir):
+    """
+    Having performed kinase activities (run_kstar_analyis), save each of the important dataframes, minimizing the memory storage needed to get back 
+    to a rebuilt version for plotting results and analysis. For each phospho_type in the kinact_dict, this will save three .tsv files for every activities
+    analysis run, two additional if random analysis was run, and two more if Mann Whitney based analysis was run. It also creates a readme file of the parameter values 
+    used 
+    
+    Parameters
+    ----------
+    kinact_dict: dictionary of Kinase Activity Objects
+        Outer keys are phosphoTypes run 'Y' and 'ST'
+        Includes the activities dictionary (see calculate_kinase_activities)
+        aggregation of activities across networks (see aggregate activities)
+        activity summary (see summarize_activities)
+    name: string 
+        The name to use when saving activities
+    odir:  string
+        Outputdirectory to save files and pickle to
+
+    Returns
+    -------
+    Nothing
+
+    """
+
+    if not os.path.exists(f"{odir}/RESULTS"): 
+        os.mkdir(f"{odir}/RESULTS") 
+
+
+    param_dict = {}
+    
+    for phospho_type in kinact_dict:
+
+        kinact = kinact_dict[phospho_type]
+        name_out = f"{name}_{phospho_type}"
+
+
+        param_temp = {}
+        param_temp['data_columns'] = kinact.data_columns
+        param_temp['aggregate'] = kinact.aggregate
+        param_temp['greater'] = kinact.greater
+        param_temp['threshold'] = kinact.threshold
+        param_temp['run_date']= kinact.run_date
+        param_temp['mann_whitney'] = False
+        param_temp['normalized'] = False
+
+        kinact.activities.to_csv(f"{odir}/RESULTS/{name_out}_activities.tsv", sep = '\t', index = False)
+        kinact.activity_summary.to_csv(f"{odir}/RESULTS/{name_out}_summarized_activities.tsv", sep = '\t', index = False)
+        kinact.evidence_binary.to_csv(f"{odir}/RESULTS/{name_out}_binarized_experiment.tsv", sep='\t', index=False)
+
+        if kinact.normalized:
+            param_temp['normalized'] = True
+            kinact.random_kinact.activities.to_csv(f"{odir}/RESULTS/{name_out}_random_activities.tsv", sep = '\t', index = False)
+            kinact.normalized_summary.to_csv(f"{odir}/RESULTS/{name_out}_normalized_summarized_activities.tsv", sep = '\t', index = False)
+
+
+        if hasattr(kinact, 'activities_mann_whitney'):
+            param_temp['mann_whitney'] = True
+            kinact.activities_mann_whitney.to_csv(f"{odir}/RESULTS/{name_out}_mann_whitney_activities.tsv", sep='\t', index = False) 
+            kinact.significance_mann_whitney.to_csv(f"{odir}/RESULTS/{name_out}_mann_whitney_significance.tsv", sep='\t', index = False) 
+
+        param_dict[phospho_type] = param_temp
+
+    #save the parameters in a pickle file for reinstantiating object information
+    pickle.dump(param_dict, open(f"{odir}/RESULTS/{name}_params.p", "wb"))
+
+
+def from_kstar_slim(name, odir, log):
+    """
+    Given the name and output directory of a saved kstar analyis, load the parameters and minimum dataframes needed for reinstantiating a kinact object
+    This minimum list will allow you to repeat normalization or mann whitney at a different false positive rate threshold and plot results.
+
+    Parameters
+    ----------
+    name: string 
+        The name to used when saving activities and mapped data
+    odir:  string
+        Output directory of saved files and parameter pickle
+    log: logger 
+        Logger for logging activity messages
+    """
+
+    #First check for the param file
+    try:
+        param_dict = pickle.load( open(f"{odir}/RESULTS/{name}_params.p", "rb"))
+    except:
+        print(f"ERROR: Cannot find parameter dictionary file in RESULTS: {odir}/RESULTS/{name}_params.p")
+        log.info(f"ERROR: Cannot find parameter dictionary file in RESULTS: {odir}/RESULTS/{name}_params.p")
+        return
+    kinact_dict = {}
+    for phospho_type in param_dict.keys():
+        params = param_dict[phospho_type]
+        name_out = f"{name}_{phospho_type}"
+        #instantiate an object and update values according to 
+
+        #check that the minimum file set exists so we can use binary_evidence file as the experiment
+        evidence_binary = pd.read_csv(f"{odir}/RESULTS/{name_out}_binarized_experiment.tsv", sep='\t')
+
+
+        kinact = KinaseActivity(evidence_binary, log, phospho_type=phospho_type)
+
+        if params['mann_whitney']:
+            #read mann_whitney and load
+            kinact.activities_mann_whitney = pd.read_csv(f"{odir}/RESULTS/{name_out}_mann_whitney_activities.tsv", sep='\t') 
+            kinact.significance_mann_whitney = pd.read_csv(f"{odir}/RESULTS/{name_out}_mann_whitney_significance.tsv", sep='\t') 
+            params.pop('mann_whitney', None)
+        if params['normalized']:
+            kinact.random_kinact = KinaseActivity(evidence_binary, log, phospho_type=phospho_type)
+            kinact.random_kinact.activities= pd.read_csv(f"{odir}/RESULTS/{name_out}_random_activities.tsv", sep = '\t')
+            kinact.normalized_summary = pd.read_csv(f"{odir}/RESULTS/{name_out}_normalized_summarized_activities.tsv", sep = '\t')
+
+        for param_name in params:
+            #kinact.data_columns = params['data_columns']
+            setattr(kinact, param_name, params[param_name])
+            #kinact[param_name] = params[param_name]
+        kinact_dict[phospho_type] = kinact
+    return kinact_dict
+
+
+
+
+
+
+
+
 
