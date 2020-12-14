@@ -48,11 +48,14 @@ def generate_fpr_values(random_activities, target_alpha):
         index : Kinase
         column : experiment name
     """
+    if target_alpha > 1 or target_alpha < 0:
+        print("ERROR: Using default target_alpha of 0.05, FPR must be between 0 and 1")
+        target_alpha = 0.05
     df_rename = {col:':'.join(col.split(':')[:-1]) for col in random_activities.columns}
     random_activities = random_activities.T
     random_activities.rename(index  = df_rename, inplace = True)
 
-    fpr = random_activities.groupby(random_activities.index).apply(lambda group: calculate_experiment_fpr(group, 0.05))
+    fpr = random_activities.groupby(random_activities.index).apply(lambda group: calculate_experiment_fpr(group, target_alpha))
     fpr = fpr.T
     return fpr
 
