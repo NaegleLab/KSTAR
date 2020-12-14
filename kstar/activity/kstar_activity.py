@@ -117,14 +117,36 @@ class KinaseActivity:
         self.random_kinact = KinaseActivity(self.random_experiments, logger, phospho_type=self.phospho_type)
         self.random_kinact.add_networks_batch(self.networks)
         self.random_kinact.calculate_kinase_activities( agg='count', threshold=1.0, greater=True )
+        
+        self.logger.info("Normalizing Activities")
+        self.normalize(target_alpha=target_alpha)
+
+
+
+    def normalize(self, target_alpha=0.05):
+        """
+        Given random_kinace.activities, summarize, calculate FPR, and normalize. Called in the run_normalization pipelin
+        and useful for changing the target_alpha value, without requiring generation and calculation of random datasets
+        such as in reading a project from slim format.
+
+        Parameters
+        ----------
+        target_alpha: float
+            FPR target value between 0 and 1
+
+
+        """
+        if target_alpha > 1 or target_alpha < 0:
+            self.logger.info("ERROR: Target alpha should be between 0 an 1, setting to default of 0.05")
+            target_alpha = 0.05
         self.random_kinact.aggregate_activities()
         self.random_kinact.activity_summary = self.random_kinact.summarize_activities()
 
-        self.logger.info("Normalizing Activities")
         self.normalizers = calculate_fpr.generate_fpr_values(self.random_kinact.activity_summary, target_alpha)
 
-        self.normalize_activities()
+        self.normalize_activities(default_normalization=target_alpha)
         self.normalized_summary = self.summarize_activities(self.normalized_agg_activities,'median_normalized_activity',normalized=True)
+        
 
     def add_networks_batch(self,networks):
         for nid, network in networks.items():
@@ -473,6 +495,7 @@ class KinaseActivity:
             if type(self.normalizers) is dict:
                 normalizers = self.normalizers
             elif type(self.normalizers) is pd.DataFrame and data in self.normalizers.columns:
+                #print("setting normalizers")
                 normalizers = self.normalizers[data].to_dict()
             else:
                 normalizers = {}
@@ -505,6 +528,7 @@ class KinaseActivity:
         normalization_multiplier : float
             normalization multiplier to use for calculated normalized kinase activity
         """
+
         normalized_activity = kinase_activity.copy()
         normalized_activity['Normalization Factor'] = normalized_activity[config.KSTAR_KINASE].apply(lambda name: normalizers[name] if name in normalizers.keys() else default_normalization)
         if len(self.networks) > 0:
@@ -535,7 +559,7 @@ class KinaseActivity:
         summary : pandas df
             summarized data of all networks by kinase
         """
-        self.normalized_agg_activities = normalized_activities.groupby(['data',config.KSTAR_KINASE ]).agg(
+        self.normalized_agg_activities = normalized_activities.groupby(['data',config.KSTAR_KINASE]).agg(
             median_original_activity = ('kinase_activity', 'median'),
             median_normalized_activity = ('Normalized Activity', 'median'),
             count_significant = ('Significant', 'sum'),
@@ -1003,14 +1027,14 @@ def save_kstar(kinact_dict, name, odir, PICKLE=True):
         for phospho_type in kinact_dict:
             kinact = kinact_dict[phospho_type]
             name_out = f"{name}_{phospho_type}"
-            kinact.activities.to_csv(f"{odir}/RESULTS/{name_out}_activities.tsv", sep = '\t', index = False)
+            kinact.activities.to_csv(f"{odir}/RESULTS/{name_out}_activities.tsv", sep = '\t')
             kinact.agg_activities.to_csv(f"{odir}/RESULTS/{name_out}_aggregated_activities.tsv", sep = '\t', index = False)
             kinact.activity_summary.to_csv(f"{odir}/RESULTS/{name_out}_summarized_activities.tsv", sep = '\t', index = True)
             kinact.evidence_binary.to_csv(f"{odir}/RESULTS/{name_out}_binarized_experiment.tsv", sep='\t', index=False)
 
             if kinact.normalized:
 
-                kinact.random_kinact.activities.to_csv(f"{odir}/RESULTS/{name_out}_random_activities.tsv", sep = '\t', index = False)
+                kinact.random_kinact.activities.to_csv(f"{odir}/RESULTS/{name_out}_random_activities.tsv", sep = '\t')
                 kinact.random_kinact.agg_activities.to_csv(f"{odir}/RESULTS/{name_out}_random_aggregated_activities.tsv", sep = '\t', index = False)
                 kinact.random_kinact.activity_summary.to_csv(f"{odir}/RESULTS/{name_out}_random_summarized_activities.tsv", sep = '\t', index = True)
 
@@ -1073,14 +1097,19 @@ def save_kstar_slim(kinact_dict, name, odir):
         param_temp['mann_whitney'] = False
         param_temp['normalized'] = False
 
-        kinact.activities.to_csv(f"{odir}/RESULTS/{name_out}_activities.tsv", sep = '\t', index = True)
+
+        kinact.activities.to_csv(f"{odir}/RESULTS/{name_out}_activities.tsv", sep = '\t')
         kinact.activity_summary.to_csv(f"{odir}/RESULTS/{name_out}_summarized_activities.tsv", sep = '\t', index = True)
         kinact.evidence_binary.to_csv(f"{odir}/RESULTS/{name_out}_binarized_experiment.tsv", sep='\t', index=False)
 
         if kinact.normalized:
             param_temp['normalized'] = True
-            kinact.random_kinact.activities.to_csv(f"{odir}/RESULTS/{name_out}_random_activities.tsv", sep = '\t', index = False)
+            param_temp['num_random_experiments'] = kinact.num_random_experiments
+            kinact.random_kinact.activities.to_csv(f"{odir}/RESULTS/{name_out}_random_activities.tsv", sep = '\t')
             kinact.normalized_summary.to_csv(f"{odir}/RESULTS/{name_out}_normalized_summarized_activities.tsv", sep = '\t', index = True)
+            kinact.random_experiments.to_csv(f"{odir}/RESULTS/{name_out}_random_experiments.tsv", sep = '\t', index = False)
+
+
 
 
         if hasattr(kinact, 'activities_mann_whitney'):
@@ -1128,7 +1157,7 @@ def from_kstar_slim(name, odir, log):
 
         kinact = KinaseActivity(evidence_binary, log, phospho_type=phospho_type)
 
-        kinact.activities = pd.read_csv(f"{odir}/RESULTS/{name_out}_activities.tsv", sep = '\t', index_col = config.KSTAR_KINASE)
+        kinact.activities = pd.read_csv(f"{odir}/RESULTS/{name_out}_activities.tsv", sep = '\t', index_col = 0)
         kinact.activity_summary = pd.read_csv(f"{odir}/RESULTS/{name_out}_summarized_activities.tsv", sep = '\t', index_col = config.KSTAR_KINASE)
         kinact.evidence_binary = evidence_binary
 
@@ -1138,16 +1167,18 @@ def from_kstar_slim(name, odir, log):
             kinact.significance_mann_whitney = pd.read_csv(f"{odir}/RESULTS/{name_out}_mann_whitney_significance.tsv", sep='\t', index_col = config.KSTAR_KINASE) 
             params.pop('mann_whitney', None)
         if params['normalized']:
-            kinact.random_kinact = KinaseActivity(evidence_binary, log, phospho_type=phospho_type)
-            kinact.random_kinact.activities= pd.read_csv(f"{odir}/RESULTS/{name_out}_random_activities.tsv", sep = '\t')
+            rand_experiments = pd.read_csv(f"{odir}/RESULTS/{name_out}_random_experiments.tsv", sep = '\t')
+
+            kinact.random_kinact = KinaseActivity(rand_experiments, log, phospho_type=phospho_type)
+            kinact.random_kinact.activities= pd.read_csv(f"{odir}/RESULTS/{name_out}_random_activities.tsv", sep = '\t', index_col=0)
             kinact.normalized_summary = pd.read_csv(f"{odir}/RESULTS/{name_out}_normalized_summarized_activities.tsv", sep = '\t', index_col = config.KSTAR_KINASE)
+            #set data columns according to file
+            kinact.random_kinact.set_data_columns(data_columns=None)
 
 
 
         for param_name in params:
-            #kinact.data_columns = params['data_columns']
             setattr(kinact, param_name, params[param_name])
-            #kinact[param_name] = params[param_name]
         kinact_dict[phospho_type] = kinact
     return kinact_dict
 
