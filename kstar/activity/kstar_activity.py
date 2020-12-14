@@ -39,6 +39,8 @@ class KinaseActivity:
         self.logger = logger
         self.normalizers = defaultdict()
 
+        self.num_networks = None
+
         self.activities = None
         self.agg_activities = None
         self.activity_summary = None
@@ -151,6 +153,7 @@ class KinaseActivity:
     def add_networks_batch(self,networks):
         for nid, network in networks.items():
             self.add_network(nid, network)
+        self.num_networks = len(networks)
 
     def add_network(self, network_id, network, network_size = None):
         """
@@ -405,6 +408,7 @@ class KinaseActivity:
                 act = calculate_hypergeometric_activities(filtered_evidence, self.networks, self.network_sizes, col)
                 act['data'] = col
                 activities_list.append(act)
+        self.num_networks = len(self.network_sizes)
 
         self.activities = pd.concat(activities_list)
         return self.activities
@@ -693,7 +697,7 @@ class KinaseActivity:
             pval_arr = []
             sig_arr = []
             with concurrent.futures.ProcessPoolExecutor(max_workers=config.PROCESSES) as executor:
-                for pval, sig in executor.map(calculate_MannWhitney_one_experiment_one_kinase, repeat(activities_sub), repeat(rand_activities_sub), repeat(len(self.networks)), self.normalized_summary.index, repeat(exp), repeat(number_sig_trials), repeat(target_alpha)):
+                for pval, sig in executor.map(calculate_MannWhitney_one_experiment_one_kinase, repeat(activities_sub), repeat(rand_activities_sub), repeat(self.num_networks), self.normalized_summary.index, repeat(exp), repeat(number_sig_trials), repeat(target_alpha)):
                     pval_arr.append(pval)
                     sig_arr.append(sig)
                 #print(pval_arr)
@@ -1096,6 +1100,7 @@ def save_kstar_slim(kinact_dict, name, odir):
         param_temp['run_date']= kinact.run_date
         param_temp['mann_whitney'] = False
         param_temp['normalized'] = False
+        param_temp['num_networks'] = kinact.num_networks
 
 
         kinact.activities.to_csv(f"{odir}/RESULTS/{name_out}_activities.tsv", sep = '\t')
