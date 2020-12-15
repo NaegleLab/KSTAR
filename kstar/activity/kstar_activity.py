@@ -649,13 +649,12 @@ class KinaseActivity:
         limit_summary = all_limits.groupby('evidence').mean()
         return all_limits, limit_summary
 
-    def calculate_Mann_Whitney_activities_sig(self, log, number_sig_trials = 100, target_alpha=0.05):
+    def calculate_Mann_Whitney_activities_sig(self, log, number_sig_trials = 100):
         """
         For a kinact_dict, where random generation and activity has already been run for the phospho_types of interest, 
         this will calculate the Mann-Whitney U test for comparing the array of p-values for real data 
         to those of random data, across the number of networks used.
-        It will also calculate the significance value for the given test 
-        based on the target_alpha value by using each random set as a real set to bootstrap, using number_sig_trials.
+        It will also calculate the false positive rate for a pvalue, given observations of a random bootstrapping analysis
         
         Parameters
         ----------
@@ -667,8 +666,7 @@ class KinaseActivity:
             Which substrate/kinaset-type to run activity for: Both ['Y, 'ST'] (default), Tyrosine ['Y'], or Serine/Threonine ['ST']
         number_sig_trials: int
             Maximum number of significant trials to run
-        target_alpha: float
-            target false positive rate, value between 0 and 1, default =0.05
+
             
         
         Returns
@@ -684,7 +682,7 @@ class KinaseActivity:
             number_sig_trials = self.num_random_experiments
 
         self.activities_mann_whitney = pd.DataFrame(index=self.normalized_summary.index, columns=self.normalized_summary.columns)
-        self.significance_mann_whitney = pd.DataFrame(index=self.normalized_summary.index, columns=self.normalized_summary.columns)
+        self.fpr_mann_whitney = pd.DataFrame(index=self.normalized_summary.index, columns=self.normalized_summary.columns)
         #for every kinase and every dataset, calculate and assemble dataframes of activities and significance values
 
         for exp in self.data_columns:
@@ -695,14 +693,14 @@ class KinaseActivity:
             rand_activities_sub = self.random_kinact.activities[self.random_kinact.activities['data'].str.startswith(exp)]
 
             pval_arr = []
-            sig_arr = []
+            fpr_arr = []
             with concurrent.futures.ProcessPoolExecutor(max_workers=config.PROCESSES) as executor:
-                for pval, sig in executor.map(calculate_MannWhitney_one_experiment_one_kinase, repeat(activities_sub), repeat(rand_activities_sub), repeat(self.num_networks), self.normalized_summary.index, repeat(exp), repeat(number_sig_trials), repeat(target_alpha)):
+                for pval, fpr in executor.map(calculate_MannWhitney_one_experiment_one_kinase, repeat(activities_sub), repeat(rand_activities_sub), repeat(self.num_networks), self.normalized_summary.index, repeat(exp), repeat(number_sig_trials)):
                     pval_arr.append(pval)
-                    sig_arr.append(sig)
+                    fpr_arr.append(fpr)
                 #print(pval_arr)
             self.activities_mann_whitney[exp] = pval_arr
-            self.significance_mann_whitney[exp] = sig_arr
+            self.fpr_mann_whitney[exp] = fpr_arr
             #for kinase in self.normalized_summary.index:
             #    log.info("\tKinase: %s"%(kinase))
             #    self.activities_mann_whitney.at[kinase, exp], self.significance_mann_whitney.at[kinase, exp] = calculate_MannWhitney_one_experiment_one_kinase(
@@ -814,7 +812,7 @@ Methods for Mann Whitney analysis
 ****************************************
 """
 
-def calculate_fpr_Mann_Whitney(random_kinase_activity_array, number_sig_trials, target_alpha=0.05):
+def calculate_fpr_Mann_Whitney(random_kinase_activity_array, number_sig_trials):
     """
     Given an mxn array of kinase activities from m random experiments across n networks
     use bootstrapping to calculate an empirical p-value at which the false positive rate is controlled. 
@@ -824,8 +822,8 @@ def calculate_fpr_Mann_Whitney(random_kinase_activity_array, number_sig_trials, 
     ----------
     random_kinase_activity_array: np.array
         See calculate_MannWhitney_one_experiment_one_kinase for unwrapping all activities for a kinase and experiment
-    target_alpha: float
-        false positive rate between 0 and 1
+    number_sig_trials:
+        Number of random trials to perform, where one random set is tested number_sig_trials against the full background
     
     Returns
     -------
@@ -846,7 +844,7 @@ def calculate_fpr_Mann_Whitney(random_kinase_activity_array, number_sig_trials, 
         [stat, random_stats[i]] = stats.mannwhitneyu(-np.log10(sample), -np.log10(bgnd.reshape(bgnd.size)), alternative='greater')
     return random_stats
 
-def calculate_MannWhitney_one_experiment_one_kinase(kinact_activities, rand_activities, number_networks, kinase, experiment, number_sig_trials, target_alpha=0.05):
+def calculate_MannWhitney_one_experiment_one_kinase(kinact_activities, rand_activities, number_networks, kinase, experiment, number_sig_trials):
     """
     For a given kinact object, where random generation and activity has already been run, this will calculate
     the Mann-Whitney U test between the p-values across all networks for the given experiment name 
@@ -861,16 +859,13 @@ def calculate_MannWhitney_one_experiment_one_kinase(kinact_activities, rand_acti
         Kinase name to measure significance for
     experiment: str
         Experiment name to measure significance for
-    target_alpha: float
-        target false positive rate, value between 0 and 1, default =0.05
-        
-    
+
     Returns
     -------
     p-value: float
         p-value that results from Mann Whitney U test
-    fpr_significance: float
-        the p-value where target_alpha is achieved
+    fpr_value: float
+        the false positive rate where the p_value for the real experiment lies, given the random experiments
     """
     
     
@@ -885,12 +880,13 @@ def calculate_MannWhitney_one_experiment_one_kinase(kinact_activities, rand_acti
        
     [stat, p_value] = stats.mannwhitneyu(-np.log10(kinase_activity_list), -np.log10(random_kinase_activity_array.reshape(random_kinase_activity_array.size)), alternative='greater')
     
-    randomStats = calculate_fpr_Mann_Whitney(random_kinase_activity_array, number_sig_trials, target_alpha=target_alpha)
+    randomStats = calculate_fpr_Mann_Whitney(random_kinase_activity_array, number_sig_trials)
     
-    sig_value = calculate_fpr.single_experiment_kinase_fpr(randomStats, target_alpha)
+    #sig_value = calculate_fpr.single_experiment_kinase_fpr(randomStats, target_alpha)
+    fpr_value = calculate_fpr.single_pvalue_fpr(randomStats, p_value)
     #sig_value = 1
     
-    return p_value, sig_value
+    return p_value, fpr_value
 
 """
 ****************************************
@@ -1120,7 +1116,7 @@ def save_kstar_slim(kinact_dict, name, odir):
         if hasattr(kinact, 'activities_mann_whitney'):
             param_temp['mann_whitney'] = True
             kinact.activities_mann_whitney.to_csv(f"{odir}/RESULTS/{name_out}_mann_whitney_activities.tsv", sep='\t', index = True) 
-            kinact.significance_mann_whitney.to_csv(f"{odir}/RESULTS/{name_out}_mann_whitney_significance.tsv", sep='\t', index = True) 
+            kinact.fpr_mann_whitney.to_csv(f"{odir}/RESULTS/{name_out}_mann_whitney_fpr.tsv", sep='\t', index = True) 
 
         param_dict[phospho_type] = param_temp
 
@@ -1169,7 +1165,7 @@ def from_kstar_slim(name, odir, log):
         if params['mann_whitney']:
             #read mann_whitney and load
             kinact.activities_mann_whitney = pd.read_csv(f"{odir}/RESULTS/{name_out}_mann_whitney_activities.tsv", sep='\t', index_col = config.KSTAR_KINASE) 
-            kinact.significance_mann_whitney = pd.read_csv(f"{odir}/RESULTS/{name_out}_mann_whitney_significance.tsv", sep='\t', index_col = config.KSTAR_KINASE) 
+            kinact.fpr_mann_whitney = pd.read_csv(f"{odir}/RESULTS/{name_out}_fpr_significance.tsv", sep='\t', index_col = config.KSTAR_KINASE) 
             params.pop('mann_whitney', None)
         if params['normalized']:
             rand_experiments = pd.read_csv(f"{odir}/RESULTS/{name_out}_random_experiments.tsv", sep = '\t')
