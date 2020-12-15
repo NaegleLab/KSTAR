@@ -1112,7 +1112,7 @@ def save_kstar_slim(kinact_dict, name, odir):
             param_temp['num_random_experiments'] = kinact.num_random_experiments
             kinact.random_kinact.activities.to_csv(f"{odir}/RESULTS/{name_out}_random_activities.tsv", sep = '\t')
             kinact.normalized_summary.to_csv(f"{odir}/RESULTS/{name_out}_normalized_summarized_activities.tsv", sep = '\t', index = True)
-            kinact.random_experiments.to_csv(f"{odir}/RESULTS/{name_out}_random_experiments.tsv", sep = '\t', index = False)
+            kinact.random_kinact.evidence.to_csv(f"{odir}/RESULTS/{name_out}_random_experiments.tsv", sep = '\t', index = False)
 
 
 
