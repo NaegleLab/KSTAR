@@ -18,24 +18,34 @@ def single_experiment_kinase_fpr(pvalue_array, target_alpha):
     pvalue = pvalue_array[target_number]
     return pvalue
 
-def calculate_experiment_fpr(group, target_alpha):
+def calculate_experiment_fpr(group, target_alpha, real_p_value_series):
     """
-    Calcualtes the FPR for an expeiment for all kinases
+    Calcualtes the pvalue that controls FPR at target alpha and the false positive rate for the real_p_value, given the group of median pvalues
+    across all experiments. 
+
+    Parameters
+    ----------
     """
     experiment_fpr = {}
+    experiment_pvalue = {}
     for kinase in group.columns:
         pvalue_array = list(group[kinase])
-        experiment_fpr[kinase] = single_experiment_kinase_fpr(pvalue_array, target_alpha)
+        experiment_pvalue[kinase] = single_experiment_kinase_fpr(pvalue_array, target_alpha)
+        experiment_fpr[kinase] = single_pvalue_fpr(pvalue_array, real_p_value_series[kinase])
     experiment_fpr = pd.Series(experiment_fpr)
-    return experiment_fpr
+    experiment_pvalue = pd.Series(experiment_pvalue)
+    return experiment_pvalue, experiment_fpr
 
-def generate_fpr_values(random_activities, target_alpha):
+def generate_fpr_values(activity_summary, random_activities, target_alpha):
     """
-    Given random_activites where index is Kinase and columns are random experiments kianse activity
+    Given random_activites where index is Kinase and columns are random experiments kinase activity
     calculate the fpr values
 
     Paramters
     ---------
+    activity_summary: pandas DataFrame
+        index: Kinase
+        columns: the experiment names
     random_activities : pands DataFrame
         index : Kinase
         columns : random experiments where each iteration is name:#
@@ -47,6 +57,7 @@ def generate_fpr_values(random_activities, target_alpha):
     fpr : pandas DataFrame
         index : Kinase
         column : experiment name
+        value: the pvalue at which the false positive rate is controlled at target_alpha value
     """
     if target_alpha > 1 or target_alpha < 0:
         print("ERROR: Using default target_alpha of 0.05, FPR must be between 0 and 1")
@@ -55,9 +66,16 @@ def generate_fpr_values(random_activities, target_alpha):
     random_activities = random_activities.T
     random_activities.rename(index  = df_rename, inplace = True)
 
-    fpr = random_activities.groupby(random_activities.index).apply(lambda group: calculate_experiment_fpr(group, target_alpha))
-    fpr = fpr.T
-    return fpr
+
+    values = random_activities.groupby(random_activities.index).apply(lambda group: calculate_experiment_fpr(group, target_alpha, activity_summary[group.name]))
+    #assemble the dataframes
+    p_value_df = pd.DataFrame(index=activity_summary.index, columns=activity_summary.columns)
+    fpr_df = pd.DataFrame(index=activity_summary.index, columns=activity_summary.columns)
+    for ind in values.keys():
+        p_value_df[ind] = values[ind][0]
+        fpr_df[ind] = values[ind][1]
+
+    return p_value_df, fpr_df
 
 def single_pvalue_fpr(random_stats, p_value):
     """
