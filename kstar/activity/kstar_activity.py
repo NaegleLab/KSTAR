@@ -50,7 +50,7 @@ class KinaseActivity:
         self.normalized = False
         self.random_experiments = None
         self.random_kinact = None
-        self.normalized_activities = None
+        self.normalized_activities_list = None
         self.normalized_agg_activities = None
         self.normalized_summary = None
         self.fpr_activity = None
@@ -516,10 +516,10 @@ class KinaseActivity:
                     normalizers, 
                     default_normalization, 
                     normalization_multiplier))
-        self.normalized_activities = pd.concat(normalized_activities)
-        self.aggregate_normalized_activities(self.normalized_activities)
+        self.normalized_activities_list = pd.concat(normalized_activities)
+        self.aggregate_normalized_activities(self.normalized_activities_list)
         
-        return self.normalized_activities, self.normalized_agg_activities
+        return self.normalized_activities_list, self.normalized_agg_activities
 
     def calculate_normalized_activity(self, kinase_activity, normalizers, default_normalization = 0.05, normalization_multiplier = 0.05):
         """
@@ -680,7 +680,7 @@ class KinaseActivity:
 
         """
         #First, check that objects are correct and values can be found
-        if not isinstance(self.random_kinact.activities, pd.DataFrame):
+        if not isinstance(self.random_kinact.activities_list, pd.DataFrame):
             raise ValueError("Random activities do not exist, please run kstar_activity.normalize_analysis")
 
         if number_sig_trials > self.num_random_experiments:
@@ -1041,7 +1041,7 @@ def save_kstar(kinact_dict, name, odir, PICKLE=True):
                 kinact.random_kinact.agg_activities.to_csv(f"{odir}/RESULTS/{name_out}_random_aggregated_activities.tsv", sep = '\t', index = False)
                 kinact.random_kinact.activity_summary.to_csv(f"{odir}/RESULTS/{name_out}_random_summarized_activities.tsv", sep = '\t', index = True)
 
-                kinact.normalized_activities.to_csv(f"{odir}/RESULTS/{name_out}_normalized_activities.tsv", sep = '\t', index = True)
+                kinact.normalized_activities_list.to_csv(f"{odir}/RESULTS/{name_out}_normalized_activities_list.tsv", sep = '\t', index = True)
                 kinact.normalized_agg_activities.to_csv(f"{odir}/RESULTS/{name_out}_normalized_aggregated_activities.tsv", sep = '\t', index = True)
                 kinact.normalized_summary.to_csv(f"{odir}/RESULTS/{name_out}_normalized_summarized_activities.tsv", sep = '\t', index = True)
 
@@ -1175,7 +1175,7 @@ def from_kstar_slim(name, odir, log):
 
             kinact.random_kinact = KinaseActivity(rand_experiments, log, phospho_type=phospho_type)
             kinact.random_kinact.activities_list = pd.read_csv(f"{odir}/RESULTS/{name_out}_random_activities_list.tsv", sep = '\t', index_col=0)
-            kinact.normalized_activities = pd.read_csv(f"{odir}/RESULTS/{name_out}_normalized_summarized_activities.tsv", sep = '\t', index_col = config.KSTAR_KINASE)
+            kinact.normalized_activities_list = pd.read_csv(f"{odir}/RESULTS/{name_out}_normalized_summarized_activities_list.tsv", sep = '\t', index_col = config.KSTAR_KINASE)
             kinact.fpr_activity = pd.read_csv(f"{odir}/RESULTS/{name_out}_activities_fpr.tsv", sep='\t', index_col=config.KSTAR_KINASE)
             kinact.random_kinact.evidence = pd.read_csv(f"{odir}/RESULTS/{name_out}_random_experiments.tsv", sep = '\t')
             #set data columns according to file
