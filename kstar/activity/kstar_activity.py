@@ -1022,9 +1022,6 @@ def save_kstar(kinact_dict, name, odir, PICKLE=True):
 
         if not os.path.exists(f"{odir}/RESULTS"): 
             os.mkdir(f"{odir}/RESULTS") 
-
-        if not os.path.exists(f"{odir}/RANDOM_ANALYSIS"): 
-            os.mkdir(f"{odir}/RANDOM_ANALYSIS") 
         
         for phospho_type in kinact_dict:
             kinact = kinact_dict[phospho_type]
@@ -1045,10 +1042,12 @@ def save_kstar(kinact_dict, name, odir, PICKLE=True):
                 kinact.normalized_summary.to_csv(f"{odir}/RESULTS/{name_out}_normalized_summarized_activities.tsv", sep = '\t', index = True)
 
                 kinact.random_experiments.to_csv(f"{odir}/RESULTS/{name_out}_random_experiments.tsv", sep = '\t', index = False)
+                kinact.fpr_activity.to_csv(f"{odir}/RESULTS/{name_out}_activities_fpr.tsv", sep='\t', index=True)
+                kinact.random_kinact.evidence.to_csv(f"{odir}/RESULTS/{name_out}_random_experiments.tsv", sep = '\t', index = False)
 
             if hasattr(kinact, 'activities_mann_whitney'):
                 kinact.activities_mann_whitney.to_csv(f"{odir}/RESULTS/{name_out}_mann_whitney_activities.tsv", sep='\t', index = True) 
-                kinact.significance_mann_whitney.to_csv(f"{odir}/RESULTS/{name_out}_mann_whitney_significance.tsv", sep='\t', index = True) 
+                kinact.fpr_mann_whitney.to_csv(f"{odir}/RESULTS/{name_out}_mann_whitney_significance.tsv", sep='\t', index = True) 
 
         if PICKLE:
             pickle.dump( kinact_dict, open( f"{odir}/RESULTS/{name}_kinact.p", "wb" ) )
@@ -1109,11 +1108,9 @@ def save_kstar_slim(kinact_dict, name, odir):
             param_temp['normalized'] = True
             param_temp['num_random_experiments'] = kinact.num_random_experiments
             kinact.random_kinact.activities.to_csv(f"{odir}/RESULTS/{name_out}_random_activities.tsv", sep = '\t')
-            kinact.normalized_summary.to_csv(f"{odir}/RESULTS/{name_out}_normalized_summarized_activities.tsv", sep = '\t', index = True)
+            kinact.normalized_activites.to_csv(f"{odir}/RESULTS/{name_out}_normalized_summarized_activities.tsv", sep = '\t', index = True)
+            kinact.fpr_activity.to_csv(f"{odir}/RESULTS/{name_out}_activities_fpr.tsv", sep='\t', index=True)
             kinact.random_kinact.evidence.to_csv(f"{odir}/RESULTS/{name_out}_random_experiments.tsv", sep = '\t', index = False)
-
-
-
 
         if hasattr(kinact, 'activities_mann_whitney'):
             param_temp['mann_whitney'] = True
@@ -1167,17 +1164,18 @@ def from_kstar_slim(name, odir, log):
         if params['mann_whitney']:
             #read mann_whitney and load
             kinact.activities_mann_whitney = pd.read_csv(f"{odir}/RESULTS/{name_out}_mann_whitney_activities.tsv", sep='\t', index_col = config.KSTAR_KINASE) 
-            kinact.fpr_mann_whitney = pd.read_csv(f"{odir}/RESULTS/{name_out}_fpr_significance.tsv", sep='\t', index_col = config.KSTAR_KINASE) 
+            kinact.fpr_mann_whitney = pd.read_csv(f"{odir}/RESULTS/{name_out}_mann_whitney_fpr.tsv", sep='\t', index_col = config.KSTAR_KINASE) 
             params.pop('mann_whitney', None)
         if params['normalized']:
             rand_experiments = pd.read_csv(f"{odir}/RESULTS/{name_out}_random_experiments.tsv", sep = '\t')
 
             kinact.random_kinact = KinaseActivity(rand_experiments, log, phospho_type=phospho_type)
             kinact.random_kinact.activities= pd.read_csv(f"{odir}/RESULTS/{name_out}_random_activities.tsv", sep = '\t', index_col=0)
-            kinact.normalized_summary = pd.read_csv(f"{odir}/RESULTS/{name_out}_normalized_summarized_activities.tsv", sep = '\t', index_col = config.KSTAR_KINASE)
+            kinact.normalized_activities = pd.read_csv(f"{odir}/RESULTS/{name_out}_normalized_summarized_activities.tsv", sep = '\t', index_col = config.KSTAR_KINASE)
+            kinact.fpr_activity = pd.read_csv(f"{odir}/RESULTS/{name_out}_activities_fpr.tsv", sep='\t', index_col=config.KSTAR_KINASE)
+            kinact.random_kinact.evidence = pd.read_csv(f"{odir}/RESULTS/{name_out}_random_experiments.tsv", sep = '\t')
             #set data columns according to file
             kinact.random_kinact.set_data_columns(data_columns=None)
-
 
 
         for param_name in params:
