@@ -38,6 +38,7 @@ class KinaseActivity:
         self.network_sizes = defaultdict()
         self.logger = logger
         self.normalizers = defaultdict()
+        self.network_directory = config.NETWORK_DIR
 
         self.num_networks = None
 
@@ -1102,6 +1103,7 @@ def save_kstar_slim(kinact_dict, name, odir):
         param_temp['mann_whitney'] = False
         param_temp['normalized'] = False
         param_temp['num_networks'] = kinact.num_networks
+        param_temp['network_directory'] = kinact.network_directory
 
 
         kinact.activities_list.to_csv(f"{odir}/RESULTS/{name_out}_activities_list.tsv", sep = '\t')
