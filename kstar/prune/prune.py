@@ -11,7 +11,12 @@ import os
 from os import path
 from datetime import datetime
 from kstar import helpers, config
+import shutil
+import random
+import string
 
+#%%
+#%%
 
 class Prune:
     def __init__(self, network, logger, phospho_type = 'Y',):
@@ -29,6 +34,8 @@ class Prune:
         columns : dict
             relevant columns in network
         """
+        
+
         self.phospho_type = tuple(phospho_type)
         self.logger = logger
         self.network = network[network['site'].str.startswith(self.phospho_type)]
@@ -94,7 +101,7 @@ class Prune:
         return pruned_network
         
     
-    def compendia_pruned_network(self, compendia_sizes, site_limit):
+    def compendia_pruned_network(self, compendia_sizes, site_limit, odir):
         """
         Builds a compendia-pruned network that takes into account compendia size limits per kinase
         
@@ -112,12 +119,15 @@ class Prune:
             subset of network that has been pruned according to compendia ratios
         """
         pruned_network = []
+        name = os.path.join(odir,''.join(random.choices(string.ascii_uppercase + string.digits, k=10)))
         for comp_size, kinase_size in compendia_sizes.items():
             self.logger.info(f"Building pruned network for compendia {comp_size} with {kinase_size} sites per kinase")
             network = self.network[self.network['KSTAR_NUM_COMPENDIA'] == comp_size]
             pruned_network.append(self.build_pruned_network(network, kinase_size, site_limit))
         pruned_network = pd.concat(pruned_network)
-        return pruned_network
+
+        pruned_network.to_csv(f"{name}.tsv", sep = "\t", index=False)
+        # return pruned_network
         
     def calculate_compendia_sizes(self, kinase_size):
         """
@@ -145,7 +155,7 @@ class Prune:
         self.logger.info(f"Compendia kinase sizes : {sizes}")
         return sizes
 
-    def build_multiple_compendia_networks(self, kinase_size, site_limit, num_networks, network_id):
+    def build_multiple_compendia_networks(self, kinase_size, site_limit, num_networks, network_id, odir):
         """
         Builds multiple compendia-limited networks
 
@@ -165,54 +175,67 @@ class Prune:
             key : <network_id>_<i>
             value : pruned network
         """
-
+        
         compendia_sizes = self.calculate_compendia_sizes(kinase_size)
-
+        
+        odir = os.path.join(odir, "work")
+        if not path.exists(odir):
+            os.mkdir(odir)
+        num_existing_networks = len(os.listdir(odir))
+        num_networks = num_networks - num_existing_networks
+        if num_existing_networks > 0:
+            self.logger.info(f"Found {num_existing_networks} networks... building {num_networks} additional networks")
         # MULTIPROCESSING
         if config.PROCESSES > 1:
             pool = multiprocessing.Pool(processes = config.PROCESSES)
             comp_sizes = itertools.repeat(compendia_sizes, num_networks)
             limits = itertools.repeat(site_limit, num_networks)
-            iterable = zip(comp_sizes, limits)
-            pruned_networks = pool.starmap(self.compendia_pruned_network, iterable)
+            # names = [os.path.join(odir,f"{network_id}_{i}") for i in range(num_networks)] 
+            odirs = itertools.repeat(odir, num_networks)
+            iterable = zip(comp_sizes, limits, odirs)
+
+            pool.starmap(self.compendia_pruned_network, iterable)
         
         # SINGLE CORE PROCESSING
         else:
             pruned_networks = []
             for i in range(num_networks):
-                net = self.compendia_pruned_network(compendia_sizes, site_limit)
-                pruned_networks.append(net)
-
-        pruned_dict = {}
-        for i in range(len(pruned_networks)):
-            pruned_dict[f"{network_id}_{i}"] = pruned_networks[i]
-        return pruned_dict
-
-    def build_multiple_networks(self, kinase_size, site_limit, num_networks, network_id):
-        """
-        Basic Network Generation - only takes into account score when determining sites a kinase 
-        connects to
-        """
-        # MULTIPROCESSING
-        if config.PROCESSES > 1:
-            pool = multiprocessing.Pool(processes = config.PROCESSES)
-            network_iter = itertools.repeat(self.network, num_networks)
-            size_iter = itertools.repeat(kinase_size, num_networks)
-            limit_iter = itertools.repeat(site_limit, num_networks)
-            iterable = zip(network_iter, size_iter, limit_iter)
-            pruned_networks = pool.starmap(self.build_pruned_network, iterable)
+                self.compendia_pruned_network(compendia_sizes, site_limit, os.path.join(odir,f"{network_id}_{i}") )
+                
         
-        # SINGLE CORE PROCESSING
-        else:
-            pruned_networks = []
-            for i in range(num_networks):
-                net = self.build_pruned_network(self.network, kinase_size, site_limit)
-                pruned_networks.append(net)
+        # pruned_dict = {}
+        # for i in range(num_networks):
+        #     name = os.path.join(odir,f"{network_id}_{i}")
+        #     pruned_dict[f"{network_id}_{i}"] = pd.read_table(f"{name}.tsv")
+        
 
-        pruned_dict = {}
-        for i in range(len(pruned_networks)):
-            pruned_dict[f"{network_id}_{i}"] = pruned_networks[i]
-        return pruned_dict
+        # return pruned_dict
+
+    # def build_multiple_networks(self, kinase_size, site_limit, num_networks, network_id):
+    #     """
+    #     Basic Network Generation - only takes into account score when determining sites a kinase 
+    #     connects to
+    #     """
+    #     # MULTIPROCESSING
+    #     if config.PROCESSES > 1:
+    #         pool = multiprocessing.Pool(processes = config.PROCESSES)
+    #         network_iter = itertools.repeat(self.network, num_networks)
+    #         size_iter = itertools.repeat(kinase_size, num_networks)
+    #         limit_iter = itertools.repeat(site_limit, num_networks)
+    #         iterable = zip(network_iter, size_iter, limit_iter)
+    #         pruned_networks = pool.starmap(self.build_pruned_network, iterable)
+        
+    #     # SINGLE CORE PROCESSING
+    #     else:
+    #         pruned_networks = []
+    #         for i in range(num_networks):
+    #             net = self.build_pruned_network(self.network, kinase_size, site_limit)
+    #             pruned_networks.append(net)
+
+    #     pruned_dict = {}
+    #     for i in range(len(pruned_networks)):
+    #         pruned_dict[f"{network_id}_{i}"] = pruned_networks[i]
+    #     return pruned_dict
 
 
 """
@@ -276,29 +299,41 @@ def process_args(results):
     return network, log, use_compendia
 
 
-def run_pruning(network, log, use_compendia, phospho_type, kinase_size, site_limit, num_networks, network_id):
+def run_pruning(network, log, use_compendia, phospho_type, kinase_size, site_limit, num_networks, network_id, odir):
     log.info("Running pruning algorithm")
     pruner = Prune(network, log, phospho_type)
     if use_compendia:
         log.info("Pruning using compendia ratios")
-        pruned_networks = pruner.build_multiple_compendia_networks(kinase_size, site_limit, num_networks, network_id)
-    else:
-        log.info("Pruning without using compendia")
-        pruned_networks = pruner.build_multiple_networks(kinase_size, site_limit, num_networks, network_id)
-    return pruned_networks, pruner
+        pruner.build_multiple_compendia_networks(kinase_size, site_limit, num_networks, network_id, odir)
+    # else:
+    #     log.info("Pruning without using compendia")
+    #     pruned_networks = pruner.build_multiple_networks(kinase_size, site_limit, num_networks, network_id)
+    return pruner
 
-def save_pruning(network_map, phospho_type, network_id, kinase_size, site_limit, use_compendia, odir, log):
+def save_pruning(phospho_type, network_id, kinase_size, site_limit, use_compendia, odir, log):
     log.info("Saving pruning results")
-    if not os.path.exists(f"{odir}/INDIVIDUAL_NETWORKS"): 
-            os.mkdir(f"{odir}/INDIVIDUAL_NETWORKS") 
+    # if not os.path.exists(f"{odir}/INDIVIDUAL_NETWORKS"): 
+    #         os.mkdir(f"{odir}/INDIVIDUAL_NETWORKS") 
     
     if use_compendia:
         suffix = f"{phospho_type}_compendia_{kinase_size}_limit_{site_limit}"
     else:
         suffix = f"{phospho_type}_{kinase_size}_limit_{site_limit}"
-    for nid, network in network_map.items():
-        network.to_csv(f"{odir}/INDIVIDUAL_NETWORKS/{nid}_{suffix}.tsv", sep = '\t', index=False)
+
+    # TODO: rename work directory and rename files
+    os.rename(os.path.join(odir, "work"), os.path.join(odir, "INDIVIDUAL_NETWORKS"))
+    odir_ind = os.path.join(odir, "INDIVIDUAL_NETWORKS")
+    # rename files and make network map
+    temp_filenames = os.listdir(odir_ind)
+    network_map = {}
+    for i in range(len(temp_filenames)):
+        network_map[f"{network_id}_{i}"] = pd.read_table(os.path.join(odir_ind,temp_filenames[i]))
+        os.rename(os.path.join(odir_ind, temp_filenames[i]), os.path.join(odir_ind, f"{network_id}_{i}_{suffix}.tsv"))
+
+    # for nid, network in network_map.items():
+    #     network.to_csv(f"{odir}/INDIVIDUAL_NETWORKS/{nid}_{suffix}.tsv", sep = '\t', index=False)
     pickle.dump( network_map, open( f"{odir}/{network_id}_{suffix}.p", "wb" ) )
+
     
 def save_run_information(results, use_compendia, pruner):
     with open(f"{results.odir}/RUN_INFORMATION.txt", "w") as info_file:
@@ -330,8 +365,8 @@ def main():
     network_id = results.network_id
     odir = results.odir
     log.info("Beginning to build pruning networks")
-    pruned_networks, pruner = run_pruning(network, log, use_compendia, phospho_type, kinase_size, site_limit, num_networks, network_id)
-    save_pruning(pruned_networks, phospho_type, network_id, kinase_size, site_limit, use_compendia, odir, log)
+    pruner = run_pruning(network, log, use_compendia, phospho_type, kinase_size, site_limit, num_networks, network_id, odir)
+    save_pruning( phospho_type, network_id, kinase_size, site_limit, use_compendia, odir, log)
     save_run_information(results, use_compendia, pruner)
     
 if __name__ == "__main__":
