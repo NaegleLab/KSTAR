@@ -4,6 +4,10 @@
 *.xlsx
 RESOURCE_FILES/
 
+# nextflow 
+.nextflow*
+work
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
