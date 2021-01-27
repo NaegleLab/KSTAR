@@ -15,6 +15,7 @@ import helpers
 from os import path
 
 import config
+import summarize_activities
 
 logger = helpers.get_logger("hypergeometric", "hypergeometric.log")
 
@@ -190,7 +191,7 @@ class KinaseActivity:
         return evidence_binary
 
 
-    def calculate_kinase_activities(self, data_columns = None, agg = 'count', threshold = 1.0,  greater = True):
+    def calculate_kinase_activities(self, data_columns = None, agg = 'count', threshold = 1.0,  greater = True, cpus = 1, pool=None):
         """
         Calculates combined activity of experiments based that uses a threshold value to determine if an experiment sees a site or not
         To use values use 'mean' as agg
@@ -237,9 +238,7 @@ class KinaseActivity:
         self.logger.info(f"Kinase Activity will be run on the following data columns: {','.join(self.data_columns)}")
 
         # MULTIPROCESSING
-        if config.PROCESSES > 1:
-            pool = multiprocessing.Pool(processes = config.PROCESSES)
-            
+        if cpus > 1:
             filtered_evidence_list  = [self.evidence_binary[self.evidence_binary[col] == 1 ] for col in self.data_columns] 
             networks = itertools.repeat(self.networks)  
             network_sizes = itertools.repeat(self.network_sizes)
@@ -259,37 +258,6 @@ class KinaseActivity:
         self.activities_list = pd.concat(activities_list)
         return self.activities_list
 
-    def summarize_activities(self, activities = None, method = 'median_activity', normalized = False):
-        """
-        Builds a single combined dataframe from the provided activities such that 
-        each piece of evidence is given a single column. Values are based on the method selected.
-        The method must be a column in the activities
-
-        Parameters
-        ----------
-        activities : dict
-            hypergeometric activities that have previously been summarized by network.
-            key : experiment name
-            value : hypergeometric activity
-        method : str
-            The column in the hypergeometric activity to use for summarizing data
-        
-        Returns
-        ---------
-        activity_summary : pandas DataFrame
-
-        """
-        if activities is None:
-            activities = self.agg_activities
-        available_methods = list(activities.columns)
-        available_methods.remove('data')
-        if method not in available_methods:
-            raise ValueError(f"the method '{method}' is not in the availble methods. \nAvailable methods include : {', '.join(available_methods)}")
-
-
-        activity_summary = activities.pivot(index = config.KSTAR_KINASE, columns ='data', values = method).reset_index().rename_axis(None, axis=1).set_index(config.KSTAR_KINASE)
-        activity_summary = activity_summary[self.data_columns]
-        return activity_summary
 
     def aggregate_activities(self, activities = None):
         """
@@ -491,23 +459,24 @@ Methods for running KSTAR pipeline
 
 
 
-def run_kstar_analyis(experiment, log, networks, phospho_type ='Y', data_columns = None, agg = 'count', threshold = 1.0,  greater = True):
+def run_kstar_analyis(experiment, log, networks, phospho_type ='Y', data_columns = None, agg = 'count', threshold = 1.0,  greater = True, cpus = 1, pool=None):
 
     experiment_sub = experiment[(experiment.KSTAR_SITE.str.contains(phospho_type))]
     kinact = KinaseActivity(experiment_sub, log, phospho_type=phospho_type)
     kinact.add_networks_batch(networks)
-    kinact.calculate_kinase_activities(data_columns, agg=agg, threshold=threshold, greater=greater)
+    kinact.calculate_kinase_activities(data_columns=data_columns, agg=agg, threshold=threshold, greater=greater, cpus=cpus, pool=pool)
     kinact.aggregate_activities()
-    kinact.activities = kinact.summarize_activities()
+    kinact.activities = summarize_activities.summarize_activities(kinact.agg_activities, 'median_activity')
     return kinact
 
 def save_kstar_results(kinact, name):
-    kinact.activities_list.to_csv(f"{name}_activities_list.tsv", sep = '\t')
+    kinact.activities_list.to_csv(f"{name}_activities_list.tsv", sep = '\t', index=False)
     kinact.agg_activities.to_csv(f"{name}_aggregated_activities.tsv", sep = '\t', index = False)
     kinact.activities.to_csv(f"{name}_activities.tsv", sep = '\t', index = True)
     kinact.evidence_binary.to_csv(f"{name}_binarized_experiment.tsv", sep='\t', index=False)
 
 def main():
+    
     parser = argparse.ArgumentParser(description='Parse KSTAR Activity Arguments')
     parser.add_argument('--exp_file', '--experiment_file', action='store', dest= 'exp_file', help='Experiment file location. csv or tsv file', required=True)
     parser.add_argument("--networks", action='store', dest= 'networks', help='Network pickle file location', required=True)
@@ -516,6 +485,7 @@ def main():
     parser.add_argument('--cols', '--data_columns', action='store', dest='data_columns', help = 'data_columns to use', nargs='*', default=None)
     parser.add_argument('--agg', '--activity_agg', action='store', dest='activity_agg', help = 'activity agg to use', default='count', choices =['count','mean'])
     parser.add_argument('--thresh', '--threshold',  action='store', dest='threshold', help = 'threshold to use for analysis', type = float, default=1.0)
+    parser.add_argument("--cpus", action="store", dest="cpus", default=1, type=int)
     results = parser.parse_args()
 
     if path.exists(results.exp_file) and path.isfile(results.exp_file):
@@ -533,9 +503,15 @@ def main():
     
     log = helpers.get_logger("hypergeometric", "hypergeometric.log")
     networks = pickle.load(open(results.networks, "rb"))
-    print("running kstar")
-    kinact = run_kstar_analyis(experiment, log, networks, results.pevent, results.data_columns, results.activity_agg, results.threshold, )
-    print("saving kstar")
+
+    if results.cpus > 1:
+        pool = multiprocessing.Pool(processes = results.cpus)
+    else:
+        pool = None
+
+   
+    kinact = run_kstar_analyis(experiment, log, networks, results.pevent, results.data_columns, results.activity_agg, threshold=results.threshold, cpus = results.cpus, pool=pool)
+    
     save_kstar_results(kinact, results.name)
 
 

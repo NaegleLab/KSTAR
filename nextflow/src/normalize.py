@@ -5,7 +5,7 @@ import pandas as pd
 import argparse
 import config
 import numpy as np
-
+from summarize_activities import summarize_activities
 
 def normalize_activities(activities, normalizers, data_column, default_normalization = 0.05, normalization_multiplier = 0.05, num_networks=50):
     """
@@ -41,7 +41,7 @@ def normalize_activities(activities, normalizers, data_column, default_normaliza
                 normalization_multiplier,
                 num_networks)
     normalized_agg_activities = aggregate_normalized_activities(normalized_activity_list)
-    activities_normalized =summarize_activities(normalized_agg_activities,'median_normalized_activity',normalized=True)
+    activities_normalized =summarize_activities(normalized_agg_activities,'median_normalized_activity')
 
     return normalized_activity_list, normalized_agg_activities, activities_normalized
 
@@ -125,36 +125,7 @@ def aggregate_normalized_activities(normalized_activities):
     ).reset_index()
     return normalized_agg_activities
 
-def summarize_activities(activities = None, method = 'median_activity', normalized = False):
-    """
-    Builds a single combined dataframe from the provided activities such that 
-    each piece of evidence is given a single column. Values are based on the method selected.
-    The method must be a column in the activities
 
-    Parameters
-    ----------
-    activities : dict
-        hypergeometric activities that have previously been summarized by network.
-        key : experiment name
-        value : hypergeometric activity
-    method : str
-        The column in the hypergeometric activity to use for summarizing data
-    
-    Returns
-    ---------
-    activity_summary : pandas DataFrame
-
-    """
-
-    available_methods = list(activities.columns)
-    available_methods.remove('data')
-    if method not in available_methods:
-        raise ValueError(f"the method '{method}' is not in the availble methods. \nAvailable methods include : {', '.join(available_methods)}")
-
-
-    activity_summary = activities.pivot(index = config.KSTAR_KINASE, columns ='data', values = method).reset_index().rename_axis(None, axis=1).set_index(config.KSTAR_KINASE)
-    # activity_summary = activity_summary[self.data_columns]
-    return activity_summary
 
 
 
@@ -174,14 +145,14 @@ def parse_args():
 def main():
     results = parse_args()
 
-    experiment_activity = pd.read_table(results.experiment_activity, index_col=0)
+    experiment_activity = pd.read_table(results.experiment_activity)
     normalizers = pd.read_table(results.normalizers, index_col=0)
 
     normalized_activity_list, normalized_agg_activities, activities_normalized = normalize_activities(experiment_activity, normalizers, results.data_column, results.default_normalization, results.normalization_multiplier, results.num_networks)
 
     data_column = results.data_column
-    normalized_activity_list.to_csv(f"{data_column}_normalized_activity_list.tsv", sep = "\t")
-    normalized_agg_activities.to_csv(f"{data_column}_normalized_aggregate_activity.tsv", sep = "\t")
+    normalized_activity_list.to_csv(f"{data_column}_normalized_activity_list.tsv", sep = "\t", index=False)
+    normalized_agg_activities.to_csv(f"{data_column}_normalized_aggregate_activity.tsv", sep = "\t", index=False)
     activities_normalized.to_csv(f"{data_column}_normalized_activities.tsv", sep = "\t")
 #%%
 if __name__ == "__main__":

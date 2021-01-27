@@ -1,9 +1,16 @@
+#!/usr/bin/env python3
+#%%
 import logging
+import argparse
 import pandas as pd 
 import numpy as np 
-
+import scipy.stats as stats
 from itertools import repeat
 import concurrent.futures
+import config
+import calculate_fpr
+
+
 
 # def calculate_Mann_Whitney_activities_sig(self, log, number_sig_trials = 100):
 #         """
@@ -64,21 +71,47 @@ import concurrent.futures
 
 
 def run_Mann_Whitney_pipeline(activity_list, random_activity_list, normalized_activities, num_networks, num_sig_trials, num_random_experiments, experiment_name, max_cpus):
-    if number_sig_trials > num_random_experiments:
-        logging.info("Warning: number of trials for Mann Whitney exceeds number available, using %d instead of %d"%(num_random_experiments, number_sig_trials))
-        number_sig_trials = num_random_experiments
-    activities_mann_whitney = pd.DataFrame(index=activities_normalized.index, columns=activities_normalized.columns)
-    fpr_mann_whitney = pd.DataFrame(index=activities_normalized.index, columns=activities_normalized.columns)
+    """Single Experiment / Data Column Mann Whitney pipeline
+
+    Args:
+        activity_list (pandas df): single experiment activity list
+        random_activity_list (pandas df): single experiment random activities list
+        normalized_activities (pandas df): normalized aggregate activites for single experiment
+        num_networks (int): number of networks used in generating kinase activity
+        num_sig_trials (int): number of trials to perform for Mann Whitney
+        num_random_experiments (int): number of random experiments run for normalization  
+        experiment_name (str): name of experient / data column from original experiment
+        max_cpus (int): number of cpus to use for parallelization
+
+    Returns:
+        pandas df: mann whitney results
+    """
+    if num_sig_trials > num_random_experiments:
+        logging.info("Warning: number of trials for Mann Whitney exceeds number available, using %d instead of %d"%(num_random_experiments, num_sig_trials))
+        num_sig_trials = num_random_experiments
+    # activities_mann_whitney = pd.DataFrame(index=activities_normalized.index, columns=activities_normalized.columns)
+    # fpr_mann_whitney = pd.DataFrame(index=activities_normalized.index, columns=activities_normalized.columns)
+    mann_whitney = normalized_activities[['data']].copy()
+    
+    # activities_mann_whitney = normalized_activities[['data']].copy()
+    kinases = normalized_activities.index
 
     pval_arr = []
     fpr_arr = []
     with concurrent.futures.ProcessPoolExecutor(max_workers=max_cpus) as executor:
-        for pval, fpr in executor.map(calculate_MannWhitney_one_experiment_one_kinase, repeat(activity_list), repeat(random_activity_list), repeat(num_networks), activities_normalized.index, repeat(experiment_name), repeat(number_sig_trials)):
+        for pval, fpr in executor.map(calculate_MannWhitney_one_experiment_one_kinase, repeat(activity_list), repeat(random_activity_list), repeat(num_networks), kinases, repeat(experiment_name), repeat(num_sig_trials)):
             pval_arr.append(pval)
             fpr_arr.append(fpr)
         #print(pval_arr)
-    self.activities_mann_whitney[exp] = pval_arr
-    self.fpr_mann_whitney[exp] = fpr_arr
+    # self.activities_mann_whitney[exp] = pval_arr
+    # self.fpr_mann_whitney[exp] = fpr_arr
+    mann_whitney = normalized_activities.copy()
+    mann_whitney['mann_whitney_activities'] = pval_arr
+    mann_whitney['mann_whitney_fpr'] = fpr_arr
+    mann_whitney = mann_whitney.reset_index()
+    mann_whitney = mann_whitney[['data', config.KSTAR_KINASE,'mann_whitney_activities','mann_whitney_fpr']]
+    return mann_whitney
+
 
 def calculate_fpr_Mann_Whitney(random_kinase_activity_array, number_sig_trials):
     """
@@ -161,7 +194,6 @@ def calculate_MannWhitney_one_experiment_one_kinase(kinact_activities, rand_acti
 def parse_args():
     parser = argparse.ArgumentParser(description='Parse Normalization Arguments')
     parser.add_argument( '--activity_list', action='store', dest= 'activity_list', required=True)
-
     parser.add_argument( '--random_activity_list', action='store', dest= 'random_activity_list', required=True)
     parser.add_argument( '--normalized_activities', action='store', dest= 'normalized_activities', required=True)
     parser.add_argument( '--num_networks', action='store', dest= 'num_networks', required=True,type=int)
@@ -178,16 +210,27 @@ def parse_args():
 def main():
     results = parse_args()
 
-    activity_list = pd.read_table(results.activity_list, index_col=0)
-    random_activity_list = pd.read_table(results.random_activity_list, index_col=0)
-    normalized_activities = pd.read_table(results.normalized_activities, index_col=0)
+    activity_list = pd.read_table(results.activity_list)
+    random_activity_list = pd.read_table(results.random_activity_list)
+    normalized_activities = pd.read_table(results.normalized_activities, index_col=1)
 
+    mann_whitney = run_Mann_Whitney_pipeline(activity_list, random_activity_list, normalized_activities, 
+        results.num_networks, results.num_sig_trials, results.num_random_experiments, results.experiment_name, results.max_cpus )
     
-    
+    mann_whitney.to_csv(f"{results.experiment_name}_mann_whittney.tsv", sep = "\t", index=False)
 
-    normalized_activity_list.to_csv(f"{data_column}_normalized_activity_list.tsv", sep = "\t")
-    normalized_agg_activities.to_csv(f"{data_column}_normalized_aggregate_activity.tsv", sep = "\t")
-    activities_normalized.to_csv(f"{data_column}_normalized_activities.tsv", sep = "\t")
+#%%
 
 if __name__ == "__main__":
     main()
+
+# #%%
+# activity_list = pd.read_table("/Users/bj8th/Documents/GitHub/KSTAR/kstar/nextflow/results/Y/kinase_hypergeometric_activity/test_activities_list.tsv")
+# random_activity_list = pd.read_table("/Users/bj8th/Documents/GitHub/KSTAR/kstar/nextflow/results/Y/data:EOE/random_hypergeometric_activity/data:EOE_random_activities_list.tsv")
+# normalized_activities = pd.read_table("/Users/bj8th/Documents/GitHub/KSTAR/kstar/nextflow/results/Y/data:EOE/normalized_activity/data:EOE_normalized_aggregate_activity.tsv", index_col=1)
+
+
+# # %%
+# mann_whitney = run_Mann_Whitney_pipeline(activity_list, random_activity_list, normalized_activities, 
+#         50, 2, 3, 'data:EOE', 1 )
+# # %%
