@@ -1,50 +1,63 @@
 
 Channel
     .value(file(params.experiment_file))
-    .ifEmpty { error "Cannot find gtf file for parameter --experiment_file: ${params.experiment_file}" }
+    // .ifEmpty { error "Cannot find gtf file for parameter --experiment_file: ${params.experiment_file}" }
     .set { ch_experiment }  
 
 Channel
     .value(file(params.resource_directory + params.compendia))
-    .ifEmpty { error "Cannot find gtf file for parameter --compendia: ${params.compendia}" }
+    // .ifEmpty { error "Cannot find gtf file for parameter --compendia: ${params.compendia}" }
     .set { ch_compendia }  
 
 Channel
     .value(file(params.resource_directory + params.reference_fasta))
-    .ifEmpty { error "Cannot find gtf file for parameter --reference_fasta: ${params.reference_fasta}" }
+    // .ifEmpty { error "Cannot find gtf file for parameter --reference_fasta: ${params.reference_fasta}" }
     .set { ch_reference_fasta} 
 
-Channel
-    .value(file(params.resource_directory + params.network_y))
-    .ifEmpty { error "Cannot find gtf file for parameter --network_y: ${params.network_y}" }
-    .set { ch_network_y} 
+
 
 Channel
-    .value(file(params.resource_directory + params.network_st))
-    .ifEmpty { error "Cannot find gtf file for parameter --network_st: ${params.network_st}" }
-    .set { ch_network_st} 
+    .fromPath(params.resource_directory + params.network_directory, type:'dir')
+    .set{ch_network_directory}
 
+
+ch_network_directory.into{
+    ch_network_directory_hypergeometric
+    ch_network_directory_random
+
+}
+
+Channel
+    .fromPath("${params.resource_directory}${params.network_directory}/${params.phospho_event}/INDIVIDUAL_NETWORKS/*.tsv")
+    .count()
+    .set {ch_number_of_networks}
 
 mapped_data_columns = []
+if(params.add_data_before){
     for(col in params.data_columns){
         mapped_data_columns.add("data:"+col)
     }
+}
+else{
+    for(col in params.data_columns){
+        mapped_data_columns.add(col)
+    }
+}
+    
 // mapped_data_columns = params.data_columns
 mapped_data_column_string = mapped_data_columns.join(" ")
+print(mapped_data_column_string)
 
 Channel
     .from(mapped_data_columns)
     .set { ch_mapped_data_columns}
     
-/*--------------------------------------------------
-Map Experiment
----------------------------------------------------*/
 
-/*--------------------------------------------------
-Binarize Experiment
----------------------------------------------------*/
+// /*--------------------------------------------------
+// Binarize Experiment
+// ---------------------------------------------------*/
 process binarize_experiment{
-    publishDir "${params.outdir}/${params.phospho_event}/binary_experiment", mode: 'copy'
+    publishDir "${params.outdir}/${params.name}/${params.phospho_event}/binary_experiment", mode: 'copy'
 
     input:
         file(experiment) from ch_experiment
@@ -61,24 +74,26 @@ process binarize_experiment{
         --agg ${params.activity_aggregate} \
         --greater ${params.greater}
         """
-
-   
-    
-
-    
 }
+
+ch_binary_experiment.into {
+    ch_binary_experiment_for_hypergeometric
+    ch_binary_experiment_for_random_experiments
+    }
 /*--------------------------------------------------
 Kinase Hypergeometric Activity 
 ---------------------------------------------------*/
 process hypergeometric_activity{
     tag "${params.phospho_event}"
-    publishDir "${params.outdir}/${params.phospho_event}/hypergeometric_activity", mode: 'copy' 
+    publishDir "${params.outdir}/${params.name}/${params.phospho_event}/hypergeometric_activity", mode: 'copy' 
     label "all_experiments"
 
     input:
-        file(experiment) from ch_binary_experiment
-        file(network_y) from ch_network_y 
-        file(network_st) from ch_network_st
+        file(experiment) from ch_binary_experiment_for_hypergeometric
+        // file(network_y) from ch_network_y 
+        // file(network_st) from ch_network_st
+        path(network_directory) from ch_network_directory_hypergeometric
+        // path(network_st) from ch_network_st_path_hypergeometric
         // tuple (data_columns) from params.data_columns
     output:
         file("*")
@@ -86,24 +101,15 @@ process hypergeometric_activity{
         file("${params.name}_activities_list.tsv")  into ch_experiment_activities_list
 
     script:
-        if (params.phospho_event =="ST")
-            """
-            hypergeometric_activity_binary_evidence.py \
-            --experiment_file $experiment \
-            --networks $network_st \
-            --pevent ${params.phospho_event} \
-            --name ${params.name} \
-            --data_columns $mapped_data_column_string \
-            """
-        else if (params.phospho_event =="Y")
-            """
-            hypergeometric_activity_binary_evidence.py \
-            --experiment_file $experiment \
-            --networks $network_y \
-            --pevent ${params.phospho_event} \
-            --name ${params.name} \
-            --data_columns $mapped_data_column_string \
-            """
+        """
+        hypergeometric_activity_binary.py \
+        --experiment_file $experiment \
+        --network_directory $network_directory/${params.phospho_event}/INDIVIDUAL_NETWORKS \
+        --pevent ${params.phospho_event} \
+        --name ${params.name} \
+        --data_columns $mapped_data_column_string \
+        --max_cpus ${task.cpus}
+        """
 }
 
 
@@ -119,11 +125,11 @@ Generate Random Experiments
 process generate_random_experiments {
   tag "${data_col}"
   cpus 1
-  publishDir "${params.outdir}/${params.phospho_event}/$data_col/random_experiments", mode: 'copy'
+  publishDir "${params.outdir}/${params.name}/${params.phospho_event}/individual_experiments/$data_col/random_experiments", mode: 'copy'
   label "single_experiment"
   input:
     each data_col from ch_mapped_data_columns
-    file(experiment) from ch_experiment
+    file(experiment) from ch_binary_experiment_for_random_experiments
     file(compendia) from ch_compendia
 
   
@@ -146,15 +152,22 @@ process generate_random_experiments {
 /*--------------------------------------------------
 Hypergeometric Activity on Random Experiments
 ---------------------------------------------------*/
+ch_random_experiments_and_network_directory = ch_random_experiments.combine(ch_network_directory_random)
+
 process random_hypergeometric_activity{
     tag "${data_col}"
-    publishDir "${params.outdir}/${params.phospho_event}/$data_col/random_hypergeometric_activity", mode: 'copy'
+    publishDir "${params.outdir}/${params.name}/${params.phospho_event}/individual_experiments/$data_col/random_hypergeometric_activity", mode: 'copy'
     label "single_experiment"
+    // memory '16 GB'
+    
 
     input:
-        file(network_y) from ch_network_y
-        file(network_st) from ch_network_st
-        tuple val(data_col), file(experiment) from ch_random_experiments
+        // file(network_y) from ch_network_y
+        // file(network_st) from ch_network_st
+        // path(network_y) from ch_network_y_path_random
+        // path(network_st) from ch_network_st_path_random
+        // path(network_directory) from ch_network_directory_random
+        tuple val(data_col), file(experiment), path(network_directory) from ch_random_experiments_and_network_directory
     output:
         file("*")
         tuple( val(data_col), file("*_random_activities.tsv") ) into ch_random_activity
@@ -163,23 +176,14 @@ process random_hypergeometric_activity{
 
 
     script:
-        if (params.phospho_event == "ST")
-            """
-            hypergeometric_activity_binary_evidence.py \
-            --experiment_file $experiment \
-            --networks $network_st \
-            --pevent ${params.phospho_event} \
-            --name ${data_col}_random_activity \
-
-            """
-        else if (params.phospho_event == "Y")
-            """
-            hypergeometric_activity_binary_evidence.py \
-            --experiment_file $experiment \
-            --networks $network_y \
-            --pevent ${params.phospho_event} \
-            --name ${data_col}_random \
-            """
+        """
+        random_hypergeometric_activity.py \
+        --experiment_file $experiment \
+        --network_directory $network_directory/${params.phospho_event}/INDIVIDUAL_NETWORKS \
+        --pevent ${params.phospho_event} \
+        --name ${data_col}_random \
+        --max_cpus ${task.cpus}
+        """
 }
 
 /*--------------------------------------------------
@@ -187,7 +191,7 @@ Concatenate Random Activity Files
 ---------------------------------------------------*/
 ch_random_aggregated_activities_single
     .collectFile(
-        storeDir:"${params.outdir}/${params.phospho_event}/random_hypergeometric_activity",
+        storeDir:"${params.outdir}/${params.name}/${params.phospho_event}/random_hypergeometric_activity",
         name:"${params.name}_aggregated_activities.tsv",
         keepHeader:true,
         skip:1
@@ -198,8 +202,7 @@ ch_random_aggregated_activities_single
 Summarize Hypergeometric Activity on Random Experiments
 ---------------------------------------------------*/
 process summarize_random_aggregated{
-    publishDir "${params.outdir}/${params.phospho_event}/random_hypergeometric_activity", mode: 'copy'
-
+    publishDir "${params.outdir}/${params.name}/${params.phospho_event}/random_hypergeometric_activity", mode: 'copy'
     input: 
         file(combined_agg) from ch_collected_random_aggregate_activities
     output:
@@ -219,14 +222,18 @@ process summarize_random_aggregated{
 Genrate Normalization Values
 ---------------------------------------------------*/
 
+ch_random_activity_experiment = ch_random_activity.combine(ch_experiment_activities)
+
 process generate_normalization_values{
-    tag "${params.fpr_alpha}, $data_col"
-    publishDir "${params.outdir}/${params.phospho_event}/$data_col/normalizers", mode: 'copy'
+    tag "$data_col"
+    publishDir "${params.outdir}/${params.name}/${params.phospho_event}/individual_experiments/$data_col/normalizers", mode: 'copy'
     label "single_experiment"
 
     input:
-        file(experiment_activity) from ch_experiment_activities
-        tuple val(data_col), file(random_activity) from ch_random_activity
+        // file(experiment_activity) from ch_experiment_activities
+        // tuple val(data_col), file(random_activity) from ch_random_activity
+        // file(experiment_activity) from ch_experiment_activities
+        tuple val(data_col), file(random_activity), file(experiment_activity) from ch_random_activity_experiment
 
     output:
         tuple( val(data_col), file("*_normalization.tsv") ) into ch_normalization_values
@@ -241,17 +248,22 @@ process generate_normalization_values{
         """
 }
 
+ch_experiment_and_normalizers = ch_normalization_values.combine(ch_experiment_activities_list_for_normalization)
 /*--------------------------------------------------
 Calculate Normalizated Activity
 ---------------------------------------------------*/
 process normalize_activity {
-    tag "${params.fpr_alpha}, $data_col"
-    publishDir "${params.outdir}/${params.phospho_event}/$data_col/normalized_activity", mode: 'copy'
+    tag "$data_col"
+    publishDir "${params.outdir}/${params.name}/${params.phospho_event}/individual_experiments/$data_col/normalized_activity", mode: 'copy'
     label "single_experiment"
 
     input:
-        file(experiment_activity) from ch_experiment_activities_list_for_normalization
-        tuple val(data_col), file(normalizers) from ch_normalization_values
+        // file(experiment_activity) from ch_experiment_activities_list_for_normalization
+        // tuple val(data_col), file(normalizers) from ch_normalization_tuple
+
+        tuple val(data_col), file(normalizers), file(experiment_activity) from ch_experiment_and_normalizers
+
+        
 
     output:
         file("*")
@@ -271,7 +283,7 @@ Concatenate Normalizated Activity Files
 ---------------------------------------------------*/
 ch_normalized_activity_path
     .collectFile(
-        storeDir:"${params.outdir}/${params.phospho_event}/normalized_activity",
+        storeDir:"${params.outdir}/${params.name}/${params.phospho_event}/normalized_activity",
         name:"${params.name}_normalized_aggregate_activity.tsv",
         keepHeader:true,
         skip:1
@@ -282,7 +294,7 @@ ch_normalized_activity_path
 Summarize Normalizated Activity
 ---------------------------------------------------*/
 process summarize_normalized{
-    publishDir "${params.outdir}/${params.phospho_event}/normalized_activity", mode: 'copy'
+    publishDir "${params.outdir}/${params.name}/${params.phospho_event}/normalized_activity", mode: 'copy'
 
     input: 
         file(normalized) from ch_normalized_combined
@@ -298,18 +310,22 @@ process summarize_normalized{
         """
 }
 
+
+
+ch_mann_whitney_input = ch_random_activity_list
+                            .combine(ch_normalized_agg_activity)
+                            .combine(ch_experiment_activities_list_for_mann_whitney)
 /*--------------------------------------------------
 Mann Whitney on each experiment
 ---------------------------------------------------*/
 process mann_whitney {
     tag "$rand_exp"
-    publishDir "${params.outdir}/${params.phospho_event}/$rand_exp/mann_whitney", mode: 'copy'
+    publishDir "${params.outdir}/${params.name}/${params.phospho_event}/$rand_exp/mann_whitney", mode: 'copy'
     label "single_experiment"
 
     input:
-        file(activity) from ch_experiment_activities_list_for_mann_whitney
-        tuple val(rand_exp), file(random_activity) from ch_random_activity_list
-        tuple val(norm_exp), file(normalized_activity) from ch_normalized_agg_activity
+        tuple val(rand_exp), file(random_activity), val(norm_exp), file(normalized_activity), file(activity) from ch_mann_whitney_input
+        val(number_of_networks) from ch_number_of_networks
     when:
         rand_exp == norm_exp
     output:
@@ -321,7 +337,7 @@ process mann_whitney {
         --activity_list $activity \
         --random_activity_list $random_activity \
         --normalized_activities $normalized_activity \
-        --num_networks ${params.number_of_networks} \
+        --num_networks $number_of_networks \
         --num_sig_trials ${params.number_of_sig_trials} \
         --num_random_experiments ${params.num_random_experiments} \
         --experiment_name $norm_exp \
@@ -333,7 +349,7 @@ Combine Results of Mann Whitney
 ---------------------------------------------------*/
 ch_mann_whitney
     .collectFile(
-        storeDir:"${params.outdir}/${params.phospho_event}/mann_whitney",
+        storeDir:"${params.outdir}/${params.name}/${params.phospho_event}/mann_whitney",
         name:"mann_whitney_combined.tsv",
         keepHeader:true,
         skip:1
@@ -344,7 +360,7 @@ ch_mann_whitney
 Summarize Results of Mann Whitney
 ---------------------------------------------------*/
 process summarize_mann_whitney{
-    publishDir "${params.outdir}/${params.phospho_event}/mann_whitney", mode: 'copy'
+    publishDir "${params.outdir}/${params.name}/${params.phospho_event}/mann_whitney", mode: 'copy'
 
     input: 
         file(mann_whitney) from ch_mann_whitney_combined

@@ -28,6 +28,11 @@ def build_filtered_experiment(experiment, compendia, filtered_compendia, num_ran
         rand_experiment = pd.concat(rand_experiment_list)
         rand_experiments = pd.merge(rand_experiments, rand_experiment, how = 'left', on = [config.KSTAR_ACCESSION, config.KSTAR_SITE])
     # name = name.replace(":","_")
+    rand_experiments = rand_experiments.set_index([config.KSTAR_ACCESSION, config.KSTAR_SITE])
+    rand_experiments = rand_experiments.dropna(how='all', axis = 0)
+    rand_experiments = rand_experiments.reset_index()
+
+
     rand_experiments.to_csv(f"{name}_random_experiments.tsv", sep="\t",index=False)
     return rand_experiments
 
@@ -103,7 +108,7 @@ def parse_args():
 
 def main():
     results = parse_args()
-    experiment = pd.read_csv(results.exp_file, sep = '\t')
+    experiment = pd.read_table(results.exp_file)
     compendia = pd.read_csv(results.compendia)
     data_column = results.data_column
     build_random_experiments_single_data_column(binary_evidence = experiment, compendia = compendia, num_random_experiments=results.num, phosphorylation_event=results.pevent, data_column=data_column)

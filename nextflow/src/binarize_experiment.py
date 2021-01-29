@@ -4,6 +4,9 @@ import pandas as pd
 import argparse
 import config
 import helpers
+from os import path
+
+logger = helpers.get_logger("binarize_experiment", "binarize_experiment.log")
 
 def create_binary_evidence(evidence, data_columns, agg = 'count', threshold = 1.0,  greater = True):
         """
@@ -59,15 +62,31 @@ def parse_args():
     parser.add_argument('--greater', action='store', dest='greater', help = 'whether evidence present if greater than threshold', default='yes')
     
     results = parser.parse_args()
+
     return results
 
 
 def main():
     results = parse_args()
 
-    evidence = pd.read_table(results.evidence)
+
+    if path.exists(results.evidence) and path.isfile(results.evidence):
+        filetype = results.evidence.split('.')[-1]
+        if filetype == 'csv':
+            evidence = pd.read_csv(results.evidence)
+        elif filetype == 'tsv':
+            evidence = pd.read_table(results.evidence)
+        else:
+            logger.error("Unrecognized experiment filetype. Please use a csv or tsv file")
+            exit()
+    else:
+        logger.error("Please provide a valid experiment file")
+        exit()
+
+    data_columns = helpers.set_data_columns(evidence, results.data_columns)
+    
     kstar_columns = [col for col in evidence.columns if col.startswith("KSTAR_")]
-    keep_columns = kstar_columns + results.data_columns 
+    keep_columns = kstar_columns + data_columns 
     evidence = evidence[keep_columns]
     greater = helpers.string_to_boolean(results.greater)
     binary_evidence = create_binary_evidence(evidence, results.data_columns, results.activity_agg, results.threshold, greater)
