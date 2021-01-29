@@ -48,13 +48,27 @@ nextflow run main.nf -profile test
 - all edited code must be in the /src directory
 - Remake Docker image
     ```
-    docker build -t kstar-nextflow:latest .
-    ```
-- Remake Singularity image
-    ```
-    TODO : ADD HOW TO REMAKE SINGULARITY IMAGE
+    docker build -t naeglelab/kstar-nextflow:latest .
+    docker push naeglelab/kstar-nextflow:latest
     ```
     - if using Rivanna Singularity image must be used - Docker does not work
+    - if local then Docker will work, just enable through nextflow.config 
+        ```
+        docker.enabled = true
+        process.container = 'naeglelab/kstar-nextflow:latest'
+        ```
+- Remake Singularity image
+    - make singularity image (from Rivanna)
+        ```
+        module load singularity/3.5.2
+        singularity pull docker://account/image
+        ```
+    - edit config file to use singularity
+        ```
+        process.container = '/path/to/singularity.img'
+        singularity.enabled = true  
+        ```
+    
 
 ## Results
 - Results are stored in output_directory/name/phospho_event
