@@ -87,20 +87,19 @@ process hypergeometric_activity{
     tag "${params.phospho_event}"
     publishDir "${params.outdir}/${params.name}/${params.phospho_event}/hypergeometric_activity", mode: 'copy' 
     label "all_experiments"
+    label "big_memory"
 
     input:
         file(experiment) from ch_binary_experiment_for_hypergeometric
-        // file(network_y) from ch_network_y 
-        // file(network_st) from ch_network_st
         path(network_directory) from ch_network_directory_hypergeometric
-        // path(network_st) from ch_network_st_path_hypergeometric
-        // tuple (data_columns) from params.data_columns
+
     output:
         file("*")
-        file("${params.name}_activities.tsv") into ch_experiment_activities
-        file("${params.name}_activities_list.tsv")  into ch_experiment_activities_list
+        // file("${params.name}_activities.tsv") into ch_experiment_activities
+        // file("${params.name}_activities_list.tsv")  into ch_experiment_activities_list
 
     script:
+
         """
         hypergeometric_activity_binary.py \
         --experiment_file $experiment \
@@ -108,7 +107,7 @@ process hypergeometric_activity{
         --pevent ${params.phospho_event} \
         --name ${params.name} \
         --data_columns $mapped_data_column_string \
-        --max_cpus ${task.cpus}
+        --max_cpus ${task.cpus} > run.txt
         """
 }
 
@@ -126,14 +125,12 @@ process generate_random_experiments {
   tag "${data_col}"
   cpus 1
   publishDir "${params.outdir}/${params.name}/${params.phospho_event}/individual_experiments/$data_col/random_experiments", mode: 'copy'
-  label "single_experiment"
+  label "big_memory"
   input:
     each data_col from ch_mapped_data_columns
     file(experiment) from ch_binary_experiment_for_random_experiments
     file(compendia) from ch_compendia
 
-  
-  
     output:
         tuple( val(data_col), file("*")) into ch_random_experiments
   
@@ -158,6 +155,7 @@ process random_hypergeometric_activity{
     tag "${data_col}"
     publishDir "${params.outdir}/${params.name}/${params.phospho_event}/individual_experiments/$data_col/random_hypergeometric_activity", mode: 'copy'
     label "single_experiment"
+    label "big_memory"
     // memory '16 GB'
     
 
@@ -227,7 +225,6 @@ ch_random_activity_experiment = ch_random_activity.combine(ch_experiment_activit
 process generate_normalization_values{
     tag "$data_col"
     publishDir "${params.outdir}/${params.name}/${params.phospho_event}/individual_experiments/$data_col/normalizers", mode: 'copy'
-    label "single_experiment"
 
     input:
         // file(experiment_activity) from ch_experiment_activities
@@ -255,7 +252,6 @@ Calculate Normalizated Activity
 process normalize_activity {
     tag "$data_col"
     publishDir "${params.outdir}/${params.name}/${params.phospho_event}/individual_experiments/$data_col/normalized_activity", mode: 'copy'
-    label "single_experiment"
 
     input:
         // file(experiment_activity) from ch_experiment_activities_list_for_normalization
@@ -322,6 +318,7 @@ process mann_whitney {
     tag "$rand_exp"
     publishDir "${params.outdir}/${params.name}/${params.phospho_event}/$rand_exp/mann_whitney", mode: 'copy'
     label "single_experiment"
+    label "big_memory"
 
     input:
         tuple val(rand_exp), file(random_activity), val(norm_exp), file(normalized_activity), file(activity) from ch_mann_whitney_input

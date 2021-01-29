@@ -28,7 +28,7 @@ def chunk_data_columns(data_columns, chunk_size):
     for i in range(0, len(data_columns), chunk_size):
         yield data_columns[i:i + chunk_size]
 
-def calculate_hypergeometric_activities(evidence, data_columns, network_directory, max_cpus):
+def calculate_hypergeometric_activities(evidence, data_columns, network_directory, max_cpus, chunk_size):
     logger.info("Calculating hypergeometric activities on all experiments")
     network_files = []
 
@@ -38,7 +38,7 @@ def calculate_hypergeometric_activities(evidence, data_columns, network_director
     
     activities_list = []
     if max_cpus > 1:
-        chunked_data_columns = chunk_data_columns(data_columns, 10)
+        chunked_data_columns = chunk_data_columns(data_columns, chunk_size)
 
         with ProcessPoolExecutor(max_workers=max_cpus) as executor:
             for chunk in chunked_data_columns:
@@ -155,10 +155,21 @@ def aggregate_activities(activities):
     ).reset_index()
     return agg_activities
 
-def run_kstar_analysis(experiment, network_directory, phospho_type, data_columns, max_cpus):
+def run_kstar_analysis(experiment, network_directory, phospho_type, data_columns, max_cpus, chunk_size):
 
-    experiment_sub = experiment[(experiment.KSTAR_SITE.str.contains(phospho_type))]
-    activities_list = calculate_hypergeometric_activities(experiment_sub, data_columns, network_directory, max_cpus)
+    
+    if phospho_type == 'ST':
+        experiment_sub = experiment[(experiment.KSTAR_SITE.str.contains('S')) | (experiment.KSTAR_SITE.str.contains('T'))]
+        logger.info("Running Serine/Threonine Kinase Activity Analysis")
+    elif phospho_type == 'Y':
+        experiment_sub = experiment[(experiment.KSTAR_SITE.str.contains('Y'))]
+        logger.info("Running Tyrosine Kinase Activity Analysis")
+
+    else:
+        logger.error(f"ERROR: Did not recognize phosphoType {phospho_type}, which should only include 'Y' or 'ST'")
+        raise TypeError(f"ERROR: Did not recognize phosphoType {phospho_type}, which should only include 'Y' or 'ST'") 
+    
+    activities_list = calculate_hypergeometric_activities(experiment_sub, data_columns, network_directory, max_cpus, chunk_size)
 
     agg_activities = aggregate_activities(activities_list)
     activities = summarize_activities.summarize_activities(agg_activities, 'median_activity')
@@ -178,6 +189,7 @@ def main():
     parser.add_argument('--name', action = 'store', dest='name', help = 'experiment name', default='Experiment')
     parser.add_argument('--cols', '--data_columns', action='store', dest='data_columns', help = 'data_columns to use', nargs='*', default=None)
     parser.add_argument("--max_cpus", action="store", dest="max_cpus", default=1, type=int)
+    parser.add_argument("--chunk_size", action="store", dest="chunk_size", default=5, type=int)
     results = parser.parse_args()
 
     # pool = Pool(results.max_cpus)
@@ -199,7 +211,7 @@ def main():
 
     # networks = pickle.load(open(results.networks, "rb"))
    
-    activities_list, agg_activities, activities = run_kstar_analysis(experiment, results.network_directory, results.pevent, data_columns, results.max_cpus)
+    activities_list, agg_activities, activities = run_kstar_analysis(experiment, results.network_directory, results.pevent, data_columns, results.max_cpus, results.chunk_size)
     
     save_kstar_results(activities_list, agg_activities, activities, results.name)
 

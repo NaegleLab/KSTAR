@@ -10,7 +10,8 @@ import logging
 #%%
 #%%
 def build_filtered_experiment(experiment, compendia, filtered_compendia, num_random_experiments, name ,selection_type='KSTAR_NUM_COMPENDIA_CLASS'):
-    rand_experiments = compendia[[config.KSTAR_ACCESSION, config.KSTAR_SITE]]
+    rand_experiments = pd.DataFrame(columns = [config.KSTAR_ACCESSION, config.KSTAR_SITE])
+    # rand_experiments = compendia[[config.KSTAR_ACCESSION, config.KSTAR_SITE]]
     if len(experiment) == 0:
         empty_columns = [f"{name}:{i}" for i in range(num_random_experiments)]
         rand_experiments = pd.concat([rand_experiments,pd.DataFrame(columns=empty_columns)])
@@ -26,7 +27,7 @@ def build_filtered_experiment(experiment, compendia, filtered_compendia, num_ran
             filtered_random[f"{name}:{i}"] = 1
             rand_experiment_list.append(filtered_random)
         rand_experiment = pd.concat(rand_experiment_list)
-        rand_experiments = pd.merge(rand_experiments, rand_experiment, how = 'left', on = [config.KSTAR_ACCESSION, config.KSTAR_SITE])
+        rand_experiments = pd.merge(rand_experiments, rand_experiment, how = 'outer', on = [config.KSTAR_ACCESSION, config.KSTAR_SITE])
     # name = name.replace(":","_")
     rand_experiments = rand_experiments.set_index([config.KSTAR_ACCESSION, config.KSTAR_SITE])
     rand_experiments = rand_experiments.dropna(how='all', axis = 0)
