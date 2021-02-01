@@ -70,7 +70,7 @@ import calculate_fpr
 #             #        activities_sub, rand_activities_sub, len(self.networks), kinase, exp, number_sig_trials, target_alpha=target_alpha)      
 
 
-def run_Mann_Whitney_pipeline(activity_list, random_activity_list, normalized_activities, num_networks, num_sig_trials, num_random_experiments, experiment_name, max_cpus):
+def run_Mann_Whitney_pipeline(activity_list_file, random_activity_list_file, normalized_activities, num_networks, num_sig_trials, num_random_experiments, experiment_name, max_cpus):
     """Single Experiment / Data Column Mann Whitney pipeline
 
     Args:
@@ -99,7 +99,7 @@ def run_Mann_Whitney_pipeline(activity_list, random_activity_list, normalized_ac
     pval_arr = []
     fpr_arr = []
     with concurrent.futures.ProcessPoolExecutor(max_workers=max_cpus) as executor:
-        for pval, fpr in executor.map(calculate_MannWhitney_one_experiment_one_kinase, repeat(activity_list), repeat(random_activity_list), repeat(num_networks), kinases, repeat(experiment_name), repeat(num_sig_trials)):
+        for pval, fpr in executor.map(calculate_MannWhitney_one_experiment_one_kinase, repeat(activity_list_file), repeat(random_activity_list_file), repeat(num_networks), kinases, repeat(experiment_name), repeat(num_sig_trials)):
             pval_arr.append(pval)
             fpr_arr.append(fpr)
         #print(pval_arr)
@@ -145,7 +145,7 @@ def calculate_fpr_Mann_Whitney(random_kinase_activity_array, number_sig_trials):
         [stat, random_stats[i]] = stats.mannwhitneyu(-np.log10(sample), -np.log10(bgnd.reshape(bgnd.size)), alternative='greater')
     return random_stats
 
-def calculate_MannWhitney_one_experiment_one_kinase(kinact_activities, rand_activities, number_networks, kinase, experiment, number_sig_trials):
+def calculate_MannWhitney_one_experiment_one_kinase(kinact_activities_file, rand_activities_file, number_networks, kinase, experiment, number_sig_trials):
     """
     For a given kinact object, where random generation and activity has already been run, this will calculate
     the Mann-Whitney U test between the p-values across all networks for the given experiment name 
@@ -168,7 +168,8 @@ def calculate_MannWhitney_one_experiment_one_kinase(kinact_activities, rand_acti
     fpr_value: float
         the false positive rate where the p_value for the real experiment lies, given the random experiments
     """
-    
+    kinact_activities = pd.read_table(kinact_activities_file)
+    rand_activities = pd.read_table(rand_activities_file)
     
     kinase_activity_list = kinact_activities[(kinact_activities[config.KSTAR_KINASE]==kinase) & (kinact_activities['data']==experiment)].kinase_activity.values
     
@@ -210,11 +211,10 @@ def parse_args():
 def main():
     results = parse_args()
 
-    activity_list = pd.read_table(results.activity_list)
-    random_activity_list = pd.read_table(results.random_activity_list)
+    
     normalized_activities = pd.read_table(results.normalized_activities, index_col=1)
 
-    mann_whitney = run_Mann_Whitney_pipeline(activity_list, random_activity_list, normalized_activities, 
+    mann_whitney = run_Mann_Whitney_pipeline(results.activity_list, results.random_activity_list, normalized_activities, 
         results.num_networks, results.num_sig_trials, results.num_random_experiments, results.experiment_name, results.max_cpus )
     
     mann_whitney.to_csv(f"{results.experiment_name}_mann_whittney.tsv", sep = "\t", index=False)
