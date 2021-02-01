@@ -32,18 +32,43 @@ Channel
     .count()
     .set {ch_number_of_networks}
 
-mapped_data_columns = []
-if(params.add_data_before){
-    for(col in params.data_columns){
-        mapped_data_columns.add("data:"+col)
+
+/*--------------------------------------------------
+Map Data Columns
+---------------------------------------------------- 
+-if data columns are provided
+    -if add_data_before 
+        add "data:" before each column name
+-else
+    -use all columns that start with "data:"
+---------------------------------------------------*/
+if(params.data_columns != false){
+    mapped_data_columns = []
+    if(params.add_data_before){
+        for(col in params.data_columns){
+            mapped_data_columns.add("data:"+col)
+        }
+    }
+    else{
+        for(col in params.data_columns){
+            mapped_data_columns.add(col)
+        }
     }
 }
 else{
-    for(col in params.data_columns){
-        mapped_data_columns.add(col)
+    myFile = file(params.experiment_file)
+    myReader = myFile.newReader()
+
+    line = myReader.readLine()
+    columns = line.split('\t')
+    mapped_data_columns = []
+    for(col in columns){
+        if(col.startsWith("data:")){
+            mapped_data_columns.add(col)
+        }
     }
 }
-    
+
 // mapped_data_columns = params.data_columns
 mapped_data_column_string = mapped_data_columns.join(" ")
 print(mapped_data_column_string)
