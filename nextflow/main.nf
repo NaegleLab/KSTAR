@@ -127,12 +127,13 @@ process hypergeometric_activity{
 
         """
         hypergeometric_activity_binary.py \
-        --evidence_file $experiment \
+        --experiment_file $experiment \
         --network_directory $network_directory/${params.phospho_event}/INDIVIDUAL_NETWORKS \
         --pevent ${params.phospho_event} \
         --name ${params.name} \
         --data_columns $mapped_data_column_string \
-        --max_cpus ${task.cpus}
+        --max_cpus ${task.cpus} \
+        --chunk_size ${params.chunk_size}
         """
 }
 
@@ -201,11 +202,12 @@ process random_hypergeometric_activity{
     script:
         """
         random_hypergeometric_activity.py \
-        --evidence_file $experiment \
+        --experiment_file $experiment \
         --network_directory $network_directory/${params.phospho_event}/INDIVIDUAL_NETWORKS \
         --pevent ${params.phospho_event} \
         --name ${data_col}_random \
-        --max_cpus ${task.cpus}
+        --max_cpus ${task.cpus} \
+        --chunk_size ${params.chunk_size}
         """
 }
 
@@ -341,7 +343,7 @@ Mann Whitney on each experiment
 ---------------------------------------------------*/
 process mann_whitney {
     tag "$rand_exp"
-    publishDir "${params.outdir}/${params.name}/${params.phospho_event}/$rand_exp/mann_whitney", mode: 'copy'
+    publishDir "${params.outdir}/${params.name}/${params.phospho_event}/individual_experiments/$rand_exp/mann_whitney", mode: 'copy'
     label "single_experiment"
     label "big_memory"
 

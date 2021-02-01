@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 
+##!/usr/bin/env python3
+
 #%%
 import pandas as pd
 import scipy.stats as stats
@@ -21,40 +23,15 @@ logger = helpers.get_logger("hypergeometric", "hypergeometric.log")
 
 
 
-def read_evidence_file(evidence_file, phospho_type):
-    # read evidence 
-    if path.exists(evidence_file) and path.isfile(evidence_file):
-        filetype = evidence_file.split('.')[-1]
-        if filetype == 'csv':
-            evidence = pd.read_csv(evidence_file)
-        elif filetype == 'tsv':
-            evidence = pd.read_csv(evidence_file, sep = '\t')
-        else:
-            logger.error("Unrecognized evidence filetype. Please use a csv or tsv file")
-            exit()
-    else:
-        logger.error("Please provide a valid evidence file")
-        exit()
-    # filter to only contain specified phospho types
-    if phospho_type == 'ST':
-        evidence = evidence[(evidence.KSTAR_SITE.str.contains('S')) | (evidence.KSTAR_SITE.str.contains('T'))]
-        logger.info("Running Serine/Threonine Kinase Activity Analysis")
-    elif phospho_type == 'Y':
-        evidence = evidence[(evidence.KSTAR_SITE.str.contains('Y'))]
-        logger.info("Running Tyrosine Kinase Activity Analysis")
-    else:
-        logger.error(f"ERROR: Did not recognize phosphoType {phospho_type}, which should only include 'Y' or 'ST'")
-        raise TypeError(f"ERROR: Did not recognize phosphoType {phospho_type}, which should only include 'Y' or 'ST'") 
-    return evidence
 
 
-# def chunk_data_columns(data_columns, chunk_size):
-#     """Yield successive n-sized chunks from lst."""
-#     for i in range(0, len(data_columns), chunk_size):
-#         yield data_columns[i:i + chunk_size]
+def chunk_data_columns(data_columns, chunk_size):
+    """Yield successive n-sized chunks from lst."""
+    for i in range(0, len(data_columns), chunk_size):
+        yield data_columns[i:i + chunk_size]
 
-def calculate_hypergeometric_activities(evidence_file, phospho_type, data_columns, network_directory, max_cpus):
-    logger.info("Calculating hypergeometric activities on all evidences")
+def calculate_hypergeometric_activities(evidence, data_columns, network_directory, max_cpus, chunk_size):
+    logger.info("Calculating hypergeometric activities on all experiments")
     network_files = []
 
     for file in os.listdir(network_directory):
@@ -63,12 +40,16 @@ def calculate_hypergeometric_activities(evidence_file, phospho_type, data_column
     
     activities_list = []
     if max_cpus > 1:
-        with ProcessPoolExecutor(max_workers=max_cpus) as executor:
+        chunked_data_columns = chunk_data_columns(data_columns, chunk_size)
 
-            for single_network_activity in executor.map(calculate_hypergeometric_activities_single_network, repeat(evidence_file), repeat(phospho_type), repeat(data_columns), repeat(network_directory), network_files):
-                activities_list = activities_list + single_network_activity
+        with ProcessPoolExecutor(max_workers=max_cpus) as executor:
+            for chunk in chunked_data_columns:
+                chunked_evidence = evidence[[config.KSTAR_ACCESSION, config.KSTAR_SITE] + chunk]
+                chunked_evidence = chunked_evidence[(chunked_evidence == 1).any(axis=1)].copy()
+
+                for single_network_activity in executor.map(calculate_hypergeometric_activities_single_network, repeat(chunked_evidence), repeat(chunk), repeat(network_directory), network_files):
+                    activities_list = activities_list + single_network_activity
     else:
-        evidence = read_evidence_file(evidence_file, phospho_type)
         for network_file in network_files:
             single_network_activity = calculate_hypergeometric_activities_single_network(evidence, data_columns, network_directory, network_file)
             activities_list = activities_list + single_network_activity
@@ -82,9 +63,7 @@ def calculate_hypergeometric_activities(evidence_file, phospho_type, data_column
     activities_list = pd.concat(activities_list)
     return activities_list
 
-def calculate_hypergeometric_activities_single_network(evidence_file, phospho_type, data_columns, network_directory, network_file):
-    evidence = read_evidence_file(evidence_file, phospho_type)
-
+def calculate_hypergeometric_activities_single_network(evidence, data_columns, network_directory, network_file):
     network = pd.read_table(os.path.join(network_directory, network_file))
     network_size = len(network)
 
@@ -113,7 +92,7 @@ def calculate_hypergeometric_activities_single_data_column_single_network(eviden
         Parameters
         ----------
         evidence : pandas df
-            subset of kstar evidence that has been filtered to only include evidence associated with evidence
+            subset of kstar evidence that has been filtered to only include evidence associated with experiment
         network_id : str
             network to use for analysis
         
@@ -163,13 +142,13 @@ def aggregate_activities(activities):
     Parameters
     ---------
     activities : dict
-        key : evidence
+        key : Experiment
         value : kinase activity result
     
     Returns 
     ---------
     summaries : dict
-        key : evidence
+        key : experiment
         value : summarized kinase activities accross networks
     """
     
@@ -178,9 +157,21 @@ def aggregate_activities(activities):
     ).reset_index()
     return agg_activities
 
-def run_kstar_analysis(evidence_file, network_directory, phospho_type, data_columns, max_cpus):
+def run_kstar_analysis(experiment, network_directory, phospho_type, data_columns, max_cpus, chunk_size):
 
-    activities_list = calculate_hypergeometric_activities(evidence_file, phospho_type, data_columns, network_directory, max_cpus)
+    
+    if phospho_type == 'ST':
+        experiment_sub = experiment[(experiment.KSTAR_SITE.str.contains('S')) | (experiment.KSTAR_SITE.str.contains('T'))]
+        logger.info("Running Serine/Threonine Kinase Activity Analysis")
+    elif phospho_type == 'Y':
+        experiment_sub = experiment[(experiment.KSTAR_SITE.str.contains('Y'))]
+        logger.info("Running Tyrosine Kinase Activity Analysis")
+
+    else:
+        logger.error(f"ERROR: Did not recognize phosphoType {phospho_type}, which should only include 'Y' or 'ST'")
+        raise TypeError(f"ERROR: Did not recognize phosphoType {phospho_type}, which should only include 'Y' or 'ST'") 
+    
+    activities_list = calculate_hypergeometric_activities(experiment_sub, data_columns, network_directory, max_cpus, chunk_size)
 
     agg_activities = aggregate_activities(activities_list)
     activities = summarize_activities.summarize_activities(agg_activities, 'median_activity')
@@ -194,10 +185,10 @@ def save_kstar_results(activities_list, agg_activities, activities, name):
 def main():
     
     parser = argparse.ArgumentParser(description='Parse KSTAR Activity Arguments')
-    parser.add_argument('--exp_file', '--evidence_file', action='store', dest= 'exp_file', help='evidence file location. csv or tsv file', required=True)
+    parser.add_argument('--exp_file', '--experiment_file', action='store', dest= 'exp_file', help='Experiment file location. csv or tsv file', required=True)
     parser.add_argument("--net_dir","--network_directory", action='store', dest= 'network_directory', help='Network directory of individual networks', required=True)
     parser.add_argument('--pevent','--phosphorylation_events', action = 'store', dest='pevent', help ='phosphorylation event type', choices=['Y','ST'], default='Y')
-    parser.add_argument('--name', action = 'store', dest='name', help = 'evidence name', default='evidence')
+    parser.add_argument('--name', action = 'store', dest='name', help = 'experiment name', default='Experiment')
     parser.add_argument('--cols', '--data_columns', action='store', dest='data_columns', help = 'data_columns to use', nargs='*', default=None)
     parser.add_argument("--max_cpus", action="store", dest="max_cpus", default=1, type=int)
     parser.add_argument("--chunk_size", action="store", dest="chunk_size", default=5, type=int)
@@ -205,13 +196,24 @@ def main():
 
     # pool = Pool(results.max_cpus)
 
-    evidence = read_evidence_file(results.exp_file, results.pevent)
+    if path.exists(results.exp_file) and path.isfile(results.exp_file):
+        filetype = results.exp_file.split('.')[-1]
+        if filetype == 'csv':
+            experiment = pd.read_csv(results.exp_file)
+        elif filetype == 'tsv':
+            experiment = pd.read_csv(results.exp_file, sep = '\t')
+        else:
+            logger.error("Unrecognized experiment filetype. Please use a csv or tsv file")
+            exit()
+    else:
+        logger.error("Please provide a valid experiment file")
+        exit()
     
-    data_columns = helpers.set_data_columns(evidence, results.data_columns)
-    del evidence
+    data_columns = helpers.set_data_columns(experiment, results.data_columns)
+
     # networks = pickle.load(open(results.networks, "rb"))
    
-    activities_list, agg_activities, activities = run_kstar_analysis(results.exp_file, results.network_directory, results.pevent, data_columns, results.max_cpus)
+    activities_list, agg_activities, activities = run_kstar_analysis(experiment, results.network_directory, results.pevent, data_columns, results.max_cpus, results.chunk_size)
     
     save_kstar_results(activities_list, agg_activities, activities, results.name)
 

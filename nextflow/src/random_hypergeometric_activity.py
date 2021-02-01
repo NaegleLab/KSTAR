@@ -7,11 +7,12 @@ import config
 
 def main():
     parser = argparse.ArgumentParser(description='Parse KSTAR Activity Arguments')
-    parser.add_argument('--exp_file', '--evidence_file', action='store', dest= 'exp_file', help='Experiment file location. csv or tsv file', required=True)
+    parser.add_argument('--exp_file', '--experiment_file', action='store', dest= 'exp_file', help='Experiment file location. csv or tsv file', required=True)
     parser.add_argument("--net_dir","--network_directory", action='store', dest= 'network_directory', help='Network directory of individual networks', required=True)
     parser.add_argument('--pevent','--phosphorylation_events', action = 'store', dest='pevent', help ='phosphorylation event type', choices=['Y','ST'], default='Y')
     parser.add_argument('--name', action = 'store', dest='name', help = 'experiment name', default='Experiment')
     parser.add_argument("--max_cpus", action="store", dest="max_cpus", default=1, type=int)
+    parser.add_argument("--chunk_size", action="store", dest="chunk_size", default=10, type=int)
 
     results = parser.parse_args()
 
@@ -22,11 +23,12 @@ def main():
     # data_columns = " ".join(data_columns)
 
     arguments = ['hypergeometric_activity_binary.py',
-        "--evidence_file", results.exp_file, 
+        "--experiment_file", results.exp_file, 
         "--network_directory", results.network_directory,
         "--pevent", results.pevent,
         "--name", results.name,
-        "--max_cpus", str(results.max_cpus)]
+        "--max_cpus", str(results.max_cpus),
+        "--chunk_size", str(results.chunk_size)]
     data_column_arguments = ["--data_columns"] + data_columns
     arguments = arguments + data_column_arguments
     subprocess.call(
