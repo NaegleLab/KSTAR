@@ -95,19 +95,19 @@ process hypergeometric_activity{
 
     output:
         file("*")
-        // file("${params.name}_activities.tsv") into ch_experiment_activities
-        // file("${params.name}_activities_list.tsv")  into ch_experiment_activities_list
+        file("${params.name}_activities.tsv") into ch_experiment_activities
+        file("${params.name}_activities_list.tsv")  into ch_experiment_activities_list
 
     script:
 
         """
         hypergeometric_activity_binary.py \
-        --experiment_file $experiment \
+        --evidence_file $experiment \
         --network_directory $network_directory/${params.phospho_event}/INDIVIDUAL_NETWORKS \
         --pevent ${params.phospho_event} \
         --name ${params.name} \
         --data_columns $mapped_data_column_string \
-        --max_cpus ${task.cpus} > run.txt
+        --max_cpus ${task.cpus}
         """
 }
 
@@ -176,7 +176,7 @@ process random_hypergeometric_activity{
     script:
         """
         random_hypergeometric_activity.py \
-        --experiment_file $experiment \
+        --evidence_file $experiment \
         --network_directory $network_directory/${params.phospho_event}/INDIVIDUAL_NETWORKS \
         --pevent ${params.phospho_event} \
         --name ${data_col}_random \
