@@ -15,6 +15,8 @@ def create_binary_evidence(evidence, data_columns, agg = 'count', threshold = 1.
 
         Parameters
         ----------
+        evidence : pd.DataFrame
+            mapped evidence dataframe to transform into binary evidence
         data_columns : list
             columns that represent experimental result, if None, takes the columns that start with `data:'' in experiment. 
             Pass this value in as a list, if seeking to calculate on fewer than all available data columns
@@ -31,7 +33,7 @@ def create_binary_evidence(evidence, data_columns, agg = 'count', threshold = 1.
         Returns
         -------
         evidence_binary : pd.DataFrame
-            Matches the evidence dataframe of the kinact object, but with 0 or 1 if a site is included or not.
+            Matches the evidence dataframe of the evidence dataframe, but with 0 or 1 if a site is included or not.
             This is uniquified and rows that are never used are removed.
         
         """

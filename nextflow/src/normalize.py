@@ -45,29 +45,6 @@ def normalize_activities(activities, normalizers, data_column, default_normaliza
 
     return normalized_activity_list, normalized_agg_activities, activities_normalized
 
-    
-    # normalized_activities = []
-    # for data in self.data_columns:
-    #     if type(self.normalizers) is dict:
-    #         normalizers = self.normalizers
-    #     elif type(self.normalizers) is pd.DataFrame and data in self.normalizers.columns:
-    #         #print("setting normalizers")
-    #         normalizers = self.normalizers[data].to_dict()
-    #     else:
-    #         normalizers = {}
-    #     activity = activities[activities['data'] == data]
-    #     normalized_activities.append(
-    #         self.calculate_normalized_activity(
-    #             activity, 
-    #             normalizers, 
-    #             default_normalization, 
-    #             normalization_multiplier))
-    # self.normalized_activities_list = pd.concat(normalized_activities)
-    # self.aggregate_normalized_activities(self.normalized_activities_list)
-    
-    # return self.normalized_activities_list, self.normalized_agg_activities
-
-
 
 def calculate_normalized_activity(kinase_activity, normalizers, default_normalization = 0.05, normalization_multiplier = 0.05, num_networks=50):
     """

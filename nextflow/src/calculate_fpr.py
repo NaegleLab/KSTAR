@@ -13,6 +13,8 @@ def single_experiment_kinase_fpr(pvalue_array, target_alpha):
     
     Returns
     ---------
+    pvalue : float
+        fpr p-value
 
     """
     pvalue_array.sort()
@@ -27,6 +29,19 @@ def calculate_experiment_fpr(group, target_alpha, real_p_value_series):
 
     Parameters
     ----------
+    group : pd.DataFrame 
+        group random kinase activites where each column is a kinase
+    target_alpha : float
+        target alpha to use
+    real_p_value_series : pandas Series  
+        real kinase activities of single experiment
+    
+    Returns
+    ---------
+    expeiment_pvalue
+        adjuted experiment p-values
+    experiment_fpr
+        experiment fpr values
     """
     experiment_fpr = {}
     experiment_pvalue = {}

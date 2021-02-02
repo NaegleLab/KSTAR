@@ -6,6 +6,9 @@ import subprocess
 import config
 
 def main():
+    """Data columns are set to be all data columns in random experiment except for KSTAR_ACCESSION and KSTAR_SITE. 
+    hypergeometric_activity_binary.py is then called with these data columns
+    """
     parser = argparse.ArgumentParser(description='Parse KSTAR Activity Arguments')
     parser.add_argument('--exp_file', '--experiment_file', action='store', dest= 'exp_file', help='Experiment file location. csv or tsv file', required=True)
     parser.add_argument("--net_dir","--network_directory", action='store', dest= 'network_directory', help='Network directory of individual networks', required=True)
