@@ -30,6 +30,7 @@ class KinaseActivity:
             required keys : substrate, site
         logger : Logger object
         """
+        
         self.phospho_type = phospho_type
         self.set_evidence(evidence)
         
@@ -109,6 +110,7 @@ class KinaseActivity:
         Run entire normaliation pipeline 
         """
         self.logger.info("Running Normalization Pipeline")
+        pool = multiprocessing.Pool(processes = config.PROCESSES)
         self.normalized = True
         self.num_random_experiments = num_random_experiments
         self.logger.info("Generating random experiments")
@@ -117,7 +119,8 @@ class KinaseActivity:
             config.HUMAN_REF_COMPENDIA, 
             num_random_experiments,
             self.phospho_type, 
-            self.data_columns )
+            self.data_columns,
+            pool )
 
         
         self.logger.info("Calculating random kinase activities")
@@ -397,8 +400,8 @@ class KinaseActivity:
 
         # MULTIPROCESSING
         if config.PROCESSES > 1:
-            manager = multiprocessing.Manager()
             pool = multiprocessing.Pool(processes = config.PROCESSES)
+            
             filtered_evidence_list  = [self.evidence_binary[self.evidence_binary[col] ==1 ] for col in self.data_columns] 
             networks = itertools.repeat(self.networks)  
             network_sizes = itertools.repeat(self.network_sizes)

@@ -4,8 +4,9 @@ import itertools
 import argparse
 from kstar import config
 
-
-def build_filtered_experiment(experiment, compendia, filtered_compendia, num_random_experiments, name, selection_type='KSTAR_NUM_COMPENDIA_CLASS'):
+#%%
+#%%
+def build_filtered_experiment(experiment, compendia, filtered_compendia, num_random_experiments, name ,selection_type='KSTAR_NUM_COMPENDIA_CLASS'):
     rand_experiments = compendia[[config.KSTAR_ACCESSION, config.KSTAR_SITE]]
     if len(experiment) == 0:
         empty_columns = [f"{name}:{i}" for i in range(num_random_experiments)]
@@ -23,11 +24,11 @@ def build_filtered_experiment(experiment, compendia, filtered_compendia, num_ran
             rand_experiment_list.append(filtered_random)
         rand_experiment = pd.concat(rand_experiment_list)
         rand_experiments = pd.merge(rand_experiments, rand_experiment, how = 'left', on = [config.KSTAR_ACCESSION, config.KSTAR_SITE])
-    
+    rand_experiments.to_table(os.path.join(odir, f"{name}_random_experiments.tsv"), index=False)
     return rand_experiments
 
 
-def build_random_experiments(binary_evidence, compendia, num_random_experiments, phosphorylation_event, data_columns, selection_type='KSTAR_NUM_COMPENDIA_CLASS'):
+def build_random_experiments(binary_evidence, compendia, num_random_experiments, phosphorylation_event, data_columns, pool, selection_type='KSTAR_NUM_COMPENDIA_CLASS'):
     """
     Given an experimental dataframe and the human phospho compendia, build random experiments such that each random experiment takes on the same
     distribution with respect to the study bias defined as either NUM_COMPENDIA (total number of compendia a site is annotated in) or 
@@ -87,7 +88,7 @@ def build_random_experiments(binary_evidence, compendia, num_random_experiments,
 
     # ************ PARALELLIZATION ************
     if config.PROCESSES > 1:
-        pool = multiprocessing.Pool(processes = config.PROCESSES)
+        
         iterable = zip(
                 filtered_experiments, 
                 itertools.repeat(compendia), 
@@ -108,7 +109,6 @@ def build_random_experiments(binary_evidence, compendia, num_random_experiments,
         rand_experiments = pd.merge(rand_experiments, r, how = 'left', on = [config.KSTAR_ACCESSION, config.KSTAR_SITE])
     return rand_experiments
         
-
 def parse_args():
     parser = argparse.ArgumentParser(description='Parse Mapping Inference Arguments')
     parser.add_argument('-e', '--exp_file', '--experiment_file', action='store', dest= 'exp_file', help='Experiment file location. csv or tsv file', required=True)
@@ -123,9 +123,6 @@ def parse_args():
     parser.add_argument('-s', '--selection_type', action='store', dest='selection_type', help='KSTAR_NUM_COMPENDIA or KSTAR_NUM_COMPENDIA_CLASS', type=str, default='KSTAR_NUM_COMPENDIA_CLASS')
     results = parser.parse_args()
     return results
-
-
-
 
 def process_args(results):
     # get logger
@@ -184,9 +181,10 @@ def process_args(results):
     return experiment, proteomescout, log, data_columns
 
 def main():
+    pool = multiprocessing.Pool(processes = config.PROCESSES)
     results = parse_args()
     experiment, proteomescout, log, data_columns  = process_args(results)
-    random_experiments = build_random_experiments(experiment, proteomescout, results.agg, results.threshold, results.num, results.pevent, data_columns = None, selection_type='KSTAR_NUM_COMPENDIA_CLASS')
+    random_experiments = build_random_experiments(experiment, proteomescout, results.agg, results.threshold, results.num, results.pevent, data_columns = None, pool=pool, selection_type='KSTAR_NUM_COMPENDIA_CLASS')
     random_experiments.to_csv(f"{results.odir}/{results.name}_random_experiments_{results.pevent}.tsv", sep = '\t', index=False)
 
 
