@@ -42,15 +42,19 @@ Map Data Columns
 -else
     -use all columns that start with "data:"
 ---------------------------------------------------*/
+
+
+
 if(params.data_columns != false){
+    split_data_columns=params.data_columns?.tokenize(",")
     mapped_data_columns = []
     if(params.add_data_before){
-        for(col in params.data_columns){
+        for(col in split_data_columns){
             mapped_data_columns.add("data:"+col)
         }
     }
     else{
-        for(col in params.data_columns){
+        for(col in split_data_columns){
             mapped_data_columns.add(col)
         }
     }
@@ -69,7 +73,9 @@ else{
     }
 }
 
-// mapped_data_columns = params.data_columns
+
+
+
 mapped_data_column_string = mapped_data_columns.join(" ")
 print(mapped_data_column_string)
 
@@ -78,9 +84,9 @@ Channel
     .set { ch_mapped_data_columns}
     
 
-// /*--------------------------------------------------
-// Binarize Experiment
-// ---------------------------------------------------*/
+/*--------------------------------------------------
+Binarize Experiment
+---------------------------------------------------*/
 process binarize_experiment{
     publishDir "${params.outdir}/${params.name}/${params.phospho_event}/binary_experiment", mode: 'copy'
 

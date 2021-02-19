@@ -49,7 +49,7 @@ def calculate_hypergeometric_activities(evidence, data_columns, network_director
 
     for file in os.listdir(network_directory):
         if file.endswith(".tsv"):
-            network_files.append(   )
+            network_files.append(file )
     
     activities_list = []
     if max_cpus > 1:
