@@ -1,5 +1,5 @@
 
-nextflow run main.nf -profile Y docker \
+nextflow run main.nf -profile Y,singularity \
 --name bcr-abl \
 --phospho_event Y \
 --experiment_file test_data/BCR-ABL_mapped.tsv \
