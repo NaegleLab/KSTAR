@@ -2,6 +2,7 @@ import pandas as pd
 import multiprocessing
 import itertools
 import argparse
+import os
 from kstar import config
 
 #%%
@@ -24,7 +25,7 @@ def build_filtered_experiment(experiment, compendia, filtered_compendia, num_ran
             rand_experiment_list.append(filtered_random)
         rand_experiment = pd.concat(rand_experiment_list)
         rand_experiments = pd.merge(rand_experiments, rand_experiment, how = 'left', on = [config.KSTAR_ACCESSION, config.KSTAR_SITE])
-    rand_experiments.to_table(os.path.join(odir, f"{name}_random_experiments.tsv"), index=False)
+    rand_experiments.to_csv( f"{name}_random_experiments.tsv", index=False, sep='\t')
     return rand_experiments
 
 

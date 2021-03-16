@@ -31,7 +31,7 @@ def chunk_data_columns(data_columns, chunk_size):
     for i in range(0, len(data_columns), chunk_size):
         yield data_columns[i:i + chunk_size]
 
-def calculate_hypergeometric_activities(evidence, data_columns, network_directory, max_cpus, chunk_size):
+def calculate_hypergeometric_activities(evidence, data_columns, network_directory, max_cpus, chunk_size, network_size):
     """Calculates the hypergeometric activity of evidence for all data columns on all networks
 
     Args:
@@ -40,6 +40,7 @@ def calculate_hypergeometric_activities(evidence, data_columns, network_director
         network_directory (string): network directory of all site-kinase networks
         max_cpus (int): number of cpus to use in multiprocessing
         chunk_size (int): chunk size to break data columns into - save memory in multiprocessing
+        network_size (int): size of network, if <=0 then network size calculated based on number of accession sites in network
 
     Returns:
         pandas DataFrame: hypergeometric activites list
@@ -60,7 +61,7 @@ def calculate_hypergeometric_activities(evidence, data_columns, network_director
                 chunked_evidence = evidence[[config.KSTAR_ACCESSION, config.KSTAR_SITE] + chunk]
                 chunked_evidence = chunked_evidence[(chunked_evidence == 1).any(axis=1)].copy()
 
-                for single_network_activity in executor.map(calculate_hypergeometric_activities_single_network, repeat(chunked_evidence), repeat(chunk), repeat(network_directory), network_files):
+                for single_network_activity in executor.map(calculate_hypergeometric_activities_single_network, repeat(chunked_evidence), repeat(chunk), repeat(network_directory), network_files, repeat(network_size)):
                     activities_list = activities_list + single_network_activity
     else:
         for network_file in network_files:
@@ -76,7 +77,7 @@ def calculate_hypergeometric_activities(evidence, data_columns, network_director
     activities_list = pd.concat(activities_list)
     return activities_list
 
-def calculate_hypergeometric_activities_single_network(evidence, data_columns, network_directory, network_file):
+def calculate_hypergeometric_activities_single_network(evidence, data_columns, network_directory, network_file, network_size):
     """Calculates the hypergeometric activity of all data columns of a single network after loading the network file
 
     Args:
@@ -84,12 +85,14 @@ def calculate_hypergeometric_activities_single_network(evidence, data_columns, n
         data_columns (list): data columns to calculate hypergeometric activity on
         network_directory (string): directory of network file
         network_file (string): filename of network
+        network_size (int): size of network, if <=0 then network size calculated based on number of accession sites in network
 
     Returns:
         pandas DataFrame: hypergeometric activity list
     """
     network = pd.read_table(os.path.join(network_directory, network_file))
-    network_size = len(network)
+    if network_size <= 0:
+        network_size = len(network.groupby([config.KSTAR_ACCESSION, config.KSTAR_SITE]).size())
 
     # intersect = pd.merge(network, evidence, how='inner',
     #         on=[config.KSTAR_ACCESSION, config.KSTAR_SITE])
@@ -115,7 +118,8 @@ def calculate_hypergeometric_activities_single_data_column_single_network(eviden
     
     Args:
         evidence (pandas df): subset of kstar evidence that has been filtered to only include evidence associated with experiment
-        network_id (string): network to use for analysis
+        network (pandas df): network to use for analysis
+        network_size (int): size of network, if <=0 then network size calculated based on number of accession sites in network
     
     Returns:
         pandas DataFrame: Hypergeometric results of evidence for given network
@@ -170,7 +174,7 @@ def aggregate_activities(activities):
     ).reset_index()
     return agg_activities
 
-def run_kstar_analysis(experiment, network_directory, phospho_type, data_columns, max_cpus, chunk_size):
+def run_kstar_analysis(experiment, network_directory, phospho_type, data_columns, max_cpus, chunk_size, network_size):
     """Runs the kstar hypergeometric analysis including aggregating and summarizing results
 
     Args:
@@ -180,6 +184,7 @@ def run_kstar_analysis(experiment, network_directory, phospho_type, data_columns
         data_columns (list): data columns to use in analysis
         max_cpus (int): number of cpus to use in parallelization
         chunk_size (int): chunk size to use to reduce memory
+        network_size (int): size of network, if <=0 then network size calculated based on number of accession sites in network
 
     Raises:
         TypeError: raised if phospho type is not correct. Phospho typee must be Y or ST
@@ -202,7 +207,7 @@ def run_kstar_analysis(experiment, network_directory, phospho_type, data_columns
         logger.error(f"ERROR: Did not recognize phosphoType {phospho_type}, which should only include 'Y' or 'ST'")
         raise TypeError(f"ERROR: Did not recognize phosphoType {phospho_type}, which should only include 'Y' or 'ST'") 
     
-    activities_list = calculate_hypergeometric_activities(experiment_sub, data_columns, network_directory, max_cpus, chunk_size)
+    activities_list = calculate_hypergeometric_activities(experiment_sub, data_columns, network_directory, max_cpus, chunk_size, network_size)
 
     agg_activities = aggregate_activities(activities_list)
     activities = summarize_activities.summarize_activities(agg_activities, 'median_activity')
@@ -232,6 +237,7 @@ def main():
     parser.add_argument('--cols', '--data_columns', action='store', dest='data_columns', help = 'data_columns to use', nargs='*', default=None)
     parser.add_argument("--max_cpus", action="store", dest="max_cpus", default=1, type=int)
     parser.add_argument("--chunk_size", action="store", dest="chunk_size", default=5, type=int)
+    parser.add_argument("--network_size", action="store", dest="network_size", default=-1, type=int)
     results = parser.parse_args()
 
     # pool = Pool(results.max_cpus)
@@ -253,7 +259,7 @@ def main():
 
     # networks = pickle.load(open(results.networks, "rb"))
    
-    activities_list, agg_activities, activities = run_kstar_analysis(experiment, results.network_directory, results.pevent, data_columns, results.max_cpus, results.chunk_size)
+    activities_list, agg_activities, activities = run_kstar_analysis(experiment, results.network_directory, results.pevent, data_columns, results.max_cpus, results.chunk_size, results.network_size)
     
     save_kstar_results(activities_list, agg_activities, activities, results.name)
 

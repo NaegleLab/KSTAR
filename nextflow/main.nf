@@ -115,7 +115,7 @@ ch_binary_experiment.into {
 Kinase Hypergeometric Activity 
 ---------------------------------------------------*/
 process hypergeometric_activity{
-    tag "${params.phospho_event}"
+    tag "${params.name}"
     publishDir "${params.outdir}/${params.name}/${params.phospho_event}/hypergeometric_activity", mode: 'copy' 
     label "all_experiments"
     label "big_memory"
@@ -233,6 +233,7 @@ ch_random_aggregated_activities_single
 Summarize Hypergeometric Activity on Random Experiments
 ---------------------------------------------------*/
 process summarize_random_aggregated{
+    tag "${params.name}"
     publishDir "${params.outdir}/${params.name}/${params.phospho_event}/random_hypergeometric_activity", mode: 'copy'
     input: 
         file(combined_agg) from ch_collected_random_aggregate_activities
@@ -267,6 +268,7 @@ process generate_normalization_values{
 
     output:
         tuple( val(data_col), file("*_normalization.tsv") ) into ch_normalization_values
+        file("*")
     script:
         """
         calculate_fpr.py \
@@ -323,6 +325,7 @@ ch_normalized_activity_path
 Summarize Normalizated Activity
 ---------------------------------------------------*/
 process summarize_normalized{
+    tag "${params.name}"
     publishDir "${params.outdir}/${params.name}/${params.phospho_event}/normalized_activity", mode: 'copy'
 
     input: 
@@ -390,6 +393,7 @@ ch_mann_whitney
 Summarize Results of Mann Whitney
 ---------------------------------------------------*/
 process summarize_mann_whitney{
+    tag "${params.name}"
     publishDir "${params.outdir}/${params.name}/${params.phospho_event}/mann_whitney", mode: 'copy'
 
     input: 
