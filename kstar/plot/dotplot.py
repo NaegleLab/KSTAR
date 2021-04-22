@@ -5,6 +5,8 @@ from enum import Enum
 
 import matplotlib.pyplot as plt
 from matplotlib.lines import Line2D
+from matplotlib.colors import LinearSegmentedColormap, Normalize
+import matplotlib.cm as cm
 from scipy.cluster.hierarchy import dendrogram, linkage
 
 import seaborn as sns
@@ -131,7 +133,7 @@ class DotPlot:
             self.column_labels = label_arr
             self.x_label_dict = x_label_dict
 
-    def dotplot(self, ax = None, orientation = 'left', size_legend = True, color_legend = True):
+    def dotplot(self, ax = None, orientation = 'left', size_legend = True, color_legend = True, max_size = None):
         """
         Generates the dotplot plot, where size is determined by values dataframe and color is determined by significant dataframe
         
@@ -168,26 +170,61 @@ class DotPlot:
         
         s = melt.value * self.dotsize
         
-        melt_color['color'] = [self.colormap.get(l,'black') for l in melt_color.value]
+        #check to see if more than 2 values are given (fprs). Otherwise get color based on binary significance
+        if len(np.unique(self.colors)) > 2:
+            cmap = LinearSegmentedColormap.from_list("sig_cmap", list(zip([0,1], [self.colormap[0], self.colormap[1]])))
+            norm = Normalize(vmin=0, vmax=2, clip=True)
+            mapper = cm.ScalarMappable(norm=norm, cmap=cmap)
+            #replace 0 with 0.01 to avoid log10 errors, transform the fprs with a log transform
+            melt_color.replace(0, 0.01, inplace=True)
+            melt_color.value = -np.log10(melt_color.value)
+            #get color for each datapoint based on fpr value
+            melt_color['color'] = [mapper.to_rgba(l) for l in melt_color.value]
+        else:  
+            #get color for each datapoint based on significance
+            melt_color['color'] = [self.colormap.get(l,'black') for l in melt_color.value]
+            
         c = melt_color['color']
         scatter = ax.scatter(x, y, c=c, s=s)
         
         # Add Color Legend
         if color_legend:
-            color_legend = []
-            for color_key in self.colormap.keys():
-                color_legend.append(
-                    Line2D([0], [0], marker='o', color='w', label=self.labelmap[color_key],
-                            markerfacecolor= self.colormap[color_key], markersize=self.markersize),
-                )     
-            legend1 = ax.legend(handles=color_legend, loc=f'upper {orientation}', bbox_to_anchor=(self.legend_distance,1), title = self.color_title)  
-            ax.add_artist(legend1) 
+            if len(np.unique(self.colors)) > 2:
+                #choose which values to show in the legend
+                legend_vals = [1, 0.5, 0.05, 0.01]
+                legend_color = [mapper.to_rgba(-np.log10(val)) for val in legend_vals]
+                #create the legend 
+                color_legend = []
+                for i in range(len(legend_vals)):
+                    color_legend.append(Line2D([0], [0], marker='o', color='w', label=str(legend_vals[i]),
+                                markerfacecolor= legend_color[i], markersize=self.markersize))
+                legend1 = ax.legend(handles=color_legend, loc=f'upper {orientation}', bbox_to_anchor=(self.legend_distance,1), title = self.color_title)  
+                ax.add_artist(legend1) 
+            else:
+                #create the legend
+                color_legend = []
+                for color_key in self.colormap.keys():
+                    color_legend.append(
+                        Line2D([0], [0], marker='o', color='w', label=self.labelmap[color_key],
+                                markerfacecolor= self.colormap[color_key], markersize=self.markersize),
+                    )     
+                legend1 = ax.legend(handles=color_legend, loc=f'upper {orientation}', bbox_to_anchor=(self.legend_distance,1), title = self.color_title)  
+                ax.add_artist(legend1) 
 
         # Add Size Legend
         if size_legend:
-            kw = dict(prop="sizes", num=self.size_number, color=self.size_color, func=lambda s: s/self.dotsize) 
-            legend2 = ax.legend(*scatter.legend_elements(**kw),
-                    loc=f'lower {orientation}', title=self.legend_title, bbox_to_anchor=(self.legend_distance,0)) 
+            #check to see if max pval parameter was given: if so, use to create custom legend
+            if max_size is not None:
+                s_label = np.arange(max_size/self.size_number,max_size+1,max_size/self.size_number).astype(int)
+                dsize = [s*self.dotsize for s in s_label]
+                legend_elements = []
+                for element, s in zip(s_label, dsize):
+                    legend_elements.append(Line2D([0],[0], marker='o', color = 'w', markersize = s**0.5, markerfacecolor = self.size_color, label = element))
+                legend2 = ax.legend(handles = legend_elements, loc = f'lower {orientation}', title = self.legend_title, bbox_to_anchor=(self.legend_distance,0))        
+            else:
+                kw = dict(prop="sizes", num=self.size_number, color=self.size_color, func=lambda s: s/self.dotsize) 
+                legend2 = ax.legend(*scatter.legend_elements(**kw),
+                        loc=f'lower {orientation}', title=self.legend_title, bbox_to_anchor=(self.legend_distance,0)) 
         
         # Add Additional Plotting Information
         ax.tick_params(axis = 'x', rotation = 90)
@@ -198,6 +235,8 @@ class DotPlot:
         self.set_column_labels(self.values, self.x_label_dict)
         ax.set_xticklabels(self.column_labels)
         ax.set_yticklabels(self.values.index)
+        #adjust yscale so that data is always equally spaced
+        ax.set_ylim([0,len(self.values)*self.multiplier])
         
         if not self.xlabel:
             ax.axes.xaxis.set_visible(False)
@@ -289,7 +328,7 @@ class DotPlot:
         self.values.drop(index=kinase_list, inplace=True)
         self.colors.drop(index = kinase_list, inplace=True)
         
-    def context(self, ax, info, id_column, context_columns, dotsize = 200, markersize = 20, orientation = 'left', color_palette='colorblind', margin = 0.2):
+    def context(self, ax, info, id_column, context_columns, dotsize = 200, markersize = 20, orientation = 'left', color_palette='colorblind', margin = 0.2, make_legend = True):
         """
         Context plot is generated and returned. The context plot contains the categorical data used for describing the data.
         
@@ -314,6 +353,8 @@ class DotPlot:
             seaborn color palette to use  
         margin: float, optional
             margin  
+        make_legend : bool, optional
+            whether to create legend for context colors
         """
         
         orientation_values = {
@@ -331,6 +372,9 @@ class DotPlot:
             raise OrientationError
             
         melted = info[[id_column] + context_columns].melt(id_vars=id_column)
+        #weird issue with melt function here, where for one datset it provides the context column names in 0 column rather than 'variable'. Rename for now.
+        if 0 in melted.columns:
+            melted.rename(columns = {0: 'variable'}, inplace = True)
         melted['var'] = melted.apply(lambda row : index.index(row[0]) * self.multiplier + self.offset, axis = 1)
         color_labels = melted['value'].unique()
         rgb_values = sns.color_palette(color_palette, len(color_labels))
@@ -350,28 +394,29 @@ class DotPlot:
         running_total = 0
         
         # Add legends
-        for col in context_columns:
-            ids = info[col].unique()
-            sig_legend = []
-            for label in ids:
-                color = color_map[label]
-                sig_legend.append(
-                    Line2D([0], [0], marker='o', color='w', label=label, markerfacecolor=color,markersize=markersize))
-                if orientation in ['left', 'right']:
-                    leg = ax.legend(
-                        handles=sig_legend, 
-                        bbox_to_anchor=(orientation_values[orientation],1-running_total/total), 
-                        title=col)
-                elif orientation in ['top', 'bottom']:
-                    leg = ax.legend(
-                        handles=sig_legend, 
-                        bbox_to_anchor=(running_total/total, orientation_values[orientation]),
-                        loc='lower left',
-                        title=col)
-                    
-            ax.add_artist(leg)
-
-            running_total += len(ids) + 1
+        if make_legend:
+            for col in context_columns:
+                ids = info[col].unique()
+                sig_legend = []
+                for label in ids:
+                    color = color_map[label]
+                    sig_legend.append(
+                        Line2D([0], [0], marker='o', color='w', label=label, markerfacecolor=color,markersize=markersize))
+                    if orientation in ['left', 'right']:
+                        leg = ax.legend(
+                            handles=sig_legend, 
+                            bbox_to_anchor=(orientation_values[orientation],1-running_total/total), 
+                            title=col)
+                    elif orientation in ['top', 'bottom']:
+                        leg = ax.legend(
+                            handles=sig_legend, 
+                            bbox_to_anchor=(running_total/total, orientation_values[orientation]),
+                            loc='lower left',
+                            title=col)
+                        
+                ax.add_artist(leg)
+    
+                running_total += len(ids) + 1
 
       
         
