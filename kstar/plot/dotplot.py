@@ -27,9 +27,9 @@ class DotPlot:
     
     
     def __init__(self, values, colors, dotsize = 20, 
-                 colormap = {0 : '#CFD8DC', 1 : '#FF3300'}, 
+                 colormap={0: '#6b838f', 1: '#FF3300'}, 
                  labelmap = {0 : 'Not Significant', 1 : 'Significant'},
-                 facecolor = '#455A64',
+                 facecolor = 'white',
                  legend_title = 'p-value', size_number = 5, size_color = 'gray', 
                  color_title = 'Significant', markersize = 10, 
                  legend_distance = 1.0, figsize = (20,4), title = None,
