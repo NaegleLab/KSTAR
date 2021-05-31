@@ -237,6 +237,7 @@ class DotPlot:
         ax.set_yticklabels(self.values.index)
         #adjust yscale so that data is always equally spaced
         ax.set_ylim([0,len(self.values)*self.multiplier])
+        ax.set_xlim([0,len(columns)*self.multiplier])
         
         if not self.xlabel:
             ax.axes.xaxis.set_visible(False)
