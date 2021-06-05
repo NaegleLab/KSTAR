@@ -33,7 +33,7 @@ class DotPlot:
                  legend_title = 'p-value', size_number = 5, size_color = 'gray', 
                  color_title = 'Significant', markersize = 10, 
                  legend_distance = 1.0, figsize = (20,4), title = None,
-                 xlabel = True, ylabel = True, x_label_dict = None):
+                 xlabel = True, ylabel = True, x_label_dict = None, kinase_dict = None):
         """
         Parameters
         ----------
@@ -103,6 +103,7 @@ class DotPlot:
         self.offset = 5
 
         self.columns = self.set_column_labels(values, x_label_dict)
+        self.index = self.set_index_labels(values, kinase_dict)
     
     def set_values(self, values):
         self.values = values
@@ -132,6 +133,26 @@ class DotPlot:
                     label_arr.append(x_label_dict[col])
             self.column_labels = label_arr
             self.x_label_dict = x_label_dict
+            
+    def set_index_labels(self, values, kinase_dict):
+        self.index_labels = list(self.values.index)
+        if kinase_dict is None:
+            self.kinase_dict = kinase_dict
+        elif isinstance(kinase_dict, dict):
+            #if custom dictionary is provided, make sure the appropriate elements are found inside it (needs to be at least
+            names = kinase_dict.keys()
+            if not set(self.index_labels).issubset(set(names)):
+                raise ValueError("The kinase_dict must contain at least all the kinases found in values")
+            else:
+                label_arr = []
+                for index in self.index_labels:
+                    label_arr.append(kinase_dict[index])
+            
+                self.index_labels = label_arr
+                self.kinase_dict = kinase_dict
+        else:
+            raise TypeError("If wanting to do a custom naming system, a custom dictionary must be provided in the 'kinase_dict' parameter")
+        
 
     def dotplot(self, ax = None, orientation = 'left', size_legend = True, color_legend = True, max_size = None):
         """
@@ -234,7 +255,7 @@ class DotPlot:
         # set column labels in case values has changed
         self.set_column_labels(self.values, self.x_label_dict)
         ax.set_xticklabels(self.column_labels)
-        ax.set_yticklabels(self.values.index)
+        ax.set_yticklabels(self.index_labels)
         #adjust yscale so that data is always equally spaced
         ax.set_ylim([0,len(self.values)*self.multiplier])
         ax.set_xlim([0,len(columns)*self.multiplier])
@@ -284,6 +305,7 @@ class DotPlot:
                         show_leaf_counts = False) 
             self.values = self.values.iloc[den_row['leaves']].copy()
             self.colors = self.colors.iloc[den_row['leaves']].copy()
+            self.set_index_labels(self.values, self.kinase_dict)
 
         
         elif orientation in ['top', 'bottom']:
