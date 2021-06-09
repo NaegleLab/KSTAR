@@ -76,8 +76,8 @@ class DotPlot:
             Mapping dictionary of labels as they appear in values dataframe (keys) to how they should appear on plot (values)
         """
 
-        self.values = values
-        self.colors = colors
+        self.values = values.copy()
+        self.colors = colors.copy()
         self.figsize =  figsize
         
         self.title = title
@@ -187,7 +187,8 @@ class DotPlot:
 
         # Plot Data
         x = melt['var']
-        y = melt['row_index']
+        y = melt['row_index'][::-1]    #needs to be done in reverse order to maintain order in the dataframe
+        
         
         s = melt.value * self.dotsize
         
@@ -255,8 +256,8 @@ class DotPlot:
         # set column labels in case values has changed
         self.set_column_labels(self.values, self.x_label_dict)
         ax.set_xticklabels(self.column_labels)
-        ax.set_yticklabels(self.index_labels)
-        #adjust yscale so that data is always equally spaced
+        ax.set_yticklabels(self.index_labels[::-1])
+        #adjust x and y scale so that data is always equally spaced
         ax.set_ylim([0,len(self.values)*self.multiplier])
         ax.set_xlim([0,len(columns)*self.multiplier])
         
@@ -335,6 +336,12 @@ class DotPlot:
 
         kinase_list = self.colors[self.colors.sum(axis=1) ==0].index.values
         self.drop_kinases(kinase_list)
+        #update index_labels property as well
+        for kin in kinase_list:
+            if self.kinase_dict is None:
+                self.index_labels.remove(kin)
+            else:
+                self.index_labels.remove(self.kinase_dict[kin])
 
     def drop_kinases(self, kinase_list):
         """
@@ -350,6 +357,13 @@ class DotPlot:
 
         self.values.drop(index=kinase_list, inplace=True)
         self.colors.drop(index = kinase_list, inplace=True)
+        #update index_labels property as well
+        for kin in kinase_list:
+            if self.kinase_dict is None:
+                self.index_labels.remove(kin)
+            else:
+                self.index_labels.remove(self.kinase_dict[kin])
+        
         
     def context(self, ax, info, id_column, context_columns, dotsize = 200, markersize = 20, orientation = 'left', color_palette='colorblind', margin = 0.2, make_legend = True):
         """
