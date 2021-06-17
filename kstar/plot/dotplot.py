@@ -23,6 +23,83 @@ class DotPlot:
     """
     The DotPlot class is used for plotting dotplots, with the option to add clustering and context plots.
     The size of the dots based on the values dataframe, where the size of the dot is the area of the value * dotsize
+           
+    Parameters
+    ----------
+    values: pandas DataFrame instance
+        values to plot 
+    fpr : pandas DataFrame instance 
+        false positive rates associated with values being plotted
+    alpha: float, optional
+        fpr value that defines the significance cutoff to use when plt
+        default : 0.05
+    binary_sig: boolean, optional
+        indicates whether to plot fpr with binary significance or as a change color hue
+        default : True
+    dotsize : float, optional
+        multiplier to use for scaling size of dots
+    colormap : dict, optional
+        maps color values to actual color to use in plotting
+        default : {0: '#6b838f', 1: '#FF3300'}
+    labelmap = 
+        maps labels of colors, default is to indicate FPR cutoff in legend
+        default : None
+    facecolor : color, optional
+        Background color of dotplot
+        default : 'white'
+    legend_title : str, optional
+        Legend Title for dot sizes, default is `p-value'
+    size_number : int, optional 
+        Number of dots to attempt to generate for dot size legend
+    size_color : color, optional
+        Size Legend Color to use 
+    color_title : str, optional
+        Legend Title for the Color Legend
+    markersize : int, optional
+        Size of dots for Color Legend
+    legend_distance : int, optional
+        relative distance to place legends 
+    figsize : tuple, optional 
+        size of dotplot figure
+    title : str, optional
+        Title of dotplot
+    xlabel : bool, optional
+        Show xlabel on graph if True
+    ylabel : bool, optional
+        Show ylabel on graph if True
+    x_label_dict: dict, optional
+        Mapping dictionary of labels as they appear in values dataframe (keys) to how they should appear on plot (values)
+    kinase_dict: dict, optional
+        Mapping dictionary of kinase names as they appear in values dataframe (keys) to how they should appear on plot (values)
+    
+    Attributes
+    ----------
+    values: pandas dataframe
+        a copy of the original values dataframe
+    fpr: pandas dataframe
+        a copy of the original fpr dataframe
+    alpha: float
+        cutoff used for significance
+    significance: pandas dataframe
+        indicates whether a particular kinases activity is significant, where fpr <= alpha is significant, otherwise it is insignificant
+    colors: pandas dataframe
+        dataframe indicating the color to use when plotting: either a copy of the fpr or significance dataframe
+    binary_sig: boolean
+        indicates whether coloring will be done based on binary significance or fpr values
+    labelmap: dict
+        indicates how to label each significance color
+    figsize: tuple
+        size of the outputted figure, which is overridden if axes is provided for dotplot
+    title: string
+        title of the dotplot
+    xlabel: boolean
+        indicates whether to plot x-axis labels
+    ylabel: boolean
+        indicates whether to plot y-axis labels
+    colormap: dict
+        colors to be used when plotting
+    facecolor: string
+        background color of dotplot
     """
     
     
@@ -34,47 +111,7 @@ class DotPlot:
                  color_title = 'Significant', markersize = 10, 
                  legend_distance = 1.0, figsize = (20,4), title = None,
                  xlabel = True, ylabel = True, x_label_dict = None, kinase_dict = None):
-        """
-        Parameters
-        ----------
-        values: pandas DataFrame instance
-            values to plot 
-        colors : pandas DataFrame instance 
-            color each value should be plotted as
-        dotsize : float, optional
-            multiplier to use for scaling size of dots
-        colormap : dict, optional
-            maps color values to actual color to use in plotting
-            default : {0 : '#CFD8DC', 1 : '#FF3300'}, 
-        labelmap = 
-            maps labels of colors
-            default : {0 : 'Not Significant', 1 : 'Significant'},
-        facecolor : color, optional
-            Background color of dotplot
-            default : '#455A64',
-        legend_title : str, optional
-            Legend Title for dot sizes, default is `p-value'
-        size_number : int, optional 
-            Number of dots to attempt to generate for dot size legend
-        size_color : color, optional
-            Size Legend Color to use 
-        color_title : str, optional
-            Legend Title for the Color Legend
-        markersize : int, optional
-            Size of dots for Color Legend
-        legend_distance : int, optional
-            relative distance to place legends 
-        figsize : tuple, optional 
-            size of dotplot figure
-        title : str, optional
-            Title of dotplot
-        xlabel : bool, optional
-            Show xlabel on graph if True
-        ylabel : bool, optional
-            Show ylabel on graph if True
-        x_label_dict: dict, optional
-            Mapping dictionary of labels as they appear in values dataframe (keys) to how they should appear on plot (values)
-        """
+
 
         self.values = values.copy()
         self.fpr = fpr.copy()
@@ -82,7 +119,7 @@ class DotPlot:
         self.fpr = self.fpr.loc[self.values.index,self.values.columns]
         self.alpha = alpha
         #create binary dataframe that indicates significance based on provided fpr cutoff.
-        self.significance = (fpr <= alpha) * 1
+        self.significance = (self.fpr <= alpha) * 1
         #Assign either fpr or significance to colors dataframe based on 
         self.binary_sig = binary_sig
         if binary_sig:
@@ -300,14 +337,10 @@ class DotPlot:
         
         orientation : str, optional
             The direction to plot the dendrogram, which can be any of the following strings:
-            'top'
-                Plots the root at the top, and plot descendent links going downwards. (default).
-            'bottom'
-                Plots the root at the bottom, and plot descendent links going upwards.
-            'left'
-                Plots the root at the left, and plot descendent links going right.
-            'right'
-                Plots the root at the right, and plot descendent links going left.
+            'top': Plots the root at the top, and plot descendent links going downwards. (default).
+            'bottom': Plots the root at the bottom, and plot descendent links going upwards.
+            'left': Plots the root at the left, and plot descendent links going right.
+            'right': Plots the root at the right, and plot descendent links going left.
         """
         if orientation in ['left', 'right']:
             row_linkage = linkage(self.values, method = method, metric = metric)
