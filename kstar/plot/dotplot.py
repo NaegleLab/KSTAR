@@ -349,7 +349,10 @@ class DotPlot:
         
         """
 
-        kinase_list = self.colors[self.colors.sum(axis=1) ==0].index.values
+        kinase_list = self.significance[self.significance.sum(axis=1) ==0].index.values
+        #check to make sure kinase_list only contains kinases currently in values dataframe
+        kinase_list = [kin for kin in kinase_list if kin in self.index_labels]
+        #remove kinases
         self.drop_kinases(kinase_list)
 
 
@@ -367,6 +370,7 @@ class DotPlot:
 
         self.values.drop(index=kinase_list, inplace=True)
         self.colors.drop(index = kinase_list, inplace=True)
+
         #update index_labels property as well
         for kin in kinase_list:
             if self.kinase_dict is None:
