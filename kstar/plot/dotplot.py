@@ -26,10 +26,10 @@ class DotPlot:
     """
     
     
-    def __init__(self, values, colors, dotsize = 20, 
-                 colormap={0: '#6b838f', 1: '#FF3300'}, 
-                 labelmap = {0 : 'Not Significant', 1 : 'Significant'},
-                 facecolor = 'white',
+    def __init__(self, values, fpr, alpha = 0.05, 
+                 binary_sig = True, dotsize = 5, 
+                 colormap={0: '#6b838f', 1: '#FF3300'}, facecolor = 'white',
+                 labelmap = None,
                  legend_title = 'p-value', size_number = 5, size_color = 'gray', 
                  color_title = 'Significant', markersize = 10, 
                  legend_distance = 1.0, figsize = (20,4), title = None,
@@ -77,15 +77,28 @@ class DotPlot:
         """
 
         self.values = values.copy()
-        self.colors = colors.copy()
-        self.figsize =  figsize
+        self.fpr = fpr.copy()
+        #make sure that fpr dataframe has the same index as values dataframe. If not, reindex
+        self.fpr = self.fpr.loc[self.values.index,self.values.columns]
+        self.alpha = alpha
+        #create binary dataframe that indicates significance based on provided fpr cutoff.
+        self.significance = (fpr <= alpha) * 1
+        #Assign either fpr or significance to colors dataframe based on 
+        self.binary_sig = binary_sig
+        if binary_sig:
+            self.colors = self.significance
+            if labelmap is None:
+                self.labelmap = {0: 'FPR > %0.2f'%(alpha), 1:'FPR <= %0.2f'%(alpha)}
+        else:
+            self.colors = self.fpr
+      
         
+        self.figsize =  figsize
         self.title = title
         self.xlabel = xlabel
         self.ylabel= ylabel
 
         self.colormap = colormap
-        self.labelmap = labelmap
         
         self.facecolor = facecolor
 
@@ -193,7 +206,10 @@ class DotPlot:
         s = melt.value * self.dotsize
         
         #check to see if more than 2 values are given (fprs). Otherwise get color based on binary significance
-        if len(np.unique(self.colors)) > 2:
+        if self.binary_sig:
+            #get color for each datapoint based on significance
+            melt_color['color'] = [self.colormap.get(l,'black') for l in melt_color.value]
+        else:
             cmap = LinearSegmentedColormap.from_list("sig_cmap", list(zip([0,1], [self.colormap[0], self.colormap[1]])))
             norm = Normalize(vmin=0, vmax=2, clip=True)
             mapper = cm.ScalarMappable(norm=norm, cmap=cmap)
@@ -202,27 +218,14 @@ class DotPlot:
             melt_color.value = -np.log10(melt_color.value)
             #get color for each datapoint based on fpr value
             melt_color['color'] = [mapper.to_rgba(l) for l in melt_color.value]
-        else:  
-            #get color for each datapoint based on significance
-            melt_color['color'] = [self.colormap.get(l,'black') for l in melt_color.value]
+
             
         c = melt_color['color']
         scatter = ax.scatter(x, y, c=c, s=s)
         
         # Add Color Legend
         if color_legend:
-            if len(np.unique(self.colors)) > 2:
-                #choose which values to show in the legend
-                legend_vals = [1, 0.5, 0.05, 0.01]
-                legend_color = [mapper.to_rgba(-np.log10(val)) for val in legend_vals]
-                #create the legend 
-                color_legend = []
-                for i in range(len(legend_vals)):
-                    color_legend.append(Line2D([0], [0], marker='o', color='w', label=str(legend_vals[i]),
-                                markerfacecolor= legend_color[i], markersize=self.markersize))
-                legend1 = ax.legend(handles=color_legend, loc=f'upper {orientation}', bbox_to_anchor=(self.legend_distance,1), title = self.color_title)  
-                ax.add_artist(legend1) 
-            else:
+            if self.binary_sig:
                 #create the legend
                 color_legend = []
                 for color_key in self.colormap.keys():
@@ -232,6 +235,18 @@ class DotPlot:
                     )     
                 legend1 = ax.legend(handles=color_legend, loc=f'upper {orientation}', bbox_to_anchor=(self.legend_distance,1), title = self.color_title)  
                 ax.add_artist(legend1) 
+            else:
+                #choose which values to show in the legend
+                legend_vals = [1, 0.5, 0.05, 0.01]
+                legend_color = [mapper.to_rgba(-np.log10(val)) for val in legend_vals]
+                #create the legend 
+                color_legend = []
+                for i in range(len(legend_vals)):
+                    color_legend.append(Line2D([0], [0], marker='o', color='w', label=str(legend_vals[i]),
+                                markerfacecolor= legend_color[i], markersize=self.markersize))
+                legend1 = ax.legend(handles=color_legend, loc=f'upper {orientation}', bbox_to_anchor=(self.legend_distance,1), title = 'FPR')  
+                ax.add_artist(legend1) 
+
 
         # Add Size Legend
         if size_legend:
@@ -267,7 +282,7 @@ class DotPlot:
             ax.axes.yaxis.set_visible(False)
         return ax 
     
-    def cluster(self, ax, method='single', metric='euclidean', orientation = 'top'):
+    def cluster(self, ax, method='single', metric='euclidean', orientation = 'top', color_threshold = -np.inf):
         """
         Performs hierarchical clustering on data and plots result to provided Axes. 
         result and significant dataframes are ordered according to clustering
@@ -300,7 +315,7 @@ class DotPlot:
                         ax = ax, 
                         orientation = orientation, 
                         labels = list(self.values.index), 
-                        color_threshold = -np.inf, 
+                        color_threshold = color_threshold, 
                         above_threshold_color = 'black', 
                         no_labels = True, 
                         show_leaf_counts = False) 
@@ -315,7 +330,7 @@ class DotPlot:
                             ax = ax, 
                             orientation = orientation, 
                             labels = list(self.values.columns), 
-                            color_threshold = -np.inf, 
+                            color_threshold = color_threshold, 
                             above_threshold_color = 'black', 
                             no_labels = True, 
                             show_leaf_counts = False)
@@ -336,12 +351,7 @@ class DotPlot:
 
         kinase_list = self.colors[self.colors.sum(axis=1) ==0].index.values
         self.drop_kinases(kinase_list)
-        #update index_labels property as well
-        for kin in kinase_list:
-            if self.kinase_dict is None:
-                self.index_labels.remove(kin)
-            else:
-                self.index_labels.remove(self.kinase_dict[kin])
+
 
     def drop_kinases(self, kinase_list):
         """
@@ -426,6 +436,7 @@ class DotPlot:
             ax.scatter(x = melted['var'], y = melted['variable'], c = melted['value'].map(color_map), s = dotsize)
             ax.axes.get_xaxis().set_visible(False)
             ax.margins(0.05, margin)
+        
             
         total = len(melted['value'].unique()) + len(info.columns)-1
         running_total = 0
