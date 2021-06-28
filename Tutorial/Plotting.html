@@ -1,0 +1,884 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>Load in KSTAR results &#8212; KSTAR 1 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/classic.css" />
+    
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Plotting Examples from KSTAR Paper" href="../Examples/Examples.html" />
+    <link rel="prev" title="Determine Thresholds" href="CalculateActivities.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="../Examples/Examples.html" title="Plotting Examples from KSTAR Paper"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="CalculateActivities.html" title="Determine Thresholds"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">KSTAR 1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="tutorial.html" accesskey="U">Tutorial</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Load in KSTAR results</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  
+<style>
+/* CSS for nbsphinx extension */
+
+/* remove conflicting styling from Sphinx themes */
+div.nbinput.container div.prompt *,
+div.nboutput.container div.prompt *,
+div.nbinput.container div.input_area pre,
+div.nboutput.container div.output_area pre,
+div.nbinput.container div.input_area .highlight,
+div.nboutput.container div.output_area .highlight {
+    border: none;
+    padding: 0;
+    margin: 0;
+    box-shadow: none;
+}
+
+div.nbinput.container > div[class*=highlight],
+div.nboutput.container > div[class*=highlight] {
+    margin: 0;
+}
+
+div.nbinput.container div.prompt *,
+div.nboutput.container div.prompt * {
+    background: none;
+}
+
+div.nboutput.container div.output_area .highlight,
+div.nboutput.container div.output_area pre {
+    background: unset;
+}
+
+div.nboutput.container div.output_area div.highlight {
+    color: unset;  /* override Pygments text color */
+}
+
+/* avoid gaps between output lines */
+div.nboutput.container div[class*=highlight] pre {
+    line-height: normal;
+}
+
+/* input/output containers */
+div.nbinput.container,
+div.nboutput.container {
+    display: -webkit-flex;
+    display: flex;
+    align-items: flex-start;
+    margin: 0;
+    width: 100%;
+}
+@media (max-width: 540px) {
+    div.nbinput.container,
+    div.nboutput.container {
+        flex-direction: column;
+    }
+}
+
+/* input container */
+div.nbinput.container {
+    padding-top: 5px;
+}
+
+/* last container */
+div.nblast.container {
+    padding-bottom: 5px;
+}
+
+/* input prompt */
+div.nbinput.container div.prompt pre {
+    color: #307FC1;
+}
+
+/* output prompt */
+div.nboutput.container div.prompt pre {
+    color: #BF5B3D;
+}
+
+/* all prompts */
+div.nbinput.container div.prompt,
+div.nboutput.container div.prompt {
+    width: 4.5ex;
+    padding-top: 5px;
+    position: relative;
+    user-select: none;
+}
+
+div.nbinput.container div.prompt > div,
+div.nboutput.container div.prompt > div {
+    position: absolute;
+    right: 0;
+    margin-right: 0.3ex;
+}
+
+@media (max-width: 540px) {
+    div.nbinput.container div.prompt,
+    div.nboutput.container div.prompt {
+        width: unset;
+        text-align: left;
+        padding: 0.4em;
+    }
+    div.nboutput.container div.prompt.empty {
+        padding: 0;
+    }
+
+    div.nbinput.container div.prompt > div,
+    div.nboutput.container div.prompt > div {
+        position: unset;
+    }
+}
+
+/* disable scrollbars on prompts */
+div.nbinput.container div.prompt pre,
+div.nboutput.container div.prompt pre {
+    overflow: hidden;
+}
+
+/* input/output area */
+div.nbinput.container div.input_area,
+div.nboutput.container div.output_area {
+    -webkit-flex: 1;
+    flex: 1;
+    overflow: auto;
+}
+@media (max-width: 540px) {
+    div.nbinput.container div.input_area,
+    div.nboutput.container div.output_area {
+        width: 100%;
+    }
+}
+
+/* input area */
+div.nbinput.container div.input_area {
+    border: 1px solid #e0e0e0;
+    border-radius: 2px;
+    /*background: #f5f5f5;*/
+}
+
+/* override MathJax center alignment in output cells */
+div.nboutput.container div[class*=MathJax] {
+    text-align: left !important;
+}
+
+/* override sphinx.ext.imgmath center alignment in output cells */
+div.nboutput.container div.math p {
+    text-align: left;
+}
+
+/* standard error */
+div.nboutput.container div.output_area.stderr {
+    background: #fdd;
+}
+
+/* ANSI colors */
+.ansi-black-fg { color: #3E424D; }
+.ansi-black-bg { background-color: #3E424D; }
+.ansi-black-intense-fg { color: #282C36; }
+.ansi-black-intense-bg { background-color: #282C36; }
+.ansi-red-fg { color: #E75C58; }
+.ansi-red-bg { background-color: #E75C58; }
+.ansi-red-intense-fg { color: #B22B31; }
+.ansi-red-intense-bg { background-color: #B22B31; }
+.ansi-green-fg { color: #00A250; }
+.ansi-green-bg { background-color: #00A250; }
+.ansi-green-intense-fg { color: #007427; }
+.ansi-green-intense-bg { background-color: #007427; }
+.ansi-yellow-fg { color: #DDB62B; }
+.ansi-yellow-bg { background-color: #DDB62B; }
+.ansi-yellow-intense-fg { color: #B27D12; }
+.ansi-yellow-intense-bg { background-color: #B27D12; }
+.ansi-blue-fg { color: #208FFB; }
+.ansi-blue-bg { background-color: #208FFB; }
+.ansi-blue-intense-fg { color: #0065CA; }
+.ansi-blue-intense-bg { background-color: #0065CA; }
+.ansi-magenta-fg { color: #D160C4; }
+.ansi-magenta-bg { background-color: #D160C4; }
+.ansi-magenta-intense-fg { color: #A03196; }
+.ansi-magenta-intense-bg { background-color: #A03196; }
+.ansi-cyan-fg { color: #60C6C8; }
+.ansi-cyan-bg { background-color: #60C6C8; }
+.ansi-cyan-intense-fg { color: #258F8F; }
+.ansi-cyan-intense-bg { background-color: #258F8F; }
+.ansi-white-fg { color: #C5C1B4; }
+.ansi-white-bg { background-color: #C5C1B4; }
+.ansi-white-intense-fg { color: #A1A6B2; }
+.ansi-white-intense-bg { background-color: #A1A6B2; }
+
+.ansi-default-inverse-fg { color: #FFFFFF; }
+.ansi-default-inverse-bg { background-color: #000000; }
+
+.ansi-bold { font-weight: bold; }
+.ansi-underline { text-decoration: underline; }
+
+
+div.nbinput.container div.input_area div[class*=highlight] > pre,
+div.nboutput.container div.output_area div[class*=highlight] > pre,
+div.nboutput.container div.output_area div[class*=highlight].math,
+div.nboutput.container div.output_area.rendered_html,
+div.nboutput.container div.output_area > div.output_javascript,
+div.nboutput.container div.output_area:not(.rendered_html) > img{
+    padding: 5px;
+    margin: 0;
+}
+
+/* fix copybtn overflow problem in chromium (needed for 'sphinx_copybutton') */
+div.nbinput.container div.input_area > div[class^='highlight'],
+div.nboutput.container div.output_area > div[class^='highlight']{
+    overflow-y: hidden;
+}
+
+/* hide copybtn icon on prompts (needed for 'sphinx_copybutton') */
+.prompt a.copybtn {
+    display: none;
+}
+
+/* Some additional styling taken form the Jupyter notebook CSS */
+div.rendered_html table {
+  border: none;
+  border-collapse: collapse;
+  border-spacing: 0;
+  color: black;
+  font-size: 12px;
+  table-layout: fixed;
+}
+div.rendered_html thead {
+  border-bottom: 1px solid black;
+  vertical-align: bottom;
+}
+div.rendered_html tr,
+div.rendered_html th,
+div.rendered_html td {
+  text-align: right;
+  vertical-align: middle;
+  padding: 0.5em 0.5em;
+  line-height: normal;
+  white-space: normal;
+  max-width: none;
+  border: none;
+}
+div.rendered_html th {
+  font-weight: bold;
+}
+div.rendered_html tbody tr:nth-child(odd) {
+  background: #f5f5f5;
+}
+div.rendered_html tbody tr:hover {
+  background: rgba(66, 165, 245, 0.2);
+}
+</style>
+<p>Kinase activities predicted by KSTAR can be visualized using the dotplot class. In these plots, the size of each “dot” is dictated by the -log10(p-value) and the color is dicated by the false positive rate (significance).</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="c1">#import necessary packages</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">from</span> <span class="nn">kstar.plot</span> <span class="kn">import</span> <span class="n">dotplot</span>
+<span class="kn">from</span> <span class="nn">kstar.activity</span> <span class="kn">import</span> <span class="n">kstar_activity</span>
+<span class="kn">from</span> <span class="nn">kstar</span> <span class="kn">import</span> <span class="n">helpers</span><span class="p">,</span> <span class="n">config</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">odir</span> <span class="o">=</span> <span class="s1">&#39;./example&#39;</span>
+<span class="n">logName</span> <span class="o">=</span> <span class="s1">&#39;example_run&#39;</span>
+<span class="n">phosphomod</span> <span class="o">=</span> <span class="s1">&#39;Y&#39;</span>
+<span class="n">logName_new</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">logName</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">phosphomod</span><span class="si">}</span><span class="s2">&quot;</span>
+<span class="c1">#get activity log</span>
+<span class="n">activity_log</span> <span class="o">=</span> <span class="n">helpers</span><span class="o">.</span><span class="n">get_logger</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;activity_</span><span class="si">{</span><span class="n">logName</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">odir</span><span class="si">}</span><span class="s2">/RESULTS/activity_</span><span class="si">{</span><span class="n">logName</span><span class="si">}</span><span class="s2">.log&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<section id="Load-in-KSTAR-results">
+<h1>Load in KSTAR results<a class="headerlink" href="#Load-in-KSTAR-results" title="Permalink to this headline">¶</a></h1>
+<p>As with saving KSTAR results, there are several options, largely depending on how data was saved. Both save_kstar() and save_kstar_slim() have an associated load function:</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="c1">#Load full kstar save</span>
+<span class="c1">#kinact_dict = kstar_activity.from_kstar(logName_new, odir, activity_log)</span>
+<span class="c1">#Load kstar_slim save</span>
+<span class="n">kinact_dict</span> <span class="o">=</span> <span class="n">kstar_activity</span><span class="o">.</span><span class="n">from_kstar_slim</span><span class="p">(</span><span class="n">logName</span><span class="p">,</span> <span class="n">odir</span><span class="p">,</span> <span class="n">activity_log</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>If nextflow was used (see Running Large Datasets with Nextflow), there is a seperate function that will allow you to load in results from nextflow into a kinase_dict object:</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">kinact_dict</span> <span class="o">=</span> <span class="n">kstar_activity</span><span class="o">.</span><span class="n">from_kstar_nextflow</span><span class="p">(</span><span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;example_run&#39;</span><span class="p">,</span><span class="n">odir</span> <span class="o">=</span> <span class="s1">&#39;example_run&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>Lastly, you may only be concerned about the predicted activities and false positive rates. If that is the case, load these directly with pandas:</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">results</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">odir</span><span class="si">}</span><span class="s2">/RESULTS/</span><span class="si">{</span><span class="n">logName</span><span class="si">}</span><span class="s2">_Y_mann_whitney_activities.tsv&quot;</span><span class="p">,</span> <span class="n">sep</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\t</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">index_col</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span>
+<span class="n">fpr</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">odir</span><span class="si">}</span><span class="s2">/RESULTS/</span><span class="si">{</span><span class="n">logName</span><span class="si">}</span><span class="s2">_Y_mann_whitney_fpr.tsv&quot;</span><span class="p">,</span> <span class="n">sep</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\t</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">index_col</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Plot-the-base-dotplot">
+<h1>Plot the base dotplot<a class="headerlink" href="#Plot-the-base-dotplot" title="Permalink to this headline">¶</a></h1>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="c1">#if using kinase_dict object, extract results and fpr values</span>
+<span class="n">activities</span> <span class="o">=</span> <span class="n">kinact_dict</span><span class="p">[</span><span class="s1">&#39;Y&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">activities_mann_whitney</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+<span class="n">fpr</span> <span class="o">=</span> <span class="n">kinact_dict</span><span class="p">[</span><span class="s1">&#39;Y&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">fpr_mann_whitney</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="c1">#log transform the results: this will make visualization much easier</span>
+<span class="n">log_results</span> <span class="o">=</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">activities</span><span class="p">)</span>
+
+<span class="c1">#instantiate the dotplot object</span>
+<span class="n">dots</span> <span class="o">=</span> <span class="n">dotplot</span><span class="o">.</span><span class="n">DotPlot</span><span class="p">(</span><span class="n">log_results</span><span class="p">,</span>
+                       <span class="n">fpr</span><span class="p">,</span>
+                       <span class="n">figsize</span> <span class="o">=</span> <span class="p">(</span><span class="mi">4</span><span class="p">,</span><span class="mi">10</span><span class="p">),</span>
+                       <span class="n">legend_title</span> <span class="o">=</span> <span class="s1">&#39;-log10(p-value)&#39;</span><span class="p">)</span>
+
+
+<span class="c1">#generate the dotplot</span>
+<span class="n">dots</span><span class="o">.</span><span class="n">dotplot</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+&lt;AxesSubplot:&gt;
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/Tutorial_Plotting_12_1.png" src="../_images/Tutorial_Plotting_12_1.png" />
+</div>
+</div>
+</section>
+<section id="Change-the-axis-labels-and-sort-kinases-based-on-activity">
+<h1>Change the axis labels and sort kinases based on activity<a class="headerlink" href="#Change-the-axis-labels-and-sort-kinases-based-on-activity" title="Permalink to this headline">¶</a></h1>
+<p>In many cases, you may wish to plot different axis labels for each experiment or use different naming conventions then those that are defaults in NetworKIN. To adjust, you can manually update the results and fpr dataframe prior to creating the dotplot object. Or, you can pass in dictionaries to the dotplot object that will adjust the axis labels accordingly without changing the original activities/fpr dataframes.</p>
+<p>In this example, the x-axis labels are a bit wordy. In addition, we would like to change the kinase labels so that kinases like KDR (VEGFR2) are indicated by their more well known name.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="c1">#create the xlabel dict.</span>
+<span class="n">new_labels</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;5&#39;</span><span class="p">,</span><span class="s1">&#39;15&#39;</span><span class="p">,</span><span class="s1">&#39;30&#39;</span><span class="p">,</span> <span class="s1">&#39;60&#39;</span><span class="p">]</span>
+<span class="n">x_label_dict</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">activities</span><span class="o">.</span><span class="n">columns</span><span class="p">)):</span>
+    <span class="n">x_label_dict</span><span class="p">[</span><span class="n">activities</span><span class="o">.</span><span class="n">columns</span><span class="p">[</span><span class="n">i</span><span class="p">]]</span> <span class="o">=</span> <span class="n">new_labels</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+
+<span class="n">x_label_dict</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+{&#39;data:time:15&#39;: &#39;5&#39;,
+ &#39;data:time:30&#39;: &#39;15&#39;,
+ &#39;data:time:5&#39;: &#39;30&#39;,
+ &#39;data:time:60&#39;: &#39;60&#39;}
+</pre></div></div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="c1">#set preferred kinase names (make a kinase_dict)</span>
+<span class="n">kinase_dict</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="n">kinase_map</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s1">&#39;globalKinaseMap.csv&#39;</span><span class="p">,</span> <span class="n">index_col</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">kinase</span> <span class="ow">in</span> <span class="n">activities</span><span class="o">.</span><span class="n">index</span><span class="p">:</span>
+    <span class="n">kinase_dict</span><span class="p">[</span><span class="n">kinase</span><span class="p">]</span> <span class="o">=</span> <span class="n">kinase_map</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">kinase</span><span class="p">,</span><span class="s1">&#39;Preferred Name&#39;</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<p>Any sorting of the results needs to be done before instantiating the dotplot. Only the activities dataframe needs to be updated, the fpr dataframe will be automatically updated in order to match the activities dataframe.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="c1">#sort the data by the activities at the 30 second timepoint</span>
+<span class="n">log_results</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">by</span> <span class="o">=</span> <span class="s1">&#39;data:time:30&#39;</span><span class="p">,</span> <span class="n">inplace</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="c1">#reinstantiate the dotplot object</span>
+<span class="n">dots</span> <span class="o">=</span> <span class="n">dotplot</span><span class="o">.</span><span class="n">DotPlot</span><span class="p">(</span><span class="n">log_results</span><span class="p">,</span>
+                       <span class="n">fpr</span><span class="p">,</span>
+                       <span class="n">x_label_dict</span> <span class="o">=</span> <span class="n">x_label_dict</span><span class="p">,</span>
+                       <span class="n">kinase_dict</span> <span class="o">=</span> <span class="n">kinase_dict</span><span class="p">,</span>
+                       <span class="n">figsize</span> <span class="o">=</span> <span class="p">(</span><span class="mi">4</span><span class="p">,</span><span class="mi">10</span><span class="p">),</span>
+                       <span class="n">legend_title</span> <span class="o">=</span> <span class="s1">&#39;-log10(p-value)&#39;</span><span class="p">)</span>
+
+<span class="c1">#plot</span>
+<span class="n">dots</span><span class="o">.</span><span class="n">dotplot</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+&lt;AxesSubplot:&gt;
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/Tutorial_Plotting_18_1.png" src="../_images/Tutorial_Plotting_18_1.png" />
+</div>
+</div>
+</section>
+<section id="Remove-kinases-that-never-show-significant-activity">
+<h1>Remove kinases that never show significant activity<a class="headerlink" href="#Remove-kinases-that-never-show-significant-activity" title="Permalink to this headline">¶</a></h1>
+<p>In many cases, there will be kinases that do not show significant activity in any of the experiments. It can be advantageous to remove these kinases in order to simplify the plot.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="c1">#drop kinases with that are not significant for any of the samples (fpr &lt;= alpha).</span>
+<span class="n">dots</span><span class="o">.</span><span class="n">drop_kinases_with_no_significance</span><span class="p">()</span>
+
+<span class="c1">#generate the dotplot</span>
+<span class="n">dots</span><span class="o">.</span><span class="n">dotplot</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+&lt;AxesSubplot:&gt;
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/Tutorial_Plotting_20_1.png" src="../_images/Tutorial_Plotting_20_1.png" />
+</div>
+</div>
+<p>Specific kinases can also be removed prior to plotting. For example, say we were less interested in the activity in EPHA kinases. We can tell the dotplot object to remove these kinases specifically.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="c1">#drop kinases that are not of interest. For example, we may not be interested in visualizing EPHA kinases.</span>
+<span class="n">eph</span> <span class="o">=</span> <span class="p">[</span><span class="n">kin</span> <span class="k">for</span> <span class="n">kin</span> <span class="ow">in</span> <span class="n">log_results</span><span class="o">.</span><span class="n">index</span> <span class="k">if</span> <span class="s1">&#39;EPHA&#39;</span> <span class="ow">in</span> <span class="n">kin</span> <span class="ow">or</span> <span class="s1">&#39;EPHB&#39;</span> <span class="ow">in</span> <span class="n">kin</span><span class="p">]</span>
+<span class="n">dots</span><span class="o">.</span><span class="n">drop_kinases</span><span class="p">(</span><span class="n">eph</span><span class="p">)</span>
+
+<span class="c1">#generate the dotplot</span>
+<span class="n">dots</span><span class="o">.</span><span class="n">dotplot</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+&lt;AxesSubplot:&gt;
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/Tutorial_Plotting_22_1.png" src="../_images/Tutorial_Plotting_22_1.png" />
+</div>
+</div>
+</section>
+<section id="Cluster-the-kinase-activities">
+<h1>Cluster the kinase activities<a class="headerlink" href="#Cluster-the-kinase-activities" title="Permalink to this headline">¶</a></h1>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="c1">#Setup subplots so that dendrogram are included</span>
+<span class="n">fig</span><span class="p">,</span> <span class="n">axes</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span> <span class="o">=</span> <span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">10</span><span class="p">),</span>
+        <span class="n">nrows</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">ncols</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span>
+        <span class="n">sharex</span> <span class="o">=</span> <span class="s1">&#39;col&#39;</span><span class="p">,</span>
+        <span class="n">sharey</span> <span class="o">=</span> <span class="s1">&#39;row&#39;</span><span class="p">,</span>
+        <span class="n">gridspec_kw</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;width_ratios&#39;</span><span class="p">:[</span><span class="mf">0.1</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span>
+        <span class="p">},)</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">subplots_adjust</span><span class="p">(</span><span class="n">wspace</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">hspace</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+<span class="c1">#cluster the kinases with hierarchical clustering, sort them accordingly,and add a dendrogram to the left of the dotplot</span>
+<span class="n">dots</span><span class="o">.</span><span class="n">cluster</span><span class="p">(</span><span class="n">orientation</span> <span class="o">=</span> <span class="s1">&#39;left&#39;</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;ward&#39;</span><span class="p">)</span>
+<span class="c1">#cluster the samples with hierarchical clustering, sort them accordingly, and add a dendrogram to the top of the dotplot</span>
+<span class="c1">#dots.cluster(orientation = &#39;top&#39;, ax = axes[0,1], method=&#39;ward&#39;)</span>
+
+<span class="c1">#generate the dotplot</span>
+<span class="n">dots</span><span class="o">.</span><span class="n">dotplot</span><span class="p">(</span><span class="n">ax</span> <span class="o">=</span> <span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+&lt;AxesSubplot:&gt;
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/Tutorial_Plotting_24_1.png" src="../_images/Tutorial_Plotting_24_1.png" />
+</div>
+</div>
+<p>Notice that clustering the kinase activities resorted the y-axis, undoing the sorting from earlier.</p>
+</section>
+<section id="Add-context-to-dotplot">
+<h1>Add context to dotplot<a class="headerlink" href="#Add-context-to-dotplot" title="Permalink to this headline">¶</a></h1>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="c1">#create context dataframe which indicates different information about each sample</span>
+<span class="n">context</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s1">&#39;Sample&#39;</span><span class="p">:</span> <span class="n">activities</span><span class="o">.</span><span class="n">columns</span><span class="p">,</span> <span class="s1">&#39;Context 1&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;0&#39;</span><span class="p">,</span><span class="s1">&#39;0&#39;</span><span class="p">,</span><span class="s1">&#39;1&#39;</span><span class="p">,</span><span class="s1">&#39;1&#39;</span><span class="p">],</span> <span class="s1">&#39;Context 2&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;0&#39;</span><span class="p">,</span><span class="s1">&#39;1&#39;</span><span class="p">,</span><span class="s1">&#39;2&#39;</span><span class="p">,</span><span class="s1">&#39;3&#39;</span><span class="p">]})</span>
+<span class="n">context</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>Sample</th>
+      <th>Context 1</th>
+      <th>Context 2</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>data:time:15</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>data:time:30</td>
+      <td>0</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>data:time:5</td>
+      <td>1</td>
+      <td>2</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>data:time:60</td>
+      <td>1</td>
+      <td>3</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="c1">#Setup subplots so that dendrogram and context are included</span>
+<span class="n">fig</span><span class="p">,</span> <span class="n">axes</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span> <span class="o">=</span> <span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">10</span><span class="p">),</span>
+        <span class="n">nrows</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span> <span class="n">ncols</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span>
+        <span class="n">sharex</span> <span class="o">=</span> <span class="s1">&#39;col&#39;</span><span class="p">,</span>
+        <span class="n">sharey</span> <span class="o">=</span> <span class="s1">&#39;row&#39;</span><span class="p">,</span>
+        <span class="n">gridspec_kw</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;height_ratios&#39;</span><span class="p">:[</span><span class="mf">0.1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+            <span class="s1">&#39;width_ratios&#39;</span><span class="p">:[</span><span class="mf">0.1</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span>
+        <span class="p">},)</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">subplots_adjust</span><span class="p">(</span><span class="n">wspace</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">hspace</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+<span class="c1">#cluster the kinases with hierarchical clustering, sort them accordingly,and add a dendrogram to the left of the dotplot</span>
+<span class="n">dots</span><span class="o">.</span><span class="n">cluster</span><span class="p">(</span><span class="n">orientation</span> <span class="o">=</span> <span class="s1">&#39;left&#39;</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;ward&#39;</span><span class="p">)</span>
+
+<span class="c1">#add context to plot (if clustering the experiments, this must come after clustering)</span>
+<span class="n">dots</span><span class="o">.</span><span class="n">context</span><span class="p">(</span><span class="n">ax</span><span class="o">=</span><span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span><span class="n">info</span> <span class="o">=</span> <span class="n">context</span><span class="p">,</span> <span class="n">id_column</span> <span class="o">=</span> <span class="s1">&#39;Sample&#39;</span><span class="p">,</span>
+             <span class="n">context_columns</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Context 1&#39;</span><span class="p">,</span> <span class="s1">&#39;Context 2&#39;</span><span class="p">],</span> <span class="n">orientation</span> <span class="o">=</span> <span class="s1">&#39;top&#39;</span><span class="p">,</span> <span class="n">margin</span> <span class="o">=</span> <span class="mf">0.5</span><span class="p">)</span>
+
+
+<span class="c1">#generate the dotplot</span>
+<span class="n">dots</span><span class="o">.</span><span class="n">dotplot</span><span class="p">(</span><span class="n">ax</span> <span class="o">=</span> <span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">])</span>
+
+<span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="s1">&#39;off&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+(146.55458989570414, 0.0, -0.05, 1.05)
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/Tutorial_Plotting_28_1.png" src="../_images/Tutorial_Plotting_28_1.png" />
+</div>
+</div>
+</section>
+<section id="Plot-dotplot-with-the-false-positive-rate-indicated-by-hue">
+<h1>Plot dotplot with the false positive rate indicated by hue<a class="headerlink" href="#Plot-dotplot-with-the-false-positive-rate-indicated-by-hue" title="Permalink to this headline">¶</a></h1>
+<p>In some cases, the binary coloring of significance can make certain kinases appear less significant than they really are, with false positive rates hovering around 0.05. As such, it may be of interest to encode the false positive rate using a gradient hue instead. This is easy to accomplish in the dotplot class, as this is controlled by the binary_sig parameter.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="c1">#Setup subplots so that dendrogram and context are included</span>
+<span class="n">fig</span><span class="p">,</span> <span class="n">axes</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span> <span class="o">=</span> <span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">10</span><span class="p">),</span>
+        <span class="n">nrows</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span> <span class="n">ncols</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span>
+        <span class="n">sharex</span> <span class="o">=</span> <span class="s1">&#39;col&#39;</span><span class="p">,</span>
+        <span class="n">sharey</span> <span class="o">=</span> <span class="s1">&#39;row&#39;</span><span class="p">,</span>
+        <span class="n">gridspec_kw</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;height_ratios&#39;</span><span class="p">:[</span><span class="mf">0.1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+            <span class="s1">&#39;width_ratios&#39;</span><span class="p">:[</span><span class="mf">0.1</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span>
+        <span class="p">},)</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">subplots_adjust</span><span class="p">(</span><span class="n">wspace</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">hspace</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+<span class="c1">#reinstantiate the dotplot object, this time with binary_sig set to False</span>
+<span class="n">dots</span> <span class="o">=</span> <span class="n">dotplot</span><span class="o">.</span><span class="n">DotPlot</span><span class="p">(</span><span class="n">log_results</span><span class="p">,</span>
+                       <span class="n">fpr</span><span class="p">,</span>
+                       <span class="n">binary_sig</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+                       <span class="n">x_label_dict</span> <span class="o">=</span> <span class="n">x_label_dict</span><span class="p">,</span>
+                       <span class="n">kinase_dict</span> <span class="o">=</span> <span class="n">kinase_dict</span><span class="p">,</span>
+                       <span class="n">legend_title</span> <span class="o">=</span> <span class="s1">&#39;-log10(p-value)&#39;</span><span class="p">)</span>
+
+<span class="c1">#drop kinases with that are not significant for any of the samples (fpr &lt;= alpha).</span>
+<span class="n">dots</span><span class="o">.</span><span class="n">drop_kinases_with_no_significance</span><span class="p">()</span>
+
+<span class="c1">#drop kinases that are not of interest. For example, we may not be interested in visualizing EPHA kinases.</span>
+<span class="n">eph</span> <span class="o">=</span> <span class="p">[</span><span class="n">kin</span> <span class="k">for</span> <span class="n">kin</span> <span class="ow">in</span> <span class="n">log_results</span><span class="o">.</span><span class="n">index</span> <span class="k">if</span> <span class="s1">&#39;EPHA&#39;</span> <span class="ow">in</span> <span class="n">kin</span> <span class="ow">or</span> <span class="s1">&#39;EPHB&#39;</span> <span class="ow">in</span> <span class="n">kin</span><span class="p">]</span>
+<span class="n">dots</span><span class="o">.</span><span class="n">drop_kinases</span><span class="p">(</span><span class="n">eph</span><span class="p">)</span>
+
+<span class="c1">#cluster the kinases with hierarchical clustering, sort them accordingly,and add a dendrogram to the left of the dotplot</span>
+<span class="n">dots</span><span class="o">.</span><span class="n">cluster</span><span class="p">(</span><span class="n">orientation</span> <span class="o">=</span> <span class="s1">&#39;left&#39;</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;ward&#39;</span><span class="p">)</span>
+
+<span class="c1">#add context to plot (if clustering the experiments, this must come after clustering)</span>
+<span class="n">dots</span><span class="o">.</span><span class="n">context</span><span class="p">(</span><span class="n">ax</span><span class="o">=</span><span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span><span class="n">info</span> <span class="o">=</span> <span class="n">context</span><span class="p">,</span> <span class="n">id_column</span> <span class="o">=</span> <span class="s1">&#39;Sample&#39;</span><span class="p">,</span>
+             <span class="n">context_columns</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Context 1&#39;</span><span class="p">,</span> <span class="s1">&#39;Context 2&#39;</span><span class="p">],</span> <span class="n">orientation</span> <span class="o">=</span> <span class="s1">&#39;top&#39;</span><span class="p">,</span> <span class="n">margin</span> <span class="o">=</span> <span class="mf">0.5</span><span class="p">)</span>
+
+
+<span class="c1">#generate the dotplot</span>
+<span class="n">dots</span><span class="o">.</span><span class="n">dotplot</span><span class="p">(</span><span class="n">ax</span> <span class="o">=</span> <span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">])</span>
+
+<span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="s1">&#39;off&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+(146.55458989570417, 0.0, -0.05, 1.05)
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/Tutorial_Plotting_31_1.png" src="../_images/Tutorial_Plotting_31_1.png" />
+</div>
+</div>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table of Contents</a></h3>
+  <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../Overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Dependencies.html">Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../KSTAR.html">KSTAR</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="tutorial.html">Tutorial</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="tutorial.html#map-datasets-to-kinpred">Map Datasets to KinPred</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial.html#predict-kinase-activities">Predict Kinase Activities</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="tutorial.html#plot-results">Plot Results</a><ul class="current">
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Load in KSTAR results</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#Plot-the-base-dotplot">Plot the base dotplot</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#Change-the-axis-labels-and-sort-kinases-based-on-activity">Change the axis labels and sort kinases based on activity</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#Remove-kinases-that-never-show-significant-activity">Remove kinases that never show significant activity</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#Cluster-the-kinase-activities">Cluster the kinase activities</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#Add-context-to-dotplot">Add context to dotplot</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#Plot-dotplot-with-the-false-positive-rate-indicated-by-hue">Plot dotplot with the false positive rate indicated by hue</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../Examples/Examples.html">Plotting Examples from KSTAR Paper</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Running_with_nextflow.html">Running Large Datasets with Nextflow</a></li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="CalculateActivities.html"
+                        title="previous chapter">Determine Thresholds</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="../Examples/Examples.html"
+                        title="next chapter">Plotting Examples from KSTAR Paper</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/Tutorial/Plotting.ipynb.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="../Examples/Examples.html" title="Plotting Examples from KSTAR Paper"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="CalculateActivities.html" title="Determine Thresholds"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">KSTAR 1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="tutorial.html" >Tutorial</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Load in KSTAR results</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2020, Naegle Lab.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.0.1.
+    </div>
+  </body>
+</html>

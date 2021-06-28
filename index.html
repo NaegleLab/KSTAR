@@ -4,21 +4,21 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
     <title>KSTAR &#8212; KSTAR 1 documentation</title>
-    <link rel="stylesheet" href="_static/classic.css" type="text/css" />
-    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/classic.css" />
     
-    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
     <script src="_static/jquery.js"></script>
     <script src="_static/underscore.js"></script>
     <script src="_static/doctools.js"></script>
-    <script src="_static/language_data.js"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Dependencies" href="Dependencies.html" /> 
+    <link rel="next" title="Overview" href="Overview.html" /> 
   </head><body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
@@ -30,7 +30,7 @@
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="Dependencies.html" title="Dependencies"
+          <a href="Overview.html" title="Overview"
              accesskey="N">next</a> |</li>
         <li class="nav-item nav-item-0"><a href="#">KSTAR 1 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">KSTAR</a></li> 
@@ -42,11 +42,12 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="kstar">
+  <section id="kstar">
 <h1>KSTAR<a class="headerlink" href="#kstar" title="Permalink to this headline">¶</a></h1>
 <div class="toctree-wrapper compound">
 <p class="caption"><span class="caption-text">Contents:</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="Overview.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="Dependencies.html">Dependencies</a></li>
 <li class="toctree-l1"><a class="reference internal" href="Installation.html">Installation</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="Installation.html#pip">Pip</a></li>
@@ -55,33 +56,49 @@
 <li class="toctree-l2"><a class="reference internal" href="Installation.html#git">Git</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="Overview.html">Overview</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="Overview.html#scripts">Scripts</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="Examples.html">Examples</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="Examples.html#mapping">Mapping</a></li>
-<li class="toctree-l2"><a class="reference internal" href="Examples.html#calculating-activities">Calculating Activities</a></li>
-</ul>
-</li>
 <li class="toctree-l1"><a class="reference internal" href="KSTAR.html">KSTAR</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="KSTAR.html#module-kstar">The “Conifg” class</a></li>
-<li class="toctree-l2"><a class="reference internal" href="KSTAR.html#the-kinaseactivity-class">The “KinaseActivity” class</a></li>
+<li class="toctree-l2"><a class="reference internal" href="KSTAR.html#global-variables-found-in-config-module">Global Variables found in Config Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="KSTAR.html#the-prune-module">The Prune Module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="KSTAR.html#the-mapper-class">The “Mapper” class</a></li>
+<li class="toctree-l2"><a class="reference internal" href="KSTAR.html#the-kinaseactivity-class">The “KinaseActivity” class</a></li>
 <li class="toctree-l2"><a class="reference internal" href="KSTAR.html#the-plot-class">The “Plot” class</a></li>
+<li class="toctree-l2"><a class="reference internal" href="KSTAR.html#supporting-functions">Supporting Functions</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="Tutorial/tutorial.html">Tutorial</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="Tutorial/tutorial.html#generating-pruned-networks">Generating Pruned Networks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Tutorial/tutorial.html#map-datasets-to-kinpred">Map Datasets to KinPred</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Tutorial/tutorial.html#predict-kinase-activities">Predict Kinase Activities</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Tutorial/tutorial.html#plot-results">Plot Results</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="Examples/Examples.html">Plotting Examples from KSTAR Paper</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="Examples/Examples.html#activation-of-kinases-in-controlled-cell-lines">Activation of Kinases in Controlled Cell Lines</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Examples/Examples.html#inhibition-of-kinases-in-controlled-cell-lines">Inhibition of Kinases in Controlled Cell Lines</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Examples/Examples.html#profiling-her2-therapy-response-in-breast-cancer">Profiling HER2 therapy response in Breast Cancer</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="Running_with_nextflow.html">Running Large Datasets with Nextflow</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="Running_with_nextflow.html#requirements">Requirements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Running_with_nextflow.html#installation">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Running_with_nextflow.html#updating-networks-used-in-kstar">Updating Networks used in KSTAR</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Running_with_nextflow.html#mapping-datasets">Mapping datasets</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Running_with_nextflow.html#running-nextflow">Running nextflow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Running_with_nextflow.html#output-of-a-nextflow-run">Output of a nextflow run</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Running_with_nextflow.html#running-kstar-nextflow-on-singularity">Running KSTAR-nextflow on Singularity</a></li>
 </ul>
 </li>
 </ul>
 </div>
-</div>
-<div class="section" id="indices-and-tables">
+</section>
+<section id="indices-and-tables">
 <h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h1>
 <ul class="simple">
 <li><p><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></p></li>
 <li><p><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></p></li>
 <li><p><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></p></li>
 </ul>
-</div>
+</section>
 
 
             <div class="clearer"></div>
@@ -93,16 +110,18 @@
   <h3><a href="#">Table of Contents</a></h3>
   <p class="caption"><span class="caption-text">Contents:</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="Overview.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="Dependencies.html">Dependencies</a></li>
 <li class="toctree-l1"><a class="reference internal" href="Installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Overview.html">Overview</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Examples.html">Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="KSTAR.html">KSTAR</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Tutorial/tutorial.html">Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Examples/Examples.html">Plotting Examples from KSTAR Paper</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Running_with_nextflow.html">Running Large Datasets with Nextflow</a></li>
 </ul>
 
   <h4>Next topic</h4>
-  <p class="topless"><a href="Dependencies.html"
-                        title="next chapter">Dependencies</a></p>
+  <p class="topless"><a href="Overview.html"
+                        title="next chapter">Overview</a></p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
@@ -134,7 +153,7 @@
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="Dependencies.html" title="Dependencies"
+          <a href="Overview.html" title="Overview"
              >next</a> |</li>
         <li class="nav-item nav-item-0"><a href="#">KSTAR 1 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">KSTAR</a></li> 
@@ -142,7 +161,7 @@
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2020, Naegle Lab.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.2.1.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.0.1.
     </div>
   </body>
 </html>

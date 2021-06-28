@@ -1,0 +1,166 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>kstar.config &#8212; KSTAR 1 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/classic.css" />
+    
+    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">KSTAR 1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">kstar.config</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for kstar.config</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">pickle</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">from</span> <span class="nn">kstar</span> <span class="kn">import</span> <span class="n">helpers</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">These are the GLOBAL variables for the KSTAR project and are set for default procedures for the current release</span>
+<span class="sd">of KinPred and KSTAR. </span>
+
+<span class="sd">Update these if you want to update:</span>
+<span class="sd">1. Where resources are placed from KSTAR and KINPRED projects: RESOURCE_DIR</span>
+<span class="sd">2. Reference proteome: HUMAN_REF_FASTA_FILE</span>
+<span class="sd">3. Phosphoprotoeme: HUMAN_REF_PHOSPHO</span>
+<span class="sd">4. Networks Directory: Downloaded from KSTAR Figshare repository, this includes heuristic networks suggested for </span>
+<span class="sd">5. Networks Pickle: </span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="c1">## BEGIN DECLARATION OF GLOBALS</span>
+<span class="c1">#PROJECT_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)),&#39;..&#39;) #PROJECT Directory is one level up from this config file</span>
+<span class="c1">#PROJECT_DIR = os.path.abspath(os.path.join(os.path.dirname( __file__ ), &#39;..&#39;))</span>
+<span class="n">PROJECT_DIR</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)))</span>
+<span class="n">RESOURCE_DIR</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">PROJECT_DIR</span><span class="si">}</span><span class="s2">/RESOURCE_FILES&quot;</span> 
+
+<span class="c1"># RESOURCE_DIR depedencies</span>
+<span class="n">HUMAN_REF_FASTA_FILE</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">RESOURCE_DIR</span><span class="si">}</span><span class="s2">/Raw/humanProteome/humanProteome_2020-02-26.fasta&quot;</span>  <span class="c1">#download from KinPred https://doi.org/10.1101/2020.08.10.244426</span>
+<span class="n">HUMAN_REF_SEQUENCES</span> <span class="o">=</span> <span class="n">helpers</span><span class="o">.</span><span class="n">process_fasta_file</span><span class="p">(</span><span class="n">HUMAN_REF_FASTA_FILE</span><span class="p">)</span>
+
+<span class="n">HUMAN_REF_PHOSPHO_FILE</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">RESOURCE_DIR</span><span class="si">}</span><span class="s2">/Human_PhosphoProteome_mapped_annotated_02_26_20.csv&quot;</span> <span class="c1">#download from KSTAR FIGSHARE, or use helpers folder generate to create a new one</span>
+<span class="n">HUMAN_REF_COMPENDIA</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">HUMAN_REF_PHOSPHO_FILE</span><span class="p">)</span>
+
+<span class="n">NETWORK_DIR</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">RESOURCE_DIR</span><span class="si">}</span><span class="s2">/NETWORKS/NetworKIN&quot;</span>
+<span class="n">NETWORK_Y_PICKLE</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">NETWORK_DIR</span><span class="si">}</span><span class="s2">/network_Y.p&quot;</span> <span class="c1"># created by create_networkin_pickles()</span>
+<span class="n">NETWORK_ST_PICKLE</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">NETWORK_DIR</span><span class="si">}</span><span class="s2">/network_ST.p&quot;</span> <span class="c1">#created by create_networkin_pickles()</span>
+
+<span class="c1"># COLUMN NAMES USED FOR KSTAR</span>
+<span class="n">KSTAR_ACCESSION</span> <span class="o">=</span> <span class="s1">&#39;KSTAR_ACCESSION&#39;</span>
+<span class="n">KSTAR_PEPTIDE</span> <span class="o">=</span> <span class="s1">&#39;KSTAR_PEPTIDE&#39;</span>
+<span class="n">KSTAR_SITE</span> <span class="o">=</span> <span class="s1">&#39;KSTAR_SITE&#39;</span>
+<span class="n">KSTAR_KINASE</span> <span class="o">=</span> <span class="s1">&#39;KSTAR_KINASE&#39;</span>
+
+<span class="c1"># Number of cores to use for parallelization, set to 1 to avoid multiprocessing</span>
+<span class="n">PROCESSES</span> <span class="o">=</span> <span class="mi">4</span>
+
+<span class="c1">## END DECLARATION OF GLOBALS</span>
+
+
+<div class="viewcode-block" id="create_network_pickles"><a class="viewcode-back" href="../../KSTAR.html#kstar.config.create_network_pickles">[docs]</a><span class="k">def</span> <span class="nf">create_network_pickles</span><span class="p">():</span>
+	<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">	Given network files declared in globals, create pickles of the kstar object that can then be quickly loaded in analysis</span>
+<span class="sd">	Assumes that the Network structure has two folders Y and ST under the NETWORK_DIR global variable and that </span>
+<span class="sd">	all .csv files in those directories should be loaded into a network pickle.</span>
+<span class="sd">	&quot;&quot;&quot;</span>
+	<span class="n">phosphoTypes</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Y&#39;</span><span class="p">,</span> <span class="s1">&#39;ST&#39;</span><span class="p">]</span>
+	<span class="k">for</span> <span class="n">phosphoType</span> <span class="ow">in</span> <span class="n">phosphoTypes</span><span class="p">:</span>
+		<span class="n">network</span> <span class="o">=</span> <span class="p">{}</span>
+		<span class="n">directory</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">NETWORK_DIR</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">phosphoType</span><span class="si">}</span><span class="s2">/&quot;</span>
+		<span class="c1">#get all csv files in that directory </span>
+		<span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">directory</span><span class="p">):</span>
+			<span class="k">if</span> <span class="n">file</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;.tsv&quot;</span><span class="p">):</span>
+				<span class="c1">#get the value of the network number</span>
+				<span class="n">file_noext</span> <span class="o">=</span> <span class="n">file</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s2">&quot;.tsv&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">)</span>
+				<span class="n">key_name</span> <span class="o">=</span> <span class="s1">&#39;nkin&#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">file_noext</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+				<span class="c1">#print(&quot;Debug: key name is %s&quot;%(key_name))</span>
+				<span class="n">network</span><span class="p">[</span><span class="n">key_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">directory</span><span class="si">}{</span><span class="n">file</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s1">&#39;</span><span class="se">\t</span><span class="s1">&#39;</span><span class="p">)</span>
+		<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Loaded </span><span class="si">%d</span><span class="s2"> number of networks for phosphoType </span><span class="si">%s</span><span class="s2">&quot;</span><span class="o">%</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">network</span><span class="p">),</span> <span class="n">phosphoType</span><span class="p">))</span>
+		<span class="n">pickle</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">network</span><span class="p">,</span> <span class="nb">open</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">NETWORK_DIR</span><span class="si">}</span><span class="s2">/network_</span><span class="si">{</span><span class="n">phosphoType</span><span class="si">}</span><span class="s2">.p&quot;</span><span class="p">,</span> <span class="s2">&quot;wb&quot;</span><span class="p">))</span></div>
+
+
+<span class="c1"># network_directory=&#39;/Volumes/naegle_lab/KinaseActivity/Data/Subgraph/Modifed NetworKIN/CompendiaLimit&#39;</span>
+<span class="c1"># networkin = pickle.load( open(f&quot;{network_directory}/compendia_limit.p&quot;, &quot;rb&quot; ) )</span>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../../index.html">Table of Contents</a></h3>
+  <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../Overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Dependencies.html">Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../KSTAR.html">KSTAR</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Tutorial/tutorial.html">Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Examples/Examples.html">Plotting Examples from KSTAR Paper</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Running_with_nextflow.html">Running Large Datasets with Nextflow</a></li>
+</ul>
+
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">KSTAR 1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">kstar.config</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2020, Naegle Lab.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.0.1.
+    </div>
+  </body>
+</html>

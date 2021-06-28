@@ -11,11 +11,13 @@ KSTAR
 	:maxdepth: 2
 	:caption: Contents:
 
+	Overview
 	Dependencies
 	Installation
-	Overview
-	Examples
 	KSTAR
+	Tutorial/tutorial
+	Examples/Examples
+	Running_with_nextflow
 
 
 

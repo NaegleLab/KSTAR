@@ -1,0 +1,36 @@
+Tutorial
+========
+
+Generating Pruned Networks
+--------------------------
+
+.. toctree::
+	:maxdepth: 2
+	
+	Pruning.md
+
+
+Map Datasets to KinPred
+-----------------------
+
+.. toctree::
+	:maxdepth: 2
+	
+	MapData.ipynb
+	
+	
+Predict Kinase Activities
+-------------------------
+
+.. toctree::
+	:maxdepth: 2
+	
+	CalculateActivities.ipynb
+	
+Plot Results
+------------
+
+.. toctree::
+	:maxdepth: 2
+	
+	Plotting.ipynb

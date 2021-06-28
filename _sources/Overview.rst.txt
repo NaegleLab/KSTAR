@@ -8,18 +8,10 @@ KSTAR is a Python package for inferring kinase actiivities from phosphoproteomic
 
 3. Negative set generation and activity calculation: Given the distribution of study bias of the sites in each experiment for a dataset, generate random datasets and repeat activity calculation. 
 
-4. Normalization: Use the random datasets to normalize/interpret the calculations within the real experiments.
+4. Normalization or Mann Whitney Significance Estimation: Use the random datasets to normalize/interpret the calculations within the real experiments.
 
-5. Analysis/Plotting: Use the post-normalized activity calculations to plot/infer kinase activities within the dataset of interest.
+5. Analysis/Plotting: Use the post-normalized or mann whitney activity calculations to plot/infer kinase activities within the dataset of interest.
 
-Scripts
--------
-- kstar/run_kstar.py performs a full analysis from start to finish in the pipeline, saving output pickle and data files
 
-```
-tar -xvf KSTAR-<version>.tar.gz
-cd KSTAR-<version>
-python setup.py install
-```
 
 

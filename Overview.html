@@ -4,22 +4,22 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
     <title>Overview &#8212; KSTAR 1 documentation</title>
-    <link rel="stylesheet" href="_static/classic.css" type="text/css" />
-    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/classic.css" />
     
-    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
     <script src="_static/jquery.js"></script>
     <script src="_static/underscore.js"></script>
     <script src="_static/doctools.js"></script>
-    <script src="_static/language_data.js"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Examples" href="Examples.html" />
-    <link rel="prev" title="Installation" href="Installation.html" /> 
+    <link rel="next" title="Dependencies" href="Dependencies.html" />
+    <link rel="prev" title="KSTAR" href="index.html" /> 
   </head><body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
@@ -31,10 +31,10 @@
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="Examples.html" title="Examples"
+          <a href="Dependencies.html" title="Dependencies"
              accesskey="N">next</a> |</li>
         <li class="right" >
-          <a href="Installation.html" title="Installation"
+          <a href="index.html" title="KSTAR"
              accesskey="P">previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="index.html">KSTAR 1 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Overview</a></li> 
@@ -46,28 +46,17 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="overview">
+  <section id="overview">
 <h1>Overview<a class="headerlink" href="#overview" title="Permalink to this headline">¶</a></h1>
 <p>KSTAR is a Python package for inferring kinase actiivities from phosphoproteomic data. It requires the following steps, given a phosphoproteomic dataset of interest.</p>
 <ol class="arabic simple">
 <li><p>Mapping: This maps the phosphosites of the dataset the KinPred resource, which is an ontology for substrates for kinase-substrate prediction algorithms.</p></li>
 <li><p>Kinase Activity Calculation: Given sites identified in an experiment, for each experiment (column) in a dataset, calculate the likelihood that those sites were pulled randomly from the kinase-substrate networks. (Low pvalues means highly unlikely that data is randomly pulled)</p></li>
 <li><p>Negative set generation and activity calculation: Given the distribution of study bias of the sites in each experiment for a dataset, generate random datasets and repeat activity calculation.</p></li>
-<li><p>Normalization: Use the random datasets to normalize/interpret the calculations within the real experiments.</p></li>
-<li><p>Analysis/Plotting: Use the post-normalized activity calculations to plot/infer kinase activities within the dataset of interest.</p></li>
+<li><p>Normalization or Mann Whitney Significance Estimation: Use the random datasets to normalize/interpret the calculations within the real experiments.</p></li>
+<li><p>Analysis/Plotting: Use the post-normalized or mann whitney activity calculations to plot/infer kinase activities within the dataset of interest.</p></li>
 </ol>
-<div class="section" id="scripts">
-<h2>Scripts<a class="headerlink" href="#scripts" title="Permalink to this headline">¶</a></h2>
-<ul class="simple">
-<li><p>kstar/run_kstar.py performs a full analysis from start to finish in the pipeline, saving output pickle and data files</p></li>
-</ul>
-<p><code class="docutils literal notranslate"><span class="pre">`</span>
-<span class="pre">tar</span> <span class="pre">-xvf</span> <span class="pre">KSTAR-&lt;version&gt;.tar.gz</span>
-<span class="pre">cd</span> <span class="pre">KSTAR-&lt;version&gt;</span>
-<span class="pre">python</span> <span class="pre">setup.py</span> <span class="pre">install</span>
-<span class="pre">`</span></code></p>
-</div>
-</div>
+</section>
 
 
             <div class="clearer"></div>
@@ -79,22 +68,21 @@
   <h3><a href="index.html">Table of Contents</a></h3>
   <p class="caption"><span class="caption-text">Contents:</span></p>
 <ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="Dependencies.html">Dependencies</a></li>
 <li class="toctree-l1"><a class="reference internal" href="Installation.html">Installation</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Overview</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#scripts">Scripts</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="Examples.html">Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="KSTAR.html">KSTAR</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Tutorial/tutorial.html">Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Examples/Examples.html">Plotting Examples from KSTAR Paper</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Running_with_nextflow.html">Running Large Datasets with Nextflow</a></li>
 </ul>
 
   <h4>Previous topic</h4>
-  <p class="topless"><a href="Installation.html"
-                        title="previous chapter">Installation</a></p>
+  <p class="topless"><a href="index.html"
+                        title="previous chapter">KSTAR</a></p>
   <h4>Next topic</h4>
-  <p class="topless"><a href="Examples.html"
-                        title="next chapter">Examples</a></p>
+  <p class="topless"><a href="Dependencies.html"
+                        title="next chapter">Dependencies</a></p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
@@ -126,10 +114,10 @@
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="Examples.html" title="Examples"
+          <a href="Dependencies.html" title="Dependencies"
              >next</a> |</li>
         <li class="right" >
-          <a href="Installation.html" title="Installation"
+          <a href="index.html" title="KSTAR"
              >previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="index.html">KSTAR 1 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Overview</a></li> 
@@ -137,7 +125,7 @@
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2020, Naegle Lab.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.2.1.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.0.1.
     </div>
   </body>
 </html>

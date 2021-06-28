@@ -1,0 +1,199 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>Tutorial &#8212; KSTAR 1 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/classic.css" />
+    
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Run pruning within python" href="Pruning.html" />
+    <link rel="prev" title="KSTAR" href="../KSTAR.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="Pruning.html" title="Run pruning within python"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="../KSTAR.html" title="KSTAR"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">KSTAR 1 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Tutorial</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="tutorial">
+<h1>Tutorial<a class="headerlink" href="#tutorial" title="Permalink to this headline">¶</a></h1>
+<section id="generating-pruned-networks">
+<h2>Generating Pruned Networks<a class="headerlink" href="#generating-pruned-networks" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="Pruning.html">Run pruning within python</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Pruning.html#run-pruning-from-the-command-line">Run pruning from the command line</a></li>
+</ul>
+</div>
+</section>
+<section id="map-datasets-to-kinpred">
+<h2>Map Datasets to KinPred<a class="headerlink" href="#map-datasets-to-kinpred" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="MapData.html">Download and Process Dataset of Interest</a></li>
+<li class="toctree-l1"><a class="reference internal" href="MapData.html#Map-Dataset">Map Dataset</a></li>
+<li class="toctree-l1"><a class="reference internal" href="MapData.html#Explore-the-Mapped-Dataset">Explore the Mapped Dataset</a></li>
+</ul>
+</div>
+</section>
+<section id="predict-kinase-activities">
+<h2>Predict Kinase Activities<a class="headerlink" href="#predict-kinase-activities" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="CalculateActivities.html">Determine Thresholds</a></li>
+<li class="toctree-l1"><a class="reference internal" href="CalculateActivities.html#Calculate-Statistical-Enrichment-(Hypergeometric-p-values)">Calculate Statistical Enrichment (Hypergeometric p-values)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="CalculateActivities.html#Generate-random-datasets,-run-kinase-activity-on-random-datasets,-normalize-original-analysis">Generate random datasets, run kinase activity on random datasets, normalize original analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="CalculateActivities.html#Calculate-Mann-Whitney-Significance">Calculate Mann Whitney Significance</a></li>
+<li class="toctree-l1"><a class="reference internal" href="CalculateActivities.html#Save-KSTAR-Results">Save KSTAR Results</a></li>
+</ul>
+</div>
+</section>
+<section id="plot-results">
+<h2>Plot Results<a class="headerlink" href="#plot-results" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="Plotting.html">Load in KSTAR results</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Plotting.html#Plot-the-base-dotplot">Plot the base dotplot</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Plotting.html#Change-the-axis-labels-and-sort-kinases-based-on-activity">Change the axis labels and sort kinases based on activity</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Plotting.html#Remove-kinases-that-never-show-significant-activity">Remove kinases that never show significant activity</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Plotting.html#Cluster-the-kinase-activities">Cluster the kinase activities</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Plotting.html#Add-context-to-dotplot">Add context to dotplot</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Plotting.html#Plot-dotplot-with-the-false-positive-rate-indicated-by-hue">Plot dotplot with the false positive rate indicated by hue</a></li>
+</ul>
+</div>
+</section>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table of Contents</a></h3>
+  <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../Overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Dependencies.html">Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../KSTAR.html">KSTAR</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Tutorial</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#generating-pruned-networks">Generating Pruned Networks</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="Pruning.html">Run pruning within python</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Pruning.html#run-pruning-from-the-command-line">Run pruning from the command line</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#map-datasets-to-kinpred">Map Datasets to KinPred</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="MapData.html">Download and Process Dataset of Interest</a></li>
+<li class="toctree-l3"><a class="reference internal" href="MapData.html#Map-Dataset">Map Dataset</a></li>
+<li class="toctree-l3"><a class="reference internal" href="MapData.html#Explore-the-Mapped-Dataset">Explore the Mapped Dataset</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#predict-kinase-activities">Predict Kinase Activities</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="CalculateActivities.html">Determine Thresholds</a></li>
+<li class="toctree-l3"><a class="reference internal" href="CalculateActivities.html#Calculate-Statistical-Enrichment-(Hypergeometric-p-values)">Calculate Statistical Enrichment (Hypergeometric p-values)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="CalculateActivities.html#Generate-random-datasets,-run-kinase-activity-on-random-datasets,-normalize-original-analysis">Generate random datasets, run kinase activity on random datasets, normalize original analysis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="CalculateActivities.html#Calculate-Mann-Whitney-Significance">Calculate Mann Whitney Significance</a></li>
+<li class="toctree-l3"><a class="reference internal" href="CalculateActivities.html#Save-KSTAR-Results">Save KSTAR Results</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#plot-results">Plot Results</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="Plotting.html">Load in KSTAR results</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Plotting.html#Plot-the-base-dotplot">Plot the base dotplot</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Plotting.html#Change-the-axis-labels-and-sort-kinases-based-on-activity">Change the axis labels and sort kinases based on activity</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Plotting.html#Remove-kinases-that-never-show-significant-activity">Remove kinases that never show significant activity</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Plotting.html#Cluster-the-kinase-activities">Cluster the kinase activities</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Plotting.html#Add-context-to-dotplot">Add context to dotplot</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Plotting.html#Plot-dotplot-with-the-false-positive-rate-indicated-by-hue">Plot dotplot with the false positive rate indicated by hue</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../Examples/Examples.html">Plotting Examples from KSTAR Paper</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Running_with_nextflow.html">Running Large Datasets with Nextflow</a></li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="../KSTAR.html"
+                        title="previous chapter">KSTAR</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="Pruning.html"
+                        title="next chapter">Run pruning within python</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/Tutorial/tutorial.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="Pruning.html" title="Run pruning within python"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="../KSTAR.html" title="KSTAR"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">KSTAR 1 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Tutorial</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2020, Naegle Lab.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.0.1.
+    </div>
+  </body>
+</html>
