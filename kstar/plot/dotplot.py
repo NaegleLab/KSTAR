@@ -33,6 +33,9 @@ class DotPlot:
     alpha: float, optional
         fpr value that defines the significance cutoff to use when plt
         default : 0.05
+    inclusive_alpha: boolean
+        whether to include the alpha (significance <= alpha), or not (significance < alpha).
+        default: True
     binary_sig: boolean, optional
         indicates whether to plot fpr with binary significance or as a change color hue
         default : True
@@ -79,13 +82,15 @@ class DotPlot:
     fpr: pandas dataframe
         a copy of the original fpr dataframe
     alpha: float
-        cutoff used for significance
+        cutoff used for significance, default 0.05
+    inclusive_alpha: boolean
+        whether to include the alpha (significance <= alpha), or not (significance < alpha)
     significance: pandas dataframe
         indicates whether a particular kinases activity is significant, where fpr <= alpha is significant, otherwise it is insignificant
     colors: pandas dataframe
         dataframe indicating the color to use when plotting: either a copy of the fpr or significance dataframe
     binary_sig: boolean
-        indicates whether coloring will be done based on binary significance or fpr values
+        indicates whether coloring will be done based on binary significance or fpr values. Default True
     labelmap: dict
         indicates how to label each significance color
     figsize: tuple
@@ -103,7 +108,7 @@ class DotPlot:
     """
     
     
-    def __init__(self, values, fpr, alpha = 0.05, 
+    def __init__(self, values, fpr, alpha = 0.05, inclusive_alpha = True,
                  binary_sig = True, dotsize = 5, 
                  colormap={0: '#6b838f', 1: '#FF3300'}, facecolor = 'white',
                  labelmap = None,
@@ -119,13 +124,20 @@ class DotPlot:
         self.fpr = self.fpr.loc[self.values.index,self.values.columns]
         self.alpha = alpha
         #create binary dataframe that indicates significance based on provided fpr cutoff.
-        self.significance = (self.fpr <= alpha) * 1
+        if inclusive_alpha:
+            self.significance = (self.fpr <= alpha) * 1
+        else:
+            self.significance = (self.fpr < alpha) * 1
         #Assign either fpr or significance to colors dataframe based on 
         self.binary_sig = binary_sig
         if binary_sig:
             self.colors = self.significance
             if labelmap is None:
-                self.labelmap = {0: 'FPR > %0.2f'%(alpha), 1:'FPR <= %0.2f'%(alpha)}
+                if inclusive_alpha:
+                    self.labelmap = {0: 'FPR > %0.2f'%(alpha), 1:'FPR <= %0.2f'%(alpha)}
+                else: 
+                    self.labelmap = {0: 'FPR >= %0.2f'%(alpha), 1:'FPR < %0.2f'%(alpha)}
+
         else:
             self.colors = self.fpr
       
