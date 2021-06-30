@@ -11,25 +11,82 @@ import itertools
 from itertools import repeat
 import concurrent.futures
 
-from kstar import config
+from kstar import config, helpers
 from kstar.normalize import generate_random_experiments, calculate_fpr
 
 class KinaseActivity:
-    def __init__(self, evidence, logger, phospho_type = 'Y'):
-        """
-        Kinase Activity calculates the estimated activity of kinases given an experiment using hypergeometric distribution.
-        Hypergeometric distribution examines the number of protein sites found to be active in evidence compared to the 
-        number of protein sites attributed to a kinase on a provided network.
+    """
+    Kinase Activity calculates the estimated activity of kinases given an experiment using hypergeometric distribution.
+    Hypergeometric distribution examines the number of protein sites found to be active in evidence compared to the 
+    number of protein sites attributed to a kinase on a provided network.
 
-        Parameters
-        ----------
-        evidence : pandas df
-            a dataframe that contains (at minimum, but can have more) data columms as evidence to use in analysis and KSTAR_ACCESSION and KSTAR_SITE
-        evidence_columns : dict
-            columns corresponding to substrate and site
-            required keys : substrate, site
-        logger : Logger object
-        """
+    Parameters
+    ----------
+    evidence : pandas df
+        a dataframe that contains (at minimum, but can have more) data columms as evidence to use in analysis and KSTAR_ACCESSION and KSTAR_SITE
+    logger : Logger object
+        keeps track of kstar analysis, including any errors that occur
+    phospho_type: string, either 'Y' or 'ST'
+        indicates the phoshpo modification of interest
+    
+    Attributes
+    ----------
+    -------------------
+    Upon Initialization
+    -------------------
+    evidence: pandas dataframe
+        inputted evidence column
+    logger : Logger object
+        keeps track of kstar analysis, including any errors that occur
+    phospho_type: string
+        indicated phosphomod of interest
+    network_directory: string
+        directory where kinase substrate networks can be downloaded, as indicated in config.py
+    normalized: bool
+        indicates whether normalization analysis has been performed
+    aggregate: string
+        the type of aggregation to use when determining binary evidence, either 'count' or 'mean'. Default is 'count'.
+    threshold: float
+        cutoff to use when determining what sites to use for each experiment
+    greater: bool
+        indicates whether sites with greater or lower abundances than the threshold will be used
+    run_data: string
+        indicates the date that kinase activity object was initialized
+    
+    ---------------------------------
+    After Hypergeometric Calculations
+    ---------------------------------
+    activities_list: pandas dataframe
+        p-values obtained for all pruned networks indicating statistical enrichment of a kinase's substrates for each network, based on hypergeometric 
+        tests
+    activities: pandas dataframe
+        median p-values obtained from the activities_list object for each experiment/kinase
+    agg_activities: pandas dataframe
+    
+    -------------------
+    After Normalization
+    -------------------
+    normalized : bool
+        same as before, but will be set to True
+    random_experiments: 
+    
+    random_kinact:
+    normalized_activities_list:
+    normalized_agg_activities:
+    activities_normalized:
+    fpr_activity:
+    
+    ---------------------------
+    After Mann Whitney Analysis
+    ---------------------------
+    activities_mann_whitney: pandas dataframe
+        p-values obtained from comparing the real distribution of p-values to the distribution of p-values from random datasets, based
+        the Mann Whitney U-test
+    fpr_mann_whitney: pandas dataframe
+        false positive rates for predicted kinase activities
+        
+    """
+    def __init__(self, evidence, logger, phospho_type = 'Y'):
         
         self.phospho_type = phospho_type
         self.set_evidence(evidence)
@@ -182,6 +239,9 @@ class KinaseActivity:
             self.logger.info(f'ADD NETWORK : Number of Accession Sites : {self.network_sizes[network_id]}')
     
     def get_run_date(self):
+        """
+        return date that kinase activities were run
+        """
         return self.run_date
 
     def set_evidence(self, evidence):
@@ -979,8 +1039,8 @@ def normalize_analysis(kinact_dict, log, num_random_experiments=150, target_alph
     Finally, it takes these empirically defined pvalue corrections and normalizes the kinase activities according to these, such that
     the real experimental data also has the target_alpha value. 
 
-    Params
-    ------
+    Parameters
+    ----------
     kinact_dict: KinaseActivities dictionary
         Has keys ['Y'] and/or ['ST'] and values that are KinaseActivity objects. These objects are modified to add normalization
     log: logger 
@@ -990,9 +1050,6 @@ def normalize_analysis(kinact_dict, log, num_random_experiments=150, target_alph
     target_alpha: float 
         Value between 0 and 1 that is the target false positive rate. 
 
-    Returns
-    -------
-
 
     """
 
@@ -1001,6 +1058,26 @@ def normalize_analysis(kinact_dict, log, num_random_experiments=150, target_alph
 
     for phospho_type, kinact in kinact_dict.items():
         kinact.run_normalization(log, num_random_experiments, target_alpha)
+        
+def Mann_Whitney_analysis(kinact_dict, log, number_sig_trials = 100):
+    """
+    For a kinact_dict, where random generation and activity has already been run for the phospho_types of interest, 
+    this will calculate the Mann-Whitney U test for comparing the array of p-values for real data 
+    to those of random data, across the number of networks used.
+    It will also calculate the false positive rate for a pvalue, given observations of a random bootstrapping analysis
+        
+    Parameters
+    ----------
+    kinact_dict: dictionary
+        A dictionary of kinact objects, with keys 'Y' and/or 'ST'
+    log: logger 
+        Logger for logging activity messages
+    number_sig_trials: int
+        Maximum number of significant trials to run
+    """
+
+    for phospho_type, kinact in kinact_dict.items():
+        kinact.calculate_Mann_Whitney_activities_sig(log, number_sig_trials = number_sig_trials)
     
 def save_kstar(kinact_dict, name, odir, PICKLE=True):
         """
@@ -1055,7 +1132,7 @@ def save_kstar(kinact_dict, name, odir, PICKLE=True):
 
             if hasattr(kinact, 'activities_mann_whitney'):
                 kinact.activities_mann_whitney.to_csv(f"{odir}/RESULTS/{name_out}_mann_whitney_activities.tsv", sep='\t', index = True) 
-                kinact.fpr_mann_whitney.to_csv(f"{odir}/RESULTS/{name_out}_mann_whitney_significance.tsv", sep='\t', index = True) 
+                kinact.fpr_mann_whitney.to_csv(f"{odir}/RESULTS/{name_out}_mann_whitney_fpr.tsv", sep='\t', index = True) 
 
         if PICKLE:
             pickle.dump( kinact_dict, open( f"{odir}/RESULTS/{name}_kinact.p", "wb" ) )
@@ -1179,7 +1256,7 @@ def from_kstar_slim(name, odir, log):
             rand_experiments = pd.read_csv(f"{odir}/RESULTS/{name_out}_random_experiments.tsv", sep = '\t')
 
             kinact.random_kinact = KinaseActivity(rand_experiments, log, phospho_type=phospho_type)
-            kinact.random_kinact.activities_list = pd.read_csv(f"{odir}/RESULTS/{name_out}_random_activities_list.tsv", sep = '\t', index_col=0)
+            kinact.random_kinact.activities_list = pd.read_csv(f"{odir}/RESULTS/{name_out}_random_activities_list.tsv", sep = '\t')
             kinact.activities_normalized= pd.read_csv(f"{odir}/RESULTS/{name_out}_activities_normalized.tsv", sep = '\t', index_col = config.KSTAR_KINASE)
             kinact.fpr_activity = pd.read_csv(f"{odir}/RESULTS/{name_out}_activities_fpr.tsv", sep='\t', index_col=config.KSTAR_KINASE)
             kinact.random_kinact.evidence = pd.read_csv(f"{odir}/RESULTS/{name_out}_random_experiments.tsv", sep = '\t')
@@ -1191,6 +1268,62 @@ def from_kstar_slim(name, odir, log):
             setattr(kinact, param_name, params[param_name])
         kinact_dict[phospho_type] = kinact
     return kinact_dict
+    
+def from_kstar_nextflow(name, odir, log = None):
+    """
+    Given the name and output directory of a saved kstar analyis from the nextflow pipeline, load the results into new kinact object with
+    the minimum dataframes required for analysis (binary experiment, hypergeometric activities, normalized activities, mann whitney activities)
+
+    Parameters
+    ----------
+    name: string 
+        The name to used when saving activities and mapped data
+    odir:  string
+        Output directory of saved files
+    log: logger
+        logger used when loading nextflow data into kinase activity object. If not provided, new logger will be created.
+    """
+    #create new logger if not provided
+    if log is None:
+        log = helpers.get_logger(f"activity_{name}", f"{odir}/activity_{name}.log")
+    
+    kinact_dict = {}
+    for phospho_type in ['Y','ST']:
+        #check to see if folder for phosphotype is present (have Y or ST activities been calculated)
+        if os.path.isdir(f'{odir}/{phospho_type}'):
+            #check that the minimum file set exists so we can use binary_evidence file as the experiment
+            evidence_binary = pd.read_csv(f"{odir}/{phospho_type}/binary_experiment/{name}_binarized_experiment.tsv", sep='\t')
+
+
+            kinact = KinaseActivity(evidence_binary, log, phospho_type=phospho_type)
+
+            kinact.activities_list = pd.read_csv(f"{odir}/{phospho_type}/hypergeometric_activity/{name}_activities_list.tsv", sep = '\t', index_col = 0)
+            kinact.activities = pd.read_csv(f"{odir}/{phospho_type}/hypergeometric_activity/{name}_activities.tsv", sep = '\t', index_col = config.KSTAR_KINASE)
+            kinact.evidence_binary = evidence_binary
+
+            #read mann_whitney and load
+            kinact.activities_mann_whitney = pd.read_csv(f"{odir}/{phospho_type}/mann_whitney/{name}_mann_whitney_activities.tsv", sep='\t', index_col = config.KSTAR_KINASE) 
+            kinact.fpr_mann_whitney = pd.read_csv(f"{odir}/{phospho_type}/mann_whitney/{name}_mann_whitney_fpr.tsv", sep='\t', index_col = config.KSTAR_KINASE) 
+            #rand_experiments = pd.read_csv(f"{odir}/{phospho_type}/{name_out}_random_experiments.tsv", sep = '\t')
+            #kinact.random_kinact = KinaseActivity(rand_experiments, log, phospho_type=phospho_type)
+            #kinact.random_kinact.activities_list = pd.read_csv(f"{odir}/{phospho_type}/{name}_random_activities_list.tsv", sep = '\t', index_col=0)
+            kinact.activities_normalized= pd.read_csv(f"{odir}/{phospho_type}/normalized_activity/{name}_normalized_activities.tsv", sep = '\t', index_col = config.KSTAR_KINASE)
+            #kinact.random_kinact.evidence = pd.read_csv(f"{odir}/{phospho_type}/{name_out}_random_experiments.tsv", sep = '\t')
+            #set data columns according to file
+            #kinact.random_kinact.set_data_columns(data_columns=None)
+
+            kinact_dict[phospho_type] = kinact
+            
+    
+    #check to see if any files were loaded
+    if kinact_dict.keys() == 0:
+        print('KSTAR results were not found for either Y or ST')
+        
+    return kinact_dict
+
+
+
+
 
 
 

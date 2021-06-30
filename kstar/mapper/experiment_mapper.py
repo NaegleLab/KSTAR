@@ -9,40 +9,53 @@ from kstar import config, helpers
 
 
 class ExperimentMapper:
+    """
+    Given an experiment object and reference sequences, map the phosphorylation sites to the common reference.
+    Inputs
 
-    def __init__(self, experiment, columns, logger, sequences=config.HUMAN_REF_SEQUENCES, compendia=config.HUMAN_REF_COMPENDIA, window = 7, data_columns = None):      
-        """
-        Given an experiment object and reference sequences, map the phosphorylation sites to the common reference.
-        Inputs
+    Parameters
+    ----------
+    name : str
+        Name of experiment. Used for logging
+    experiment: pandas dataframe
+        Pandas dataframe of an experiment that has a reference accession, a peptide column and/or a site column. 
+        The peptide column should be upper case, with lower case indicating the site of phosphorylation - this is preferred
+        The site column should be in the format S/T/Y<pos>, e.g. Y15 or S345
+    columns: dict
+        Dictionary with mappings of the experiment dataframe column names for the required names 'accession_id', 'peptide', or 'site'. 
+        One of 'peptide' or 'site' is required. 
+    logger: Logger object
+        used for logging when peptides cannot be matched and when a site location changes
+    sequences: dict
+        Dictionary of sequences. Key : accession. Value : protein sequence. 
+        Default is imported from kstar.config
+    compendia: pd.DataFrame
+        Human phosphoproteome compendia, mapped to KinPred and annotated with number of compendia. 
+        Default is imported from kstar.config
+    window : int
+        The length of amino acids to the N- and C-terminal sides of the central phosphoprotein to map a site to.
+        Default is 7.
+    data_columns: list, or empty
+        The list of data columns to use. If this is empty, logger will look for anything that starts with statement data: and those values
+        Default is None.
 
-        Parameters
-        ----------
-        name : str
-            Name of experiment. Used for logging
-        experiment: pandas dataframe
-            Pandas dataframe of an experiment that has a reference accession, a peptide column and/or a site column. 
-            The peptide column should be upper case, with lower case indicating the site of phosphorylation - this is preferred
-            The site column should be in the format S/T/Y<pos>, e.g. Y15 or S345
-        columns: dict
-            Dictionary with mappings of the experiment dataframe column names for the required names 'accession_id', 'peptide', or 'site'. 
-            One of 'peptide' or 'site' is required. 
-        logger: Logger object
-            used for logging when peptides cannot be matched and when a site location changes
-        sequences: dict
-            Dictionary of sequences. Key : accession. Value : protein sequence. Default is imported from kstar.config
-        compendia: pd.DataFrame
-            Human phosphoproteome compendia, mapped to KinPred and annotated with number of compendia. Default is imported from kstar.config
-        window : int
-            The length of amino acids to the N- and C-terminal sides of the central phosphoprotein to map a site to.
-        data_columns: list, or empty
-            The list of data columns to use. If this is empty, logger will look for anything that starts with statement data: and those values
+    
+    Attributes
+    ----------
+    experiment: pandas dataframe
+        mapped experiment, which for each peptide, no contains the mapped accession, site, peptide, number of compendia, compendia type
+    sequences: dict
+        Dictionary of sequences passed into the class
+    compendia: pandas dataframe
+        compendia dataframe passed into the class
+    data_columns: list
+        indicates which columns will be used as data
+    
 
-
-        Returns
-        -------
-        experiment_mapper: ExperimentMapper object that has been mapped
-
-        """ 
+    """ 
+    #for documentation purposes convert non required parameters to kwargs
+    #def __init__(self, experiment, columns, logger, *kwargs): 
+    def __init__(self, experiment, columns, logger, sequences=config.HUMAN_REF_SEQUENCES, compendia=config.HUMAN_REF_COMPENDIA, window = 7, data_columns = None): 
         self.experiment = experiment
         self.sequences = sequences
         self.compendia = compendia
@@ -74,6 +87,11 @@ class ExperimentMapper:
         self.experiment['KSTAR_NUM_COMPENDIA_CLASS'] = self.experiment['KSTAR_NUM_COMPENDIA_CLASS'].fillna(0.0).astype(int)
 
     def set_data_columns(self, data_columns):
+        """
+        Identifies which columns in the experiment should be used as data columns. If data_columns is provided,
+        then 'data:' is added to the front and experiment dataframe is renamed. Otherwise, function will look for columns
+        with 'data:' in front and this to the data_columns attribute.
+        """
         self.data_columns = []
         if data_columns is None:
             for col in self.experiment.columns:
@@ -90,6 +108,9 @@ class ExperimentMapper:
             self.data_columns = list(data_rename.values())
 
     def get_experiment(self):
+        """
+        Return the mapped experiment dataframe
+        """
         return self.experiment
 
 
@@ -107,7 +128,7 @@ class ExperimentMapper:
         Map the peptide/sites to the common sequence reference and remove and report errors for sites that do not align as expected.
         expMapper.align_sites(window=7). Operates on the experiment dataframe of class.
 
-        Attributes
+        Parameters
         ----------
         window: int
             The length of amino acids to the N- and C-terminal sides of the central phosphoprotein to map a site to.
@@ -150,7 +171,7 @@ class ExperimentMapper:
                     else:
                         self.logger.warning(f"PEPTIDE MISMATCH : {row[config.KSTAR_ACCESSION]} {row[config.KSTAR_SITE]}")
                         self.experiment.loc[index, config.KSTAR_SITE] = None
-                        self.experiment.loc[index, PEPTIDE_ID] = None
+                        self.experiment.loc[index, config.KSTAR_PEPTIDE] = None
                 else:
                     self.logger.warning(f"SITE NOT FOUND : {self.experiment[config.KSTAR_ACCESSION]}\t{self.experiment[config.KSTAR_SITE]}")
             
