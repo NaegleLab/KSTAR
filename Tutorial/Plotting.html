@@ -305,9 +305,8 @@ div.rendered_html tbody tr:hover {
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
-<span class="kn">from</span> <span class="nn">kstar.plot</span> <span class="kn">import</span> <span class="n">dotplot</span>
-<span class="kn">from</span> <span class="nn">kstar.activity</span> <span class="kn">import</span> <span class="n">kstar_activity</span>
-<span class="kn">from</span> <span class="nn">kstar</span> <span class="kn">import</span> <span class="n">helpers</span><span class="p">,</span> <span class="n">config</span>
+<span class="kn">from</span> <span class="nn">kstar.plot</span> <span class="kn">import</span> <span class="n">DotPlot</span>
+<span class="kn">from</span> <span class="nn">kstar</span> <span class="kn">import</span> <span class="n">helpers</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">calculate</span>
 </pre></div>
 </div>
 </div>
@@ -334,9 +333,9 @@ div.rendered_html tbody tr:hover {
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
 <span></span><span class="c1">#Load full kstar save</span>
-<span class="c1">#kinact_dict = kstar_activity.from_kstar(logName_new, odir, activity_log)</span>
+<span class="c1">#kinact_dict = calculate.from_kstar(logName_new, odir, activity_log)</span>
 <span class="c1">#Load kstar_slim save</span>
-<span class="n">kinact_dict</span> <span class="o">=</span> <span class="n">kstar_activity</span><span class="o">.</span><span class="n">from_kstar_slim</span><span class="p">(</span><span class="n">logName</span><span class="p">,</span> <span class="n">odir</span><span class="p">,</span> <span class="n">activity_log</span><span class="p">)</span>
+<span class="n">kinact_dict</span> <span class="o">=</span> <span class="n">calculate</span><span class="o">.</span><span class="n">from_kstar_slim</span><span class="p">(</span><span class="n">logName</span><span class="p">,</span> <span class="n">odir</span><span class="p">,</span> <span class="n">activity_log</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -346,7 +345,7 @@ div.rendered_html tbody tr:hover {
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">kinact_dict</span> <span class="o">=</span> <span class="n">kstar_activity</span><span class="o">.</span><span class="n">from_kstar_nextflow</span><span class="p">(</span><span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;example_run&#39;</span><span class="p">,</span><span class="n">odir</span> <span class="o">=</span> <span class="s1">&#39;example_run&#39;</span><span class="p">)</span>
+<span></span><span class="n">kinact_dict</span> <span class="o">=</span> <span class="n">calculate</span><span class="o">.</span><span class="n">from_kstar_nextflow</span><span class="p">(</span><span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;example_run&#39;</span><span class="p">,</span><span class="n">odir</span> <span class="o">=</span> <span class="s1">&#39;example_run&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -384,10 +383,10 @@ div.rendered_html tbody tr:hover {
 <span class="n">log_results</span> <span class="o">=</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">activities</span><span class="p">)</span>
 
 <span class="c1">#instantiate the dotplot object</span>
-<span class="n">dots</span> <span class="o">=</span> <span class="n">dotplot</span><span class="o">.</span><span class="n">DotPlot</span><span class="p">(</span><span class="n">log_results</span><span class="p">,</span>
-                       <span class="n">fpr</span><span class="p">,</span>
-                       <span class="n">figsize</span> <span class="o">=</span> <span class="p">(</span><span class="mi">4</span><span class="p">,</span><span class="mi">10</span><span class="p">),</span>
-                       <span class="n">legend_title</span> <span class="o">=</span> <span class="s1">&#39;-log10(p-value)&#39;</span><span class="p">)</span>
+<span class="n">dots</span> <span class="o">=</span> <span class="n">DotPlot</span><span class="p">(</span><span class="n">log_results</span><span class="p">,</span>
+               <span class="n">fpr</span><span class="p">,</span>
+               <span class="n">figsize</span> <span class="o">=</span> <span class="p">(</span><span class="mi">4</span><span class="p">,</span><span class="mi">10</span><span class="p">),</span>
+               <span class="n">legend_title</span> <span class="o">=</span> <span class="s1">&#39;-log10(p-value)&#39;</span><span class="p">)</span>
 
 
 <span class="c1">#generate the dotplot</span>
@@ -473,12 +472,12 @@ div.rendered_html tbody tr:hover {
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
 <span></span><span class="c1">#reinstantiate the dotplot object</span>
-<span class="n">dots</span> <span class="o">=</span> <span class="n">dotplot</span><span class="o">.</span><span class="n">DotPlot</span><span class="p">(</span><span class="n">log_results</span><span class="p">,</span>
-                       <span class="n">fpr</span><span class="p">,</span>
-                       <span class="n">x_label_dict</span> <span class="o">=</span> <span class="n">x_label_dict</span><span class="p">,</span>
-                       <span class="n">kinase_dict</span> <span class="o">=</span> <span class="n">kinase_dict</span><span class="p">,</span>
-                       <span class="n">figsize</span> <span class="o">=</span> <span class="p">(</span><span class="mi">4</span><span class="p">,</span><span class="mi">10</span><span class="p">),</span>
-                       <span class="n">legend_title</span> <span class="o">=</span> <span class="s1">&#39;-log10(p-value)&#39;</span><span class="p">)</span>
+<span class="n">dots</span> <span class="o">=</span> <span class="n">DotPlot</span><span class="p">(</span><span class="n">log_results</span><span class="p">,</span>
+               <span class="n">fpr</span><span class="p">,</span>
+               <span class="n">x_label_dict</span> <span class="o">=</span> <span class="n">x_label_dict</span><span class="p">,</span>
+               <span class="n">kinase_dict</span> <span class="o">=</span> <span class="n">kinase_dict</span><span class="p">,</span>
+               <span class="n">figsize</span> <span class="o">=</span> <span class="p">(</span><span class="mi">4</span><span class="p">,</span><span class="mi">10</span><span class="p">),</span>
+               <span class="n">legend_title</span> <span class="o">=</span> <span class="s1">&#39;-log10(p-value)&#39;</span><span class="p">)</span>
 
 <span class="c1">#plot</span>
 <span class="n">dots</span><span class="o">.</span><span class="n">dotplot</span><span class="p">()</span>
@@ -733,7 +732,7 @@ div.rendered_html tbody tr:hover {
 <h1>Plot dotplot with the false positive rate indicated by hue<a class="headerlink" href="#Plot-dotplot-with-the-false-positive-rate-indicated-by-hue" title="Permalink to this headline">¶</a></h1>
 <p>In some cases, the binary coloring of significance can make certain kinases appear less significant than they really are, with false positive rates hovering around 0.05. As such, it may be of interest to encode the false positive rate using a gradient hue instead. This is easy to accomplish in the dotplot class, as this is controlled by the binary_sig parameter.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -749,12 +748,12 @@ div.rendered_html tbody tr:hover {
 <span class="n">fig</span><span class="o">.</span><span class="n">subplots_adjust</span><span class="p">(</span><span class="n">wspace</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">hspace</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 
 <span class="c1">#reinstantiate the dotplot object, this time with binary_sig set to False</span>
-<span class="n">dots</span> <span class="o">=</span> <span class="n">dotplot</span><span class="o">.</span><span class="n">DotPlot</span><span class="p">(</span><span class="n">log_results</span><span class="p">,</span>
-                       <span class="n">fpr</span><span class="p">,</span>
-                       <span class="n">binary_sig</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-                       <span class="n">x_label_dict</span> <span class="o">=</span> <span class="n">x_label_dict</span><span class="p">,</span>
-                       <span class="n">kinase_dict</span> <span class="o">=</span> <span class="n">kinase_dict</span><span class="p">,</span>
-                       <span class="n">legend_title</span> <span class="o">=</span> <span class="s1">&#39;-log10(p-value)&#39;</span><span class="p">)</span>
+<span class="n">dots</span> <span class="o">=</span> <span class="n">DotPlot</span><span class="p">(</span><span class="n">log_results</span><span class="p">,</span>
+               <span class="n">fpr</span><span class="p">,</span>
+               <span class="n">binary_sig</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+               <span class="n">x_label_dict</span> <span class="o">=</span> <span class="n">x_label_dict</span><span class="p">,</span>
+               <span class="n">kinase_dict</span> <span class="o">=</span> <span class="n">kinase_dict</span><span class="p">,</span>
+               <span class="n">legend_title</span> <span class="o">=</span> <span class="s1">&#39;-log10(p-value)&#39;</span><span class="p">)</span>
 
 <span class="c1">#drop kinases with that are not significant for any of the samples (fpr &lt;= alpha).</span>
 <span class="n">dots</span><span class="o">.</span><span class="n">drop_kinases_with_no_significance</span><span class="p">()</span>
@@ -779,12 +778,12 @@ div.rendered_html tbody tr:hover {
 </div>
 </div>
 <div class="nboutput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
 </pre></div>
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-(146.55458989570417, 0.0, -0.05, 1.05)
+(146.55458989570414, 0.0, -0.05, 1.05)
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -808,9 +807,10 @@ div.rendered_html tbody tr:hover {
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../Overview.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../Dependencies.html">Dependencies</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../Installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../KSTAR.html">KSTAR</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quick Start Guide</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="tutorial.html">Tutorial</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="tutorial.html#generating-pruned-networks">Generating Pruned Networks</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tutorial.html#map-datasets-to-kinpred">Map Datasets to KinPred</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tutorial.html#predict-kinase-activities">Predict Kinase Activities</a></li>
 <li class="toctree-l2 current"><a class="reference internal" href="tutorial.html#plot-results">Plot Results</a><ul class="current">

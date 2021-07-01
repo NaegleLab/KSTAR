@@ -19,7 +19,7 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Determine Thresholds" href="CalculateActivities.html" />
-    <link rel="prev" title="Tutorial" href="tutorial.html" /> 
+    <link rel="prev" title="Run pruning within python" href="Pruning.html" /> 
   </head><body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
@@ -34,7 +34,7 @@
           <a href="CalculateActivities.html" title="Determine Thresholds"
              accesskey="N">next</a> |</li>
         <li class="right" >
-          <a href="tutorial.html" title="Tutorial"
+          <a href="Pruning.html" title="Run pruning within python"
              accesskey="P">previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="../index.html">KSTAR 1 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="tutorial.html" accesskey="U">Tutorial</a> &#187;</li>
@@ -298,7 +298,7 @@ div.rendered_html tbody tr:hover {
 <section id="Download-and-Process-Dataset-of-Interest">
 <h1>Download and Process Dataset of Interest<a class="headerlink" href="#Download-and-Process-Dataset-of-Interest" title="Permalink to this headline">¶</a></h1>
 <p>Prior to predicting kinase activities, datasets need to be mapped to KinPred to obtain the Uniprot ID, phosphosite, and the +/-7 peptide sequence that will be used by KSTAR to identify which kinases are associated with each phosphosite. In order to map kinase activities, the dataframe containing phosphoproteomic data should contain each peptides Uniprot accession, as well as either the site number or peptide sequence. If the peptide sequence is used, it should be formatted with only the
-phosphorylated peptides being lowercased. An example of the processed dataset can be seen below, which is a trimmed and processed version of the dataset published publically (Chylek, 2014):</p>
+phosphorylated peptides being lowercased. It is recommended to use the peptide sequence rather than the site number when possibl, as this is more likely to be found in the most recent version of KinPred. An example of the processed dataset can be seen below, which is a trimmed and processed version of the dataset published publically (Chylek, 2014):</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
@@ -310,8 +310,7 @@ phosphorylated peptides being lowercased. An example of the processed dataset ca
 <span class="kn">import</span> <span class="nn">pickle</span>
 <span class="kn">import</span> <span class="nn">os</span>
 
-<span class="kn">from</span> <span class="nn">kstar</span> <span class="kn">import</span> <span class="n">config</span><span class="p">,</span> <span class="n">helpers</span><span class="p">,</span> <span class="n">kstar_runner</span>
-<span class="kn">from</span> <span class="nn">kstar.mapper</span> <span class="kn">import</span> <span class="n">experiment_mapper</span>
+<span class="kn">from</span> <span class="nn">kstar</span> <span class="kn">import</span> <span class="n">config</span><span class="p">,</span> <span class="n">helpers</span><span class="p">,</span> <span class="n">mapping</span>
 </pre></div>
 </div>
 </div>
@@ -527,9 +526,9 @@ phosphorylated peptides being lowercased. An example of the processed dataset ca
     <span class="n">os</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">odir</span><span class="si">}</span><span class="s2">/MAPPED_DATA&quot;</span><span class="p">)</span>
 <span class="n">mapping_log</span> <span class="o">=</span> <span class="n">helpers</span><span class="o">.</span><span class="n">get_logger</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;mapping_</span><span class="si">{</span><span class="n">logName</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">odir</span><span class="si">}</span><span class="s2">/MAPPED_DATA/mapping_</span><span class="si">{</span><span class="n">logName</span><span class="si">}</span><span class="s2">.log&quot;</span><span class="p">)</span>
 <span class="c1">#map dataset and record process in the logger</span>
-<span class="n">exp_mapper</span> <span class="o">=</span> <span class="n">experiment_mapper</span><span class="o">.</span><span class="n">ExperimentMapper</span><span class="p">(</span><span class="n">experiment</span> <span class="o">=</span> <span class="n">df</span><span class="p">,</span>
-                                                <span class="n">columns</span> <span class="o">=</span> <span class="n">mapDict</span><span class="p">,</span>
-                                                <span class="n">logger</span> <span class="o">=</span> <span class="n">mapping_log</span><span class="p">)</span>
+<span class="n">exp_mapper</span> <span class="o">=</span> <span class="n">mapping</span><span class="o">.</span><span class="n">ExperimentMapper</span><span class="p">(</span><span class="n">experiment</span> <span class="o">=</span> <span class="n">df</span><span class="p">,</span>
+                                      <span class="n">columns</span> <span class="o">=</span> <span class="n">mapDict</span><span class="p">,</span>
+                                      <span class="n">logger</span> <span class="o">=</span> <span class="n">mapping_log</span><span class="p">)</span>
 <span class="c1">#save mapped dataset</span>
 <span class="n">exp_mapper</span><span class="o">.</span><span class="n">experiment</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">odir</span><span class="si">}</span><span class="s2">/MAPPED_DATA/</span><span class="si">{</span><span class="n">logName</span><span class="si">}</span><span class="s2">_mapped.tsv&quot;</span><span class="p">,</span> <span class="n">sep</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\t</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">index</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span>
 </pre></div>
@@ -767,10 +766,10 @@ phosphorylated peptides being lowercased. An example of the processed dataset ca
 </section>
 <section id="Explore-the-Mapped-Dataset">
 <h1>Explore the Mapped Dataset<a class="headerlink" href="#Explore-the-Mapped-Dataset" title="Permalink to this headline">¶</a></h1>
-<p>One way to check how well the mapping worked is to check the number of peptides in the original dataframe vs. the newly mapped dataframe. Changes to the number of peptides could be a result of several things: 1. Failure to find the corresponding peptide 2. A peptide with multiple phosphorylation sites was seperated into seperate peptides 3. Multiple peptides peptides are identical and provide the same evidence</p>
+<p>One way to check how well the mapping worked is to check the number of peptides in the original dataframe vs. the newly mapped dataframe. Changes to the number of peptides could be a result of several things: 1. Failure to find the corresponding peptide 2. A peptide with multiple phosphorylation sites was seperated into seperate peptides</p>
 <p>For specifics on mapping failures, go to the log file for details.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -802,9 +801,10 @@ New number of lines in mapped:665
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../Overview.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../Dependencies.html">Dependencies</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../Installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../KSTAR.html">KSTAR</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quick Start Guide</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="tutorial.html">Tutorial</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="tutorial.html#generating-pruned-networks">Generating Pruned Networks</a></li>
 <li class="toctree-l2 current"><a class="reference internal" href="tutorial.html#map-datasets-to-kinpred">Map Datasets to KinPred</a><ul class="current">
 <li class="toctree-l3 current"><a class="current reference internal" href="#">Download and Process Dataset of Interest</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#Map-Dataset">Map Dataset</a></li>
@@ -820,8 +820,8 @@ New number of lines in mapped:665
 </ul>
 
   <h4>Previous topic</h4>
-  <p class="topless"><a href="tutorial.html"
-                        title="previous chapter">Tutorial</a></p>
+  <p class="topless"><a href="Pruning.html"
+                        title="previous chapter">Run pruning within python</a></p>
   <h4>Next topic</h4>
   <p class="topless"><a href="CalculateActivities.html"
                         title="next chapter">Determine Thresholds</a></p>
@@ -859,7 +859,7 @@ New number of lines in mapped:665
           <a href="CalculateActivities.html" title="Determine Thresholds"
              >next</a> |</li>
         <li class="right" >
-          <a href="tutorial.html" title="Tutorial"
+          <a href="Pruning.html" title="Run pruning within python"
              >previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="../index.html">KSTAR 1 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="tutorial.html" >Tutorial</a> &#187;</li>

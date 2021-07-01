@@ -18,7 +18,7 @@
     
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="prev" title="Analysis of HER2 Positive Patients using Microbiopsies ()" href="Examples/Microbiopsy_Analysis.html" /> 
+    <link rel="prev" title="Analysis of HER2 Positive Patients using Microbiopsies (Satpathy 2021)" href="Examples/Microbiopsy_Analysis.html" /> 
   </head><body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
@@ -30,7 +30,7 @@
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="Examples/Microbiopsy_Analysis.html" title="Analysis of HER2 Positive Patients using Microbiopsies ()"
+          <a href="Examples/Microbiopsy_Analysis.html" title="Analysis of HER2 Positive Patients using Microbiopsies (Satpathy 2021)"
              accesskey="P">previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="index.html">KSTAR 1 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Running Large Datasets with Nextflow</a></li> 
@@ -44,14 +44,22 @@
             
   <section class="tex2jax_ignore mathjax_ignore" id="running-large-datasets-with-nextflow">
 <h1>Running Large Datasets with Nextflow<a class="headerlink" href="#running-large-datasets-with-nextflow" title="Permalink to this headline">¶</a></h1>
-<p>While our standard implementation of KSTAR can be run on most phosphotyrosine datasets and some small phosphoserine/threonine datasets, the memory and time costs are often too high for many large datasets. For these cases, we have implemented a highly parallel version of KSTAR  implemented with the nextflow software package. This implementation is best suited for high performance computing environments, with a minimum of 8 cpu cores and 16GB of available memory required. The remainder of this section will detail how to install and run KSTAR with nextflow.</p>
+<p>While our standard implementation of KSTAR can be run on most phosphotyrosine datasets and some small phosphoserine/threonine datasets, the memory
+and time costs are often too high for many large datasets. For these cases, we have implemented a highly parallel version of KSTAR implemented
+with the nextflow software package. The remainder of this section will detail how to install and run KSTAR with nextflow.</p>
 <section id="requirements">
 <h2>Requirements<a class="headerlink" href="#requirements" title="Permalink to this headline">¶</a></h2>
-<p>The nextflow pipeline that takes advantage of either Docker or Singularity containers. These are compatible with POSIX operating systems (Linux, OS X, etc.). However, KSTAR-HP can also be run on a Windows machine with the use of WSL2. For details on how to set up the WSL2 environment, see Section (enter here). For other details about nextflow, please see their documentation here: https://www.nextflow.io/</p>
+<p>The nextflow pipeline takes advantage of either Docker or Singularity containers. These are compatible with POSIX operating
+systems (Linux, OS X, etc.). However, nextflow can also be run on a Windows machine with the use of WSL2. Windows has provided instructions for
+installing and running WSL2 here: <a class="reference external" href="https://docs.microsoft.com/en-us/windows/wsl/install-win10">WSL Documentation</a>. For other details about
+nextflow, please see their documentation here: <a class="reference external" href="https://www.nextflow.io/">Nextflow Documentaion</a></p>
+<p>This implementation is best suited for high performance computing environments, with a minimum of 8 cpu cores
+and 16GB of available memory suggested.</p>
 </section>
 <section id="installation">
 <h2>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h2>
-<p>Before implementing KSTAR with nextflow, Docker will need to be installed. The nextflow implementation utilizes a docker container of the KSTAR algorithm. For details on how to install Docker, visit https://docs.docker.com/get-docker/.</p>
+<p>Before implementing KSTAR with nextflow, Docker will need to be installed. The nextflow implementation utilizes a docker container of the
+KSTAR algorithm. For details on how to install Docker, visit <a class="reference external" href="https://docs.docker.com/get-docker/">Install Docker</a>.</p>
 <p>First, it is recommended that you download KSTAR from github into an easily accessible folder:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">clone</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">NaegleLab</span><span class="o">/</span><span class="n">KSTAR</span><span class="o">.</span><span class="n">git</span>
 </pre></div>
@@ -63,19 +71,24 @@
 </pre></div>
 </div>
 </section>
-<section id="updating-networks-used-in-kstar">
-<h2>Updating Networks used in KSTAR<a class="headerlink" href="#updating-networks-used-in-kstar" title="Permalink to this headline">¶</a></h2>
-<p>When implementing KSTAR with nextflow, you will need to indicate where to find the kinase-substrate networks to use. Once providing the network directory, it will look for a folder for the phosphoresidue of interest (Y/ST). Ultimately, your directory structure should follow this pattern:</p>
-<p>‘resource_directory/network_directory/{Insert_Mod_Here}/INDIVIDUAL_NETWORKS’</p>
-<p>Each individual pruned network should be a .tsv file.</p>
+<section id="downloading-or-generating-networks-used-in-kstar">
+<h2>Downloading or Generating Networks used in KSTAR<a class="headerlink" href="#downloading-or-generating-networks-used-in-kstar" title="Permalink to this headline">¶</a></h2>
+<p>As with the standard implementation of KSTAR, you will need to obtain KSTAR pruned networks that will be used in activity calculation. You can
+download KSTAR networks from the <a class="reference external" href="https://figshare.com/articles/software/RESOURCE_FILES/14885121">KSTAR FigShare</a>.</p>
+<p>If choosing to generate your own networks, this should be done outside of the nextflow environment as described in the tutorial. You will
+need to make sure the directory structure where these networks are located is correct:
+‘{resource_directory}/{network_directory}/{phospho_event}/INDIVIDUAL_NETWORKS’, where elements in brackets are given as parameters during a nextflow
+run. Each individual pruned network should be a .tsv file located in the above directory.</p>
 </section>
 <section id="mapping-datasets">
 <h2>Mapping datasets<a class="headerlink" href="#mapping-datasets" title="Permalink to this headline">¶</a></h2>
-<p>Datasets must be mapped prior to running KSTAR with nextflow. The nextflow implementation is strictly for activity prediction. The mapped data should be a .tsv file that contains at least data columns, KSTAR_ACCESSION, KSTAR_PEPTIDE, AND KSTAR_SITE.</p>
+<p>Datasets must be mapped prior to running KSTAR with nextflow. The nextflow implementation is strictly for activity prediction. The mapped data
+should be a .tsv file that contains at least data columns, KSTAR_ACCESSION, KSTAR_PEPTIDE, AND KSTAR_SITE.</p>
 </section>
 <section id="running-nextflow">
 <h2>Running nextflow<a class="headerlink" href="#running-nextflow" title="Permalink to this headline">¶</a></h2>
-<p>Once all the above requirements are satisfied, KSTAR can be run using a simple bash script within the nextflow directory that looks like the one below. First, you must point to the KSTAR nextflow directory:</p>
+<p>Once all the above requirements are satisfied, KSTAR can be run using a simple bash script within the nextflow directory that looks like
+the one below:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>export KSTAR_DIR = /repo_loc/KSTAR/nextflow
 cd $KSTAR_DIR
 
@@ -264,14 +277,14 @@ nextflow run main.nf -profile Y \
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="Overview.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="Dependencies.html">Dependencies</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="KSTAR.html">KSTAR</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quick Start Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="Tutorial/tutorial.html">Tutorial</a></li>
 <li class="toctree-l1"><a class="reference internal" href="Examples/Examples.html">Plotting Examples from KSTAR Paper</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Running Large Datasets with Nextflow</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#requirements">Requirements</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#installation">Installation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#updating-networks-used-in-kstar">Updating Networks used in KSTAR</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#downloading-or-generating-networks-used-in-kstar">Downloading or Generating Networks used in KSTAR</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#mapping-datasets">Mapping datasets</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#running-nextflow">Running nextflow</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#output-of-a-nextflow-run">Output of a nextflow run</a></li>
@@ -282,7 +295,7 @@ nextflow run main.nf -profile Y \
 
   <h4>Previous topic</h4>
   <p class="topless"><a href="Examples/Microbiopsy_Analysis.html"
-                        title="previous chapter">Analysis of HER2 Positive Patients using Microbiopsies ()</a></p>
+                        title="previous chapter">Analysis of HER2 Positive Patients using Microbiopsies (Satpathy 2021)</a></p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
@@ -314,7 +327,7 @@ nextflow run main.nf -profile Y \
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="Examples/Microbiopsy_Analysis.html" title="Analysis of HER2 Positive Patients using Microbiopsies ()"
+          <a href="Examples/Microbiopsy_Analysis.html" title="Analysis of HER2 Positive Patients using Microbiopsies (Satpathy 2021)"
              >previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="index.html">KSTAR 1 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Running Large Datasets with Nextflow</a></li> 

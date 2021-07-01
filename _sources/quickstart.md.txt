@@ -1,0 +1,54 @@
+# Quick Start Guide
+
+Here, we have provided a quick start guide that will allow you to get up and running quickly, especially if you wish to simply use the
+same pruned networks as utilized in the KSTAR paper. 
+
+## Installation
+
+KSTAR can be installed via `pip`, `conda`, tarball, and directly from the Git repository. We recommend using conda to install the scientific packages `conda install anaconda` before installing openensembles. 
+
+### Pip
+
+To install via pip, execute `pip install KSTAR`.
+
+### Conda
+To install via conda, execute `conda install -c naeglelab KSTAR`.
+
+### Tarball
+
+To install via a tarball, head over to the [Releases page](https://github.com/NaegleLab/KSTAR/releases) and download the latest stable tar release.
+
+Afterwards, navigate to your downloads directory and execute the following commands, substituting <version> for the release's version number:
+```
+tar -xvf KSTAR-<version>.tar.gz
+cd KSTAR-<version>
+python setup.py install
+```
+
+### Git
+
+If you want to try out the latest commit, you can install directly from the Git repository by executing the following commands:
+```
+git clone https://github.com/NaegleLab/KSTAR
+cd KSTAR
+python setup.py install
+```
+
+## Download resource files
+
+We have provided all resource files required for running KSTAR in a publically available figshare, including the reference proteome from KinPred, 
+the reference phosphoproteom from KinPred, and pruned KSTAR networks generated from NetworKIN. To download, follow these steps:
+
+1. Go to [FigShare](https://figshare.com/articles/software/RESOURCE_FILES/14885121)
+2. Download the RESOURCE_FILES, decrompress/unzip the files, and store in easily accessible folder.
+3. Update config.py so that 'RESOURCE_DIR' points to the RESOURCE_FILES directory.
+
+It is also possible to generate your own networks, either with a different weighted kinase-substrate graph, different pruning parameters, or both.
+For details on how to generate your own networks, see the tutorial.
+
+## Follow the provided tutorial
+
+That is all you need to do to set up your KSTAR environment (see 'Running Large Datasets with Nextflow' if working with large datasets, as
+set up is slightly different). We recommend working through the tutorial in the following section to get an idea of the KSTAR workflow, 
+either with the example dataset provided in our supplementary data figshare or with your own dataset of interest. You will only need to follow 
+the 'Generating Pruned Networks' section if you would like to use your own networks for analysis, otherwise go straight to 'Map Datasets to KinPred'.

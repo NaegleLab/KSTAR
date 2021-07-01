@@ -307,9 +307,8 @@ div.rendered_html tbody tr:hover {
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 
 <span class="c1">#KSTAR imports</span>
-<span class="kn">from</span> <span class="nn">kstar</span> <span class="kn">import</span> <span class="n">config</span><span class="p">,</span> <span class="n">helpers</span><span class="p">,</span> <span class="n">kstar_runner</span>
-<span class="kn">from</span> <span class="nn">kstar.activity</span> <span class="kn">import</span> <span class="n">kstar_activity</span>
-<span class="kn">from</span> <span class="nn">kstar.plot</span> <span class="kn">import</span> <span class="n">dotplot</span>
+<span class="kn">from</span> <span class="nn">kstar</span> <span class="kn">import</span> <span class="n">config</span><span class="p">,</span> <span class="n">helpers</span><span class="p">,</span> <span class="n">calculate</span>
+<span class="kn">from</span> <span class="nn">kstar.plot</span> <span class="kn">import</span> <span class="n">DotPlot</span>
 
 <span class="kn">import</span> <span class="nn">conf</span> <span class="c1">#This is the local config file for setting the supplements directory to your local environment</span>
 
@@ -358,13 +357,13 @@ div.rendered_html tbody tr:hover {
         <span class="p">},)</span>
 <span class="n">fig</span><span class="o">.</span><span class="n">subplots_adjust</span><span class="p">(</span><span class="n">wspace</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">hspace</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 
-<span class="n">dots</span> <span class="o">=</span> <span class="n">dotplot</span><span class="o">.</span><span class="n">DotPlot</span><span class="p">(</span><span class="n">results</span><span class="p">,</span>
-                       <span class="n">fpr</span><span class="p">,</span>
-                       <span class="n">figsize</span> <span class="o">=</span> <span class="p">(</span><span class="mi">6</span><span class="p">,</span><span class="mi">9</span><span class="p">),</span>
-                       <span class="n">dotsize</span> <span class="o">=</span> <span class="mi">5</span><span class="p">,</span>
-                       <span class="n">legend_title</span><span class="o">=</span><span class="s1">&#39;-log10(p-value)&#39;</span><span class="p">,</span>
-                       <span class="n">x_label_dict</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;data:time(sec):5&#39;</span><span class="p">:</span><span class="s1">&#39;5&#39;</span><span class="p">,</span><span class="s1">&#39;data:time(sec):15&#39;</span><span class="p">:</span><span class="s1">&#39;15&#39;</span><span class="p">,</span> <span class="s1">&#39;data:time(sec):30&#39;</span><span class="p">:</span><span class="s1">&#39;30&#39;</span><span class="p">,</span> <span class="s1">&#39;data:time(sec):60&#39;</span><span class="p">:</span><span class="s1">&#39;60&#39;</span> <span class="p">},</span>
-                      <span class="n">kinase_dict</span><span class="o">=</span><span class="n">kinase_dict</span><span class="p">)</span>
+<span class="n">dots</span> <span class="o">=</span> <span class="n">DotPlot</span><span class="p">(</span><span class="n">results</span><span class="p">,</span>
+               <span class="n">fpr</span><span class="p">,</span>
+               <span class="n">figsize</span> <span class="o">=</span> <span class="p">(</span><span class="mi">6</span><span class="p">,</span><span class="mi">9</span><span class="p">),</span>
+               <span class="n">dotsize</span> <span class="o">=</span> <span class="mi">5</span><span class="p">,</span>
+               <span class="n">legend_title</span><span class="o">=</span><span class="s1">&#39;-log10(p-value)&#39;</span><span class="p">,</span>
+               <span class="n">x_label_dict</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;data:time(sec):5&#39;</span><span class="p">:</span><span class="s1">&#39;5&#39;</span><span class="p">,</span><span class="s1">&#39;data:time(sec):15&#39;</span><span class="p">:</span><span class="s1">&#39;15&#39;</span><span class="p">,</span> <span class="s1">&#39;data:time(sec):30&#39;</span><span class="p">:</span><span class="s1">&#39;30&#39;</span><span class="p">,</span> <span class="s1">&#39;data:time(sec):60&#39;</span><span class="p">:</span><span class="s1">&#39;60&#39;</span> <span class="p">},</span>
+               <span class="n">kinase_dict</span><span class="o">=</span><span class="n">kinase_dict</span><span class="p">)</span>
 <span class="c1">#Cluster changes the sorting of the values array, so be sure to plot context last so that it is in the same sort.</span>
 
 <span class="n">dots</span><span class="o">.</span><span class="n">cluster</span><span class="p">(</span><span class="n">orientation</span> <span class="o">=</span> <span class="s1">&#39;left&#39;</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;ward&#39;</span><span class="p">)</span>
@@ -406,13 +405,13 @@ div.rendered_html tbody tr:hover {
         <span class="p">},)</span>
 <span class="n">fig</span><span class="o">.</span><span class="n">subplots_adjust</span><span class="p">(</span><span class="n">wspace</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">hspace</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 
-<span class="n">dots</span> <span class="o">=</span> <span class="n">dotplot</span><span class="o">.</span><span class="n">DotPlot</span><span class="p">(</span><span class="n">results</span><span class="p">,</span>
-                       <span class="n">fpr</span><span class="p">,</span>
-                       <span class="n">figsize</span> <span class="o">=</span> <span class="p">(</span><span class="mi">6</span><span class="p">,</span><span class="mi">9</span><span class="p">),</span>
-                       <span class="n">dotsize</span> <span class="o">=</span> <span class="mi">5</span><span class="p">,</span>
-                       <span class="n">legend_title</span><span class="o">=</span><span class="s1">&#39;-log10(p-value)&#39;</span><span class="p">,</span>
-                       <span class="n">x_label_dict</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;data:time(sec):5&#39;</span><span class="p">:</span><span class="s1">&#39;5&#39;</span><span class="p">,</span><span class="s1">&#39;data:time(sec):15&#39;</span><span class="p">:</span><span class="s1">&#39;15&#39;</span><span class="p">,</span> <span class="s1">&#39;data:time(sec):30&#39;</span><span class="p">:</span><span class="s1">&#39;30&#39;</span><span class="p">,</span> <span class="s1">&#39;data:time(sec):60&#39;</span><span class="p">:</span><span class="s1">&#39;60&#39;</span> <span class="p">},</span>
-                      <span class="n">kinase_dict</span><span class="o">=</span><span class="n">kinase_dict</span><span class="p">)</span>
+<span class="n">dots</span> <span class="o">=</span> <span class="n">DotPlot</span><span class="p">(</span><span class="n">results</span><span class="p">,</span>
+               <span class="n">fpr</span><span class="p">,</span>
+               <span class="n">figsize</span> <span class="o">=</span> <span class="p">(</span><span class="mi">6</span><span class="p">,</span><span class="mi">9</span><span class="p">),</span>
+               <span class="n">dotsize</span> <span class="o">=</span> <span class="mi">5</span><span class="p">,</span>
+               <span class="n">legend_title</span><span class="o">=</span><span class="s1">&#39;-log10(p-value)&#39;</span><span class="p">,</span>
+               <span class="n">x_label_dict</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;data:time(sec):5&#39;</span><span class="p">:</span><span class="s1">&#39;5&#39;</span><span class="p">,</span><span class="s1">&#39;data:time(sec):15&#39;</span><span class="p">:</span><span class="s1">&#39;15&#39;</span><span class="p">,</span> <span class="s1">&#39;data:time(sec):30&#39;</span><span class="p">:</span><span class="s1">&#39;30&#39;</span><span class="p">,</span> <span class="s1">&#39;data:time(sec):60&#39;</span><span class="p">:</span><span class="s1">&#39;60&#39;</span> <span class="p">},</span>
+               <span class="n">kinase_dict</span><span class="o">=</span><span class="n">kinase_dict</span><span class="p">)</span>
 <span class="c1">#Cluster changes the sorting of the values array, so be sure to plot context last so that it is in the same sort.</span>
 <span class="n">dots</span><span class="o">.</span><span class="n">drop_kinases_with_no_significance</span><span class="p">()</span>
 <span class="n">dots</span><span class="o">.</span><span class="n">cluster</span><span class="p">(</span><span class="n">orientation</span> <span class="o">=</span> <span class="s1">&#39;left&#39;</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;ward&#39;</span><span class="p">)</span>
@@ -447,8 +446,8 @@ div.rendered_html tbody tr:hover {
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../Overview.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../Dependencies.html">Dependencies</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../Installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../KSTAR.html">KSTAR</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quick Start Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../Tutorial/tutorial.html">Tutorial</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="Examples.html">Plotting Examples from KSTAR Paper</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="Examples.html#activation-of-kinases-in-controlled-cell-lines">Activation of Kinases in Controlled Cell Lines</a><ul class="current">

@@ -302,7 +302,7 @@ div.rendered_html tbody tr:hover {
 <li><p>The threshold to use for the ‘mean’ or ‘count’ aggregates. Can select values to be kept that are greater than or equal to provided threshold (greater=TRUE default).</p></li>
 </ol>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -311,8 +311,7 @@ div.rendered_html tbody tr:hover {
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">pickle</span>
 
-<span class="kn">from</span> <span class="nn">kstar</span> <span class="kn">import</span> <span class="n">config</span><span class="p">,</span> <span class="n">helpers</span>
-<span class="kn">from</span> <span class="nn">kstar.activity</span> <span class="kn">import</span> <span class="n">kstar_activity</span>
+<span class="kn">from</span> <span class="nn">kstar</span> <span class="kn">import</span> <span class="n">config</span><span class="p">,</span> <span class="n">helpers</span><span class="p">,</span> <span class="n">calculate</span>
 
 <span class="c1">#define log name and out directory. Ideally use the same values used for mapping</span>
 <span class="n">odir</span> <span class="o">=</span> <span class="s1">&#39;./example&#39;</span>
@@ -322,10 +321,10 @@ div.rendered_html tbody tr:hover {
 </div>
 <section id="Determine-Thresholds">
 <h1>Determine Thresholds<a class="headerlink" href="#Determine-Thresholds" title="Permalink to this headline">¶</a></h1>
-<p>It is useful to determine the best threshold to use (which sites to use as evidence for each sample). One easy benchmark way is to identify the number of sites that will be used as evidence at different thresholds. For tyrosine kinase activities, it is recommended that samples have at least 50 tyrosine sites used as evidence, while for serine/threonine kinase activities, it is recommended that samples have at least 1000 sites used as evidence. While not a necessity, it is also beneficial to have
-comparable site numbers across samples.</p>
+<p>It is useful to determine the best threshold to use (which sites to use as evidence for each sample). One easy benchmark way is to identify the number of sites that will be used as evidence at different thresholds. For tyrosine kinase activities, it is generally recommended that samples have at least 50 tyrosine sites used as evidence, while for serine/threonine kinase activities, it is recommended that samples have at least 1000 sites used as evidence. While not a necessity, it is also
+beneficial to have comparable site numbers across samples.</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -335,7 +334,7 @@ comparable site numbers across samples.</p>
 </div>
 </div>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -350,7 +349,7 @@ comparable site numbers across samples.</p>
 </div>
 </div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -363,7 +362,7 @@ comparable site numbers across samples.</p>
 
 
 <span class="c1">#create the activity object and then</span>
-<span class="n">kinact</span> <span class="o">=</span> <span class="n">kstar_activity</span><span class="o">.</span><span class="n">KinaseActivity</span><span class="p">(</span><span class="n">experiment</span><span class="p">,</span> <span class="n">activity_log</span><span class="p">,</span> <span class="n">phospho_type</span><span class="o">=</span><span class="n">phospho_type</span><span class="p">)</span>
+<span class="n">kinact</span> <span class="o">=</span> <span class="n">calculate</span><span class="o">.</span><span class="n">KinaseActivity</span><span class="p">(</span><span class="n">experiment</span><span class="p">,</span> <span class="n">activity_log</span><span class="p">,</span> <span class="n">phospho_type</span><span class="o">=</span><span class="n">phospho_type</span><span class="p">)</span>
 <span class="n">kinact</span><span class="o">.</span><span class="n">set_data_columns</span><span class="p">()</span>
 <span class="n">evidence_binary</span> <span class="o">=</span> <span class="n">kinact</span><span class="o">.</span><span class="n">create_binary_evidence</span><span class="p">(</span><span class="n">data_columns</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">agg</span> <span class="o">=</span> <span class="n">agg</span><span class="p">,</span> <span class="n">threshold</span> <span class="o">=</span> <span class="n">threshold</span><span class="p">,</span>  <span class="n">greater</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span>
 
@@ -374,7 +373,7 @@ comparable site numbers across samples.</p>
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
 </pre></div>
 </div>
 <div class="output_area docutils container">
@@ -391,10 +390,15 @@ dtype: float64
 </section>
 <section id="Calculate-Statistical-Enrichment-(Hypergeometric-p-values)">
 <h1>Calculate Statistical Enrichment (Hypergeometric p-values)<a class="headerlink" href="#Calculate-Statistical-Enrichment-(Hypergeometric-p-values)" title="Permalink to this headline">¶</a></h1>
-<p>The first step to obtaining activity predictions is calculating the statistical enrichment of kinase substrates in the dataset using the hypergeometric test. From this test, the median p-value from the pruned networks can be used to indicate the level of activity. To obtain these predictions, use the following steps: 1. Load the pruned kinase-substrate networks 2. Generate an activity log, which will store information about each run, including any errors that arise. 3. Define the data columns
-containing each experiment and the threshold to use 4. Perform enrichment calculations</p>
+<p>The first step to obtaining activity predictions is calculating the statistical enrichment of kinase substrates in the dataset using the hypergeometric test. From this test, a set of 50 p-values for each kinase will be generated indicating the enrichment found in each pruned network. To obtain these predictions, use the following steps</p>
+<ol class="arabic simple">
+<li><p>Load the pruned kinase-substrate networks</p></li>
+<li><p>Generate an activity log, which will store information about each run, including any errors that arise</p></li>
+<li><p>Define the data columns containing each experiment and the threshold to use</p></li>
+<li><p>Perform enrichment calculations</p></li>
+</ol>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[21]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -428,7 +432,7 @@ containing each experiment and the threshold to use 4. Perform enrichment calcul
 <span class="n">agg</span> <span class="o">=</span> <span class="s1">&#39;mean&#39;</span>
 <span class="n">threshold</span> <span class="o">=</span> <span class="mf">0.2</span>
 <span class="n">greater</span> <span class="o">=</span> <span class="kc">True</span>
-<span class="n">kinact_dict</span> <span class="o">=</span> <span class="n">kstar_activity</span><span class="o">.</span><span class="n">run_kstar_analysis</span><span class="p">(</span><span class="n">experiment</span><span class="p">,</span> <span class="n">activity_log</span><span class="p">,</span> <span class="n">networks</span><span class="p">,</span> <span class="n">phospho_types</span> <span class="o">=</span> <span class="n">phospho_types</span><span class="p">,</span>
+<span class="n">kinact_dict</span> <span class="o">=</span> <span class="n">calculate</span><span class="o">.</span><span class="n">run_kstar_analysis</span><span class="p">(</span><span class="n">experiment</span><span class="p">,</span> <span class="n">activity_log</span><span class="p">,</span> <span class="n">networks</span><span class="p">,</span> <span class="n">phospho_types</span> <span class="o">=</span> <span class="n">phospho_types</span><span class="p">,</span>
                                                 <span class="n">data_columns</span> <span class="o">=</span> <span class="n">data_columns</span><span class="p">,</span> <span class="n">agg</span> <span class="o">=</span><span class="n">agg</span><span class="p">,</span> <span class="n">threshold</span> <span class="o">=</span> <span class="n">threshold</span><span class="p">,</span>
                                                 <span class="n">greater</span> <span class="o">=</span> <span class="n">greater</span><span class="p">)</span>
 </pre></div>
@@ -525,8 +529,7 @@ containing each experiment and the threshold to use 4. Perform enrichment calcul
 </section>
 <section id="Generate-random-datasets,-run-kinase-activity-on-random-datasets,-normalize-original-analysis">
 <h1>Generate random datasets, run kinase activity on random datasets, normalize original analysis<a class="headerlink" href="#Generate-random-datasets,-run-kinase-activity-on-random-datasets,-normalize-original-analysis" title="Permalink to this headline">¶</a></h1>
-<p>The p-value enrichment obtained from the hypergeometric test above often suffer from high false positive rates for specific kinases that are well studied in phosphosite compendia such as LCK and FYN. In order to account for these false positive rates, we want to generate random datasets and rerun enrichment calculations on each of the random datasets. These random results can then be used to obtain new activity predictions that have been adjusted for the enrichment that might be found by random
-chance.</p>
+<p>The median p-value obtained from the hypergeometric test above often suffers from high false positive rates for kinases associated with well studied phosphosites, such as LCK and FYN. In order to account for these false positive rates, we want to generate random experiments and rerun enrichment calculations on each of the random experiments. These random results can then be used to obtain new activity predictions that have been adjusted for the enrichment that might be found by random chance.</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
 </pre></div>
@@ -538,7 +541,7 @@ chance.</p>
 <span class="c1">#indicate the desired false positive rate</span>
 <span class="n">target_alpha</span><span class="o">=</span><span class="mf">0.05</span>
 <span class="c1">#run the normalize analysis. This will generate the random experiments then normalize p-values to adjust for fpr.</span>
-<span class="n">kstar_activity</span><span class="o">.</span><span class="n">normalize_analysis</span><span class="p">(</span><span class="n">kinact_dict</span><span class="p">,</span> <span class="n">activity_log</span><span class="p">,</span> <span class="n">num_random_experiments</span><span class="p">,</span> <span class="n">target_alpha</span><span class="p">)</span>
+<span class="n">calculate</span><span class="o">.</span><span class="n">normalize_analysis</span><span class="p">(</span><span class="n">kinact_dict</span><span class="p">,</span> <span class="n">activity_log</span><span class="p">,</span> <span class="n">num_random_experiments</span><span class="p">,</span> <span class="n">target_alpha</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -758,7 +761,7 @@ Length: 602, dtype: object
 </section>
 <section id="Calculate-Mann-Whitney-Significance">
 <h1>Calculate Mann Whitney Significance<a class="headerlink" href="#Calculate-Mann-Whitney-Significance" title="Permalink to this headline">¶</a></h1>
-<p>Finally, the preferred activity estimation involves implementing the Mann Whitney test to compare the distribution of real p-values (activity predictions on the real dataset) to the random p-values (activity predictions on the random dataset). Further, a false positive rate is calculated by pulling out one of the random datasets and comparing to all other random datasets using the same Mann Whitney test. The parameter ‘number_sig_trials’ indicates the number of times to repeat this calculation
+<p>Finally, the preferred activity estimation involves implementing the Mann Whitney U-test to compare the distribution of real p-values (activity predictions on the real dataset) to the random p-values (activity predictions on the random dataset). Further, a false positive rate is calculated by pulling out one of the random datasets and comparing to all other random datasets using the same Mann Whitney test. The parameter ‘number_sig_trials’ indicates the number of times to repeat this calculation
 to obtain the false positive rate.</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
@@ -766,7 +769,7 @@ to obtain the false positive rate.</p>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
 <span></span><span class="c1">#run MW analysis on tyrosine. These will provide the final distribution based p-values used for final kinase activity scores</span>
-<span class="n">kstar_activity</span><span class="o">.</span><span class="n">Mann_Whitney_analysis</span><span class="p">(</span><span class="n">kinact_dict</span><span class="p">,</span> <span class="n">activity_log</span><span class="p">,</span> <span class="n">number_sig_trials</span> <span class="o">=</span> <span class="mi">100</span><span class="p">)</span>
+<span class="n">calculate</span><span class="o">.</span><span class="n">Mann_Whitney_analysis</span><span class="p">(</span><span class="n">kinact_dict</span><span class="p">,</span> <span class="n">activity_log</span><span class="p">,</span> <span class="n">number_sig_trials</span> <span class="o">=</span> <span class="mi">100</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -779,17 +782,17 @@ to obtain the false positive rate.</p>
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">kstar_activity</span><span class="o">.</span><span class="n">save_kstar</span><span class="p">(</span><span class="n">kinact_dict</span><span class="p">,</span> <span class="n">logName</span><span class="p">,</span> <span class="n">odir</span><span class="p">)</span>
+<span></span><span class="n">calculate</span><span class="o">.</span><span class="n">save_kstar</span><span class="p">(</span><span class="n">kinact_dict</span><span class="p">,</span> <span class="n">logName</span><span class="p">,</span> <span class="n">odir</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
-<p>However, this produces a very large file that takes up considerable memory. If you do not need the random experiments that were generated for normalization and mann whitney calculations, then it is recommended that kstar_slim is used. This will still save all activity and fpr predictions.</p>
+<p>However, this produces a very large file that takes up considerable memory. It is typically recommended that kstar_slim is used, especially if primarily concerned with final activity predictions.</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">kstar_activity</span><span class="o">.</span><span class="n">save_kstar_slim</span><span class="p">(</span><span class="n">kinact_dict</span><span class="p">,</span> <span class="n">logName</span><span class="p">,</span> <span class="n">odir</span><span class="p">)</span>
+<span></span><span class="n">calculate</span><span class="o">.</span><span class="n">save_kstar_slim</span><span class="p">(</span><span class="n">kinact_dict</span><span class="p">,</span> <span class="n">logName</span><span class="p">,</span> <span class="n">odir</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -818,9 +821,10 @@ to obtain the false positive rate.</p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../Overview.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../Dependencies.html">Dependencies</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../Installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../KSTAR.html">KSTAR</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quick Start Guide</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="tutorial.html">Tutorial</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="tutorial.html#generating-pruned-networks">Generating Pruned Networks</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tutorial.html#map-datasets-to-kinpred">Map Datasets to KinPred</a></li>
 <li class="toctree-l2 current"><a class="reference internal" href="tutorial.html#predict-kinase-activities">Predict Kinase Activities</a><ul class="current">
 <li class="toctree-l3 current"><a class="current reference internal" href="#">Determine Thresholds</a></li>

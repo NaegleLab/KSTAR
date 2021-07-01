@@ -60,21 +60,21 @@
 <span class="c1">#%%</span>
 
 <div class="viewcode-block" id="Prune"><a class="viewcode-back" href="../../../KSTAR.html#kstar.prune.prune.Prune">[docs]</a><span class="k">class</span> <span class="nc">Prune</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Pruning Algorithm used for Kinase Activity Algorithm. </span>
-<span class="sd">        </span>
-<span class="sd">    Parameters</span>
-<span class="sd">    -----------</span>
-<span class="sd">    network : pandas df</span>
-<span class="sd">        kinase-site prediction network where there is an accession, site, kinase, and score column</span>
-<span class="sd">    logger : </span>
-<span class="sd">        logger used for pruning</span>
-<span class="sd">    phospho_type : str</span>
-<span class="sd">        phospho_type(s) to use when building pruned networks</span>
-<span class="sd">    columns : dict</span>
-<span class="sd">        relevant columns in network</span>
-<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">network</span><span class="p">,</span> <span class="n">logger</span><span class="p">,</span> <span class="n">phospho_type</span> <span class="o">=</span> <span class="s1">&#39;Y&#39;</span><span class="p">,):</span>
+
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Pruning Algorithm used for Kinase Activity Algorithm. </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        network : pandas df</span>
+<span class="sd">            kinase-site prediction network where there is an accession, site, kinase, and score column</span>
+<span class="sd">        logger : </span>
+<span class="sd">            logger used for pruning</span>
+<span class="sd">        phospho_type : str</span>
+<span class="sd">            phospho_type(s) to use when building pruned networks</span>
+<span class="sd">        columns : dict</span>
+<span class="sd">            relevant columns in network</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         
 
         <span class="bp">self</span><span class="o">.</span><span class="n">phospho_type</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">phospho_type</span><span class="p">)</span>
@@ -199,10 +199,7 @@
 <div class="viewcode-block" id="Prune.build_multiple_compendia_networks"><a class="viewcode-back" href="../../../KSTAR.html#kstar.prune.prune.Prune.build_multiple_compendia_networks">[docs]</a>    <span class="k">def</span> <span class="nf">build_multiple_compendia_networks</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">kinase_size</span><span class="p">,</span> <span class="n">site_limit</span><span class="p">,</span> <span class="n">num_networks</span><span class="p">,</span> <span class="n">network_id</span><span class="p">,</span> <span class="n">odir</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Builds multiple compendia-limited networks</span>
-<span class="sd">        </span>
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        </span>
+
 <span class="sd">        kinase_size: int</span>
 <span class="sd">            number of sites each kinase should connect to</span>
 <span class="sd">        site_limit :int</span>
@@ -343,36 +340,7 @@
     <span class="k">return</span> <span class="n">network</span><span class="p">,</span> <span class="n">log</span><span class="p">,</span> <span class="n">use_compendia</span>
 
 
-<div class="viewcode-block" id="run_pruning"><a class="viewcode-back" href="../../../KSTAR.html#kstar.prune.prune.run_pruning">[docs]</a><span class="k">def</span> <span class="nf">run_pruning</span><span class="p">(</span><span class="n">network</span><span class="p">,</span> <span class="n">log</span><span class="p">,</span> <span class="n">use_compendia</span><span class="p">,</span> <span class="n">phospho_type</span><span class="p">,</span> <span class="n">kinase_size</span><span class="p">,</span> <span class="n">site_limit</span><span class="p">,</span> <span class="n">num_networks</span><span class="p">,</span> <span class="n">network_id</span><span class="p">,</span> <span class="n">odir</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Generate pruned networks from a weighted kinase-substrate graph and log run information</span>
-<span class="sd">    </span>
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    network: pandas dataframe</span>
-<span class="sd">        kinase substrate network matrix, with values indicating weight of kinase-substrate relationship</span>
-<span class="sd">    log: logger</span>
-<span class="sd">        logger to document the pruning process from start to finish</span>
-<span class="sd">    use_compendia: string</span>
-<span class="sd">        whether to use compendia ratios to build network</span>
-<span class="sd">    phospho_type: string</span>
-<span class="sd">        phospho type (&#39;Y&#39;, &#39;ST&#39;, ...)</span>
-<span class="sd">    kinase_size: int</span>
-<span class="sd">        number of sites a kinase connects to</span>
-<span class="sd">    site_limit: int</span>
-<span class="sd">        upper limit of number of kinases can connect to</span>
-<span class="sd">    num_networks: int</span>
-<span class="sd">        number of networks to generate</span>
-<span class="sd">    network_id: string</span>
-<span class="sd">        name of network to use in building dictionary</span>
-<span class="sd">    odir: string</span>
-<span class="sd">        output directory for results</span>
-<span class="sd">        </span>
-<span class="sd">    Returns</span>
-<span class="sd">    -------</span>
-<span class="sd">    pruner: Prune object</span>
-<span class="sd">        prune object that contains the number of pruned networks indicated by the num_networks paramater</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="k">def</span> <span class="nf">run_pruning</span><span class="p">(</span><span class="n">network</span><span class="p">,</span> <span class="n">log</span><span class="p">,</span> <span class="n">use_compendia</span><span class="p">,</span> <span class="n">phospho_type</span><span class="p">,</span> <span class="n">kinase_size</span><span class="p">,</span> <span class="n">site_limit</span><span class="p">,</span> <span class="n">num_networks</span><span class="p">,</span> <span class="n">network_id</span><span class="p">,</span> <span class="n">odir</span><span class="p">):</span>
     <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Running pruning algorithm&quot;</span><span class="p">)</span>
     <span class="n">pruner</span> <span class="o">=</span> <span class="n">Prune</span><span class="p">(</span><span class="n">network</span><span class="p">,</span> <span class="n">log</span><span class="p">,</span> <span class="n">phospho_type</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">use_compendia</span><span class="p">:</span>
@@ -381,33 +349,9 @@
     <span class="c1"># else:</span>
     <span class="c1">#     log.info(&quot;Pruning without using compendia&quot;)</span>
     <span class="c1">#     pruned_networks = pruner.build_multiple_networks(kinase_size, site_limit, num_networks, network_id)</span>
-    <span class="k">return</span> <span class="n">pruner</span></div>
+    <span class="k">return</span> <span class="n">pruner</span>
 
-<div class="viewcode-block" id="save_pruning"><a class="viewcode-back" href="../../../KSTAR.html#kstar.prune.prune.save_pruning">[docs]</a><span class="k">def</span> <span class="nf">save_pruning</span><span class="p">(</span><span class="n">phospho_type</span><span class="p">,</span> <span class="n">network_id</span><span class="p">,</span> <span class="n">kinase_size</span><span class="p">,</span> <span class="n">site_limit</span><span class="p">,</span> <span class="n">use_compendia</span><span class="p">,</span> <span class="n">odir</span><span class="p">,</span> <span class="n">log</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Save the pruned networks generated by run_pruning function as a pickle to be loaded by KSTAR</span>
-<span class="sd">    </span>
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    phosho_type: string</span>
-<span class="sd">        type of phosphomodification to networks were generated for (either &#39;Y&#39; or &#39;ST&#39;)</span>
-<span class="sd">    network_id: string</span>
-<span class="sd">        name of network used to build dictionary</span>
-<span class="sd">    kinase_size: int</span>
-<span class="sd">        number of sites a kinase connects to</span>
-<span class="sd">    site_limit: int</span>
-<span class="sd">        upper limit of number of kinases can connect to</span>
-<span class="sd">    use_compendia: string </span>
-<span class="sd">        whether compendia was used for ratios to build networks</span>
-<span class="sd">    odir: string</span>
-<span class="sd">        output directory for results</span>
-<span class="sd">    log: logger</span>
-<span class="sd">        logger to document pruning process from start to finish</span>
-<span class="sd">        </span>
-<span class="sd">    Returns</span>
-<span class="sd">    -------</span>
-<span class="sd">    Nothing</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="k">def</span> <span class="nf">save_pruning</span><span class="p">(</span><span class="n">phospho_type</span><span class="p">,</span> <span class="n">network_id</span><span class="p">,</span> <span class="n">kinase_size</span><span class="p">,</span> <span class="n">site_limit</span><span class="p">,</span> <span class="n">use_compendia</span><span class="p">,</span> <span class="n">odir</span><span class="p">,</span> <span class="n">log</span><span class="p">):</span>
     <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Saving pruning results&quot;</span><span class="p">)</span>
     <span class="c1"># if not os.path.exists(f&quot;{odir}/INDIVIDUAL_NETWORKS&quot;): </span>
     <span class="c1">#         os.mkdir(f&quot;{odir}/INDIVIDUAL_NETWORKS&quot;) </span>
@@ -429,27 +373,10 @@
 
     <span class="c1"># for nid, network in network_map.items():</span>
     <span class="c1">#     network.to_csv(f&quot;{odir}/INDIVIDUAL_NETWORKS/{nid}_{suffix}.tsv&quot;, sep = &#39;\t&#39;, index=False)</span>
-    <span class="n">pickle</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span> <span class="n">network_map</span><span class="p">,</span> <span class="nb">open</span><span class="p">(</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">odir</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">network_id</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">suffix</span><span class="si">}</span><span class="s2">.p&quot;</span><span class="p">,</span> <span class="s2">&quot;wb&quot;</span> <span class="p">)</span> <span class="p">)</span></div>
+    <span class="n">pickle</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span> <span class="n">network_map</span><span class="p">,</span> <span class="nb">open</span><span class="p">(</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">odir</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">network_id</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">suffix</span><span class="si">}</span><span class="s2">.p&quot;</span><span class="p">,</span> <span class="s2">&quot;wb&quot;</span> <span class="p">)</span> <span class="p">)</span>
 
     
-<div class="viewcode-block" id="save_run_information"><a class="viewcode-back" href="../../../KSTAR.html#kstar.prune.prune.save_run_information">[docs]</a><span class="k">def</span> <span class="nf">save_run_information</span><span class="p">(</span><span class="n">results</span><span class="p">,</span> <span class="n">use_compendia</span><span class="p">,</span> <span class="n">pruner</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Save information about the generation of networks during run_pruning, </span>
-<span class="sd">    including the parameters used for generation. Primarily used when running bash script.</span>
-<span class="sd">    </span>
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    results: </span>
-<span class="sd">        object that stores all parameters used in the pruning process</span>
-<span class="sd">    use_compendia: string</span>
-<span class="sd">        whether compendia was used for ratios to build network</span>
-<span class="sd">    pruner: Prune object</span>
-<span class="sd">        output of the run_pruning() function</span>
-<span class="sd">        </span>
-<span class="sd">    Returns</span>
-<span class="sd">    -------</span>
-<span class="sd">    Nothing</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="k">def</span> <span class="nf">save_run_information</span><span class="p">(</span><span class="n">results</span><span class="p">,</span> <span class="n">use_compendia</span><span class="p">,</span> <span class="n">pruner</span><span class="p">):</span>
     <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">results</span><span class="o">.</span><span class="n">odir</span><span class="si">}</span><span class="s2">/RUN_INFORMATION.txt&quot;</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">info_file</span><span class="p">:</span>
         <span class="n">info_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;*************************************************</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="n">info_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Pruning Information for </span><span class="si">{</span><span class="n">results</span><span class="o">.</span><span class="n">network_id</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
@@ -464,7 +391,7 @@
         <span class="k">if</span> <span class="n">use_compendia</span><span class="p">:</span>
             <span class="n">compendia_sizes</span> <span class="o">=</span> <span class="n">pruner</span><span class="o">.</span><span class="n">calculate_compendia_sizes</span><span class="p">(</span><span class="n">results</span><span class="o">.</span><span class="n">kinase_size</span><span class="p">)</span>
             <span class="k">for</span> <span class="n">comp</span><span class="p">,</span> <span class="n">size</span> <span class="ow">in</span> <span class="n">compendia_sizes</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-                <span class="n">info_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">Compendia </span><span class="si">{</span><span class="n">comp</span><span class="si">}</span><span class="se">\t</span><span class="si">{</span><span class="n">size</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span></div>
+                <span class="n">info_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">Compendia </span><span class="si">{</span><span class="n">comp</span><span class="si">}</span><span class="se">\t</span><span class="si">{</span><span class="n">size</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
 
 
 
@@ -501,6 +428,7 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../Overview.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../Dependencies.html">Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../quickstart.html">Quick Start Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../Installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../KSTAR.html">KSTAR</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../Tutorial/tutorial.html">Tutorial</a></li>

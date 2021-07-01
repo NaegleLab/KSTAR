@@ -2,7 +2,7 @@ KSTAR
 =============================
 .. automodule:: kstar 
 
-Global Variables found in Config Module
+Global Variables found in "Config" Module
 ----------------------------------------
 These are the GLOBAL variables for the KSTAR project and are set for default procedures for the current release
 of KinPred and KSTAR. 
@@ -20,65 +20,63 @@ Update these if you want to update:
    * - NETWORK_DIR
      - Where in the resource directory to find the pickles of the pruned networks   
    * - HUMAN_REF_FASTA_FILE
-     - Reference proteome to use. Should be a fasta file. Default is downloaded from KinPred 
+     - Reference proteome to use. Should be a fasta file. Reference proteome from KinPred can be found in the RESOURCE_FILES downloaded from figshare.
    * - HUMAN_REF_PHOSPHO
-     - Reference phosphoproteome to use. Download from KSTAR FigShare	and deposit in RESOURCE_DIR
+     - Reference phosphoproteome to use. Reference phosphoproteome from KinPred can be found in the RESOURCE_FILES downloaded from figshare.
    * - NETWORK_Y_PICKLE 
      - Location of network pickle for phosphotyrosine networks. Default is 'NETWORK_DIR/network_Y.p' 
    * - NETWORK_ST_PICKLE
      - Location of network pickle for phosphoserine/phosphothreonine networks. Default is 'NETWORK_DIR/network_ST.p' 
 	 
-The Prune Module
+The "Prune" Module
 -----------------
 
-The "Prune" Class
+The "Pruner" Class
 ~~~~~~~~~~~~~~~~~
-.. autoclass:: kstar.prune.prune.Prune
+.. autoclass:: kstar.prune.Pruner
 	:members:
 	
 Functions to Perform Pruning
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-.. automodule:: kstar.prune.prune
+.. automodule:: kstar.prune
 	:members: run_pruning, save_pruning, save_run_information
 	
-The "Mapper" class
+The "ExperimentMapper" class
 --------------------
-.. autoclass:: kstar.mapper.experiment_mapper.ExperimentMapper
+.. autoclass:: kstar.mapping.ExperimentMapper
 	:members: 
 
 
 The "KinaseActivity" class
 --------------------------
-.. autoclass:: kstar.activity.kstar_activity.KinaseActivity
+.. autoclass:: kstar.calculate.KinaseActivity
 	:members: calculate_Mann_Whitney_activities_sig, calculate_kinase_activities, check_data_columns, create_binary_evidence, find_pvalue_limits, set_data_columns, run_normalization, get_run_date  
 
 
-The "Plot" class
+The "DotPlot" class
 --------------------
-.. autoclass:: kstar.plot.dotplot.DotPlot
+.. autoclass:: kstar.plot.DotPlot
 	:members: dotplot, cluster, context, drop_kinases, drop_kinases_with_no_significance
 
 Supporting Functions
 --------------------
-Helper Functions
-~~~~~~~~~~~~~~~~
-.. automodule:: kstar.helpers
-	:members:
-	
-.. automodule:: kstar.config
-	:members:
-
 	
 Master Functions for Running KSTAR Pipeline
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. automodule:: kstar.activity.kstar_activity
+.. automodule:: kstar.calculate
 	:members: run_kstar_analysis, normalize_analysis, Mann_Whitney_analysis 
 	
 Functions for Saving and Loading KSTAR results
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	
-.. automodule:: kstar.activity.kstar_activity
+.. automodule:: kstar.calculate
 	:members: save_kstar, save_kstar_slim, from_kstar_slim, from_kstar_nextflow
 
-
+Other Helper Functions
+~~~~~~~~~~~~~~~~~~~~~~
+.. automodule:: kstar.helpers
+	:members: 
+	
+.. automodule:: kstar.config
+	:members:

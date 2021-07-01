@@ -6,7 +6,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <title>Analysis of CPTAC Breast Cancer Patient Samples () &#8212; KSTAR 1 documentation</title>
+    <title>Analysis of CPTAC Breast Cancer Patient Samples (Mertens 2016) &#8212; KSTAR 1 documentation</title>
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../_static/classic.css" />
     
@@ -18,7 +18,7 @@
     
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Analysis of PDX Tumor Samples ()" href="PDX_Analysis.html" />
+    <link rel="next" title="Analysis of PDX Tumor Samples (Huang 2017)" href="PDX_Analysis.html" />
     <link rel="prev" title="Paradoxical Activation of MAP-ERK pathway upon BRAF inhibition (Kubiniok, 2017)" href="Vemurafenib_Analysis.html" /> 
   </head><body>
     <div class="related" role="navigation" aria-label="related navigation">
@@ -31,14 +31,14 @@
           <a href="../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="PDX_Analysis.html" title="Analysis of PDX Tumor Samples ()"
+          <a href="PDX_Analysis.html" title="Analysis of PDX Tumor Samples (Huang 2017)"
              accesskey="N">next</a> |</li>
         <li class="right" >
           <a href="Vemurafenib_Analysis.html" title="Paradoxical Activation of MAP-ERK pathway upon BRAF inhibition (Kubiniok, 2017)"
              accesskey="P">previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="../index.html">KSTAR 1 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="Examples.html" accesskey="U">Plotting Examples from KSTAR Paper</a> &#187;</li>
-        <li class="nav-item nav-item-this"><a href="">Analysis of CPTAC Breast Cancer Patient Samples ()</a></li> 
+        <li class="nav-item nav-item-this"><a href="">Analysis of CPTAC Breast Cancer Patient Samples (Mertens 2016)</a></li> 
       </ul>
     </div>  
 
@@ -295,8 +295,8 @@ div.rendered_html tbody tr:hover {
   background: rgba(66, 165, 245, 0.2);
 }
 </style>
-<section id="Analysis-of-CPTAC-Breast-Cancer-Patient-Samples-()">
-<h1>Analysis of CPTAC Breast Cancer Patient Samples ()<a class="headerlink" href="#Analysis-of-CPTAC-Breast-Cancer-Patient-Samples-()" title="Permalink to this headline">¶</a></h1>
+<section id="Analysis-of-CPTAC-Breast-Cancer-Patient-Samples-(Mertens-2016)">
+<h1>Analysis of CPTAC Breast Cancer Patient Samples (Mertens 2016)<a class="headerlink" href="#Analysis-of-CPTAC-Breast-Cancer-Patient-Samples-(Mertens-2016)" title="Permalink to this headline">¶</a></h1>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
@@ -310,9 +310,8 @@ div.rendered_html tbody tr:hover {
 <span class="kn">import</span> <span class="nn">conf</span> <span class="c1">#This is the local config file for setting the supplements directory to your local environment</span>
 
 <span class="c1">#KSTAR imports</span>
-<span class="kn">from</span> <span class="nn">kstar</span> <span class="kn">import</span> <span class="n">config</span><span class="p">,</span> <span class="n">helpers</span><span class="p">,</span> <span class="n">kstar_runner</span>
-<span class="kn">from</span> <span class="nn">kstar.activity</span> <span class="kn">import</span> <span class="n">kstar_activity</span>
-<span class="kn">from</span> <span class="nn">kstar.plot</span> <span class="kn">import</span> <span class="n">dotplot</span>
+<span class="kn">from</span> <span class="nn">kstar</span> <span class="kn">import</span> <span class="n">config</span><span class="p">,</span> <span class="n">helpers</span><span class="p">,</span> <span class="n">calculate</span>
+<span class="kn">from</span> <span class="nn">kstar.plot</span> <span class="kn">import</span> <span class="n">DotPlot</span>
 
 
 <span class="c1">#Set matplotlib defaults for arial 12 point font</span>
@@ -397,13 +396,13 @@ div.rendered_html tbody tr:hover {
         <span class="p">},)</span>
 <span class="n">fig</span><span class="o">.</span><span class="n">subplots_adjust</span><span class="p">(</span><span class="n">wspace</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">hspace</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 
-<span class="n">dots</span> <span class="o">=</span> <span class="n">dotplot</span><span class="o">.</span><span class="n">DotPlot</span><span class="p">(</span><span class="n">results</span><span class="p">,</span>
-                       <span class="n">fpr</span><span class="p">,</span>
-                       <span class="n">figsize</span> <span class="o">=</span> <span class="p">(</span><span class="mi">20</span><span class="p">,</span><span class="mi">18</span><span class="p">),</span>
-                       <span class="n">dotsize</span> <span class="o">=</span> <span class="mi">5</span><span class="p">,</span>
-                       <span class="n">legend_title</span><span class="o">=</span><span class="s1">&#39;-log10(p-value)&#39;</span><span class="p">,</span>
-                       <span class="n">x_label_dict</span><span class="o">=</span><span class="n">x_label_dict</span><span class="p">,</span>
-                      <span class="n">kinase_dict</span> <span class="o">=</span> <span class="n">kinase_dict</span><span class="p">)</span>
+<span class="n">dots</span> <span class="o">=</span> <span class="n">DotPlot</span><span class="p">(</span><span class="n">results</span><span class="p">,</span>
+               <span class="n">fpr</span><span class="p">,</span>
+               <span class="n">figsize</span> <span class="o">=</span> <span class="p">(</span><span class="mi">20</span><span class="p">,</span><span class="mi">18</span><span class="p">),</span>
+               <span class="n">dotsize</span> <span class="o">=</span> <span class="mi">5</span><span class="p">,</span>
+               <span class="n">legend_title</span><span class="o">=</span><span class="s1">&#39;-log10(p-value)&#39;</span><span class="p">,</span>
+               <span class="n">x_label_dict</span><span class="o">=</span><span class="n">x_label_dict</span><span class="p">,</span>
+               <span class="n">kinase_dict</span> <span class="o">=</span> <span class="n">kinase_dict</span><span class="p">)</span>
 <span class="c1">#dots.drop_kinases_with_no_significance()</span>
 
 <span class="c1">#Cluster changes the sorting of the values array, so be sure to plot context last so that it is in the same sort.</span>
@@ -730,21 +729,21 @@ Check: there are 97 patients and 97 status
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../Overview.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../Dependencies.html">Dependencies</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../Installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../KSTAR.html">KSTAR</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quick Start Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../Tutorial/tutorial.html">Tutorial</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="Examples.html">Plotting Examples from KSTAR Paper</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="Examples.html#activation-of-kinases-in-controlled-cell-lines">Activation of Kinases in Controlled Cell Lines</a></li>
 <li class="toctree-l2"><a class="reference internal" href="Examples.html#inhibition-of-kinases-in-controlled-cell-lines">Inhibition of Kinases in Controlled Cell Lines</a></li>
 <li class="toctree-l2 current"><a class="reference internal" href="Examples.html#profiling-her2-therapy-response-in-breast-cancer">Profiling HER2 therapy response in Breast Cancer</a><ul class="current">
-<li class="toctree-l3 current"><a class="current reference internal" href="#">Analysis of CPTAC Breast Cancer Patient Samples ()</a><ul>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Analysis of CPTAC Breast Cancer Patient Samples (Mertens 2016)</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#Plot-using-agglomerative-clustering-on-both-kinases-and-patients,-and-add-context-to-each-sample">Plot using agglomerative clustering on both kinases and patients, and add context to each sample</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#Plot-ERBB2-activities-with-each-samples-associated-HER2-status">Plot ERBB2 activities with each samples associated HER2 status</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#Measure-the-number-of-cross-predictions-between-HER2-status-and-HER2/ERBB2-activity">Measure the number of cross-predictions between HER2-status and HER2/ERBB2 activity</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="PDX_Analysis.html">Analysis of PDX Tumor Samples ()</a></li>
-<li class="toctree-l3"><a class="reference internal" href="Microbiopsy_Analysis.html">Analysis of HER2 Positive Patients using Microbiopsies ()</a></li>
+<li class="toctree-l3"><a class="reference internal" href="PDX_Analysis.html">Analysis of PDX Tumor Samples (Huang 2017)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Microbiopsy_Analysis.html">Analysis of HER2 Positive Patients using Microbiopsies (Satpathy 2021)</a></li>
 </ul>
 </li>
 </ul>
@@ -757,7 +756,7 @@ Check: there are 97 patients and 97 status
                         title="previous chapter">Paradoxical Activation of MAP-ERK pathway upon BRAF inhibition (Kubiniok, 2017)</a></p>
   <h4>Next topic</h4>
   <p class="topless"><a href="PDX_Analysis.html"
-                        title="next chapter">Analysis of PDX Tumor Samples ()</a></p>
+                        title="next chapter">Analysis of PDX Tumor Samples (Huang 2017)</a></p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
@@ -789,14 +788,14 @@ Check: there are 97 patients and 97 status
           <a href="../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="PDX_Analysis.html" title="Analysis of PDX Tumor Samples ()"
+          <a href="PDX_Analysis.html" title="Analysis of PDX Tumor Samples (Huang 2017)"
              >next</a> |</li>
         <li class="right" >
           <a href="Vemurafenib_Analysis.html" title="Paradoxical Activation of MAP-ERK pathway upon BRAF inhibition (Kubiniok, 2017)"
              >previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="../index.html">KSTAR 1 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="Examples.html" >Plotting Examples from KSTAR Paper</a> &#187;</li>
-        <li class="nav-item nav-item-this"><a href="">Analysis of CPTAC Breast Cancer Patient Samples ()</a></li> 
+        <li class="nav-item nav-item-this"><a href="">Analysis of CPTAC Breast Cancer Patient Samples (Mertens 2016)</a></li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">

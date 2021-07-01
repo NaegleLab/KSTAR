@@ -13,11 +13,12 @@ KSTAR
 
 	Overview
 	Dependencies
-	Installation
 	KSTAR
+	quickstart
 	Tutorial/tutorial
 	Examples/Examples
 	Running_with_nextflow
+
 
 
 

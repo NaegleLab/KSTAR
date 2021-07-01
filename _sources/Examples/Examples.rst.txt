@@ -2,7 +2,7 @@ Plotting Examples from KSTAR Paper
 ==================================
 
 Activation of Kinases in Controlled Cell Lines
------------------------------------
+----------------------------------------------
 
 .. toctree::
 	:maxdepth: 2

@@ -4,7 +4,7 @@
    "cell_type": "markdown",
    "metadata": {},
    "source": [
-    "# Analysis of CPTAC Breast Cancer Patient Samples ()"
+    "# Analysis of CPTAC Breast Cancer Patient Samples (Mertens 2016)"
    ]
   },
   {
@@ -21,9 +21,8 @@
     "import conf #This is the local config file for setting the supplements directory to your local environment\n",
     "\n",
     "#KSTAR imports\n",
-    "from kstar import config, helpers, kstar_runner\n",
-    "from kstar.activity import kstar_activity\n",
-    "from kstar.plot import dotplot\n",
+    "from kstar import config, helpers, calculate\n",
+    "from kstar.plot import DotPlot\n",
     "\n",
     "\n",
     "#Set matplotlib defaults for arial 12 point font\n",
@@ -129,13 +128,13 @@
     "        },)\n",
     "fig.subplots_adjust(wspace=0, hspace=0)\n",
     "\n",
-    "dots = dotplot.DotPlot(results, \n",
-    "                       fpr, \n",
-    "                       figsize = (20,18), \n",
-    "                       dotsize = 5, \n",
-    "                       legend_title='-log10(p-value)', \n",
-    "                       x_label_dict=x_label_dict,\n",
-    "                      kinase_dict = kinase_dict)\n",
+    "dots = DotPlot(results, \n",
+    "               fpr, \n",
+    "               figsize = (20,18), \n",
+    "               dotsize = 5, \n",
+    "               legend_title='-log10(p-value)', \n",
+    "               x_label_dict=x_label_dict,\n",
+    "               kinase_dict = kinase_dict)\n",
     "#dots.drop_kinases_with_no_significance()\n",
     "\n",
     "#Cluster changes the sorting of the values array, so be sure to plot context last so that it is in the same sort.\n",

@@ -1,0 +1,186 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>Quick Start Guide &#8212; KSTAR 1 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/classic.css" />
+    
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Tutorial" href="Tutorial/tutorial.html" />
+    <link rel="prev" title="KSTAR" href="KSTAR.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="Tutorial/tutorial.html" title="Tutorial"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="KSTAR.html" title="KSTAR"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">KSTAR 1 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Quick Start Guide</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section class="tex2jax_ignore mathjax_ignore" id="quick-start-guide">
+<h1>Quick Start Guide<a class="headerlink" href="#quick-start-guide" title="Permalink to this headline">¶</a></h1>
+<p>Here, we have provided a quick start guide that will allow you to get up and running quickly, especially if you wish to simply use the
+same pruned networks as utilized in the KSTAR paper.</p>
+<section id="installation">
+<h2>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h2>
+<p>KSTAR can be installed via <code class="docutils literal notranslate"><span class="pre">pip</span></code>, <code class="docutils literal notranslate"><span class="pre">conda</span></code>, tarball, and directly from the Git repository. We recommend using conda to install the scientific packages <code class="docutils literal notranslate"><span class="pre">conda</span> <span class="pre">install</span> <span class="pre">anaconda</span></code> before installing openensembles.</p>
+<section id="pip">
+<h3>Pip<a class="headerlink" href="#pip" title="Permalink to this headline">¶</a></h3>
+<p>To install via pip, execute <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">KSTAR</span></code>.</p>
+</section>
+<section id="conda">
+<h3>Conda<a class="headerlink" href="#conda" title="Permalink to this headline">¶</a></h3>
+<p>To install via conda, execute <code class="docutils literal notranslate"><span class="pre">conda</span> <span class="pre">install</span> <span class="pre">-c</span> <span class="pre">naeglelab</span> <span class="pre">KSTAR</span></code>.</p>
+</section>
+<section id="tarball">
+<h3>Tarball<a class="headerlink" href="#tarball" title="Permalink to this headline">¶</a></h3>
+<p>To install via a tarball, head over to the <a class="reference external" href="https://github.com/NaegleLab/KSTAR/releases">Releases page</a> and download the latest stable tar release.</p>
+<p>Afterwards, navigate to your downloads directory and execute the following commands, substituting <version> for the release’s version number:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">tar</span> <span class="o">-</span><span class="n">xvf</span> <span class="n">KSTAR</span><span class="o">-&lt;</span><span class="n">version</span><span class="o">&gt;.</span><span class="n">tar</span><span class="o">.</span><span class="n">gz</span>
+<span class="n">cd</span> <span class="n">KSTAR</span><span class="o">-&lt;</span><span class="n">version</span><span class="o">&gt;</span>
+<span class="n">python</span> <span class="n">setup</span><span class="o">.</span><span class="n">py</span> <span class="n">install</span>
+</pre></div>
+</div>
+</section>
+<section id="git">
+<h3>Git<a class="headerlink" href="#git" title="Permalink to this headline">¶</a></h3>
+<p>If you want to try out the latest commit, you can install directly from the Git repository by executing the following commands:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">clone</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">NaegleLab</span><span class="o">/</span><span class="n">KSTAR</span>
+<span class="n">cd</span> <span class="n">KSTAR</span>
+<span class="n">python</span> <span class="n">setup</span><span class="o">.</span><span class="n">py</span> <span class="n">install</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="download-resource-files">
+<h2>Download resource files<a class="headerlink" href="#download-resource-files" title="Permalink to this headline">¶</a></h2>
+<p>We have provided all resource files required for running KSTAR in a publically available figshare, including the reference proteome from KinPred,
+the reference phosphoproteom from KinPred, and pruned KSTAR networks generated from NetworKIN. To download, follow these steps:</p>
+<ol class="simple">
+<li><p>Go to <a class="reference external" href="https://figshare.com/articles/software/RESOURCE_FILES/14885121">FigShare</a></p></li>
+<li><p>Download the RESOURCE_FILES, decrompress/unzip the files, and store in easily accessible folder.</p></li>
+<li><p>Update config.py so that ‘RESOURCE_DIR’ points to the RESOURCE_FILES directory.</p></li>
+</ol>
+<p>It is also possible to generate your own networks, either with a different weighted kinase-substrate graph, different pruning parameters, or both.
+For details on how to generate your own networks, see the tutorial.</p>
+</section>
+<section id="follow-the-provided-tutorial">
+<h2>Follow the provided tutorial<a class="headerlink" href="#follow-the-provided-tutorial" title="Permalink to this headline">¶</a></h2>
+<p>That is all you need to do to set up your KSTAR environment (see ‘Running Large Datasets with Nextflow’ if working with large datasets, as
+set up is slightly different). We recommend working through the tutorial in the following section to get an idea of the KSTAR workflow,
+either with the example dataset provided in our supplementary data figshare or with your own dataset of interest. You will only need to follow
+the ‘Generating Pruned Networks’ section if you would like to use your own networks for analysis, otherwise go straight to ‘Map Datasets to KinPred’.</p>
+</section>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table of Contents</a></h3>
+  <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="Overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Dependencies.html">Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="KSTAR.html">KSTAR</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Quick Start Guide</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#installation">Installation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#pip">Pip</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#conda">Conda</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tarball">Tarball</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#git">Git</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#download-resource-files">Download resource files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#follow-the-provided-tutorial">Follow the provided tutorial</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="Tutorial/tutorial.html">Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Examples/Examples.html">Plotting Examples from KSTAR Paper</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Running_with_nextflow.html">Running Large Datasets with Nextflow</a></li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="KSTAR.html"
+                        title="previous chapter">KSTAR</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="Tutorial/tutorial.html"
+                        title="next chapter">Tutorial</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/quickstart.md.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="Tutorial/tutorial.html" title="Tutorial"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="KSTAR.html" title="KSTAR"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">KSTAR 1 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Quick Start Guide</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2020, Naegle Lab.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.0.1.
+    </div>
+  </body>
+</html>

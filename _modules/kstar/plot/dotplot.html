@@ -73,16 +73,24 @@
 <span class="sd">        false positive rates associated with values being plotted</span>
 <span class="sd">    alpha: float, optional</span>
 <span class="sd">        fpr value that defines the significance cutoff to use when plt</span>
+<span class="sd">        default : 0.05</span>
+<span class="sd">    inclusive_alpha: boolean</span>
+<span class="sd">        whether to include the alpha (significance &lt;= alpha), or not (significance &lt; alpha).</span>
+<span class="sd">        default: True</span>
 <span class="sd">    binary_sig: boolean, optional</span>
 <span class="sd">        indicates whether to plot fpr with binary significance or as a change color hue</span>
+<span class="sd">        default : True</span>
 <span class="sd">    dotsize : float, optional</span>
 <span class="sd">        multiplier to use for scaling size of dots</span>
 <span class="sd">    colormap : dict, optional</span>
 <span class="sd">        maps color values to actual color to use in plotting</span>
-<span class="sd">    labelmap : dict, optional</span>
+<span class="sd">        default : {0: &#39;#6b838f&#39;, 1: &#39;#FF3300&#39;}</span>
+<span class="sd">    labelmap = </span>
 <span class="sd">        maps labels of colors, default is to indicate FPR cutoff in legend</span>
+<span class="sd">        default : None</span>
 <span class="sd">    facecolor : color, optional</span>
 <span class="sd">        Background color of dotplot</span>
+<span class="sd">        default : &#39;white&#39;</span>
 <span class="sd">    legend_title : str, optional</span>
 <span class="sd">        Legend Title for dot sizes, default is `p-value&#39;</span>
 <span class="sd">    size_number : int, optional </span>
@@ -110,20 +118,38 @@
 <span class="sd">    </span>
 <span class="sd">    Attributes</span>
 <span class="sd">    ----------</span>
+<span class="sd">    values: pandas dataframe</span>
+<span class="sd">        a copy of the original values dataframe</span>
+<span class="sd">    fpr: pandas dataframe</span>
+<span class="sd">        a copy of the original fpr dataframe</span>
+<span class="sd">    alpha: float</span>
+<span class="sd">        cutoff used for significance, default 0.05</span>
+<span class="sd">    inclusive_alpha: boolean</span>
+<span class="sd">        whether to include the alpha (significance &lt;= alpha), or not (significance &lt; alpha)</span>
 <span class="sd">    significance: pandas dataframe</span>
 <span class="sd">        indicates whether a particular kinases activity is significant, where fpr &lt;= alpha is significant, otherwise it is insignificant</span>
 <span class="sd">    colors: pandas dataframe</span>
 <span class="sd">        dataframe indicating the color to use when plotting: either a copy of the fpr or significance dataframe</span>
-<span class="sd">    columns: list</span>
-<span class="sd">        xlabels to be used for plotting. Either the column labels of the values dataframe or the mapped labels from x_label_dict</span>
-<span class="sd">    index: list</span>
-<span class="sd">        ylabels to be used for plotting. Either the index labels of the values dataframe or the mapped labels from kinase_dict</span>
-<span class="sd">    Inputted dotplot parameters: variety</span>
-<span class="sd">        All dotplot class parameters can also be accessed as attributes after instantiation</span>
+<span class="sd">    binary_sig: boolean</span>
+<span class="sd">        indicates whether coloring will be done based on binary significance or fpr values. Default True</span>
+<span class="sd">    labelmap: dict</span>
+<span class="sd">        indicates how to label each significance color</span>
+<span class="sd">    figsize: tuple</span>
+<span class="sd">        size of the outputted figure, which is overridden if axes is provided for dotplot</span>
+<span class="sd">    title: string</span>
+<span class="sd">        title of the dotplot</span>
+<span class="sd">    xlabel: boolean</span>
+<span class="sd">        indicates whether to plot x-axis labels</span>
+<span class="sd">    ylabel: boolean</span>
+<span class="sd">        indicates whether to plot y-axis labels</span>
+<span class="sd">    colormap: dict</span>
+<span class="sd">        colors to be used when plotting</span>
+<span class="sd">    facecolor: string</span>
+<span class="sd">        background color of dotplot</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     
     
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">values</span><span class="p">,</span> <span class="n">fpr</span><span class="p">,</span> <span class="n">alpha</span> <span class="o">=</span> <span class="mf">0.05</span><span class="p">,</span> 
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">values</span><span class="p">,</span> <span class="n">fpr</span><span class="p">,</span> <span class="n">alpha</span> <span class="o">=</span> <span class="mf">0.05</span><span class="p">,</span> <span class="n">inclusive_alpha</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
                  <span class="n">binary_sig</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">dotsize</span> <span class="o">=</span> <span class="mi">5</span><span class="p">,</span> 
                  <span class="n">colormap</span><span class="o">=</span><span class="p">{</span><span class="mi">0</span><span class="p">:</span> <span class="s1">&#39;#6b838f&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">:</span> <span class="s1">&#39;#FF3300&#39;</span><span class="p">},</span> <span class="n">facecolor</span> <span class="o">=</span> <span class="s1">&#39;white&#39;</span><span class="p">,</span>
                  <span class="n">labelmap</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -139,13 +165,20 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">fpr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fpr</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">index</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">columns</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">alpha</span> <span class="o">=</span> <span class="n">alpha</span>
         <span class="c1">#create binary dataframe that indicates significance based on provided fpr cutoff.</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">significance</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fpr</span> <span class="o">&lt;=</span> <span class="n">alpha</span><span class="p">)</span> <span class="o">*</span> <span class="mi">1</span>
+        <span class="k">if</span> <span class="n">inclusive_alpha</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">significance</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fpr</span> <span class="o">&lt;=</span> <span class="n">alpha</span><span class="p">)</span> <span class="o">*</span> <span class="mi">1</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">significance</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fpr</span> <span class="o">&lt;</span> <span class="n">alpha</span><span class="p">)</span> <span class="o">*</span> <span class="mi">1</span>
         <span class="c1">#Assign either fpr or significance to colors dataframe based on </span>
         <span class="bp">self</span><span class="o">.</span><span class="n">binary_sig</span> <span class="o">=</span> <span class="n">binary_sig</span>
         <span class="k">if</span> <span class="n">binary_sig</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">colors</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">significance</span>
             <span class="k">if</span> <span class="n">labelmap</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">labelmap</span> <span class="o">=</span> <span class="p">{</span><span class="mi">0</span><span class="p">:</span> <span class="s1">&#39;FPR &gt; </span><span class="si">%0.2f</span><span class="s1">&#39;</span><span class="o">%</span><span class="p">(</span><span class="n">alpha</span><span class="p">),</span> <span class="mi">1</span><span class="p">:</span><span class="s1">&#39;FPR &lt;= </span><span class="si">%0.2f</span><span class="s1">&#39;</span><span class="o">%</span><span class="p">(</span><span class="n">alpha</span><span class="p">)}</span>
+                <span class="k">if</span> <span class="n">inclusive_alpha</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">labelmap</span> <span class="o">=</span> <span class="p">{</span><span class="mi">0</span><span class="p">:</span> <span class="s1">&#39;FPR &gt; </span><span class="si">%0.2f</span><span class="s1">&#39;</span><span class="o">%</span><span class="p">(</span><span class="n">alpha</span><span class="p">),</span> <span class="mi">1</span><span class="p">:</span><span class="s1">&#39;FPR &lt;= </span><span class="si">%0.2f</span><span class="s1">&#39;</span><span class="o">%</span><span class="p">(</span><span class="n">alpha</span><span class="p">)}</span>
+                <span class="k">else</span><span class="p">:</span> 
+                    <span class="bp">self</span><span class="o">.</span><span class="n">labelmap</span> <span class="o">=</span> <span class="p">{</span><span class="mi">0</span><span class="p">:</span> <span class="s1">&#39;FPR &gt;= </span><span class="si">%0.2f</span><span class="s1">&#39;</span><span class="o">%</span><span class="p">(</span><span class="n">alpha</span><span class="p">),</span> <span class="mi">1</span><span class="p">:</span><span class="s1">&#39;FPR &lt; </span><span class="si">%0.2f</span><span class="s1">&#39;</span><span class="o">%</span><span class="p">(</span><span class="n">alpha</span><span class="p">)}</span>
+
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">colors</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fpr</span>
       
@@ -176,46 +209,12 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">set_index_labels</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="n">kinase_dict</span><span class="p">)</span>
     
     <span class="k">def</span> <span class="nf">set_values</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">values</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Set the values dataframe, which indicates the activities predicted by KSTAR</span>
-<span class="sd">        </span>
-<span class="sd">        *It is recommended that you reinstantiate the dotplot object rather than manually change the values dataframe.</span>
-<span class="sd">        </span>
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        values: pandas dataframe</span>
-<span class="sd">            dataframe which contains activity predictions from KSTAR</span>
-<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">values</span> <span class="o">=</span> <span class="n">values</span>
-        
 
     <span class="k">def</span> <span class="nf">set_colors</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">colors</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Set the colors dataframe. If binary_significance is desired, this should be a dataframe with 0 (no significance) or 1 (highly significance).</span>
-<span class="sd">        Otherwise, this should be identical to the fpr dataframe</span>
-<span class="sd">        </span>
-<span class="sd">        *It is recommended that you reinstantiate the dotplot object rather than manually change the colors dataframe.</span>
-<span class="sd">        </span>
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        colors: pandas dataframe</span>
-<span class="sd">            dataframe which is used to determine the color of each dot in the dotplot</span>
-<span class="sd"> </span>
-<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">colors</span> <span class="o">=</span> <span class="n">colors</span>
 
     <span class="k">def</span> <span class="nf">set_column_labels</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">values</span><span class="p">,</span> <span class="n">x_label_dict</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        If x_label_dict is provided, adjust the column labels of the dotplot according to the mapping provided in the x_label_dict. Otherwise,</span>
-<span class="sd">        set the column labels of the plot to be the same as the column labels in the provided values dataframe. </span>
-<span class="sd">        </span>
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        values: pandas dataframe</span>
-<span class="sd">            activities dataframe with kinases in the index and experiments in the columns</span>
-<span class="sd">        x_label_dict: dict</span>
-<span class="sd">            mapping from column labels in values dataframe (keys) to preferred xlabels (values)</span>
-<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">column_labels</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">x_label_dict</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span> <span class="c1">#just strip the data: string</span>
@@ -239,17 +238,6 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">x_label_dict</span> <span class="o">=</span> <span class="n">x_label_dict</span>
             
     <span class="k">def</span> <span class="nf">set_index_labels</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">values</span><span class="p">,</span> <span class="n">kinase_dict</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        If kinase_dict is provided, adjust the index labels of the dotplot according to the mapping provided in the kinase_dict. Otherwise,</span>
-<span class="sd">        set the index labels of the plot to be the same as the index labels in the provided values dataframe. </span>
-<span class="sd">        </span>
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        values: pandas dataframe</span>
-<span class="sd">            activities dataframe with kinases in the index and experiments in the columns</span>
-<span class="sd">        kinase_dict: dict</span>
-<span class="sd">            mapping from NetworKIN kinase names (keys) to preferred kinase names (values)</span>
-<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">index_labels</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">kinase_dict</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">kinase_dict</span> <span class="o">=</span> <span class="n">kinase_dict</span>
@@ -277,15 +265,6 @@
 <span class="sd">        -----------</span>
 <span class="sd">        ax : matplotlib Axes instance, optional</span>
 <span class="sd">            axes dotplot will be plotted on. If None then new plot generated</span>
-<span class="sd">        orientation: string, optional</span>
-<span class="sd">            indicates which side the color and size legend should be plotted on (either &#39;left&#39; or &#39;right&#39;)</span>
-<span class="sd">        size_legend: bool, optional</span>
-<span class="sd">            indicates whether to plot the size legend, which shows the dot sizes that correspond to specific activity values</span>
-<span class="sd">        color_legend: bool, optional</span>
-<span class="sd">            indicates whether to included the color legend, which indicates the significance/fpr value that the dot colors correspond to</span>
-<span class="sd">        max_size: int, optional</span>
-<span class="sd">            customizes the size legend to include a specific maximum dotsize. This does not impact the dotsize of the actual plot. If set to none,</span>
-<span class="sd">            max_size will be auto calculated to be the maximum -log10(p-value) observed across all kinases/experiments observed.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">valid_orientations</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;left&#39;</span><span class="p">,</span> <span class="s1">&#39;right&#39;</span><span class="p">]</span>
         <span class="k">if</span> <span class="n">orientation</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">valid_orientations</span><span class="p">:</span>
@@ -399,7 +378,7 @@
 <span class="sd">        result and significant dataframes are ordered according to clustering</span>
 <span class="sd">        </span>
 <span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
+<span class="sd">        ---------</span>
 <span class="sd">        ax : matplotlib Axes instance</span>
 <span class="sd">            Axes to plot dendogram to</span>
 <span class="sd">        </span>
@@ -457,6 +436,8 @@
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="n">kinase_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">significance</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">significance</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="o">==</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">values</span>
+        <span class="c1">#check to make sure kinase_list only contains kinases currently in values dataframe</span>
+        <span class="n">kinase_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">kin</span> <span class="k">for</span> <span class="n">kin</span> <span class="ow">in</span> <span class="n">kinase_list</span> <span class="k">if</span> <span class="n">kin</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">index_labels</span><span class="p">]</span>
         <span class="c1">#remove kinases</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">drop_kinases</span><span class="p">(</span><span class="n">kinase_list</span><span class="p">)</span></div>
 
@@ -473,15 +454,11 @@
 
 <span class="sd">        &quot;&quot;&quot;</span> 
 
-        <span class="c1">#check to make sure kinase_list only contains kinases currently in values dataframe</span>
-        <span class="n">kinase_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">kin</span> <span class="k">for</span> <span class="n">kin</span> <span class="ow">in</span> <span class="n">kinase_list</span> <span class="k">if</span> <span class="n">kin</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">index_labels</span><span class="p">]</span>
-        
         <span class="bp">self</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="n">kinase_list</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">colors</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">index</span> <span class="o">=</span> <span class="n">kinase_list</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-        
+
         <span class="c1">#update index_labels property as well</span>
         <span class="k">for</span> <span class="n">kin</span> <span class="ow">in</span> <span class="n">kinase_list</span><span class="p">:</span>
-            <span class="c1">#check to see if provided kinase is present </span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">kinase_dict</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">index_labels</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">kin</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
@@ -554,7 +531,6 @@
         <span class="n">total</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">melted</span><span class="p">[</span><span class="s1">&#39;value&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">())</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">info</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span>
         <span class="n">running_total</span> <span class="o">=</span> <span class="mi">0</span>
         
-
         <span class="c1"># Add legends</span>
         <span class="k">if</span> <span class="n">make_legend</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">context_columns</span><span class="p">:</span>
@@ -595,6 +571,7 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../Overview.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../Dependencies.html">Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../quickstart.html">Quick Start Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../Installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../KSTAR.html">KSTAR</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../Tutorial/tutorial.html">Tutorial</a></li>
