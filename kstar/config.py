@@ -17,13 +17,17 @@ Update these if you want to update:
 """
 
 ## BEGIN DECLARATION OF GLOBALS
-#PROJECT_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)),'..') #PROJECT Directory is one level up from this config file
-#PROJECT_DIR = os.path.abspath(os.path.join(os.path.dirname( __file__ ), '..'))
-PROJECT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+#PROJECT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+#DOWNLOAD RESOURCE_FILES from Figshare to get started using networks 
+#Naegle, Kristen (2021): RESOURCE_FILES. figshare. Software. https://doi.org/10.6084/m9.figshare.14885121.v3 
+#SET PROJECT_DIR to point to where you downloaded those resource files, all globals are relative to them.
+PROJECT_DIR = ""
 RESOURCE_DIR = f"{PROJECT_DIR}/RESOURCE_FILES" 
 
 # RESOURCE_DIR depedencies
-HUMAN_REF_FASTA_FILE = f"{RESOURCE_DIR}/Raw/humanProteome/humanProteome_2020-02-26.fasta"  #download from KinPred https://doi.org/10.1101/2020.08.10.244426
+HUMAN_REF_FASTA_FILE = f"{RESOURCE_DIR}/Raw/HumanProteome/humanProteome_2020-02-26.fasta"  #download from KinPred https://doi.org/10.1101/2020.08.10.244426
 HUMAN_REF_SEQUENCES = helpers.process_fasta_file(HUMAN_REF_FASTA_FILE)
 
 HUMAN_REF_PHOSPHO_FILE = f"{RESOURCE_DIR}/Human_PhosphoProteome_mapped_annotated_02_26_20.csv" #download from KSTAR FIGSHARE, or use helpers folder generate to create a new one
@@ -54,7 +58,7 @@ def create_network_pickles():
 	phosphoTypes = ['Y', 'ST']
 	for phosphoType in phosphoTypes:
 		network = {}
-		directory = f"{NETWORK_DIR}/{phosphoType}/"
+		directory = f"{NETWORK_DIR}/{phosphoType}/INDIVIDUAL_NETWORKS/"
 		#get all csv files in that directory 
 		for file in os.listdir(directory):
 			if file.endswith(".tsv"):
@@ -65,6 +69,7 @@ def create_network_pickles():
 				network[key_name] = pd.read_csv(f"{directory}{file}", sep='\t')
 		print("Loaded %d number of networks for phosphoType %s"%(len(network), phosphoType))
 		pickle.dump(network, open(f"{NETWORK_DIR}/network_{phosphoType}.p", "wb"))
+		print(f"Saved pickle file at {NETWORK_DIR}/network_{phosphoType}.p")
 
 
 # network_directory='/Volumes/naegle_lab/KinaseActivity/Data/Subgraph/Modifed NetworKIN/CompendiaLimit'
