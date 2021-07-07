@@ -2,12 +2,11 @@
 from Bio import SeqIO
 import pandas as pd
 from collections import defaultdict
-from kinase_activity.src import logger
 import argparse
 from os import path
 import os
-import experiment_mapper
-from kstar.helpers import process_fasta_file
+from kstar import mapping
+from kstar.helpers import process_fasta_file, get_logger
 
 def parse_args():
     parser = argparse.ArgumentParser(description='Parse Mapping Inference Arguments')
@@ -27,9 +26,9 @@ def parse_args():
 def process_args(results):
     # get logger
     if results.odir is None or not (path.exists(results.odir) and path.isdir(results.odir)):
-        log = logger.get_logger(results.name, f"{results.name}_mapping.log")
+        log = get_logger(results.name, f"{results.name}_mapping.log")
     else:
-        log = logger.get_logger(results.name, f"{results.odir}/{results.name}_mapping.log")
+        log = get_logger(results.name, f"{results.odir}/{results.name}_mapping.log")
     
     #check if resource directory exists
     if not (path.exists(results.rdir) and path.isdir(results.rdir)):
@@ -114,7 +113,7 @@ def process_args(results):
 def main():
     results = parse_args()
     experiment, sequences, compendia, log, map_columns, data_columns = process_args(results)
-    exp_mapper = experiment_mapper.ExperimentMapper(
+    exp_mapper = mapping.ExperimentMapper(
         experiment = experiment,
         sequences = sequences, 
         columns = map_columns, 

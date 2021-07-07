@@ -5,9 +5,8 @@ from collections import defaultdict
 from os import path
 import os
 
-from kstar.activity import kstar_activity
-from kstar import helpers, config
-from kstar.mapper import experiment_mapper
+
+from kstar import helpers, config, mapping, calculate
 
 import pickle
 
@@ -101,7 +100,7 @@ def run_kstar_analysis(run_log, odir, name, experiment, data_columns, map_column
     run_log.info("********** RUNNING KSTAR ANALYSIS PIPELINE **************")
     # ************ MAP EXPERIMENT *******************
     run_log.info("MAPPING EXPERIMENT")
-    experiment = experiment_mapper.run_mapping(experiment, odir, name, map_columns, window, data_columns)
+    experiment = mapping.run_mapping(experiment, odir, name, map_columns, window, data_columns)
 
     data_columns = [f"data:{col}" for col in data_columns]
 
@@ -116,7 +115,7 @@ def run_kstar_analysis(run_log, odir, name, experiment, data_columns, map_column
     if 'ST' in phospho_types:
         networks['ST'] = pickle.load(open(config.NETWORK_ST_PICKLE, "rb" ) )
 
-    kinact_dict = kstar_activity.run_kstar_analysis(experiment, activity_log, networks, phospho_types, data_columns, activity_agg, threshold, greater)
+    kinact_dict = calculate.run_kstar_analysis(experiment, activity_log, networks, phospho_types, data_columns, activity_agg, threshold, greater)
 
     # ************ RUN NORMALIZATION *****************
     if normalize:  
@@ -124,10 +123,10 @@ def run_kstar_analysis(run_log, odir, name, experiment, data_columns, map_column
         if not os.path.exists(f"{odir}/RANDOM_ANALYSIS"): 
             os.mkdir(f"{odir}/RANDOM_ANALYSIS")  
         random_log = helpers.get_logger("RANDOM", f"{odir}/RANDOM_ANALYSIS/{name}_random.log")
-        kstar_activity.normalize_analysis(kinact_dict, random_log, num_random_experiments, target_alpha)
+        calculate.normalize_analysis(kinact_dict, random_log, num_random_experiments, target_alpha)
     
     # ******************* SAVE DATA *************************
-    kstar_activity.save_kstar(kinact_dict, name, odir)
+    calculate.save_kstar_slim(kinact_dict, name, odir)
     
 
 def main():
