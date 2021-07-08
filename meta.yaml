@@ -1,0 +1,50 @@
+{% set name = "kstar" %}
+{% set version = "0.1" %}
+
+
+package:
+  name: {{ name|lower }}
+  version: {{ version }}
+
+source:
+  url: https://pypi.io/packages/source/{{ name[0] }}/{{ name }}/kstar-{{ version }}.tar.gz
+  sha256: cbb900bf98e88333615c5b7014069463ceab3fd069106bbd5e09c8b92af46054
+
+build:
+  number: 0
+  noarch: python
+  script: {{ PYTHON }} -m pip install . -vv
+
+requirements:
+  host:
+    - pip
+    - python >=3.6
+  run:
+    - biopython
+    - matplotlib-base
+    - numpy
+    - pandas
+    - python >=3.6
+    - scipy
+    - seaborn
+    - statsmodels
+
+test:
+  imports:
+    - kstar
+    - kstar.normalize
+    - kstar.validate
+  commands:
+    - pip check
+  requires:
+    - pip
+
+about:
+  home: https://github.com/NaegleLab/KSTAR
+  summary: 'KSTAR: Kinase-Substrate Transfer to Activity Relationships'
+  license: GPL-3.0
+  license_file: LICENSE
+
+extra:
+  recipe-maintainers:
+    - NaegleLab
