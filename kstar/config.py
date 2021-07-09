@@ -2,6 +2,8 @@ import pickle
 import os
 import pandas as pd
 from kstar import helpers
+import requests
+import tarfile
 
 """
 These are the GLOBAL variables for the KSTAR project and are set for default procedures for the current release
@@ -19,10 +21,9 @@ Update these if you want to update:
 ## BEGIN DECLARATION OF GLOBALS
 
 KSTAR_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-
+RESOURCE_DIR = KSTAR_DIR+"/RESOURCE_FILES"
 
 #DOWNLOAD RESOURCE_FILES from Figshare to get started using networks 
-#Naegle, Kristen (2021): RESOURCE_FILES. figshare. Software. https://doi.org/10.6084/m9.figshare.14885121.v3 
 #Directories for the project (where to find resource file folder), resource folder, and network directories are all set by directories.txt, which
 # can be updated with update_directories().
 directory_file = open(f'{KSTAR_DIR}/kstar/directories.txt','r')
@@ -31,24 +32,27 @@ for line in directory_file:
     directories.append(line.split()[0])
 directory_file.close()
 
-RESOURCE_DIR = directories[0]
+#RESOURCE_DIR = directories[0]
 NETWORK_DIR = directories[1]
 
 
+
+RESOURCE_URL = 'https://ndownloader.figshare.com/files/28762653' #location of corresponding release of data
+
 # RESOURCE_DIR dependencies
-HUMAN_REF_FASTA_FILE = f"{RESOURCE_DIR}/Raw/HumanProteome/humanProteome_2020-02-26.fasta"  #download from KinPred https://doi.org/10.1101/2020.08.10.244426
+HUMAN_REF_FASTA_FILE = f"{RESOURCE_DIR}/humanProteome.fasta"  #download from KinPred https://doi.org/10.1101/2020.08.10.244426
 try:
     HUMAN_REF_SEQUENCES = helpers.process_fasta_file(HUMAN_REF_FASTA_FILE)
 except FileNotFoundError:
     HUMAN_REF_SEQUENCES = None
-    print('Could not find reference proteome. Please update the resource directory using config.update_directories()')
+    print('Could not find reference proteome. Please install the resource directory using config.install_resource_files()')
 
-HUMAN_REF_PHOSPHO_FILE = f"{RESOURCE_DIR}/Human_PhosphoProteome_mapped_annotated_02_26_20.csv" #download from KSTAR FIGSHARE, or use helpers folder generate to create a new one
+HUMAN_REF_PHOSPHO_FILE = f"{RESOURCE_DIR}/HumanPhosphoProteome.csv" #download from KSTAR FIGSHARE, or use helpers folder generate to create a new one
 try:
     HUMAN_REF_COMPENDIA = pd.read_csv(HUMAN_REF_PHOSPHO_FILE)
 except FileNotFoundError:
     HUMAN_REF_COMPENDIA = None
-    print('Could not find reference phosphoproteome. Please update the resource directory using config.update_directories()')
+    print('Could not find reference proteome. Please install the resource directory using config.install_resource_files()')
 
 
 NETWORK_Y_PICKLE = f"{NETWORK_DIR}/network_Y.p" # created by create_networkin_pickles()
@@ -63,7 +67,26 @@ KSTAR_KINASE = 'KSTAR_KINASE'
 # Number of cores to use for parallelization, set to 1 to avoid multiprocessing
 PROCESSES = 4
 
+
 ## END DECLARATION OF GLOBALS
+
+
+def install_resource_files():
+    """Retrieves RESOURCE_FILES that are the companion for this version release from FigShare, unzips them to the correct directory for resource files."""
+
+    print("Requesting file")
+    r = requests.get(RESOURCE_URL, allow_redirects=True)
+    outputFile = KSTAR_DIR+"/RESOURCE_FILES.tar.gz"
+
+    open(outputFile, 'wb').write(r.content)
+
+    
+    t = tarfile.open(outputFile, 'r')
+
+
+    print("Extracting %s"% outputFile)
+    t.extractall(KSTAR_DIR)
+
 
 def update_directories(resource = None, network = None, update_references = True, directories = directories, KSTAR_DIR = KSTAR_DIR):
     """
