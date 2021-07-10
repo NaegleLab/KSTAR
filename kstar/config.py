@@ -32,8 +32,8 @@ for line in directory_file:
     directories.append(line.split()[0])
 directory_file.close()
 
-#RESOURCE_DIR = directories[0]
-NETWORK_DIR = directories[1]
+
+NETWORK_DIR = directories[0]
 
 
 
@@ -57,6 +57,12 @@ except FileNotFoundError:
 
 NETWORK_Y_PICKLE = f"{NETWORK_DIR}/network_Y.p" # created by create_networkin_pickles()
 NETWORK_ST_PICKLE = f"{NETWORK_DIR}/network_ST.p" #created by create_networkin_pickles()
+
+#check to see if networks can be found
+if not os.path.isdir(NETWORK_DIR):
+    print('Could not find network directory. Please update using config.update_network_directory().')
+elif not os.path.isfile(NETWORK_Y_PICKLE) and not os.path.isfile(NETWORK_ST_PICKLE):
+    print('Could not find any network pickles. Please create network pickles using config.create_network_pickles().')
 
 # COLUMN NAMES USED FOR KSTAR
 KSTAR_ACCESSION = 'KSTAR_ACCESSION'
@@ -88,62 +94,36 @@ def install_resource_files():
     t.extractall(KSTAR_DIR)
 
 
-def update_directories(resource = None, network = None, update_references = True, directories = directories, KSTAR_DIR = KSTAR_DIR):
+def update_network_directory(directory, KSTAR_DIR = KSTAR_DIR, NETWORK_DIR = NETWORK_DIR):
     """
-    Update the global variables that indicate where to find resource and network files.
-    Will only update the directories that have been inputted during function use. Will also return each of the new directories
-    which is the only way to update directory globals in the same iteration.
-    
-    Location of files should be as such:
-        Reference proteome: found in project/resource
-        Reference phosphoproteome: found in project/resource
-        Individual Networks: found in project/resource/network
+    Update the location of network the network files, and verify that all necessary files are located in directory
     
     Parameters
     ----------
-    resource: string
-        directory where resource files are kept. If it is not being updated, set to None (default).
-    network: string
-        directory where the network files are located. If it is not being updated, set to None (default).
-    update_references: bool
-        indicates whether to update where to find reference files based on provided directories. recommended to be True.
-    other_parameters:
-        the remaining parameters provide function access to the directories config.py is currently pointing to. Do not edit.
+    directory: string
+        path to where network files are located
+    KSTAR_DIR: string
+        where the kstar package is installed. recommend to keep the default
     """
     
-    #update resource directory
-    if resource is not None:
-        directories[0] = resource
-
-        
-    #update network directory
-    if network is not None:
-        directories[1] = network
-
+    #check that directory exists
+    if not os.path.isdir(directory):
+        print('Directory not found, so directories.txt was not updated. Please verify that directory is correct')
+        return NETWORK_DIR
     
+    #update network directory in directories.txt (permanent change)
     with open(f'{KSTAR_DIR}/kstar/directories.txt', 'w') as d:
-        d.writelines('\n'.join(directories))
+        d.write(directory)
     
-    if update_references:
-        HUMAN_REF_FASTA_FILE = f"{directories[0]}/Raw/HumanProteome/humanProteome_2020-02-26.fasta"
-        try:
-            HUMAN_REF_SEQUENCES = helpers.process_fasta_file(HUMAN_REF_FASTA_FILE)
-        except FileNotFoundError:
-            HUMAN_REF_SEQUENCES = None
-            print('Still could not locate reference proteome. Please verify that provided directories are correct')
-            
-        HUMAN_REF_PHOSPHO_FILE = f"{directories[0]}/Human_PhosphoProteome_mapped_annotated_02_26_20.csv" #download from KSTAR FIGSHARE, or use helpers folder generate to create a new one
-        try:
-            HUMAN_REF_COMPENDIA = pd.read_csv(HUMAN_REF_PHOSPHO_FILE)
-        except FileNotFoundError:
-            HUMAN_REF_COMPENDIA = None
-            print('Still could not locate reference phosphoproteome. Please verify that provided directories are correct')
-        
-        return directories, HUMAN_REF_SEQUENCES, HUMAN_REF_COMPENDIA
-    else:
-        return directories
+    #check that INDIVIDUAL_NETWORKS/ are present and they are .tsv or .csv files. Then check that network pickles exist.
+    if not os.path.isdir(f'{directory}/Y/INDIVIDUAL_NETWORKS') and not os.path.isdir(f'{directory}/ST/INDIVIDUAL_NETWORKS'):
+        print('Found network directory, but not the individual networks. Make sure networks are in NETWORK_DIR/{Y or ST}/INDIVIDUAL_NETWORKS')
+    elif not os.path.isfile(NETWORK_Y_PICKLE) and not os.path.isfile(NETWORK_ST_PICKLE):
+        print('Found individual networks, but no network pickles. Please create network pickles using config.create_network_pickles().')
+    
+    return directory
 
-def create_network_pickles():
+def create_network_pickles(phosphoTypes = ['Y','ST']):
 	"""
 	Given network files declared in globals, create pickles of the kstar object that can then be quickly loaded in analysis
 	Assumes that the Network structure has two folders Y and ST under the NETWORK_DIR global variable and that 
@@ -164,6 +144,37 @@ def create_network_pickles():
 		print("Loaded %d number of networks for phosphoType %s"%(len(network), phosphoType))
 		pickle.dump(network, open(f"{NETWORK_DIR}/network_{phosphoType}.p", "wb"))
 		print(f"Saved pickle file at {NETWORK_DIR}/network_{phosphoType}.p")
+        
+def check_configuration():
+    """
+    Verify that all necessary files are downloadable and findable
+    """
+    ready_Y = True
+    ready_ST = True
+    if not os.path.isfile(HUMAN_REF_FASTA_FILE) or not os.path.isfile(HUMAN_REF_PHOSPHO_FILE):
+        print('Could not find reference proteome and/or phosphoproteome. Please install the resource directory using config.install_resource_files()')
+        ready_Y, ready_ST = False, False
+    if not os.path.isdir(NETWORK_DIR):
+        print('Could not find network directory. Please update using config.update_network_directory().')
+        ready_Y, ready_ST = False, False
+    else:
+        if not os.path.isfile(NETWORK_Y_PICKLE) and not os.path.isfile(NETWORK_ST_PICKLE):
+            print('Could not find any network pickles. Please create network pickles using config.create_network_pickles() or change network directory to where pickles are located with config.update_network_directory().')
+            ready_Y, ready_ST = False, False
+        elif not os.path.isfile(NETWORK_Y_PICKLE):
+            ready_Y = False
+        elif not os.path.isfile(NETWORK_ST_PICKLE):
+            ready_ST = False
+    
+    if ready_Y and ready_ST:
+        print('You are ready to begin! You can generate predictions for both Y and ST networks.')
+    elif ready_Y:
+        print('You are ready to generate predictions for Y networks, but not ST networks. If you want to generate ST predictions, create the ST network pickle with config.create_network_pickles(phosphoType = ["ST"])')
+    elif ready_ST:
+        print('You are ready to generate predictions for ST networks, but not Y networks. If you want to generate Y predictions, create the Y network pickle with config.create_network_pickles(phosphoType = ["Y"])')
+    
+        
+    
 
 
 # network_directory='/Volumes/naegle_lab/KinaseActivity/Data/Subgraph/Modifed NetworKIN/CompendiaLimit'
