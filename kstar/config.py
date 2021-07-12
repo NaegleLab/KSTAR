@@ -94,7 +94,7 @@ def install_resource_files():
     t.extractall(KSTAR_DIR)
 
 #def update_network_directory(directory, *kwargs):
-def update_network_directory(directory, KSTAR_DIR = KSTAR_DIR, NETWORK_DIR = NETWORK_DIR):
+def update_network_directory(directory, create_pickles = True, KSTAR_DIR = KSTAR_DIR, NETWORK_DIR = NETWORK_DIR):
     """
     Update the location of network the network files, and verify that all necessary files are located in directory
     
@@ -103,26 +103,49 @@ def update_network_directory(directory, KSTAR_DIR = KSTAR_DIR, NETWORK_DIR = NET
     directory: string
         path to where network files are located
     
+    
     """
     
     #check that directory exists
     if not os.path.isdir(directory):
-        print('Directory not found, so directories.txt was not updated. Please verify that directory is correct')
+        print('Directory not found, so directories.txt was not updated and no pickles were generated. Please verify that directory is correct')
         return NETWORK_DIR
     
     #update network directory in directories.txt (permanent change)
     with open(f'{KSTAR_DIR}/kstar/directories.txt', 'w') as d:
         d.write(directory)
+    print('Network directory updated.')
     
-    #check that INDIVIDUAL_NETWORKS/ are present and they are .tsv or .csv files. Then check that network pickles exist.
-    if not os.path.isdir(f'{directory}/Y/INDIVIDUAL_NETWORKS') and not os.path.isdir(f'{directory}/ST/INDIVIDUAL_NETWORKS'):
-        print('Found network directory, but not the individual networks. Make sure networks are in NETWORK_DIR/{Y or ST}/INDIVIDUAL_NETWORKS')
-    elif not os.path.isfile(NETWORK_Y_PICKLE) and not os.path.isfile(NETWORK_ST_PICKLE):
-        print('Found individual networks, but no network pickles. Please create network pickles using config.create_network_pickles().')
+    #If create_pickles is true, look for individual networks and create pickles
+    if create_pickles:
+        if not os.path.isfile(f"{directory}/network_Y.p") and not os.path.isfile(f"{directory}/network_ST.p"):
+            if os.path.isdir(f'{directory}/Y/INDIVIDUAL_NETWORKS') and os.path.isdir(f'{directory}/ST/INDIVIDUAL_NETWORKS'):
+                print('Found individual networks for both Y and ST, generating pickles for both')
+                create_network_pickles(network_directory = directory)
+            elif os.path.isdir(f'{directory}/Y/INDIVIDUAL_NETWORKS'):
+                print('Individual networks found for Y, but not for ST. Generating Y pickle only.')
+                create_network_pickles(['Y'], network_directory = directory)
+            elif os.path.isdir(f'{directory}/ST/INDIVIDUAL_NETWORKS'):
+                print('Individual networks found for ST, but not for Y. Generating ST pickle only.')
+                create_network_pickles(['ST'], network_directory = directory)
+        elif not os.path.isfile(f"{directory}/network_Y.p"):
+            print('ST pickle already created. Generating Y pickle')
+            if os.path.isdir(f'{directory}/Y/INDIVIDUAL_NETWORKS'):
+                create_network_pickles(['Y'], network_directory = directory)
+            else:
+                print('Could not find individual networks for Y. Make sure networks are deposited in "{NETWORK_DIR}/Y/INDIVIDUAL_NETWORKS/", then rerun create_network_pickles()')
+        elif not os.path.isfile(f'{directory}/network_ST.p'):
+            print('Y pickle already created. Generating ST pickle')
+            if os.path.isdir(f'{directory}/ST/INDIVIDUAL_NETWORKS'):
+                create_network_pickles(['ST'], network_directory = directory)
+            else:
+                print('Could not find individual networks for ST. Make sure networks are deposited in "{NETWORK_DIR}/ST/INDIVIDUAL_NETWORKS/", , then rerun create_network_pickles()')
+        else:
+            print('Network pickles already generated')
     
     return directory
 
-def create_network_pickles(phosphoTypes = ['Y','ST']):
+def create_network_pickles(phosphoTypes = ['Y','ST'], network_directory = NETWORK_DIR):
 	"""
 	Given network files declared in globals, create pickles of the kstar object that can then be quickly loaded in analysis
 	Assumes that the Network structure has two folders Y and ST under the NETWORK_DIR global variable and that 
@@ -131,7 +154,7 @@ def create_network_pickles(phosphoTypes = ['Y','ST']):
 	phosphoTypes = ['Y', 'ST']
 	for phosphoType in phosphoTypes:
 		network = {}
-		directory = f"{NETWORK_DIR}/{phosphoType}/INDIVIDUAL_NETWORKS/"
+		directory = f"{network_directory}/{phosphoType}/INDIVIDUAL_NETWORKS/"
 		#get all csv files in that directory 
 		for file in os.listdir(directory):
 			if file.endswith(".tsv"):
@@ -141,8 +164,8 @@ def create_network_pickles(phosphoTypes = ['Y','ST']):
 				#print("Debug: key name is %s"%(key_name))
 				network[key_name] = pd.read_csv(f"{directory}{file}", sep='\t')
 		print("Loaded %d number of networks for phosphoType %s"%(len(network), phosphoType))
-		pickle.dump(network, open(f"{NETWORK_DIR}/network_{phosphoType}.p", "wb"))
-		print(f"Saved pickle file at {NETWORK_DIR}/network_{phosphoType}.p")
+		pickle.dump(network, open(f"{network_directory}/network_{phosphoType}.p", "wb"))
+		print(f"Saved pickle file at {network_directory}/network_{phosphoType}.p")
         
 def check_configuration():
     """
@@ -171,6 +194,7 @@ def check_configuration():
         print('You are ready to generate predictions for Y networks, but not ST networks. If you want to generate ST predictions, create the ST network pickle with config.create_network_pickles(phosphoType = ["ST"])')
     elif ready_ST:
         print('You are ready to generate predictions for ST networks, but not Y networks. If you want to generate Y predictions, create the Y network pickle with config.create_network_pickles(phosphoType = ["Y"])')
+        
     
         
     
