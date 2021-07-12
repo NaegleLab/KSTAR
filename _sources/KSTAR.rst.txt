@@ -2,31 +2,11 @@ KSTAR
 =============================
 .. automodule:: kstar 
 
-Global Variables found in "Config" Module
-----------------------------------------
-These are the GLOBAL variables for the KSTAR project and are set for default procedures for the current release
-of KinPred and KSTAR. 
+The "Config" Module
+--------------------
 
-Update these if you want to update:
-
-.. list-table:: 
-   :widths: 25 50
-   :header-rows: 1
-
-   * - Variable Name
-     - Description
-   * - RESOURCE_DIR 
-     - Where resources are placed from KSTAR and KINPRED projects, including pruned networks
-   * - NETWORK_DIR
-     - Where in the resource directory to find the pickles of the pruned networks   
-   * - HUMAN_REF_FASTA_FILE
-     - Reference proteome to use. Should be a fasta file. Reference proteome from KinPred can be found in the RESOURCE_FILES downloaded from figshare.
-   * - HUMAN_REF_PHOSPHO
-     - Reference phosphoproteome to use. Reference phosphoproteome from KinPred can be found in the RESOURCE_FILES downloaded from figshare.
-   * - NETWORK_Y_PICKLE 
-     - Location of network pickle for phosphotyrosine networks. Default is 'NETWORK_DIR/network_Y.p' 
-   * - NETWORK_ST_PICKLE
-     - Location of network pickle for phosphoserine/phosphothreonine networks. Default is 'NETWORK_DIR/network_ST.p' 
+.. automodule:: kstar.config
+	:members: install_resource_files, update_network_directory, create_network_pickles
 	 
 The "Prune" Module
 -----------------
@@ -78,5 +58,3 @@ Other Helper Functions
 .. automodule:: kstar.helpers
 	:members: 
 	
-.. automodule:: kstar.config
-	:members:

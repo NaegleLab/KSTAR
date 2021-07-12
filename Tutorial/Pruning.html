@@ -4,8 +4,7 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Run pruning within python &#8212; KSTAR 1 documentation</title>
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../_static/classic.css" />
@@ -18,7 +17,7 @@
     
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Download and Process Dataset of Interest" href="MapData.html" />
+    <link rel="next" title="Map Datasets to KinPred" href="Activity_Calculation.html" />
     <link rel="prev" title="Tutorial" href="tutorial.html" /> 
   </head><body>
     <div class="related" role="navigation" aria-label="related navigation">
@@ -31,7 +30,7 @@
           <a href="../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="MapData.html" title="Download and Process Dataset of Interest"
+          <a href="Activity_Calculation.html" title="Map Datasets to KinPred"
              accesskey="N">next</a> |</li>
         <li class="right" >
           <a href="tutorial.html" title="Tutorial"
@@ -49,7 +48,7 @@
             
   <p>The prune class and accompanying functions was created for the process of generating the heuristically pruned networks that KSTAR bases its
 predictions on. Pruning can either be run within a python environment/interpreter, or they can be run using a bash script from the command line.</p>
-<section class="tex2jax_ignore mathjax_ignore" id="run-pruning-within-python">
+<div class="tex2jax_ignore mathjax_ignore section" id="run-pruning-within-python">
 <h1>Run pruning within python<a class="headerlink" href="#run-pruning-within-python" title="Permalink to this headline">¶</a></h1>
 <p>The prune class and accompanying functions was created for the process of generating the heuristically pruned networks that KSTAR bases its
 predictions on. If wanting to run pruning in python, see below:</p>
@@ -75,8 +74,8 @@ predictions on. If wanting to run pruning in python, see below:</p>
 <span class="n">save_pruning</span><span class="p">(</span><span class="n">phospho_type</span><span class="p">,</span> <span class="n">network_id</span><span class="p">,</span> <span class="n">kinase_size</span><span class="p">,</span> <span class="n">site_limit</span><span class="p">,</span> <span class="n">use_compendia</span><span class="p">,</span> <span class="n">odir</span><span class="p">,</span> <span class="n">log</span><span class="p">)</span>
 </pre></div>
 </div>
-</section>
-<section class="tex2jax_ignore mathjax_ignore" id="run-pruning-from-the-command-line">
+</div>
+<div class="tex2jax_ignore mathjax_ignore section" id="run-pruning-from-the-command-line">
 <h1>Run pruning from the command line<a class="headerlink" href="#run-pruning-from-the-command-line" title="Permalink to this headline">¶</a></h1>
 <p>It is also possible to run the pruning procedure from start to finish, including saving the results and run info, from the command line.
 A bash script like the one below can be used to run prune.py and input the necessary parameters.</p>
@@ -94,7 +93,7 @@ python /kstar/prune/prune.py \
 --use_compendia yes 
 </pre></div>
 </div>
-</section>
+</div>
 
 
             <div class="clearer"></div>
@@ -108,17 +107,15 @@ python /kstar/prune/prune.py \
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../Overview.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../Dependencies.html">Dependencies</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../Installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../KSTAR.html">KSTAR</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Getting Started</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="tutorial.html">Tutorial</a><ul class="current">
-<li class="toctree-l2 current"><a class="reference internal" href="tutorial.html#generating-pruned-networks">Generating Pruned Networks</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="tutorial.html#network-generation">Network Generation</a><ul class="current">
 <li class="toctree-l3 current"><a class="current reference internal" href="#">Run pruning within python</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#run-pruning-from-the-command-line">Run pruning from the command line</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="tutorial.html#map-datasets-to-kinpred">Map Datasets to KinPred</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorial.html#predict-kinase-activities">Predict Kinase Activities</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorial.html#plot-results">Plot Results</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial.html#activity-prediction">Activity Prediction</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../Examples/Examples.html">Plotting Examples from KSTAR Paper</a></li>
@@ -129,8 +126,8 @@ python /kstar/prune/prune.py \
   <p class="topless"><a href="tutorial.html"
                         title="previous chapter">Tutorial</a></p>
   <h4>Next topic</h4>
-  <p class="topless"><a href="MapData.html"
-                        title="next chapter">Download and Process Dataset of Interest</a></p>
+  <p class="topless"><a href="Activity_Calculation.html"
+                        title="next chapter">Map Datasets to KinPred</a></p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
@@ -162,7 +159,7 @@ python /kstar/prune/prune.py \
           <a href="../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="MapData.html" title="Download and Process Dataset of Interest"
+          <a href="Activity_Calculation.html" title="Map Datasets to KinPred"
              >next</a> |</li>
         <li class="right" >
           <a href="tutorial.html" title="Tutorial"

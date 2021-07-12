@@ -35,7 +35,8 @@ conda install -c bioconda nextflow
 ## Downloading or Generating Networks used in KSTAR
 
 As with the standard implementation of KSTAR, you will need to obtain KSTAR pruned networks that will be used in activity calculation. You can
-download KSTAR networks from the [KSTAR FigShare](https://figshare.com/articles/software/RESOURCE_FILES/14885121). 
+download KSTAR networks from the [KSTAR FigShare](https://figshare.com/articles/software/RESOURCE_FILES/14885121). Unlike the standard implementation,
+network pickles do not need to be generated, as nextflow will operate on the individual network files.
 
 If choosing to generate your own networks, this should be done outside of the nextflow environment as described in the tutorial. You will
 need to make sure the directory structure where these networks are located is correct: 
@@ -95,7 +96,7 @@ The first line of the bash script starts the nextflow pipeline and indicates whi
 
 ## Output of a nextflow run
 
-Each run with KSTAR-HP will deposit all results from a run in the folder indicated by the outdir parameter. There will be seperate folders for tyrosine and serine/threonine results if both types of runs are performed. Within the out directory, there will be the following subfolders, most of which mirror what is saved in the pickle object in the base KSTAR algorithm:
+Each run with nextflow will deposit all results from a run in the folder indicated by the outdir parameter. There will be seperate folders for tyrosine and serine/threonine results if both types of runs are performed. Within the out directory, there will be the following subfolders, most of which mirror what is saved in the pickle object in the base KSTAR algorithm:
 
 | Subfolder | Description | Files within the folder |
 --- | --- | --- 

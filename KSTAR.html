@@ -4,8 +4,7 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>KSTAR &#8212; KSTAR 1 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/classic.css" />
@@ -18,7 +17,7 @@
     
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Quick Start Guide" href="quickstart.html" />
+    <link rel="next" title="Getting Started" href="quickstart.html" />
     <link rel="prev" title="Dependencies" href="Dependencies.html" /> 
   </head><body>
     <div class="related" role="navigation" aria-label="related navigation">
@@ -31,7 +30,7 @@
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="quickstart.html" title="Quick Start Guide"
+          <a href="quickstart.html" title="Getting Started"
              accesskey="N">next</a> |</li>
         <li class="right" >
           <a href="Dependencies.html" title="Dependencies"
@@ -46,48 +45,61 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <section id="module-kstar">
+  <div class="section" id="module-kstar">
 <span id="kstar"></span><h1>KSTAR<a class="headerlink" href="#module-kstar" title="Permalink to this headline">¶</a></h1>
-<section id="global-variables-found-in-config-module">
-<h2>Global Variables found in “Config” Module<a class="headerlink" href="#global-variables-found-in-config-module" title="Permalink to this headline">¶</a></h2>
-<p>These are the GLOBAL variables for the KSTAR project and are set for default procedures for the current release
-of KinPred and KSTAR.</p>
-<p>Update these if you want to update:</p>
-<table class="colwidths-given docutils align-default">
-<colgroup>
-<col style="width: 33%" />
-<col style="width: 67%" />
-</colgroup>
-<thead>
-<tr class="row-odd"><th class="head"><p>Variable Name</p></th>
-<th class="head"><p>Description</p></th>
-</tr>
-</thead>
-<tbody>
-<tr class="row-even"><td><p>RESOURCE_DIR</p></td>
-<td><p>Where resources are placed from KSTAR and KINPRED projects, including pruned networks</p></td>
-</tr>
-<tr class="row-odd"><td><p>NETWORK_DIR</p></td>
-<td><p>Where in the resource directory to find the pickles of the pruned networks</p></td>
-</tr>
-<tr class="row-even"><td><p>HUMAN_REF_FASTA_FILE</p></td>
-<td><p>Reference proteome to use. Should be a fasta file. Reference proteome from KinPred can be found in the RESOURCE_FILES downloaded from figshare.</p></td>
-</tr>
-<tr class="row-odd"><td><p>HUMAN_REF_PHOSPHO</p></td>
-<td><p>Reference phosphoproteome to use. Reference phosphoproteome from KinPred can be found in the RESOURCE_FILES downloaded from figshare.</p></td>
-</tr>
-<tr class="row-even"><td><p>NETWORK_Y_PICKLE</p></td>
-<td><p>Location of network pickle for phosphotyrosine networks. Default is ‘NETWORK_DIR/network_Y.p’</p></td>
-</tr>
-<tr class="row-odd"><td><p>NETWORK_ST_PICKLE</p></td>
-<td><p>Location of network pickle for phosphoserine/phosphothreonine networks. Default is ‘NETWORK_DIR/network_ST.p’</p></td>
-</tr>
-</tbody>
-</table>
-</section>
-<section id="the-prune-module">
+<div class="section" id="module-kstar.config">
+<span id="the-config-module"></span><h2>The “Config” Module<a class="headerlink" href="#module-kstar.config" title="Permalink to this headline">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="kstar.config.create_network_pickles">
+<span class="sig-prename descclassname"><span class="pre">kstar.config.</span></span><span class="sig-name descname"><span class="pre">create_network_pickles</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">phosphoTypes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">['Y',</span> <span class="pre">'ST']</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/kstar/config.html#create_network_pickles"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kstar.config.create_network_pickles" title="Permalink to this definition">¶</a></dt>
+<dd><blockquote>
+<div><p>Given network files declared in globals, create pickles of the kstar object that can then be quickly loaded in analysis
+Assumes that the Network structure has the folders indicated by phosphoTypes parameter (Y and/or ST) under the NETWORK_DIR</p>
+</div></blockquote>
+<p>global variable and that all .tsv files in those directories should be loaded into a network pickle.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>phosphoTypes: list of strings</strong></dt><dd><p>indicates which network pickles to create. Can be [‘Y’], [‘ST’], or [‘Y’,’ST’]. Default is [‘Y’,’ST’].</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kstar.config.install_resource_files">
+<span class="sig-prename descclassname"><span class="pre">kstar.config.</span></span><span class="sig-name descname"><span class="pre">install_resource_files</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/kstar/config.html#install_resource_files"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kstar.config.install_resource_files" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieves RESOURCE_FILES that are the companion for this version release from FigShare, unzips them to the correct directory for resource files.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kstar.config.update_network_directory">
+<span class="sig-prename descclassname"><span class="pre">kstar.config.</span></span><span class="sig-name descname"><span class="pre">update_network_directory</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">directory</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">create_pickles</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/kstar/config.html#update_network_directory"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kstar.config.update_network_directory" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update the location of network the network files, and verify that all necessary files are located in directory</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>directory: string</strong></dt><dd><p>path to where network files are located</p>
+</dd>
+<dt><strong>create_pickles: bool</strong></dt><dd><p>indicates whether to autogenerate pickles using the individual networks found in directory. Default is True.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt>directory: string</dt><dd><p>the current network directory after running function. Either inputted directory path or previous path, if inputted directory could
+not be found.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="the-prune-module">
 <h2>The “Prune” Module<a class="headerlink" href="#the-prune-module" title="Permalink to this headline">¶</a></h2>
-<section id="the-pruner-class">
+<div class="section" id="the-pruner-class">
 <h3>The “Pruner” Class<a class="headerlink" href="#the-pruner-class" title="Permalink to this headline">¶</a></h3>
 <dl class="py class">
 <dt class="sig sig-object py" id="kstar.prune.Pruner">
@@ -227,8 +239,8 @@ value : number of sites to connect to kinase</p>
 
 </dd></dl>
 
-</section>
-<section id="module-kstar.prune">
+</div>
+<div class="section" id="module-kstar.prune">
 <span id="functions-to-perform-pruning"></span><h3>Functions to Perform Pruning<a class="headerlink" href="#module-kstar.prune" title="Permalink to this headline">¶</a></h3>
 <dl class="py function">
 <dt class="sig sig-object py" id="kstar.prune.run_pruning">
@@ -321,9 +333,9 @@ including the parameters used for generation. Primarily used when running bash s
 </dl>
 </dd></dl>
 
-</section>
-</section>
-<section id="the-experimentmapper-class">
+</div>
+</div>
+<div class="section" id="the-experimentmapper-class">
 <h2>The “ExperimentMapper” class<a class="headerlink" href="#the-experimentmapper-class" title="Permalink to this headline">¶</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="kstar.mapping.ExperimentMapper">
@@ -429,8 +441,8 @@ with ‘data:’ in front and this to the data_columns attribute.</p>
 
 </dd></dl>
 
-</section>
-<section id="the-kinaseactivity-class">
+</div>
+<div class="section" id="the-kinaseactivity-class">
 <h2>The “KinaseActivity” class<a class="headerlink" href="#the-kinaseactivity-class" title="Permalink to this headline">¶</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="kstar.calculate.KinaseActivity">
@@ -713,8 +725,8 @@ be all columns that start with data:</p>
 
 </dd></dl>
 
-</section>
-<section id="the-dotplot-class">
+</div>
+<div class="section" id="the-dotplot-class">
 <h2>The “DotPlot” class<a class="headerlink" href="#the-dotplot-class" title="Permalink to this headline">¶</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="kstar.plot.DotPlot">
@@ -923,10 +935,10 @@ is in place</p>
 
 </dd></dl>
 
-</section>
-<section id="supporting-functions">
+</div>
+<div class="section" id="supporting-functions">
 <h2>Supporting Functions<a class="headerlink" href="#supporting-functions" title="Permalink to this headline">¶</a></h2>
-<section id="module-kstar.calculate">
+<div class="section" id="module-kstar.calculate">
 <span id="master-functions-for-running-kstar-pipeline"></span><h3>Master Functions for Running KSTAR Pipeline<a class="headerlink" href="#module-kstar.calculate" title="Permalink to this headline">¶</a></h3>
 <dl class="py function">
 <dt class="sig sig-object py" id="kstar.calculate.Mann_Whitney_analysis">
@@ -1020,8 +1032,8 @@ activity summary (see summarize_activities)</p>
 </dl>
 </dd></dl>
 
-</section>
-<section id="module-0">
+</div>
+<div class="section" id="module-0">
 <span id="functions-for-saving-and-loading-kstar-results"></span><h3>Functions for Saving and Loading KSTAR results<a class="headerlink" href="#module-0" title="Permalink to this headline">¶</a></h3>
 <dl class="py function">
 <dt class="sig sig-object py" id="kstar.calculate.from_kstar_nextflow">
@@ -1120,8 +1132,8 @@ activity summary (see summarize_activities)</p>
 </dl>
 </dd></dl>
 
-</section>
-<section id="module-kstar.helpers">
+</div>
+<div class="section" id="module-kstar.helpers">
 <span id="other-helper-functions"></span><h3>Other Helper Functions<a class="headerlink" href="#module-kstar.helpers" title="Permalink to this headline">¶</a></h3>
 <dl class="py function">
 <dt class="sig sig-object py" id="kstar.helpers.convert_acc_to_uniprot">
@@ -1204,17 +1216,9 @@ to append an accession column of uniprot IDS</p>
 </dl>
 </dd></dl>
 
-<span class="target" id="module-kstar.config"></span><dl class="py function">
-<dt class="sig sig-object py" id="kstar.config.create_network_pickles">
-<span class="sig-prename descclassname"><span class="pre">kstar.config.</span></span><span class="sig-name descname"><span class="pre">create_network_pickles</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/kstar/config.html#create_network_pickles"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kstar.config.create_network_pickles" title="Permalink to this definition">¶</a></dt>
-<dd><p>Given network files declared in globals, create pickles of the kstar object that can then be quickly loaded in analysis
-Assumes that the Network structure has two folders Y and ST under the NETWORK_DIR global variable and that 
-all .csv files in those directories should be loaded into a network pickle.</p>
-</dd></dl>
-
-</section>
-</section>
-</section>
+</div>
+</div>
+</div>
 
 
             <div class="clearer"></div>
@@ -1229,7 +1233,7 @@ all .csv files in those directories should be loaded into a network pickle.</p>
 <li class="toctree-l1"><a class="reference internal" href="Overview.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="Dependencies.html">Dependencies</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">KSTAR</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#global-variables-found-in-config-module">Global Variables found in “Config” Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-kstar.config">The “Config” Module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#the-prune-module">The “Prune” Module</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#the-pruner-class">The “Pruner” Class</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#module-kstar.prune">Functions to Perform Pruning</a></li>
@@ -1246,7 +1250,7 @@ all .csv files in those directories should be loaded into a network pickle.</p>
 </li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quick Start Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Getting Started</a></li>
 <li class="toctree-l1"><a class="reference internal" href="Tutorial/tutorial.html">Tutorial</a></li>
 <li class="toctree-l1"><a class="reference internal" href="Examples/Examples.html">Plotting Examples from KSTAR Paper</a></li>
 <li class="toctree-l1"><a class="reference internal" href="Running_with_nextflow.html">Running Large Datasets with Nextflow</a></li>
@@ -1257,7 +1261,7 @@ all .csv files in those directories should be loaded into a network pickle.</p>
                         title="previous chapter">Dependencies</a></p>
   <h4>Next topic</h4>
   <p class="topless"><a href="quickstart.html"
-                        title="next chapter">Quick Start Guide</a></p>
+                        title="next chapter">Getting Started</a></p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
@@ -1289,7 +1293,7 @@ all .csv files in those directories should be loaded into a network pickle.</p>
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="quickstart.html" title="Quick Start Guide"
+          <a href="quickstart.html" title="Getting Started"
              >next</a> |</li>
         <li class="right" >
           <a href="Dependencies.html" title="Dependencies"

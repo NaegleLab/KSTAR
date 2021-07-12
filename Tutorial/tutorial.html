@@ -4,8 +4,7 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Tutorial &#8212; KSTAR 1 documentation</title>
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../_static/classic.css" />
@@ -19,7 +18,7 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Run pruning within python" href="Pruning.html" />
-    <link rel="prev" title="Quick Start Guide" href="../quickstart.html" /> 
+    <link rel="prev" title="Getting Started" href="../quickstart.html" /> 
   </head><body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
@@ -34,7 +33,7 @@
           <a href="Pruning.html" title="Run pruning within python"
              accesskey="N">next</a> |</li>
         <li class="right" >
-          <a href="../quickstart.html" title="Quick Start Guide"
+          <a href="../quickstart.html" title="Getting Started"
              accesskey="P">previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="../index.html">KSTAR 1 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Tutorial</a></li> 
@@ -46,54 +45,49 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <section id="tutorial">
+  <div class="section" id="tutorial">
 <h1>Tutorial<a class="headerlink" href="#tutorial" title="Permalink to this headline">¶</a></h1>
-<section id="generating-pruned-networks">
-<h2>Generating Pruned Networks<a class="headerlink" href="#generating-pruned-networks" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="network-generation">
+<h2>Network Generation<a class="headerlink" href="#network-generation" title="Permalink to this headline">¶</a></h2>
 <div class="toctree-wrapper compound">
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="Pruning.html">Run pruning within python</a></li>
 <li class="toctree-l1"><a class="reference internal" href="Pruning.html#run-pruning-from-the-command-line">Run pruning from the command line</a></li>
 </ul>
 </div>
-</section>
-<section id="map-datasets-to-kinpred">
-<h2>Map Datasets to KinPred<a class="headerlink" href="#map-datasets-to-kinpred" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="activity-prediction">
+<h2>Activity Prediction<a class="headerlink" href="#activity-prediction" title="Permalink to this headline">¶</a></h2>
 <div class="toctree-wrapper compound">
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="MapData.html">Download and Process Dataset of Interest</a></li>
-<li class="toctree-l1"><a class="reference internal" href="MapData.html#Map-Dataset">Map Dataset</a></li>
-<li class="toctree-l1"><a class="reference internal" href="MapData.html#Explore-the-Mapped-Dataset">Explore the Mapped Dataset</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Activity_Calculation.html">Map Datasets to KinPred</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="Activity_Calculation.html#Download-and-Process-Dataset-of-Interest">Download and Process Dataset of Interest</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Activity_Calculation.html#Perform-the-Mapping">Perform the Mapping</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Activity_Calculation.html#Explore-the-Mapped-Dataset">Explore the Mapped Dataset</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="Activity_Calculation.html#Predict-Kinase-Activities">Predict Kinase Activities</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="Activity_Calculation.html#Determine-Thresholds">Determine Thresholds</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Activity_Calculation.html#Calculate-Statistical-Enrichment-(Hypergeometric-p-values)">Calculate Statistical Enrichment (Hypergeometric p-values)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Activity_Calculation.html#Generate-random-datasets,-run-kinase-activity-on-random-datasets,-normalize-original-analysis">Generate random datasets, run kinase activity on random datasets, normalize original analysis</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Activity_Calculation.html#Calculate-Mann-Whitney-Significance">Calculate Mann Whitney Significance</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Activity_Calculation.html#Save-KSTAR-Results">Save KSTAR Results</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="Activity_Calculation.html#Plot-Results">Plot Results</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="Activity_Calculation.html#Load-in-KSTAR-results">Load in KSTAR results</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Activity_Calculation.html#Plot-the-base-dotplot">Plot the base dotplot</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Activity_Calculation.html#Change-the-axis-labels-and-sort-kinases-based-on-activity">Change the axis labels and sort kinases based on activity</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Activity_Calculation.html#Remove-kinases-that-never-show-significant-activity">Remove kinases that never show significant activity</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Activity_Calculation.html#Cluster-the-kinase-activities">Cluster the kinase activities</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Activity_Calculation.html#Add-context-to-dotplot">Add context to dotplot</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Activity_Calculation.html#Plot-dotplot-with-the-false-positive-rate-indicated-by-hue">Plot dotplot with the false positive rate indicated by hue</a></li>
+</ul>
+</li>
 </ul>
 </div>
-</section>
-<section id="predict-kinase-activities">
-<h2>Predict Kinase Activities<a class="headerlink" href="#predict-kinase-activities" title="Permalink to this headline">¶</a></h2>
-<div class="toctree-wrapper compound">
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="CalculateActivities.html">Determine Thresholds</a></li>
-<li class="toctree-l1"><a class="reference internal" href="CalculateActivities.html#Calculate-Statistical-Enrichment-(Hypergeometric-p-values)">Calculate Statistical Enrichment (Hypergeometric p-values)</a></li>
-<li class="toctree-l1"><a class="reference internal" href="CalculateActivities.html#Generate-random-datasets,-run-kinase-activity-on-random-datasets,-normalize-original-analysis">Generate random datasets, run kinase activity on random datasets, normalize original analysis</a></li>
-<li class="toctree-l1"><a class="reference internal" href="CalculateActivities.html#Calculate-Mann-Whitney-Significance">Calculate Mann Whitney Significance</a></li>
-<li class="toctree-l1"><a class="reference internal" href="CalculateActivities.html#Save-KSTAR-Results">Save KSTAR Results</a></li>
-</ul>
 </div>
-</section>
-<section id="plot-results">
-<h2>Plot Results<a class="headerlink" href="#plot-results" title="Permalink to this headline">¶</a></h2>
-<div class="toctree-wrapper compound">
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="Plotting.html">Load in KSTAR results</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Plotting.html#Plot-the-base-dotplot">Plot the base dotplot</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Plotting.html#Change-the-axis-labels-and-sort-kinases-based-on-activity">Change the axis labels and sort kinases based on activity</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Plotting.html#Remove-kinases-that-never-show-significant-activity">Remove kinases that never show significant activity</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Plotting.html#Cluster-the-kinase-activities">Cluster the kinase activities</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Plotting.html#Add-context-to-dotplot">Add context to dotplot</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Plotting.html#Plot-dotplot-with-the-false-positive-rate-indicated-by-hue">Plot dotplot with the false positive rate indicated by hue</a></li>
-</ul>
 </div>
-</section>
-</section>
 
 
             <div class="clearer"></div>
@@ -108,35 +102,17 @@
 <li class="toctree-l1"><a class="reference internal" href="../Overview.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../Dependencies.html">Dependencies</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../KSTAR.html">KSTAR</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quick Start Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Getting Started</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Tutorial</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#generating-pruned-networks">Generating Pruned Networks</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#network-generation">Network Generation</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="Pruning.html">Run pruning within python</a></li>
 <li class="toctree-l3"><a class="reference internal" href="Pruning.html#run-pruning-from-the-command-line">Run pruning from the command line</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#map-datasets-to-kinpred">Map Datasets to KinPred</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="MapData.html">Download and Process Dataset of Interest</a></li>
-<li class="toctree-l3"><a class="reference internal" href="MapData.html#Map-Dataset">Map Dataset</a></li>
-<li class="toctree-l3"><a class="reference internal" href="MapData.html#Explore-the-Mapped-Dataset">Explore the Mapped Dataset</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="#predict-kinase-activities">Predict Kinase Activities</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="CalculateActivities.html">Determine Thresholds</a></li>
-<li class="toctree-l3"><a class="reference internal" href="CalculateActivities.html#Calculate-Statistical-Enrichment-(Hypergeometric-p-values)">Calculate Statistical Enrichment (Hypergeometric p-values)</a></li>
-<li class="toctree-l3"><a class="reference internal" href="CalculateActivities.html#Generate-random-datasets,-run-kinase-activity-on-random-datasets,-normalize-original-analysis">Generate random datasets, run kinase activity on random datasets, normalize original analysis</a></li>
-<li class="toctree-l3"><a class="reference internal" href="CalculateActivities.html#Calculate-Mann-Whitney-Significance">Calculate Mann Whitney Significance</a></li>
-<li class="toctree-l3"><a class="reference internal" href="CalculateActivities.html#Save-KSTAR-Results">Save KSTAR Results</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="#plot-results">Plot Results</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="Plotting.html">Load in KSTAR results</a></li>
-<li class="toctree-l3"><a class="reference internal" href="Plotting.html#Plot-the-base-dotplot">Plot the base dotplot</a></li>
-<li class="toctree-l3"><a class="reference internal" href="Plotting.html#Change-the-axis-labels-and-sort-kinases-based-on-activity">Change the axis labels and sort kinases based on activity</a></li>
-<li class="toctree-l3"><a class="reference internal" href="Plotting.html#Remove-kinases-that-never-show-significant-activity">Remove kinases that never show significant activity</a></li>
-<li class="toctree-l3"><a class="reference internal" href="Plotting.html#Cluster-the-kinase-activities">Cluster the kinase activities</a></li>
-<li class="toctree-l3"><a class="reference internal" href="Plotting.html#Add-context-to-dotplot">Add context to dotplot</a></li>
-<li class="toctree-l3"><a class="reference internal" href="Plotting.html#Plot-dotplot-with-the-false-positive-rate-indicated-by-hue">Plot dotplot with the false positive rate indicated by hue</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#activity-prediction">Activity Prediction</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="Activity_Calculation.html">Map Datasets to KinPred</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Activity_Calculation.html#Predict-Kinase-Activities">Predict Kinase Activities</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Activity_Calculation.html#Plot-Results">Plot Results</a></li>
 </ul>
 </li>
 </ul>
@@ -147,7 +123,7 @@
 
   <h4>Previous topic</h4>
   <p class="topless"><a href="../quickstart.html"
-                        title="previous chapter">Quick Start Guide</a></p>
+                        title="previous chapter">Getting Started</a></p>
   <h4>Next topic</h4>
   <p class="topless"><a href="Pruning.html"
                         title="next chapter">Run pruning within python</a></p>
@@ -185,7 +161,7 @@
           <a href="Pruning.html" title="Run pruning within python"
              >next</a> |</li>
         <li class="right" >
-          <a href="../quickstart.html" title="Quick Start Guide"
+          <a href="../quickstart.html" title="Getting Started"
              >previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="../index.html">KSTAR 1 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Tutorial</a></li> 

@@ -43,6 +43,8 @@
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 <span class="kn">from</span> <span class="nn">kstar</span> <span class="kn">import</span> <span class="n">helpers</span>
+<span class="kn">import</span> <span class="nn">requests</span>
+<span class="kn">import</span> <span class="nn">tarfile</span>
 
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">These are the GLOBAL variables for the KSTAR project and are set for default procedures for the current release</span>
@@ -58,21 +60,50 @@
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="c1">## BEGIN DECLARATION OF GLOBALS</span>
-<span class="c1">#PROJECT_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)),&#39;..&#39;) #PROJECT Directory is one level up from this config file</span>
-<span class="c1">#PROJECT_DIR = os.path.abspath(os.path.join(os.path.dirname( __file__ ), &#39;..&#39;))</span>
-<span class="n">PROJECT_DIR</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)))</span>
-<span class="n">RESOURCE_DIR</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">PROJECT_DIR</span><span class="si">}</span><span class="s2">/RESOURCE_FILES&quot;</span> 
 
-<span class="c1"># RESOURCE_DIR depedencies</span>
-<span class="n">HUMAN_REF_FASTA_FILE</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">RESOURCE_DIR</span><span class="si">}</span><span class="s2">/Raw/humanProteome/humanProteome_2020-02-26.fasta&quot;</span>  <span class="c1">#download from KinPred https://doi.org/10.1101/2020.08.10.244426</span>
-<span class="n">HUMAN_REF_SEQUENCES</span> <span class="o">=</span> <span class="n">helpers</span><span class="o">.</span><span class="n">process_fasta_file</span><span class="p">(</span><span class="n">HUMAN_REF_FASTA_FILE</span><span class="p">)</span>
+<span class="n">KSTAR_DIR</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)))</span>
+<span class="n">RESOURCE_DIR</span> <span class="o">=</span> <span class="n">KSTAR_DIR</span><span class="o">+</span><span class="s2">&quot;/RESOURCE_FILES&quot;</span>
 
-<span class="n">HUMAN_REF_PHOSPHO_FILE</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">RESOURCE_DIR</span><span class="si">}</span><span class="s2">/Human_PhosphoProteome_mapped_annotated_02_26_20.csv&quot;</span> <span class="c1">#download from KSTAR FIGSHARE, or use helpers folder generate to create a new one</span>
-<span class="n">HUMAN_REF_COMPENDIA</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">HUMAN_REF_PHOSPHO_FILE</span><span class="p">)</span>
+<span class="c1">#DOWNLOAD RESOURCE_FILES from Figshare to get started using networks </span>
+<span class="c1">#Directories for the project (where to find resource file folder), resource folder, and network directories are all set by directories.txt, which</span>
+<span class="c1"># can be updated with update_directories().</span>
+<span class="n">directory_file</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">KSTAR_DIR</span><span class="si">}</span><span class="s1">/kstar/directories.txt&#39;</span><span class="p">,</span><span class="s1">&#39;r&#39;</span><span class="p">)</span>
+<span class="n">directories</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">directory_file</span><span class="p">:</span>
+    <span class="n">directories</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="mi">0</span><span class="p">])</span>
+<span class="n">directory_file</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
 
-<span class="n">NETWORK_DIR</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">RESOURCE_DIR</span><span class="si">}</span><span class="s2">/NETWORKS/NetworKIN&quot;</span>
+
+<span class="n">NETWORK_DIR</span> <span class="o">=</span> <span class="n">directories</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+
+
+<span class="n">RESOURCE_URL</span> <span class="o">=</span> <span class="s1">&#39;https://ndownloader.figshare.com/files/28762653&#39;</span> <span class="c1">#location of corresponding release of data</span>
+
+<span class="c1"># RESOURCE_DIR dependencies</span>
+<span class="n">HUMAN_REF_FASTA_FILE</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">RESOURCE_DIR</span><span class="si">}</span><span class="s2">/humanProteome.fasta&quot;</span>  <span class="c1">#download from KinPred https://doi.org/10.1101/2020.08.10.244426</span>
+<span class="k">try</span><span class="p">:</span>
+    <span class="n">HUMAN_REF_SEQUENCES</span> <span class="o">=</span> <span class="n">helpers</span><span class="o">.</span><span class="n">process_fasta_file</span><span class="p">(</span><span class="n">HUMAN_REF_FASTA_FILE</span><span class="p">)</span>
+<span class="k">except</span> <span class="ne">FileNotFoundError</span><span class="p">:</span>
+    <span class="n">HUMAN_REF_SEQUENCES</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Could not find reference proteome. Please install the resource directory using config.install_resource_files()&#39;</span><span class="p">)</span>
+
+<span class="n">HUMAN_REF_PHOSPHO_FILE</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">RESOURCE_DIR</span><span class="si">}</span><span class="s2">/HumanPhosphoProteome.csv&quot;</span> <span class="c1">#download from KSTAR FIGSHARE, or use helpers folder generate to create a new one</span>
+<span class="k">try</span><span class="p">:</span>
+    <span class="n">HUMAN_REF_COMPENDIA</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">HUMAN_REF_PHOSPHO_FILE</span><span class="p">)</span>
+<span class="k">except</span> <span class="ne">FileNotFoundError</span><span class="p">:</span>
+    <span class="n">HUMAN_REF_COMPENDIA</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Could not find reference proteome. Please install the resource directory using config.install_resource_files()&#39;</span><span class="p">)</span>
+
+
 <span class="n">NETWORK_Y_PICKLE</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">NETWORK_DIR</span><span class="si">}</span><span class="s2">/network_Y.p&quot;</span> <span class="c1"># created by create_networkin_pickles()</span>
 <span class="n">NETWORK_ST_PICKLE</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">NETWORK_DIR</span><span class="si">}</span><span class="s2">/network_ST.p&quot;</span> <span class="c1">#created by create_networkin_pickles()</span>
+
+<span class="c1">#check to see if networks can be found</span>
+<span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">NETWORK_DIR</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Could not find network directory. Please update using config.update_network_directory().&#39;</span><span class="p">)</span>
+<span class="k">elif</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">NETWORK_Y_PICKLE</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">NETWORK_ST_PICKLE</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Could not find any network pickles. Please create network pickles using config.create_network_pickles().&#39;</span><span class="p">)</span>
 
 <span class="c1"># COLUMN NAMES USED FOR KSTAR</span>
 <span class="n">KSTAR_ACCESSION</span> <span class="o">=</span> <span class="s1">&#39;KSTAR_ACCESSION&#39;</span>
@@ -83,19 +114,100 @@
 <span class="c1"># Number of cores to use for parallelization, set to 1 to avoid multiprocessing</span>
 <span class="n">PROCESSES</span> <span class="o">=</span> <span class="mi">4</span>
 
+
 <span class="c1">## END DECLARATION OF GLOBALS</span>
 
 
-<div class="viewcode-block" id="create_network_pickles"><a class="viewcode-back" href="../../KSTAR.html#kstar.config.create_network_pickles">[docs]</a><span class="k">def</span> <span class="nf">create_network_pickles</span><span class="p">():</span>
+<div class="viewcode-block" id="install_resource_files"><a class="viewcode-back" href="../../KSTAR.html#kstar.config.install_resource_files">[docs]</a><span class="k">def</span> <span class="nf">install_resource_files</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;Retrieves RESOURCE_FILES that are the companion for this version release from FigShare, unzips them to the correct directory for resource files.&quot;&quot;&quot;</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Requesting file&quot;</span><span class="p">)</span>
+    <span class="n">r</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">RESOURCE_URL</span><span class="p">,</span> <span class="n">allow_redirects</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">outputFile</span> <span class="o">=</span> <span class="n">KSTAR_DIR</span><span class="o">+</span><span class="s2">&quot;/RESOURCE_FILES.tar.gz&quot;</span>
+
+    <span class="nb">open</span><span class="p">(</span><span class="n">outputFile</span><span class="p">,</span> <span class="s1">&#39;wb&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">content</span><span class="p">)</span>
+
+    
+    <span class="n">t</span> <span class="o">=</span> <span class="n">tarfile</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">outputFile</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span>
+
+
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Extracting </span><span class="si">%s</span><span class="s2">&quot;</span><span class="o">%</span> <span class="n">outputFile</span><span class="p">)</span>
+    <span class="n">t</span><span class="o">.</span><span class="n">extractall</span><span class="p">(</span><span class="n">KSTAR_DIR</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="update_network_directory"><a class="viewcode-back" href="../../KSTAR.html#kstar.config.update_network_directory">[docs]</a><span class="k">def</span> <span class="nf">update_network_directory</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">create_pickles</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="o">*</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="c1">#def update_network_directory(directory, create_pickles = True, KSTAR_DIR = KSTAR_DIR, NETWORK_DIR = NETWORK_DIR):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Update the location of network the network files, and verify that all necessary files are located in directory</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    directory: string</span>
+<span class="sd">        path to where network files are located</span>
+<span class="sd">    create_pickles: bool</span>
+<span class="sd">        indicates whether to autogenerate pickles using the individual networks found in directory. Default is True.</span>
+<span class="sd">        </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    directory: string</span>
+<span class="sd">        the current network directory after running function. Either inputted directory path or previous path, if inputted directory could</span>
+<span class="sd">        not be found.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="c1">#check that directory exists</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">directory</span><span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Directory not found, so directories.txt was not updated and no pickles were generated. Please verify that directory is correct&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">NETWORK_DIR</span>
+    
+    <span class="c1">#update network directory in directories.txt (permanent change)</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">KSTAR_DIR</span><span class="si">}</span><span class="s1">/kstar/directories.txt&#39;</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">d</span><span class="p">:</span>
+        <span class="n">d</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">directory</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Network directory updated.&#39;</span><span class="p">)</span>
+    
+    <span class="c1">#If create_pickles is true, look for individual networks and create pickles</span>
+    <span class="k">if</span> <span class="n">create_pickles</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">directory</span><span class="si">}</span><span class="s2">/network_Y.p&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">directory</span><span class="si">}</span><span class="s2">/network_ST.p&quot;</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">directory</span><span class="si">}</span><span class="s1">/Y/INDIVIDUAL_NETWORKS&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">directory</span><span class="si">}</span><span class="s1">/ST/INDIVIDUAL_NETWORKS&#39;</span><span class="p">):</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Found individual networks for both Y and ST, generating pickles for both&#39;</span><span class="p">)</span>
+                <span class="n">create_network_pickles</span><span class="p">(</span><span class="n">network_directory</span> <span class="o">=</span> <span class="n">directory</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">directory</span><span class="si">}</span><span class="s1">/Y/INDIVIDUAL_NETWORKS&#39;</span><span class="p">):</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Individual networks found for Y, but not for ST. Generating Y pickle only.&#39;</span><span class="p">)</span>
+                <span class="n">create_network_pickles</span><span class="p">([</span><span class="s1">&#39;Y&#39;</span><span class="p">],</span> <span class="n">network_directory</span> <span class="o">=</span> <span class="n">directory</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">directory</span><span class="si">}</span><span class="s1">/ST/INDIVIDUAL_NETWORKS&#39;</span><span class="p">):</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Individual networks found for ST, but not for Y. Generating ST pickle only.&#39;</span><span class="p">)</span>
+                <span class="n">create_network_pickles</span><span class="p">([</span><span class="s1">&#39;ST&#39;</span><span class="p">],</span> <span class="n">network_directory</span> <span class="o">=</span> <span class="n">directory</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">directory</span><span class="si">}</span><span class="s2">/network_Y.p&quot;</span><span class="p">):</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;ST pickle already created. Generating Y pickle&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">directory</span><span class="si">}</span><span class="s1">/Y/INDIVIDUAL_NETWORKS&#39;</span><span class="p">):</span>
+                <span class="n">create_network_pickles</span><span class="p">([</span><span class="s1">&#39;Y&#39;</span><span class="p">],</span> <span class="n">network_directory</span> <span class="o">=</span> <span class="n">directory</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Could not find individual networks for Y. Make sure networks are deposited in &quot;</span><span class="si">{NETWORK_DIR}</span><span class="s1">/Y/INDIVIDUAL_NETWORKS/&quot;, then rerun create_network_pickles()&#39;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">directory</span><span class="si">}</span><span class="s1">/network_ST.p&#39;</span><span class="p">):</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Y pickle already created. Generating ST pickle&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">directory</span><span class="si">}</span><span class="s1">/ST/INDIVIDUAL_NETWORKS&#39;</span><span class="p">):</span>
+                <span class="n">create_network_pickles</span><span class="p">([</span><span class="s1">&#39;ST&#39;</span><span class="p">],</span> <span class="n">network_directory</span> <span class="o">=</span> <span class="n">directory</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Could not find individual networks for ST. Make sure networks are deposited in &quot;</span><span class="si">{NETWORK_DIR}</span><span class="s1">/ST/INDIVIDUAL_NETWORKS/&quot;, , then rerun create_network_pickles()&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Network pickles already generated&#39;</span><span class="p">)</span>
+    
+    <span class="k">return</span> <span class="n">directory</span></div>
+
+<div class="viewcode-block" id="create_network_pickles"><a class="viewcode-back" href="../../KSTAR.html#kstar.config.create_network_pickles">[docs]</a><span class="k">def</span> <span class="nf">create_network_pickles</span><span class="p">(</span><span class="n">phosphoTypes</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Y&#39;</span><span class="p">,</span><span class="s1">&#39;ST&#39;</span><span class="p">],</span> <span class="o">*</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="c1">#def create_network_pickles(phosphoTypes = [&#39;Y&#39;,&#39;ST&#39;], network_directory = NETWORK_DIR):</span>
 	<span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">	Given network files declared in globals, create pickles of the kstar object that can then be quickly loaded in analysis</span>
-<span class="sd">	Assumes that the Network structure has two folders Y and ST under the NETWORK_DIR global variable and that </span>
-<span class="sd">	all .csv files in those directories should be loaded into a network pickle.</span>
+<span class="sd">	Assumes that the Network structure has the folders indicated by phosphoTypes parameter (Y and/or ST) under the NETWORK_DIR </span>
+<span class="sd">    global variable and that all .tsv files in those directories should be loaded into a network pickle.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    phosphoTypes: list of strings</span>
+<span class="sd">        indicates which network pickles to create. Can be [&#39;Y&#39;], [&#39;ST&#39;], or [&#39;Y&#39;,&#39;ST&#39;]. Default is [&#39;Y&#39;,&#39;ST&#39;].</span>
 <span class="sd">	&quot;&quot;&quot;</span>
 	<span class="n">phosphoTypes</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Y&#39;</span><span class="p">,</span> <span class="s1">&#39;ST&#39;</span><span class="p">]</span>
 	<span class="k">for</span> <span class="n">phosphoType</span> <span class="ow">in</span> <span class="n">phosphoTypes</span><span class="p">:</span>
 		<span class="n">network</span> <span class="o">=</span> <span class="p">{}</span>
-		<span class="n">directory</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">NETWORK_DIR</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">phosphoType</span><span class="si">}</span><span class="s2">/&quot;</span>
+		<span class="n">directory</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">network_directory</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">phosphoType</span><span class="si">}</span><span class="s2">/INDIVIDUAL_NETWORKS/&quot;</span>
 		<span class="c1">#get all csv files in that directory </span>
 		<span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">directory</span><span class="p">):</span>
 			<span class="k">if</span> <span class="n">file</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;.tsv&quot;</span><span class="p">):</span>
@@ -105,7 +217,40 @@
 				<span class="c1">#print(&quot;Debug: key name is %s&quot;%(key_name))</span>
 				<span class="n">network</span><span class="p">[</span><span class="n">key_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">directory</span><span class="si">}{</span><span class="n">file</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s1">&#39;</span><span class="se">\t</span><span class="s1">&#39;</span><span class="p">)</span>
 		<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Loaded </span><span class="si">%d</span><span class="s2"> number of networks for phosphoType </span><span class="si">%s</span><span class="s2">&quot;</span><span class="o">%</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">network</span><span class="p">),</span> <span class="n">phosphoType</span><span class="p">))</span>
-		<span class="n">pickle</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">network</span><span class="p">,</span> <span class="nb">open</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">NETWORK_DIR</span><span class="si">}</span><span class="s2">/network_</span><span class="si">{</span><span class="n">phosphoType</span><span class="si">}</span><span class="s2">.p&quot;</span><span class="p">,</span> <span class="s2">&quot;wb&quot;</span><span class="p">))</span></div>
+		<span class="n">pickle</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">network</span><span class="p">,</span> <span class="nb">open</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">network_directory</span><span class="si">}</span><span class="s2">/network_</span><span class="si">{</span><span class="n">phosphoType</span><span class="si">}</span><span class="s2">.p&quot;</span><span class="p">,</span> <span class="s2">&quot;wb&quot;</span><span class="p">))</span>
+		<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Saved pickle file at </span><span class="si">{</span><span class="n">network_directory</span><span class="si">}</span><span class="s2">/network_</span><span class="si">{</span><span class="n">phosphoType</span><span class="si">}</span><span class="s2">.p&quot;</span><span class="p">)</span></div>
+        
+<span class="k">def</span> <span class="nf">check_configuration</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Verify that all necessary files are downloadable and findable. If not, function will provide instructions on how to fix issues.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">ready_Y</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="n">ready_ST</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">HUMAN_REF_FASTA_FILE</span><span class="p">)</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">HUMAN_REF_PHOSPHO_FILE</span><span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Could not find reference proteome and/or phosphoproteome. Please install the resource directory using config.install_resource_files()&#39;</span><span class="p">)</span>
+        <span class="n">ready_Y</span><span class="p">,</span> <span class="n">ready_ST</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">False</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">NETWORK_DIR</span><span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Could not find network directory. Please update using config.update_network_directory().&#39;</span><span class="p">)</span>
+        <span class="n">ready_Y</span><span class="p">,</span> <span class="n">ready_ST</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">False</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">NETWORK_Y_PICKLE</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">NETWORK_ST_PICKLE</span><span class="p">):</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Could not find any network pickles. Please create network pickles using config.create_network_pickles() or change network directory to where pickles are located with config.update_network_directory().&#39;</span><span class="p">)</span>
+            <span class="n">ready_Y</span><span class="p">,</span> <span class="n">ready_ST</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">False</span>
+        <span class="k">elif</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">NETWORK_Y_PICKLE</span><span class="p">):</span>
+            <span class="n">ready_Y</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">elif</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">NETWORK_ST_PICKLE</span><span class="p">):</span>
+            <span class="n">ready_ST</span> <span class="o">=</span> <span class="kc">False</span>
+    
+    <span class="k">if</span> <span class="n">ready_Y</span> <span class="ow">and</span> <span class="n">ready_ST</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;You are ready to begin! You can generate predictions for both Y and ST networks.&#39;</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">ready_Y</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;You are ready to generate predictions for Y networks, but not ST networks. If you want to generate ST predictions, create the ST network pickle with config.create_network_pickles(phosphoType = [&quot;ST&quot;])&#39;</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">ready_ST</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;You are ready to generate predictions for ST networks, but not Y networks. If you want to generate Y predictions, create the Y network pickle with config.create_network_pickles(phosphoType = [&quot;Y&quot;])&#39;</span><span class="p">)</span>
+        
+    
+        
+    
 
 
 <span class="c1"># network_directory=&#39;/Volumes/naegle_lab/KinaseActivity/Data/Subgraph/Modifed NetworKIN/CompendiaLimit&#39;</span>
@@ -124,7 +269,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../Overview.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../Dependencies.html">Dependencies</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../KSTAR.html">KSTAR</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../quickstart.html">Quick Start Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../quickstart.html">Getting Started</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../Tutorial/tutorial.html">Tutorial</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../Examples/Examples.html">Plotting Examples from KSTAR Paper</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../Running_with_nextflow.html">Running Large Datasets with Nextflow</a></li>
