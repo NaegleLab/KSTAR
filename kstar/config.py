@@ -93,7 +93,7 @@ def install_resource_files():
     print("Extracting %s"% outputFile)
     t.extractall(KSTAR_DIR)
 
-
+#def update_network_directory(directory, *kwargs):
 def update_network_directory(directory, KSTAR_DIR = KSTAR_DIR, NETWORK_DIR = NETWORK_DIR):
     """
     Update the location of network the network files, and verify that all necessary files are located in directory
@@ -102,8 +102,7 @@ def update_network_directory(directory, KSTAR_DIR = KSTAR_DIR, NETWORK_DIR = NET
     ----------
     directory: string
         path to where network files are located
-    KSTAR_DIR: string
-        where the kstar package is installed. recommend to keep the default
+    
     """
     
     #check that directory exists
