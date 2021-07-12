@@ -1,5 +1,5 @@
 {% set name = "kstar" %}
-{% set version = "0.1" %}
+{% set version = "0.2" %}
 
 
 package:
@@ -8,7 +8,7 @@ package:
 
 source:
   url: https://pypi.io/packages/source/{{ name[0] }}/{{ name }}/kstar-{{ version }}.tar.gz
-  sha256: cbb900bf98e88333615c5b7014069463ceab3fd069106bbd5e09c8b92af46054
+  sha256: 800e42fa1478e1c3cb37a4f1c73bec6eb3a0edba3825ca830952cc114ce63409
 
 build:
   number: 0
@@ -25,6 +25,7 @@ requirements:
     - numpy
     - pandas
     - python >=3.6
+    - requests
     - scipy
     - seaborn
     - statsmodels
