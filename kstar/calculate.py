@@ -1032,7 +1032,7 @@ def run_kstar_analysis(experiment, log, networks, phospho_types =['Y', 'ST'], da
         kinact_dict[phospho_type] = kinact
     return kinact_dict
 
-def normalize_analysis(kinact_dict, log, num_random_experiments=150, target_alpha = 0.05):
+def normalize_analysis(kinact_dict, log, num_random_experiments=150, target_alpha = 0.05, PROCESSES = 1):
     """
     Creates random experiments, drawn from the human phosphoproteome, according to the distribution of the number of compendia
     that each data column in the experiment has for num_random_experiments. Kinase activity calculation is then run on every random experiment
@@ -1058,7 +1058,7 @@ def normalize_analysis(kinact_dict, log, num_random_experiments=150, target_alph
         raise ValueError('ERROR: target_alpha must be value between 0 and 1')
 
     for phospho_type, kinact in kinact_dict.items():
-        kinact.run_normalization(log, num_random_experiments, target_alpha)
+        kinact.run_normalization(log, num_random_experiments, target_alpha, PROCESSES = PROCESSES)
         
 def Mann_Whitney_analysis(kinact_dict, log, number_sig_trials = 100, PROCESSES = 1):
     """
