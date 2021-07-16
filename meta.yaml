@@ -1,5 +1,5 @@
 {% set name = "kstar" %}
-{% set version = "0.2" %}
+{% set version = "0.2.1" %}
 
 
 package:
@@ -8,7 +8,7 @@ package:
 
 source:
   url: https://pypi.io/packages/source/{{ name[0] }}/{{ name }}/kstar-{{ version }}.tar.gz
-  sha256: 800e42fa1478e1c3cb37a4f1c73bec6eb3a0edba3825ca830952cc114ce63409
+  sha256: 2465c49455c76834f6bcf25ccd20bf558f770884ce6a3c9d23de849e5ca55db7
 
 build:
   number: 0
