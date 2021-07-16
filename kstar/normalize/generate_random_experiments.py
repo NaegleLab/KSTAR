@@ -29,7 +29,7 @@ def build_filtered_experiment(experiment, compendia, filtered_compendia, num_ran
     return rand_experiments
 
 
-def build_random_experiments(binary_evidence, compendia, num_random_experiments, phosphorylation_event, data_columns, pool, selection_type='KSTAR_NUM_COMPENDIA_CLASS'):
+def build_random_experiments(binary_evidence, compendia, num_random_experiments, phosphorylation_event, data_columns, pool, selection_type='KSTAR_NUM_COMPENDIA_CLASS', PROCESSES = 1):
     """
     Given an experimental dataframe and the human phospho compendia, build random experiments such that each random experiment takes on the same
     distribution with respect to the study bias defined as either NUM_COMPENDIA (total number of compendia a site is annotated in) or 
@@ -88,7 +88,7 @@ def build_random_experiments(binary_evidence, compendia, num_random_experiments,
 
 
     # ************ PARALELLIZATION ************
-    if config.PROCESSES > 1:
+    if PROCESSES > 1:
         
         iterable = zip(
                 filtered_experiments, 
@@ -122,6 +122,7 @@ def parse_args():
     parser.add_argument('-t', '--threshold',  action='store', dest='threshold', help = 'threshold to use for analysis', type = float, default=0.0)
     parser.add_argument('-num', '--num_random_experiments',  action='store', dest='num', help = 'Number of random experiments to generate', type = int, default=150)
     parser.add_argument('-s', '--selection_type', action='store', dest='selection_type', help='KSTAR_NUM_COMPENDIA or KSTAR_NUM_COMPENDIA_CLASS', type=str, default='KSTAR_NUM_COMPENDIA_CLASS')
+    parser.add_argument('-c', '--processes', action='store', dest='processes', help='Number of processes to run in parallel', type = int, default = 1)
     results = parser.parse_args()
     return results
 
@@ -185,7 +186,7 @@ def main():
     pool = multiprocessing.Pool(processes = config.PROCESSES)
     results = parse_args()
     experiment, proteomescout, log, data_columns  = process_args(results)
-    random_experiments = build_random_experiments(experiment, proteomescout, results.agg, results.threshold, results.num, results.pevent, data_columns = None, pool=pool, selection_type='KSTAR_NUM_COMPENDIA_CLASS')
+    random_experiments = build_random_experiments(experiment, proteomescout, results.agg, results.threshold, results.num, results.pevent, data_columns = None, pool=pool, selection_type='KSTAR_NUM_COMPENDIA_CLASS', PROCESSES = results.processes)
     random_experiments.to_csv(f"{results.odir}/{results.name}_random_experiments_{results.pevent}.tsv", sep = '\t', index=False)
 
 

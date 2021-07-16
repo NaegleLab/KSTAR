@@ -70,8 +70,6 @@ KSTAR_PEPTIDE = 'KSTAR_PEPTIDE'
 KSTAR_SITE = 'KSTAR_SITE'
 KSTAR_KINASE = 'KSTAR_KINASE'
 
-# Number of cores to use for parallelization, set to 1 to avoid multiprocessing
-PROCESSES = 4
 
 
 ## END DECLARATION OF GLOBALS
@@ -145,27 +143,33 @@ def update_network_directory(directory, create_pickles = True, KSTAR_DIR = KSTAR
     
     return directory
 
+#def create_network_pickles(phosphoType = ['Y','ST'], *kwargs)
 def create_network_pickles(phosphoTypes = ['Y','ST'], network_directory = NETWORK_DIR):
-	"""
-	Given network files declared in globals, create pickles of the kstar object that can then be quickly loaded in analysis
-	Assumes that the Network structure has two folders Y and ST under the NETWORK_DIR global variable and that 
-	all .csv files in those directories should be loaded into a network pickle.
-	"""
-	phosphoTypes = ['Y', 'ST']
-	for phosphoType in phosphoTypes:
-		network = {}
-		directory = f"{network_directory}/{phosphoType}/INDIVIDUAL_NETWORKS/"
-		#get all csv files in that directory 
-		for file in os.listdir(directory):
-			if file.endswith(".tsv"):
-				#get the value of the network number
-				file_noext = file.strip(".tsv").split('_')
-				key_name = 'nkin'+str(file_noext[1])
-				#print("Debug: key name is %s"%(key_name))
-				network[key_name] = pd.read_csv(f"{directory}{file}", sep='\t')
-		print("Loaded %d number of networks for phosphoType %s"%(len(network), phosphoType))
-		pickle.dump(network, open(f"{network_directory}/network_{phosphoType}.p", "wb"))
-		print(f"Saved pickle file at {network_directory}/network_{phosphoType}.p")
+    """
+    Given network files declared in globals, create pickles of the kstar object that can then be quickly loaded in analysis
+    Assumes that the Network structure has two folders Y and ST under the NETWORK_DIR global variable and that 
+    all .csv files in those directories should be loaded into a network pickle.
+    """
+    
+    
+    
+    for phosphoType in phosphoTypes:
+        network = {}
+        if not os.path.isfile(f"{network_directory}/network_{phosphoType}.p"):
+            directory = f"{network_directory}/{phosphoType}/INDIVIDUAL_NETWORKS/"
+            #get all csv files in that directory 
+            for file in os.listdir(directory):
+                if file.endswith(".tsv"):
+                    #get the value of the network number
+                    file_noext = file.strip(".tsv").split('_')
+                    key_name = 'nkin'+str(file_noext[1])
+                    #print("Debug: key name is %s"%(key_name))
+                    network[key_name] = pd.read_csv(f"{directory}{file}", sep='\t')
+            print("Loaded %d number of networks for phosphoType %s"%(len(network), phosphoType))
+            pickle.dump(network, open(f"{network_directory}/network_{phosphoType}.p", "wb"))
+            print(f"Saved pickle file at {network_directory}/network_{phosphoType}.p")
+        else:
+            print(f"{phosphoType} network pickle already generated")
         
 def check_configuration():
     """

@@ -162,12 +162,12 @@ class KinaseActivity:
             self.data_columns = data_columns
         self.check_data_columns()      
     
-    def run_normalization(self, logger, num_random_experiments=150, target_alpha=0.05):
+    def run_normalization(self, logger, num_random_experiments=150, target_alpha=0.05, PROCESSES = 1):
         """
         Run entire normaliation pipeline 
         """
         self.logger.info("Running Normalization Pipeline")
-        pool = multiprocessing.Pool(processes = config.PROCESSES)
+        pool = multiprocessing.Pool(processes = PROCESSES)
         self.normalized = True
         self.num_random_experiments = num_random_experiments
         self.logger.info("Generating random experiments")
@@ -177,13 +177,14 @@ class KinaseActivity:
             num_random_experiments,
             self.phospho_type, 
             self.data_columns,
-            pool )
+            pool,
+            PROCESSES = PROCESSES)
 
         
         self.logger.info("Calculating random kinase activities")
         self.random_kinact = KinaseActivity(self.random_experiments, logger, phospho_type=self.phospho_type)
         self.random_kinact.add_networks_batch(self.networks)
-        self.random_kinact.calculate_kinase_activities( agg='count', threshold=1.0, greater=True )
+        self.random_kinact.calculate_kinase_activities( agg='count', threshold=1.0, greater=True, PROCESSES = PROCESSES )
         
         self.logger.info("Normalizing Activities")
         self.normalize(target_alpha=target_alpha)
@@ -411,7 +412,7 @@ class KinaseActivity:
         return evidence_binary
 
 
-    def calculate_kinase_activities(self, data_columns = None, agg = 'count', threshold = 1.0,  greater = True):
+    def calculate_kinase_activities(self, data_columns = None, agg = 'count', threshold = 1.0,  greater = True, PROCESSES = 1):
         """
         Calculates combined activity of experiments based that uses a threshold value to determine if an experiment sees a site or not
         To use values use 'mean' as agg
@@ -459,8 +460,8 @@ class KinaseActivity:
         
 
         # MULTIPROCESSING
-        if config.PROCESSES > 1:
-            pool = multiprocessing.Pool(processes = config.PROCESSES)
+        if PROCESSES > 1:
+            pool = multiprocessing.Pool(processes = PROCESSES)
             
             filtered_evidence_list  = [self.evidence_binary[self.evidence_binary[col] ==1 ] for col in self.data_columns] 
             networks = itertools.repeat(self.networks)  
@@ -719,7 +720,7 @@ class KinaseActivity:
         limit_summary = all_limits.groupby('evidence').mean()
         return all_limits, limit_summary
 
-    def calculate_Mann_Whitney_activities_sig(self, log, number_sig_trials = 100):
+    def calculate_Mann_Whitney_activities_sig(self, log, number_sig_trials = 100, PROCESSES = 1):
         """
         For a kinact_dict, where random generation and activity has already been run for the phospho_types of interest, 
         this will calculate the Mann-Whitney U test for comparing the array of p-values for real data 
@@ -764,7 +765,7 @@ class KinaseActivity:
 
             pval_arr = []
             fpr_arr = []
-            with concurrent.futures.ProcessPoolExecutor(max_workers=config.PROCESSES) as executor:
+            with concurrent.futures.ProcessPoolExecutor(max_workers=PROCESSES) as executor:
                 for pval, fpr in executor.map(calculate_MannWhitney_one_experiment_one_kinase, repeat(activities_sub), repeat(rand_activities_sub), repeat(self.num_networks), self.activities_normalized.index, repeat(exp), repeat(number_sig_trials)):
                     pval_arr.append(pval)
                     fpr_arr.append(fpr)
@@ -963,7 +964,7 @@ def calculate_MannWhitney_one_experiment_one_kinase(kinact_activities, rand_acti
 Methods for running KSTAR pipeline
 ****************************************
 """
-def run_kstar_analysis(experiment, log, networks, phospho_types =['Y', 'ST'], data_columns = None, agg = 'count', threshold = 1.0,  greater = True):
+def run_kstar_analysis(experiment, log, networks, phospho_types =['Y', 'ST'], data_columns = None, agg = 'count', threshold = 1.0,  greater = True, PROCESSES = 1):
     """
     A super method to establish a kstar KinaseActivity object from an experiment with an activity log
     add the networks, calculate, aggregate, and summarize the activities into a final activity object
@@ -1025,7 +1026,7 @@ def run_kstar_analysis(experiment, log, networks, phospho_types =['Y', 'ST'], da
             return
         kinact = KinaseActivity(experiment_sub, log, phospho_type=phospho_type)
         kinact.add_networks_batch(networks[phospho_type])
-        kinact.calculate_kinase_activities(data_columns, agg=agg, threshold=threshold, greater=greater)
+        kinact.calculate_kinase_activities(data_columns, agg=agg, threshold=threshold, greater=greater, PROCESSES = PROCESSES)
         kinact.aggregate_activities()
         kinact.activities = kinact.summarize_activities()
         kinact_dict[phospho_type] = kinact
@@ -1059,7 +1060,7 @@ def normalize_analysis(kinact_dict, log, num_random_experiments=150, target_alph
     for phospho_type, kinact in kinact_dict.items():
         kinact.run_normalization(log, num_random_experiments, target_alpha)
         
-def Mann_Whitney_analysis(kinact_dict, log, number_sig_trials = 100):
+def Mann_Whitney_analysis(kinact_dict, log, number_sig_trials = 100, PROCESSES = 1):
     """
     For a kinact_dict, where random generation and activity has already been run for the phospho_types of interest, 
     this will calculate the Mann-Whitney U test for comparing the array of p-values for real data 
@@ -1077,7 +1078,7 @@ def Mann_Whitney_analysis(kinact_dict, log, number_sig_trials = 100):
     """
 
     for phospho_type, kinact in kinact_dict.items():
-        kinact.calculate_Mann_Whitney_activities_sig(log, number_sig_trials = number_sig_trials)
+        kinact.calculate_Mann_Whitney_activities_sig(log, number_sig_trials = number_sig_trials, PROCESSES = PROCESSES)
     
 def save_kstar(kinact_dict, name, odir, PICKLE=True):
         """
