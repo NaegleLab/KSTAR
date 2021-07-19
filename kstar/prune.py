@@ -156,7 +156,7 @@ class Pruner:
         self.logger.info(f"Compendia kinase sizes : {sizes}")
         return sizes
 
-    def build_multiple_compendia_networks(self, kinase_size, site_limit, num_networks, network_id, odir):
+    def build_multiple_compendia_networks(self, kinase_size, site_limit, num_networks, network_id, odir, PROCESSES = 1):
         """
         Builds multiple compendia-limited networks
         
@@ -190,8 +190,8 @@ class Pruner:
         if num_existing_networks > 0:
             self.logger.info(f"Found {num_existing_networks} networks... building {num_networks} additional networks")
         # MULTIPROCESSING
-        if config.PROCESSES > 1:
-            pool = multiprocessing.Pool(processes = config.PROCESSES)
+        if PROCESSES > 1:
+            pool = multiprocessing.Pool(processes = PROCESSES)
             comp_sizes = itertools.repeat(compendia_sizes, num_networks)
             limits = itertools.repeat(site_limit, num_networks)
             # names = [os.path.join(odir,f"{network_id}_{i}") for i in range(num_networks)] 
@@ -303,7 +303,7 @@ def process_args(results):
     return network, log, use_compendia
 
 
-def run_pruning(network, log, use_compendia, phospho_type, kinase_size, site_limit, num_networks, network_id, odir):
+def run_pruning(network, log, use_compendia, phospho_type, kinase_size, site_limit, num_networks, network_id, odir, PROCESSES = 1):
     """
     Generate pruned networks from a weighted kinase-substrate graph and log run information
     
@@ -337,7 +337,7 @@ def run_pruning(network, log, use_compendia, phospho_type, kinase_size, site_lim
     pruner = Prune(network, log, phospho_type)
     if use_compendia:
         log.info("Pruning using compendia ratios")
-        pruner.build_multiple_compendia_networks(kinase_size, site_limit, num_networks, network_id, odir)
+        pruner.build_multiple_compendia_networks(kinase_size, site_limit, num_networks, network_id, odir, PROCESSES = PROCESSES)
     # else:
     #     log.info("Pruning without using compendia")
     #     pruned_networks = pruner.build_multiple_networks(kinase_size, site_limit, num_networks, network_id)
