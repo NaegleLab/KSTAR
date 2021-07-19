@@ -87,8 +87,7 @@ FigShare or generated with prune.py) will need to be downloaded and configured s
 <div class="section" id="downloading-resource-files">
 <h3>Downloading Resource Files<a class="headerlink" href="#downloading-resource-files" title="Permalink to this headline">¶</a></h3>
 <p>We have provided all resource files required for running KSTAR in a publicly available figshare, which includes the reference proteome and
-the reference phosphoproteom from KinPred. We have provided a mechanism to easily download these into the KSTAR environment. After installing KSTAR,
-run install_resource_files() within python to obtain these:</p>
+the reference phosphoproteom from KinPred. After installing KSTAR, run <em>install_resource_files()</em> within python to obtain these:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">kstar</span> <span class="kn">import</span> <span class="n">config</span>
 
 <span class="n">config</span><span class="o">.</span><span class="n">install_resource_files</span><span class="p">()</span>
@@ -97,17 +96,34 @@ run install_resource_files() within python to obtain these:</p>
 </div>
 <div class="section" id="downloading-networks">
 <h3>Downloading Networks<a class="headerlink" href="#downloading-networks" title="Permalink to this headline">¶</a></h3>
+<p>In addition to the resource files above, KSTAR also requires heuristically pruned kinase-substrate graphs used for activity calculation.
+Pre-generated networks are available for download, which were generated based on NetworKIN. You may also generate your own networks if preferred.</p>
+<p>If using the published networks:</p>
 <ol class="simple">
 <li><p>Go to <a class="reference external" href="https://figshare.com/articles/dataset/NETWORKS/14944305">Network Figshare</a></p></li>
 <li><p>Download the networks, decompress/unzip the files, and store in easily accessible folder.</p></li>
-<li><p>Use the update_network_directory() function in config.py to tell config where the network directory is stored. On install, KSTAR is set to look in the
-current working directory. This will only need to be done once… KSTAR will remember the directory location upon subsequent imports. However, if
-network files are changed/moved, this step will need to be repeated.</p></li>
-<li><p>KSTAR uses pickled versions of these network files. By default, update_network_directory() will automatically generate network pickles (unless
-create_pickles is set to False). However, if pickles have not been created (either on purpose or due to errors), use create_network_pickles,
-which will take individual networks within the network directory and pickle them for you.</p></li>
 </ol>
-<p>The python code used for steps 3 and 4 should like similar to below:</p>
+<p>If using self generated networks:</p>
+<ol class="simple">
+<li><p>Identify and download the base kinase-substrate prediction graph to use for network generation.</p></li>
+<li><p>Follow the tutorial for network generation to produce pruned networks (found in Tutorial section of this documentation).</p></li>
+<li><p>Store the generated networks in an easily accessible location. Individual network files should be placed in a directory within the network
+directory in a folder titled ‘INDIVIDUAL_NETWORKS’.</p></li>
+</ol>
+</div>
+<div class="section" id="configure-kstar-to-point-to-the-correct-network-directory">
+<h3>Configure KSTAR to point to the correct network directory<a class="headerlink" href="#configure-kstar-to-point-to-the-correct-network-directory" title="Permalink to this headline">¶</a></h3>
+<p>Once the networks have been downloaded/generated, the last step is to tell KSTAR where to find these networks and to create pickled versions of
+these networks. To do so, follow the steps below:</p>
+<ol class="simple">
+<li><p>Use the <em>update_network_directory()</em> function in config.py to tell config where the network directory is located. On install, KSTAR is set to look in the
+‘./NETWORKS/NetworKIN’.</p></li>
+<li><p>KSTAR uses pickled versions of these network files. By default, <em>update_network_directory()</em> will automatically generate network pickles. However, if pickles
+have not been created (either on purpose or due to errors), use <em>create_network_pickles()</em>, which will take individual networks within the network directory and
+pickle them for you.</p></li>
+<li><p>If operating in an ipython environment, you will need to restart the kernel for the updates to take place within your environment.</p></li>
+</ol>
+<p>The python code used should look similar to below:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">kstar</span> <span class="kn">import</span> <span class="n">config</span>
 
 <span class="c1">#update network directory: If KSTAR does not find this directory + necessary files, it will notify you</span>
@@ -115,18 +131,13 @@ which will take individual networks within the network directory and pickle them
 
 <span class="c1">#create network pickles. Only need to run this function if network pickles were not already generated.</span>
 <span class="n">config</span><span class="o">.</span><span class="n">create_network_pickles</span><span class="p">()</span>
-
-<span class="c1">#update where pickles are located. Will not need to do this on future imports.</span>
-<span class="n">config</span><span class="o">.</span><span class="n">NETWORK_Y_PICKLE</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">config</span><span class="o">.</span><span class="n">NETWORK_DIR</span><span class="si">}</span><span class="s1">/network_Y.p&#39;</span>
-<span class="n">config</span><span class="o">.</span><span class="n">NETWORK_ST_PICKLE</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">config</span><span class="o">.</span><span class="n">NETWORK_DIR</span><span class="si">}</span><span class="s1">/network_ST.p&#39;</span>
 </pre></div>
 </div>
-<p>It is also possible to generate your own networks, either with a different weighted kinase-substrate graph, different pruning parameters, or both.
-For details on how to generate your own networks, see the tutorial. After generating networks, you should still do steps 3 and 4 above.</p>
+<p>As long as the network directory does not change, you only need to run the above steps once. All subsequent imports will remember the changes.</p>
 </div>
 <div class="section" id="verify-that-kstar-environment-is-ready">
 <h3>Verify that KSTAR environment is ready<a class="headerlink" href="#verify-that-kstar-environment-is-ready" title="Permalink to this headline">¶</a></h3>
-<p>To check to make sure the previous steps all worked as desired, run check_configuration():</p>
+<p>To check to make sure the previous steps all worked as desired, run <em>check_configuration()</em>:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">kstar</span> <span class="kn">import</span> <span class="n">config</span>
 
 <span class="n">config</span><span class="o">.</span><span class="n">check_configuration</span><span class="p">()</span>
@@ -138,7 +149,7 @@ be performed.</p>
 </div>
 <div class="section" id="follow-the-provided-tutorial">
 <h2>Follow the provided tutorial<a class="headerlink" href="#follow-the-provided-tutorial" title="Permalink to this headline">¶</a></h2>
-<p>That is all you need to do to set up your KSTAR environment (see ‘Running Large Datasets with Nextflow’ if working with large datasets, as
+<p>That is all you need to do to set up your KSTAR environment (if working with large datasets where memory/time is a concern, see ‘Running with Nextflow’, as
 set up is slightly different). We recommend working through the tutorial in the following section to get an idea of the KSTAR workflow,
 either with the example dataset provided in our supplementary data figshare or with your own dataset of interest. You will only need to follow
 the ‘Generating Pruned Networks’ section if you would like to use your own networks for analysis, otherwise go straight to ‘Map Datasets to KinPred’.</p>
@@ -169,6 +180,7 @@ the ‘Generating Pruned Networks’ section if you would like to use your own n
 <li class="toctree-l2"><a class="reference internal" href="#configuring-your-kstar-environment">Configuring your KSTAR environment</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#downloading-resource-files">Downloading Resource Files</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#downloading-networks">Downloading Networks</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#configure-kstar-to-point-to-the-correct-network-directory">Configure KSTAR to point to the correct network directory</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#verify-that-kstar-environment-is-ready">Verify that KSTAR environment is ready</a></li>
 </ul>
 </li>
@@ -177,7 +189,7 @@ the ‘Generating Pruned Networks’ section if you would like to use your own n
 </li>
 <li class="toctree-l1"><a class="reference internal" href="Tutorial/tutorial.html">Tutorial</a></li>
 <li class="toctree-l1"><a class="reference internal" href="Examples/Examples.html">Plotting Examples from KSTAR Paper</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Running_with_nextflow.html">Running Large Datasets with Nextflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Parallel/parallel.html">Speeding Up Activity Calculation</a></li>
 </ul>
 
   <h4>Previous topic</h4>

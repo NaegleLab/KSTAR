@@ -813,7 +813,7 @@ dtype: float64
 </div>
 </div>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -825,7 +825,7 @@ dtype: float64
 </div>
 </div>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -840,7 +840,7 @@ dtype: float64
 </div>
 </div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -852,7 +852,7 @@ dtype: float64
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
 </pre></div>
 </div>
 <div class="output_area rendered_html docutils container">
@@ -932,7 +932,7 @@ dtype: float64
 <h2>Generate random datasets, run kinase activity on random datasets, normalize original analysis<a class="headerlink" href="#Generate-random-datasets,-run-kinase-activity-on-random-datasets,-normalize-original-analysis" title="Permalink to this headline">¶</a></h2>
 <p>The median p-value obtained from the hypergeometric test above often suffers from high false positive rates for kinases associated with well studied phosphosites, such as LCK and FYN. In order to account for these false positive rates, we want to generate random experiments and rerun enrichment calculations on each of the random experiments. These random results can then be used to obtain new activity predictions that have been adjusted for the enrichment that might be found by random chance.</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -947,7 +947,7 @@ dtype: float64
 </div>
 </div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -957,7 +957,7 @@ dtype: float64
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
 </pre></div>
 </div>
 <div class="output_area rendered_html docutils container">
@@ -1103,7 +1103,7 @@ dtype: float64
       <th>4</th>
       <td>A0AVI2</td>
       <td>Y1801</td>
-      <td>1.0</td>
+      <td>NaN</td>
       <td>NaN</td>
       <td>NaN</td>
       <td>NaN</td>
@@ -1129,7 +1129,7 @@ dtype: float64
 </div></div>
 </div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -1140,22 +1140,22 @@ dtype: float64
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
 </pre></div>
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
 KSTAR_ACCESSION     A0AUZ9A0AV02A0AVF1A0AVF1A0AVI2A0AVK6A0AVK6A0AV...
 KSTAR_SITE          Y792Y107Y167Y174Y1801Y202Y316Y1046Y44Y558Y979Y...
-data:time:5:0                                                   128.0
-data:time:5:1                                                   128.0
-data:time:5:2                                                   128.0
+data:time:5:0                                                     128
+data:time:5:1                                                     128
+data:time:5:2                                                     128
                                           ...
-data:time:60:145                                                200.0
-data:time:60:146                                                200.0
-data:time:60:147                                                200.0
-data:time:60:148                                                200.0
-data:time:60:149                                                200.0
+data:time:60:145                                                  200
+data:time:60:146                                                  200
+data:time:60:147                                                  200
+data:time:60:148                                                  200
+data:time:60:149                                                  200
 Length: 602, dtype: object
 </pre></div></div>
 </div>
@@ -1165,7 +1165,7 @@ Length: 602, dtype: object
 <p>Finally, the preferred activity estimation involves implementing the Mann Whitney U-test to compare the distribution of real p-values (activity predictions on the real dataset) to the random p-values (activity predictions on the random dataset). Further, a false positive rate is calculated by pulling out one of the random datasets and comparing to all other random datasets using the same Mann Whitney test. The parameter ‘number_sig_trials’ indicates the number of times to repeat this calculation
 to obtain the false positive rate.</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -1179,7 +1179,7 @@ to obtain the false positive rate.</p>
 <h2>Save KSTAR Results<a class="headerlink" href="#Save-KSTAR-Results" title="Permalink to this headline">¶</a></h2>
 <p>There are several options that can be used to save results obtained from KSTAR. If all information is desired, use save_kstar object, which will save all attributes found in the KinaseActivity object.</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -1189,7 +1189,7 @@ to obtain the false positive rate.</p>
 </div>
 <p>However, this produces a very large file that takes up considerable memory. It is typically recommended that kstar_slim is used, especially if primarily concerned with final activity predictions.</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[21]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -1199,7 +1199,7 @@ to obtain the false positive rate.</p>
 </div>
 <p>Lastly, it is possible to just save each KinaseActivity attribute individually using pandas:</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[22]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[21]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -1214,7 +1214,7 @@ to obtain the false positive rate.</p>
 <h1>Plot Results<a class="headerlink" href="#Plot-Results" title="Permalink to this headline">¶</a></h1>
 <p>Kinase activities predicted by KSTAR can be visualized using the dotplot class. In these plots, the size of each “dot” is dictated by the -log10(p-value) and the color is dicated by the false positive rate (significance).</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[23]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[22]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -1228,7 +1228,7 @@ to obtain the false positive rate.</p>
 </div>
 </div>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[24]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[23]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -1245,7 +1245,7 @@ to obtain the false positive rate.</p>
 <h2>Load in KSTAR results<a class="headerlink" href="#Load-in-KSTAR-results" title="Permalink to this headline">¶</a></h2>
 <p>As with saving KSTAR results, there are several options, largely depending on how data was saved. Both save_kstar() and save_kstar_slim() have an associated load function:</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[25]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[24]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -1258,7 +1258,7 @@ to obtain the false positive rate.</p>
 </div>
 <p>If nextflow was used (see Running Large Datasets with Nextflow), there is a seperate function that will allow you to load in results from nextflow into a kinase_dict object:</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[26]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[25]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -1268,7 +1268,7 @@ to obtain the false positive rate.</p>
 </div>
 <p>Lastly, you may only be concerned about the predicted activities and false positive rates. If that is the case, load these directly with pandas:</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[27]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[26]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -1281,7 +1281,7 @@ to obtain the false positive rate.</p>
 <div class="section" id="Plot-the-base-dotplot">
 <h2>Plot the base dotplot<a class="headerlink" href="#Plot-the-base-dotplot" title="Permalink to this headline">¶</a></h2>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[28]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[27]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -1292,7 +1292,7 @@ to obtain the false positive rate.</p>
 </div>
 </div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[29]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[28]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -1312,7 +1312,7 @@ to obtain the false positive rate.</p>
 </div>
 </div>
 <div class="nboutput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[29]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[28]:
 </pre></div>
 </div>
 <div class="output_area docutils container">
@@ -1333,7 +1333,7 @@ to obtain the false positive rate.</p>
 <p>In many cases, you may wish to plot different axis labels for each experiment or use different naming conventions then those that are defaults in NetworKIN. To adjust, you can manually update the results and fpr dataframe prior to creating the dotplot object. Or, you can pass in dictionaries to the dotplot object that will adjust the axis labels accordingly without changing the original activities/fpr dataframes.</p>
 <p>In this example, the x-axis labels are a bit wordy. In addition, we would like to change the kinase labels so that kinases like KDR (VEGFR2) are indicated by their more well known name.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[30]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[29]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -1348,7 +1348,7 @@ to obtain the false positive rate.</p>
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[30]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[29]:
 </pre></div>
 </div>
 <div class="output_area docutils container">
@@ -1360,7 +1360,7 @@ to obtain the false positive rate.</p>
 </pre></div></div>
 </div>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[31]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[30]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -1374,7 +1374,7 @@ to obtain the false positive rate.</p>
 </div>
 <p>Any sorting of the results needs to be done before instantiating the dotplot. Only the activities dataframe needs to be updated, the fpr dataframe will be automatically updated in order to match the activities dataframe.</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[32]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[31]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -1384,7 +1384,7 @@ to obtain the false positive rate.</p>
 </div>
 </div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[33]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[32]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -1402,7 +1402,7 @@ to obtain the false positive rate.</p>
 </div>
 </div>
 <div class="nboutput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[33]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[32]:
 </pre></div>
 </div>
 <div class="output_area docutils container">
@@ -1422,7 +1422,7 @@ to obtain the false positive rate.</p>
 <h2>Remove kinases that never show significant activity<a class="headerlink" href="#Remove-kinases-that-never-show-significant-activity" title="Permalink to this headline">¶</a></h2>
 <p>In many cases, there will be kinases that do not show significant activity in any of the experiments. It can be advantageous to remove these kinases in order to simplify the plot.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[34]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[33]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -1435,7 +1435,7 @@ to obtain the false positive rate.</p>
 </div>
 </div>
 <div class="nboutput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[34]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[33]:
 </pre></div>
 </div>
 <div class="output_area docutils container">
@@ -1452,7 +1452,7 @@ to obtain the false positive rate.</p>
 </div>
 <p>Specific kinases can also be removed prior to plotting. For example, say we were less interested in the activity in EPHA kinases. We can tell the dotplot object to remove these kinases specifically.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[35]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[34]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -1466,7 +1466,7 @@ to obtain the false positive rate.</p>
 </div>
 </div>
 <div class="nboutput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[35]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[34]:
 </pre></div>
 </div>
 <div class="output_area docutils container">
@@ -1485,7 +1485,7 @@ to obtain the false positive rate.</p>
 <div class="section" id="Cluster-the-kinase-activities">
 <h2>Cluster the kinase activities<a class="headerlink" href="#Cluster-the-kinase-activities" title="Permalink to this headline">¶</a></h2>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[36]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[35]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -1510,7 +1510,7 @@ to obtain the false positive rate.</p>
 </div>
 </div>
 <div class="nboutput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[36]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[35]:
 </pre></div>
 </div>
 <div class="output_area docutils container">
@@ -1530,7 +1530,7 @@ to obtain the false positive rate.</p>
 <div class="section" id="Add-context-to-dotplot">
 <h2>Add context to dotplot<a class="headerlink" href="#Add-context-to-dotplot" title="Permalink to this headline">¶</a></h2>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[37]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[36]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -1541,7 +1541,7 @@ to obtain the false positive rate.</p>
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[37]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[36]:
 </pre></div>
 </div>
 <div class="output_area rendered_html docutils container">
@@ -1598,7 +1598,7 @@ to obtain the false positive rate.</p>
 </div></div>
 </div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[38]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[37]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -1629,12 +1629,12 @@ to obtain the false positive rate.</p>
 </div>
 </div>
 <div class="nboutput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[38]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[37]:
 </pre></div>
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-(146.55458989570414, 0.0, -0.5, 1.5)
+(146.55458989570414, 0.0, -0.05, 1.05)
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -1649,7 +1649,7 @@ to obtain the false positive rate.</p>
 <h2>Plot dotplot with the false positive rate indicated by hue<a class="headerlink" href="#Plot-dotplot-with-the-false-positive-rate-indicated-by-hue" title="Permalink to this headline">¶</a></h2>
 <p>In some cases, the binary coloring of significance can make certain kinases appear less significant than they really are, with false positive rates hovering around 0.05. As such, it may be of interest to encode the false positive rate using a gradient hue instead. This is easy to accomplish in the dotplot class, as this is controlled by the binary_sig parameter.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[39]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[38]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -1695,12 +1695,12 @@ to obtain the false positive rate.</p>
 </div>
 </div>
 <div class="nboutput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[39]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[38]:
 </pre></div>
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-(146.55458989570414, 0.0, -0.5, 1.5)
+(146.55458989570414, 0.0, -0.05, 1.05)
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -1759,7 +1759,7 @@ to obtain the false positive rate.</p>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../Examples/Examples.html">Plotting Examples from KSTAR Paper</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../Running_with_nextflow.html">Running Large Datasets with Nextflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Parallel/parallel.html">Speeding Up Activity Calculation</a></li>
 </ul>
 
   <h4>Previous topic</h4>

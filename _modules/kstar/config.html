@@ -111,8 +111,6 @@
 <span class="n">KSTAR_SITE</span> <span class="o">=</span> <span class="s1">&#39;KSTAR_SITE&#39;</span>
 <span class="n">KSTAR_KINASE</span> <span class="o">=</span> <span class="s1">&#39;KSTAR_KINASE&#39;</span>
 
-<span class="c1"># Number of cores to use for parallelization, set to 1 to avoid multiprocessing</span>
-<span class="n">PROCESSES</span> <span class="o">=</span> <span class="mi">4</span>
 
 
 <span class="c1">## END DECLARATION OF GLOBALS</span>
@@ -134,7 +132,7 @@
     <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Extracting </span><span class="si">%s</span><span class="s2">&quot;</span><span class="o">%</span> <span class="n">outputFile</span><span class="p">)</span>
     <span class="n">t</span><span class="o">.</span><span class="n">extractall</span><span class="p">(</span><span class="n">KSTAR_DIR</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="update_network_directory"><a class="viewcode-back" href="../../KSTAR.html#kstar.config.update_network_directory">[docs]</a><span class="k">def</span> <span class="nf">update_network_directory</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">create_pickles</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="o">*</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="update_network_directory"><a class="viewcode-back" href="../../KSTAR.html#kstar.config.update_network_directory">[docs]</a><span class="k">def</span> <span class="nf">update_network_directory</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="o">*</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="c1">#def update_network_directory(directory, create_pickles = True, KSTAR_DIR = KSTAR_DIR, NETWORK_DIR = NETWORK_DIR):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Update the location of network the network files, and verify that all necessary files are located in directory</span>
@@ -143,14 +141,8 @@
 <span class="sd">    ----------</span>
 <span class="sd">    directory: string</span>
 <span class="sd">        path to where network files are located</span>
-<span class="sd">    create_pickles: bool</span>
-<span class="sd">        indicates whether to autogenerate pickles using the individual networks found in directory. Default is True.</span>
-<span class="sd">        </span>
-<span class="sd">    Returns</span>
-<span class="sd">    -------</span>
-<span class="sd">    directory: string</span>
-<span class="sd">        the current network directory after running function. Either inputted directory path or previous path, if inputted directory could</span>
-<span class="sd">        not be found.</span>
+<span class="sd">    </span>
+<span class="sd">    </span>
 <span class="sd">    &quot;&quot;&quot;</span>
     
     <span class="c1">#check that directory exists</span>
@@ -192,37 +184,42 @@
     
     <span class="k">return</span> <span class="n">directory</span></div>
 
-<div class="viewcode-block" id="create_network_pickles"><a class="viewcode-back" href="../../KSTAR.html#kstar.config.create_network_pickles">[docs]</a><span class="k">def</span> <span class="nf">create_network_pickles</span><span class="p">(</span><span class="n">phosphoTypes</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Y&#39;</span><span class="p">,</span><span class="s1">&#39;ST&#39;</span><span class="p">],</span> <span class="o">*</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="create_network_pickles"><a class="viewcode-back" href="../../KSTAR.html#kstar.config.create_network_pickles">[docs]</a><span class="k">def</span> <span class="nf">create_network_pickles</span><span class="p">(</span><span class="n">phosphoType</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Y&#39;</span><span class="p">,</span><span class="s1">&#39;ST&#39;</span><span class="p">],</span> <span class="o">*</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="c1">#def create_network_pickles(phosphoTypes = [&#39;Y&#39;,&#39;ST&#39;], network_directory = NETWORK_DIR):</span>
-	<span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">	Given network files declared in globals, create pickles of the kstar object that can then be quickly loaded in analysis</span>
-<span class="sd">	Assumes that the Network structure has the folders indicated by phosphoTypes parameter (Y and/or ST) under the NETWORK_DIR </span>
-<span class="sd">    global variable and that all .tsv files in those directories should be loaded into a network pickle.</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Given network files declared in globals, create pickles of the kstar object that can then be quickly loaded in analysis</span>
+<span class="sd">    Assumes that the Network structure has two folders Y and ST under the NETWORK_DIR global variable and that </span>
+<span class="sd">    all .csv files in those directories should be loaded into a network pickle.</span>
 <span class="sd">    </span>
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    phosphoTypes: list of strings</span>
-<span class="sd">        indicates which network pickles to create. Can be [&#39;Y&#39;], [&#39;ST&#39;], or [&#39;Y&#39;,&#39;ST&#39;]. Default is [&#39;Y&#39;,&#39;ST&#39;].</span>
-<span class="sd">	&quot;&quot;&quot;</span>
-	<span class="n">phosphoTypes</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Y&#39;</span><span class="p">,</span> <span class="s1">&#39;ST&#39;</span><span class="p">]</span>
-	<span class="k">for</span> <span class="n">phosphoType</span> <span class="ow">in</span> <span class="n">phosphoTypes</span><span class="p">:</span>
-		<span class="n">network</span> <span class="o">=</span> <span class="p">{}</span>
-		<span class="n">directory</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">network_directory</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">phosphoType</span><span class="si">}</span><span class="s2">/INDIVIDUAL_NETWORKS/&quot;</span>
-		<span class="c1">#get all csv files in that directory </span>
-		<span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">directory</span><span class="p">):</span>
-			<span class="k">if</span> <span class="n">file</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;.tsv&quot;</span><span class="p">):</span>
-				<span class="c1">#get the value of the network number</span>
-				<span class="n">file_noext</span> <span class="o">=</span> <span class="n">file</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s2">&quot;.tsv&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">)</span>
-				<span class="n">key_name</span> <span class="o">=</span> <span class="s1">&#39;nkin&#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">file_noext</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
-				<span class="c1">#print(&quot;Debug: key name is %s&quot;%(key_name))</span>
-				<span class="n">network</span><span class="p">[</span><span class="n">key_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">directory</span><span class="si">}{</span><span class="n">file</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s1">&#39;</span><span class="se">\t</span><span class="s1">&#39;</span><span class="p">)</span>
-		<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Loaded </span><span class="si">%d</span><span class="s2"> number of networks for phosphoType </span><span class="si">%s</span><span class="s2">&quot;</span><span class="o">%</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">network</span><span class="p">),</span> <span class="n">phosphoType</span><span class="p">))</span>
-		<span class="n">pickle</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">network</span><span class="p">,</span> <span class="nb">open</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">network_directory</span><span class="si">}</span><span class="s2">/network_</span><span class="si">{</span><span class="n">phosphoType</span><span class="si">}</span><span class="s2">.p&quot;</span><span class="p">,</span> <span class="s2">&quot;wb&quot;</span><span class="p">))</span>
-		<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Saved pickle file at </span><span class="si">{</span><span class="n">network_directory</span><span class="si">}</span><span class="s2">/network_</span><span class="si">{</span><span class="n">phosphoType</span><span class="si">}</span><span class="s2">.p&quot;</span><span class="p">)</span></div>
+<span class="sd">    phosphType: list of strings</span>
+<span class="sd">        indicates which networks to pickle: can be [&#39;Y&#39;], [&#39;ST&#39;], or [&#39;Y&#39;,&#39;ST&#39;] (default)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    
+    
+    <span class="k">for</span> <span class="n">phosphoType</span> <span class="ow">in</span> <span class="n">phosphoTypes</span><span class="p">:</span>
+        <span class="n">network</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">network_directory</span><span class="si">}</span><span class="s2">/network_</span><span class="si">{</span><span class="n">phosphoType</span><span class="si">}</span><span class="s2">.p&quot;</span><span class="p">):</span>
+            <span class="n">directory</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">network_directory</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">phosphoType</span><span class="si">}</span><span class="s2">/INDIVIDUAL_NETWORKS/&quot;</span>
+            <span class="c1">#get all csv files in that directory </span>
+            <span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">directory</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">file</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;.tsv&quot;</span><span class="p">):</span>
+                    <span class="c1">#get the value of the network number</span>
+                    <span class="n">file_noext</span> <span class="o">=</span> <span class="n">file</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s2">&quot;.tsv&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">)</span>
+                    <span class="n">key_name</span> <span class="o">=</span> <span class="s1">&#39;nkin&#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">file_noext</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+                    <span class="c1">#print(&quot;Debug: key name is %s&quot;%(key_name))</span>
+                    <span class="n">network</span><span class="p">[</span><span class="n">key_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">directory</span><span class="si">}{</span><span class="n">file</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s1">&#39;</span><span class="se">\t</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Loaded </span><span class="si">%d</span><span class="s2"> number of networks for phosphoType </span><span class="si">%s</span><span class="s2">&quot;</span><span class="o">%</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">network</span><span class="p">),</span> <span class="n">phosphoType</span><span class="p">))</span>
+            <span class="n">pickle</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">network</span><span class="p">,</span> <span class="nb">open</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">network_directory</span><span class="si">}</span><span class="s2">/network_</span><span class="si">{</span><span class="n">phosphoType</span><span class="si">}</span><span class="s2">.p&quot;</span><span class="p">,</span> <span class="s2">&quot;wb&quot;</span><span class="p">))</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Saved pickle file at </span><span class="si">{</span><span class="n">network_directory</span><span class="si">}</span><span class="s2">/network_</span><span class="si">{</span><span class="n">phosphoType</span><span class="si">}</span><span class="s2">.p&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">phosphoType</span><span class="si">}</span><span class="s2"> network pickle already generated&quot;</span><span class="p">)</span></div>
         
 <span class="k">def</span> <span class="nf">check_configuration</span><span class="p">():</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Verify that all necessary files are downloadable and findable. If not, function will provide instructions on how to fix issues.</span>
+<span class="sd">    Verify that all necessary files are downloadable and findable</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">ready_Y</span> <span class="o">=</span> <span class="kc">True</span>
     <span class="n">ready_ST</span> <span class="o">=</span> <span class="kc">True</span>
@@ -272,7 +269,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../quickstart.html">Getting Started</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../Tutorial/tutorial.html">Tutorial</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../Examples/Examples.html">Plotting Examples from KSTAR Paper</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../Running_with_nextflow.html">Running Large Datasets with Nextflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Parallel/parallel.html">Speeding Up Activity Calculation</a></li>
 </ul>
 
 <div id="searchbox" style="display: none" role="search">

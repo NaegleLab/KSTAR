@@ -17,7 +17,7 @@ KSTAR
 	quickstart
 	Tutorial/tutorial
 	Examples/Examples
-	Running_with_nextflow
+	Parallel/parallel
 
 
 
