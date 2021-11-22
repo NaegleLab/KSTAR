@@ -181,8 +181,8 @@ class DotPlot:
             
             #build an x_label_dict 
             for col in self.column_labels:
-                self.x_label_dict[col] = col.strip('data:')
-            self.column_labels = [x.strip('data:') for x in self.column_labels]
+                self.x_label_dict[col] = col.replace('data:','')
+            self.column_labels = [x.replace('data:','') for x in self.column_labels]
 
         else:
             #check that the label dictionary keys matches the columns
@@ -468,7 +468,9 @@ class DotPlot:
             index = list(self.values.columns)
         else: 
             raise OrientationError
-            
+        
+        #record the number of different context types to include
+        num_context = len(context_columns)
         melted = info[[id_column] + context_columns].melt(id_vars=id_column)
         #weird issue with melt function here, where for one datset it provides the context column names in 0 column rather than 'variable'. Rename for now.
         if 0 in melted.columns:
@@ -487,8 +489,9 @@ class DotPlot:
             ax.scatter(x = melted['var'], y = melted['variable'], c = melted['value'].map(color_map), s = dotsize)
             ax.axes.get_xaxis().set_visible(False)
             ax.margins(0.05, margin)
+            ax.set_ylim([-0.5,num_context+0.5-1])
         
-            
+           
         total = len(melted['value'].unique()) + len(info.columns)-1
         running_total = 0
         
