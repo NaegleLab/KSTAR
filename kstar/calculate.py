@@ -24,6 +24,8 @@ class KinaseActivity:
     ----------
     evidence : pandas df
         a dataframe that contains (at minimum, but can have more) data columms as evidence to use in analysis and KSTAR_ACCESSION and KSTAR_SITE
+    data_columns: list
+        list of the columns containing the abundance values, which will be used to determine which sites will be used as evidence for activity prediction in each sample
     logger : Logger object
         keeps track of kstar analysis, including any errors that occur
     phospho_type: string, either 'Y' or 'ST'
@@ -63,18 +65,12 @@ class KinaseActivity:
         median p-values obtained from the activities_list object for each experiment/kinase
     agg_activities: pandas dataframe
     
-    -------------------
-    After Normalization
-    -------------------
-    normalized : bool
-        same as before, but will be set to True
+    -----------------------------------
+    After Random Enrichment Calculation
+    -----------------------------------
     random_experiments: 
     
     random_kinact:
-    normalized_activities_list:
-    normalized_agg_activities:
-    activities_normalized:
-    fpr_activity:
     
     ---------------------------
     After Mann Whitney Analysis
@@ -86,7 +82,7 @@ class KinaseActivity:
         false positive rates for predicted kinase activities
         
     """
-    def __init__(self, evidence, logger, phospho_type = 'Y'):
+    def __init__(self, evidence, logger, data_columns = None, phospho_type = 'Y'):
         
         self.phospho_type = phospho_type
         self.set_evidence(evidence)
@@ -115,12 +111,15 @@ class KinaseActivity:
         self.fpr_activity = None
 
 
-        self.aggregate = 'count'
+        self.aggregate = 'mean'
         self.threshold = 1.0
         self.greater = True
 
         self.run_date = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
-
+        
+        #if data columns is None, set data columns to be columns with data: in front
+        self.set_data_columns(data_columns = data_columns)
+   
 
     def check_data_columns(self):
         """
@@ -160,11 +159,36 @@ class KinaseActivity:
                     self.data_columns.append(col)  
         else:
             self.data_columns = data_columns
-        self.check_data_columns()      
+        self.check_data_columns()    
+
+    def calculate_random_activities(self, logger, num_random_experiments=150, PROCESSES = 1):
+        """
+        Generate random experiments and calculate the kinase activities for these random experiments
+        """
+        self.logger.info("Running Normalization Pipeline")
+        pool = multiprocessing.Pool(processes = PROCESSES)
+        self.normalized = True
+        self.num_random_experiments = num_random_experiments
+        self.logger.info("Generating random experiments")
+        self.random_experiments = generate_random_experiments.build_random_experiments(
+            self.evidence_binary, 
+            config.HUMAN_REF_COMPENDIA, 
+            num_random_experiments,
+            self.phospho_type, 
+            self.data_columns,
+            pool,
+            PROCESSES = PROCESSES)
+
+        
+        self.logger.info("Calculating random kinase activities")
+        self.random_kinact = KinaseActivity(self.random_experiments, logger, phospho_type=self.phospho_type)
+        self.random_kinact.add_networks_batch(self.networks)
+        self.random_kinact.calculate_kinase_activities( agg='count', threshold=1.0, greater=True, PROCESSES = PROCESSES )
+
     
     def run_normalization(self, logger, num_random_experiments=150, target_alpha=0.05, PROCESSES = 1):
         """
-        Run entire normaliation pipeline 
+        Run entire normaliation pipeline (Generate random experiments, calculate kinase activities for random experiments, and normalize p-values based on provided target_alpha)
         """
         self.logger.info("Running Normalization Pipeline")
         pool = multiprocessing.Pool(processes = PROCESSES)
@@ -367,16 +391,13 @@ class KinaseActivity:
     #     hyp_act['data'] = name
     #     return hyp_act
 
-    def create_binary_evidence(self, data_columns = None, agg = 'count', threshold = 1.0,  greater = True):
+    def create_binary_evidence(self, agg = 'mean', threshold = 1.0,  greater = True):
         """
         Returns a binary evidence data frame according to the parameters passed in for method for aggregating
         duplicates and considering whether a site is included as evidence or not
 
         Parameters
         ----------
-        data_columns : list
-            columns that represent experimental result, if None, takes the columns that start with `data:'' in experiment. 
-            Pass this value in as a list, if seeking to calculate on fewer than all available data columns
         threshold : float
             threshold value used to filter rows 
         agg : {'count', 'mean'}
@@ -412,7 +433,7 @@ class KinaseActivity:
         return evidence_binary
 
 
-    def calculate_kinase_activities(self, data_columns = None, agg = 'count', threshold = 1.0,  greater = True, PROCESSES = 1):
+    def calculate_kinase_activities(self, agg = 'mean', threshold = 1.0,  greater = True, PROCESSES = 1):
         """
         Calculates combined activity of experiments based that uses a threshold value to determine if an experiment sees a site or not
         To use values use 'mean' as agg
@@ -450,9 +471,9 @@ class KinaseActivity:
         self.aggregate = agg
         self.threshold = threshold
         self.greater = greater
-        self.set_data_columns(data_columns)
+        #self.set_data_columns(data_columns)
 
-        self.evidence_binary = self.create_binary_evidence(data_columns = self.data_columns, agg = self.aggregate, threshold = self.threshold,  greater = self.greater)
+        self.evidence_binary = self.create_binary_evidence(agg = self.aggregate, threshold = self.threshold,  greater = self.greater)
         
         # if no data columns are provided use all columns that start with data:
         # data columns that filtered have no evidence are removed
@@ -964,10 +985,11 @@ def calculate_MannWhitney_one_experiment_one_kinase(kinact_activities, rand_acti
 Methods for running KSTAR pipeline
 ****************************************
 """
-def run_kstar_analysis(experiment, log, networks, phospho_types =['Y', 'ST'], data_columns = None, agg = 'count', threshold = 1.0,  greater = True, PROCESSES = 1):
+def enrichment_analysis(experiment, log, networks, phospho_types =['Y', 'ST'], data_columns = None, agg = 'mean', threshold = 1.0,  greater = True, PROCESSES = 1):
     """
-    A super method to establish a kstar KinaseActivity object from an experiment with an activity log
-    add the networks, calculate, aggregate, and summarize the activities into a final activity object
+    Function to establish a kstar KinaseActivity object from an experiment with an activity log
+    add the networks, calculate, aggregate, and summarize the hypergeometric enrichment into a final activity object. Should be followed by 
+    randomized_analyis, then Mann_Whitney_analysis.
 
     Parameters
     ----------
@@ -1024,21 +1046,46 @@ def run_kstar_analysis(experiment, log, networks, phospho_types =['Y', 'ST'], da
         else:
             print("ERROR: Did not recognize phosphoType %s, which should only include 'Y' or 'ST' "%(phospho_type))
             return
-        kinact = KinaseActivity(experiment_sub, log, phospho_type=phospho_type)
+        kinact = KinaseActivity(experiment_sub, log, data_columns = data_columns, phospho_type=phospho_type)
         kinact.add_networks_batch(networks[phospho_type])
-        kinact.calculate_kinase_activities(data_columns, agg=agg, threshold=threshold, greater=greater, PROCESSES = PROCESSES)
+        kinact.calculate_kinase_activities(agg=agg, threshold=threshold, greater=greater, PROCESSES = PROCESSES)
         kinact.aggregate_activities()
         kinact.activities = kinact.summarize_activities()
         kinact_dict[phospho_type] = kinact
     return kinact_dict
 
-def normalize_analysis(kinact_dict, log, num_random_experiments=150, target_alpha = 0.05, PROCESSES = 1):
+#def normalize_analysis(kinact_dict, log, num_random_experiments=150, target_alpha = 0.05, PROCESSES = 1):
+#    """
+#    Creates random experiments, drawn from the human phosphoproteome, according to the distribution of the number of compendia
+#    that each data column in the experiment has for num_random_experiments. Kinase activity calculation is then run on every random experiment
+#    and then assembled for each data column to calculate the pvalue at which a kinase hits the target_alpha value of false positives. 
+#    Finally, it takes these empirically defined pvalue corrections and normalizes the kinase activities according to these, such that
+#    the real experimental data also has the target_alpha value. 
+#
+#    Parameters
+#    ----------
+#    kinact_dict: KinaseActivities dictionary
+#        Has keys ['Y'] and/or ['ST'] and values that are KinaseActivity objects. These objects are modified to add normalization
+#    log: logger 
+#        Logger for logging activity messages
+#    num_random_experiments: int
+#        Number of random experiments, for each data column, to create and run activity from
+#    target_alpha: float 
+#        Value between 0 and 1 that is the target false positive rate. 
+#
+#
+#    """
+#
+#    if target_alpha > 1 or target_alpha < 0: 
+#        raise ValueError('ERROR: target_alpha must be value between 0 and 1')
+#
+#    for phospho_type, kinact in kinact_dict.items():
+#        kinact.run_normalization(log, num_random_experiments, target_alpha, PROCESSES = PROCESSES)
+        
+def randomized_analysis(kinact_dict, log, num_random_experiments=150, PROCESSES = 1):
     """
     Creates random experiments, drawn from the human phosphoproteome, according to the distribution of the number of compendia
-    that each data column in the experiment has for num_random_experiments. Kinase activity calculation is then run on every random experiment
-    and then assembled for each data column to calculate the pvalue at which a kinase hits the target_alpha value of false positives. 
-    Finally, it takes these empirically defined pvalue corrections and normalizes the kinase activities according to these, such that
-    the real experimental data also has the target_alpha value. 
+    that each data column in the experiment has for num_random_experiments. Kinase activity calculation is then run on every random experiment. 
 
     Parameters
     ----------
@@ -1048,17 +1095,10 @@ def normalize_analysis(kinact_dict, log, num_random_experiments=150, target_alph
         Logger for logging activity messages
     num_random_experiments: int
         Number of random experiments, for each data column, to create and run activity from
-    target_alpha: float 
-        Value between 0 and 1 that is the target false positive rate. 
-
-
     """
 
-    if target_alpha > 1 or target_alpha < 0: 
-        raise ValueError('ERROR: target_alpha must be value between 0 and 1')
-
     for phospho_type, kinact in kinact_dict.items():
-        kinact.run_normalization(log, num_random_experiments, target_alpha, PROCESSES = PROCESSES)
+        kinact.calculate_random_activities(log, num_random_experiments, PROCESSES = PROCESSES)
         
 def Mann_Whitney_analysis(kinact_dict, log, number_sig_trials = 100, PROCESSES = 1):
     """
@@ -1079,6 +1119,9 @@ def Mann_Whitney_analysis(kinact_dict, log, number_sig_trials = 100, PROCESSES =
 
     for phospho_type, kinact in kinact_dict.items():
         kinact.calculate_Mann_Whitney_activities_sig(log, number_sig_trials = number_sig_trials, PROCESSES = PROCESSES)
+        
+    
+        
     
 def save_kstar(kinact_dict, name, odir, PICKLE=True):
         """
