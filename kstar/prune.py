@@ -47,7 +47,7 @@ class Pruner:
         self.compendia = self.compendia.groupby([config.KSTAR_ACCESSION, config.KSTAR_SITE]).max().reset_index()
 
         self.network = pd.merge(self.network, self.compendia, how = 'inner', left_on = ['substrate_acc', 'site'], right_on=[config.KSTAR_ACCESSION, config.KSTAR_SITE] )
-        self.network = self.network.drop(columns=['substrate_acc','site','substratefor_id', 'substrate_name', 'pep'])
+        self.network = self.network.drop(columns=['substrate_acc','site','substrate_id', 'substrate_name', 'pep'])
         self.network = self.network.set_index([config.KSTAR_ACCESSION, config.KSTAR_SITE])
 
         self.network = self.network.replace('-',np.nan)
