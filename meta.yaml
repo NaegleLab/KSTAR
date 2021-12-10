@@ -1,5 +1,5 @@
 {% set name = "kstar" %}
-{% set version = "0.2.1" %}
+{% set version = "0.3.1" %}
 
 
 package:
