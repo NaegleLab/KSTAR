@@ -5,14 +5,22 @@
    "execution_count": 1,
    "id": "f94f3521",
    "metadata": {},
-   "outputs": [],
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Could not find network directory. Please update using config.update_network_directory().\n"
+     ]
+    }
+   ],
    "source": [
     "from kstar import config"
    ]
   },
   {
    "cell_type": "code",
-   "execution_count": 2,
+   "execution_count": 3,
    "id": "82a5b709",
    "metadata": {},
    "outputs": [
@@ -20,7 +28,7 @@
      "name": "stdout",
      "output_type": "stream",
      "text": [
-      "You are ready to begin! You can generate predictions for both Y and ST networks.\n"
+      "Could not find any network pickles. Please create network pickles using config.create_network_pickles() or change network directory to where pickles are located with config.update_network_directory().\n"
      ]
     }
    ],
@@ -51,7 +59,7 @@
   },
   {
    "cell_type": "code",
-   "execution_count": 3,
+   "execution_count": 2,
    "id": "4f4dc9c2",
    "metadata": {},
    "outputs": [
@@ -60,7 +68,7 @@
      "output_type": "stream",
      "text": [
       "Requesting file\n",
-      "Extracting C:\\Users\\Sam\\miniconda3\\envs\\test2\\lib\\site-packages/RESOURCE_FILES.tar.gz\n"
+      "Extracting C:\\Users\\Sam\\Documents\\Grad\\KinaseActivity\\KSTAR/RESOURCE_FILES.tar.gz\n"
      ]
     }
    ],
@@ -78,19 +86,8 @@
      "name": "stdout",
      "output_type": "stream",
      "text": [
-      "Network directory updated.\n"
-     ]
-    },
-    {
-     "ename": "NameError",
-     "evalue": "name 'create_pickles' is not defined",
-     "output_type": "error",
-     "traceback": [
-      "\u001b[1;31m---------------------------------------------------------------------------\u001b[0m",
-      "\u001b[1;31mNameError\u001b[0m                                 Traceback (most recent call last)",
-      "\u001b[1;32m<ipython-input-3-37a36c04dd02>\u001b[0m in \u001b[0;36m<module>\u001b[1;34m\u001b[0m\n\u001b[1;32m----> 1\u001b[1;33m \u001b[0mconfig\u001b[0m\u001b[1;33m.\u001b[0m\u001b[0mNETWORK_DIR\u001b[0m \u001b[1;33m=\u001b[0m \u001b[0mconfig\u001b[0m\u001b[1;33m.\u001b[0m\u001b[0mupdate_network_directory\u001b[0m\u001b[1;33m(\u001b[0m\u001b[1;34m'C:/Users/Sam/OneDrive/Documents/GradSchool/NETWORKS/NetworKIN'\u001b[0m\u001b[1;33m)\u001b[0m\u001b[1;33m\u001b[0m\u001b[1;33m\u001b[0m\u001b[0m\n\u001b[0m",
-      "\u001b[1;32m~\\Documents\\Grad\\KinaseActivity\\KSTAR\\kstar\\config.py\u001b[0m in \u001b[0;36mupdate_network_directory\u001b[1;34m(directory, *kwargs)\u001b[0m\n\u001b[0;32m    116\u001b[0m \u001b[1;33m\u001b[0m\u001b[0m\n\u001b[0;32m    117\u001b[0m     \u001b[1;31m#If create_pickles is true, look for individual networks and create pickles\u001b[0m\u001b[1;33m\u001b[0m\u001b[1;33m\u001b[0m\u001b[1;33m\u001b[0m\u001b[0m\n\u001b[1;32m--> 118\u001b[1;33m     \u001b[1;32mif\u001b[0m \u001b[0mcreate_pickles\u001b[0m\u001b[1;33m:\u001b[0m\u001b[1;33m\u001b[0m\u001b[1;33m\u001b[0m\u001b[0m\n\u001b[0m\u001b[0;32m    119\u001b[0m         \u001b[1;32mif\u001b[0m \u001b[1;32mnot\u001b[0m \u001b[0mos\u001b[0m\u001b[1;33m.\u001b[0m\u001b[0mpath\u001b[0m\u001b[1;33m.\u001b[0m\u001b[0misfile\u001b[0m\u001b[1;33m(\u001b[0m\u001b[1;34mf\"{directory}/network_Y.p\"\u001b[0m\u001b[1;33m)\u001b[0m \u001b[1;32mand\u001b[0m \u001b[1;32mnot\u001b[0m \u001b[0mos\u001b[0m\u001b[1;33m.\u001b[0m\u001b[0mpath\u001b[0m\u001b[1;33m.\u001b[0m\u001b[0misfile\u001b[0m\u001b[1;33m(\u001b[0m\u001b[1;34mf\"{directory}/network_ST.p\"\u001b[0m\u001b[1;33m)\u001b[0m\u001b[1;33m:\u001b[0m\u001b[1;33m\u001b[0m\u001b[1;33m\u001b[0m\u001b[0m\n\u001b[0;32m    120\u001b[0m             \u001b[1;32mif\u001b[0m \u001b[0mos\u001b[0m\u001b[1;33m.\u001b[0m\u001b[0mpath\u001b[0m\u001b[1;33m.\u001b[0m\u001b[0misdir\u001b[0m\u001b[1;33m(\u001b[0m\u001b[1;34mf'{directory}/Y/INDIVIDUAL_NETWORKS'\u001b[0m\u001b[1;33m)\u001b[0m \u001b[1;32mand\u001b[0m \u001b[0mos\u001b[0m\u001b[1;33m.\u001b[0m\u001b[0mpath\u001b[0m\u001b[1;33m.\u001b[0m\u001b[0misdir\u001b[0m\u001b[1;33m(\u001b[0m\u001b[1;34mf'{directory}/ST/INDIVIDUAL_NETWORKS'\u001b[0m\u001b[1;33m)\u001b[0m\u001b[1;33m:\u001b[0m\u001b[1;33m\u001b[0m\u001b[1;33m\u001b[0m\u001b[0m\n",
-      "\u001b[1;31mNameError\u001b[0m: name 'create_pickles' is not defined"
+      "Network directory updated.\n",
+      "Network pickles already generated\n"
      ]
     }
    ],
@@ -108,7 +105,7 @@
   },
   {
    "cell_type": "code",
-   "execution_count": 3,
+   "execution_count": 4,
    "id": "0b44ad24",
    "metadata": {},
    "outputs": [
@@ -116,8 +113,10 @@
      "name": "stdout",
      "output_type": "stream",
      "text": [
-      "Y network pickle already generated\n",
-      "ST network pickle already generated\n"
+      "Loaded 50 number of networks for phosphoType Y\n",
+      "Saved pickle file at C:/Users/Sam/OneDrive/Documents/GradSchool/NETWORKS/NetworKIN//network_Y.p\n",
+      "Loaded 50 number of networks for phosphoType ST\n",
+      "Saved pickle file at C:/Users/Sam/OneDrive/Documents/GradSchool/NETWORKS/NetworKIN//network_ST.p\n"
      ]
     }
    ],

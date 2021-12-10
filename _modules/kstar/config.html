@@ -132,8 +132,8 @@
     <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Extracting </span><span class="si">%s</span><span class="s2">&quot;</span><span class="o">%</span> <span class="n">outputFile</span><span class="p">)</span>
     <span class="n">t</span><span class="o">.</span><span class="n">extractall</span><span class="p">(</span><span class="n">KSTAR_DIR</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="update_network_directory"><a class="viewcode-back" href="../../KSTAR.html#kstar.config.update_network_directory">[docs]</a><span class="k">def</span> <span class="nf">update_network_directory</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="o">*</span><span class="n">kwargs</span><span class="p">):</span>
-<span class="c1">#def update_network_directory(directory, create_pickles = True, KSTAR_DIR = KSTAR_DIR, NETWORK_DIR = NETWORK_DIR):</span>
+<span class="c1">#def update_network_directory(directory, *kwargs):</span>
+<div class="viewcode-block" id="update_network_directory"><a class="viewcode-back" href="../../KSTAR.html#kstar.config.update_network_directory">[docs]</a><span class="k">def</span> <span class="nf">update_network_directory</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">create_pickles</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">KSTAR_DIR</span> <span class="o">=</span> <span class="n">KSTAR_DIR</span><span class="p">,</span> <span class="n">NETWORK_DIR</span> <span class="o">=</span> <span class="n">NETWORK_DIR</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Update the location of network the network files, and verify that all necessary files are located in directory</span>
 <span class="sd">    </span>
@@ -184,17 +184,12 @@
     
     <span class="k">return</span> <span class="n">directory</span></div>
 
-<div class="viewcode-block" id="create_network_pickles"><a class="viewcode-back" href="../../KSTAR.html#kstar.config.create_network_pickles">[docs]</a><span class="k">def</span> <span class="nf">create_network_pickles</span><span class="p">(</span><span class="n">phosphoType</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Y&#39;</span><span class="p">,</span><span class="s1">&#39;ST&#39;</span><span class="p">],</span> <span class="o">*</span><span class="n">kwargs</span><span class="p">):</span>
-<span class="c1">#def create_network_pickles(phosphoTypes = [&#39;Y&#39;,&#39;ST&#39;], network_directory = NETWORK_DIR):</span>
+<span class="c1">#def create_network_pickles(phosphoType = [&#39;Y&#39;,&#39;ST&#39;], *kwargs)</span>
+<div class="viewcode-block" id="create_network_pickles"><a class="viewcode-back" href="../../KSTAR.html#kstar.config.create_network_pickles">[docs]</a><span class="k">def</span> <span class="nf">create_network_pickles</span><span class="p">(</span><span class="n">phosphoTypes</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Y&#39;</span><span class="p">,</span><span class="s1">&#39;ST&#39;</span><span class="p">],</span> <span class="n">network_directory</span> <span class="o">=</span> <span class="n">NETWORK_DIR</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Given network files declared in globals, create pickles of the kstar object that can then be quickly loaded in analysis</span>
 <span class="sd">    Assumes that the Network structure has two folders Y and ST under the NETWORK_DIR global variable and that </span>
 <span class="sd">    all .csv files in those directories should be loaded into a network pickle.</span>
-<span class="sd">    </span>
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    phosphType: list of strings</span>
-<span class="sd">        indicates which networks to pickle: can be [&#39;Y&#39;], [&#39;ST&#39;], or [&#39;Y&#39;,&#39;ST&#39;] (default)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     
     
@@ -268,8 +263,8 @@
 <li class="toctree-l1"><a class="reference internal" href="../../KSTAR.html">KSTAR</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../quickstart.html">Getting Started</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../Tutorial/tutorial.html">Tutorial</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../Examples/Examples.html">Plotting Examples from KSTAR Paper</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../Parallel/parallel.html">Speeding Up Activity Calculation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Examples/Examples.html">Analysis Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Parallel/parallel.html">KSTAR in Parallel</a></li>
 </ul>
 
 <div id="searchbox" style="display: none" role="search">

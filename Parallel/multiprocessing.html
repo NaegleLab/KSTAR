@@ -16,9 +16,7 @@
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     
     <link rel="index" title="Index" href="../genindex.html" />
-    <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Running Large Datasets with Nextflow" href="Running_with_nextflow.html" />
-    <link rel="prev" title="Speeding Up Activity Calculation" href="parallel.html" /> 
+    <link rel="search" title="Search" href="../search.html" /> 
   </head><body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
@@ -29,14 +27,7 @@
         <li class="right" >
           <a href="../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="right" >
-          <a href="Running_with_nextflow.html" title="Running Large Datasets with Nextflow"
-             accesskey="N">next</a> |</li>
-        <li class="right" >
-          <a href="parallel.html" title="Speeding Up Activity Calculation"
-             accesskey="P">previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="../index.html">KSTAR 1 documentation</a> &#187;</li>
-          <li class="nav-item nav-item-1"><a href="parallel.html" accesskey="U">Speeding Up Activity Calculation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Running KSTAR using multiprocessing</a></li> 
       </ul>
     </div>  
@@ -51,10 +42,10 @@
 <p>Within python, several KSTAR functions can be run in parallel using the multiprocessing module. For these functions, switching to multiprocessing
 simply requires changing the ‘PROCESSES’ parameter from 1 (default) to the number of processes you would like to run in parallel.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Activity Calculation</span>
-<span class="n">kinact_dict</span> <span class="o">=</span> <span class="n">calculate</span><span class="o">.</span><span class="n">run_kstar_analysis</span><span class="p">(</span><span class="n">experiment</span><span class="p">,</span> <span class="n">activity_log</span><span class="p">,</span> <span class="n">networks</span><span class="p">,</span> <span class="n">PROCESSES</span> <span class="o">=</span> <span class="mi">4</span><span class="p">)</span>
+<span class="n">kinact_dict</span> <span class="o">=</span> <span class="n">calculate</span><span class="o">.</span><span class="n">enrichment_analysis</span><span class="p">(</span><span class="n">experiment</span><span class="p">,</span> <span class="n">activity_log</span><span class="p">,</span> <span class="n">networks</span><span class="p">,</span> <span class="n">PROCESSES</span> <span class="o">=</span> <span class="mi">4</span><span class="p">)</span>
 
 <span class="c1"># Normalization</span>
-<span class="n">calculate</span><span class="o">.</span><span class="n">normalize_analysis</span><span class="p">(</span><span class="n">kinact_dict</span><span class="p">,</span> <span class="n">activity_log</span><span class="p">,</span> <span class="n">num_random_experiments</span><span class="p">,</span> <span class="n">target_alpha</span><span class="p">,</span> <span class="n">PROCESSES</span> <span class="o">=</span> <span class="mi">4</span><span class="p">)</span>
+<span class="n">calculate</span><span class="o">.</span><span class="n">randomized_analysis</span><span class="p">(</span><span class="n">kinact_dict</span><span class="p">,</span> <span class="n">activity_log</span><span class="p">,</span> <span class="n">num_random_experiments</span><span class="p">,</span> <span class="n">target_alpha</span><span class="p">,</span> <span class="n">PROCESSES</span> <span class="o">=</span> <span class="mi">4</span><span class="p">)</span>
 
 <span class="c1"># Mann Whitney Calculation</span>
 <span class="n">calculate</span><span class="o">.</span><span class="n">Mann_Whitney_analysis</span><span class="p">(</span><span class="n">kinact_dict</span><span class="p">,</span> <span class="n">activity_log</span><span class="p">,</span> <span class="n">number_sig_trials</span> <span class="o">=</span> <span class="mi">100</span><span class="p">,</span> <span class="n">PROCESSES</span> <span class="o">=</span> <span class="mi">4</span><span class="p">)</span>
@@ -73,29 +64,16 @@ and most serine/threonine datasets, we recommend running KSTAR using nextflow, d
         <div class="sphinxsidebarwrapper">
   <h3><a href="../index.html">Table of Contents</a></h3>
   <p class="caption"><span class="caption-text">Contents:</span></p>
-<ul class="current">
+<ul>
 <li class="toctree-l1"><a class="reference internal" href="../Overview.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../Dependencies.html">Dependencies</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../KSTAR.html">KSTAR</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Getting Started</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../Tutorial/tutorial.html">Tutorial</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../Examples/Examples.html">Plotting Examples from KSTAR Paper</a></li>
-<li class="toctree-l1 current"><a class="reference internal" href="parallel.html">Speeding Up Activity Calculation</a><ul class="current">
-<li class="toctree-l2 current"><a class="reference internal" href="parallel.html#running-kstar-using-multiprocessing">Running KSTAR using multiprocessing</a><ul class="current">
-<li class="toctree-l3 current"><a class="current reference internal" href="#">Running KSTAR using multiprocessing</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="parallel.html#running-kstar-using-nextflow">Running KSTAR using Nextflow</a></li>
-</ul>
-</li>
+<li class="toctree-l1"><a class="reference internal" href="../Examples/Examples.html">Analysis Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="parallel.html">KSTAR in Parallel</a></li>
 </ul>
 
-  <h4>Previous topic</h4>
-  <p class="topless"><a href="parallel.html"
-                        title="previous chapter">Speeding Up Activity Calculation</a></p>
-  <h4>Next topic</h4>
-  <p class="topless"><a href="Running_with_nextflow.html"
-                        title="next chapter">Running Large Datasets with Nextflow</a></p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
@@ -126,14 +104,7 @@ and most serine/threonine datasets, we recommend running KSTAR using nextflow, d
         <li class="right" >
           <a href="../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="right" >
-          <a href="Running_with_nextflow.html" title="Running Large Datasets with Nextflow"
-             >next</a> |</li>
-        <li class="right" >
-          <a href="parallel.html" title="Speeding Up Activity Calculation"
-             >previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="../index.html">KSTAR 1 documentation</a> &#187;</li>
-          <li class="nav-item nav-item-1"><a href="parallel.html" >Speeding Up Activity Calculation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Running KSTAR using multiprocessing</a></li> 
       </ul>
     </div>

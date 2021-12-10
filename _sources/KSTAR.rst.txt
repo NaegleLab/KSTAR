@@ -30,7 +30,7 @@ The "ExperimentMapper" class
 The "KinaseActivity" class
 --------------------------
 .. autoclass:: kstar.calculate.KinaseActivity
-	:members: calculate_Mann_Whitney_activities_sig, calculate_kinase_activities, check_data_columns, create_binary_evidence, find_pvalue_limits, set_data_columns, run_normalization, get_run_date  
+	:members: calculate_Mann_Whitney_activities_sig, calculate_kinase_activities, check_data_columns, create_binary_evidence, find_pvalue_limits, set_data_columns, calculate_random_activities, get_run_date  
 
 
 The "DotPlot" class
@@ -45,7 +45,7 @@ Master Functions for Running KSTAR Pipeline
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. automodule:: kstar.calculate
-	:members: run_kstar_analysis, normalize_analysis, Mann_Whitney_analysis 
+	:members: enrichment_analysis, randomized_analysis, Mann_Whitney_analysis 
 	
 Functions for Saving and Loading KSTAR results
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

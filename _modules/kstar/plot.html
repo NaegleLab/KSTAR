@@ -222,8 +222,8 @@
             
             <span class="c1">#build an x_label_dict </span>
             <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">column_labels</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">x_label_dict</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="o">=</span> <span class="n">col</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s1">&#39;data:&#39;</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">column_labels</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s1">&#39;data:&#39;</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">column_labels</span><span class="p">]</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">x_label_dict</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="o">=</span> <span class="n">col</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;data:&#39;</span><span class="p">,</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">column_labels</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;data:&#39;</span><span class="p">,</span><span class="s1">&#39;&#39;</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">column_labels</span><span class="p">]</span>
 
         <span class="k">else</span><span class="p">:</span>
             <span class="c1">#check that the label dictionary keys matches the columns</span>
@@ -509,7 +509,9 @@
             <span class="n">index</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span> 
             <span class="k">raise</span> <span class="n">OrientationError</span>
-            
+        
+        <span class="c1">#record the number of different context types to include</span>
+        <span class="n">num_context</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">context_columns</span><span class="p">)</span>
         <span class="n">melted</span> <span class="o">=</span> <span class="n">info</span><span class="p">[[</span><span class="n">id_column</span><span class="p">]</span> <span class="o">+</span> <span class="n">context_columns</span><span class="p">]</span><span class="o">.</span><span class="n">melt</span><span class="p">(</span><span class="n">id_vars</span><span class="o">=</span><span class="n">id_column</span><span class="p">)</span>
         <span class="c1">#weird issue with melt function here, where for one datset it provides the context column names in 0 column rather than &#39;variable&#39;. Rename for now.</span>
         <span class="k">if</span> <span class="mi">0</span> <span class="ow">in</span> <span class="n">melted</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
@@ -528,8 +530,9 @@
             <span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">x</span> <span class="o">=</span> <span class="n">melted</span><span class="p">[</span><span class="s1">&#39;var&#39;</span><span class="p">],</span> <span class="n">y</span> <span class="o">=</span> <span class="n">melted</span><span class="p">[</span><span class="s1">&#39;variable&#39;</span><span class="p">],</span> <span class="n">c</span> <span class="o">=</span> <span class="n">melted</span><span class="p">[</span><span class="s1">&#39;value&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">color_map</span><span class="p">),</span> <span class="n">s</span> <span class="o">=</span> <span class="n">dotsize</span><span class="p">)</span>
             <span class="n">ax</span><span class="o">.</span><span class="n">axes</span><span class="o">.</span><span class="n">get_xaxis</span><span class="p">()</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
             <span class="n">ax</span><span class="o">.</span><span class="n">margins</span><span class="p">(</span><span class="mf">0.05</span><span class="p">,</span> <span class="n">margin</span><span class="p">)</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">([</span><span class="o">-</span><span class="mf">0.5</span><span class="p">,</span><span class="n">num_context</span><span class="o">+</span><span class="mf">0.5</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
         
-            
+           
         <span class="n">total</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">melted</span><span class="p">[</span><span class="s1">&#39;value&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">())</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">info</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span>
         <span class="n">running_total</span> <span class="o">=</span> <span class="mi">0</span>
         
@@ -576,8 +579,8 @@
 <li class="toctree-l1"><a class="reference internal" href="../../KSTAR.html">KSTAR</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../quickstart.html">Getting Started</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../Tutorial/tutorial.html">Tutorial</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../Examples/Examples.html">Plotting Examples from KSTAR Paper</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../Running_with_nextflow.html">Running Large Datasets with Nextflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Examples/Examples.html">Analysis Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Parallel/parallel.html">KSTAR in Parallel</a></li>
 </ul>
 
 <div id="searchbox" style="display: none" role="search">

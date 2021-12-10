@@ -95,8 +95,8 @@
 
 <span class="sd">    &quot;&quot;&quot;</span> 
     <span class="c1">#for documentation purposes convert non required parameters to kwargs</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">experiment</span><span class="p">,</span> <span class="n">columns</span><span class="p">,</span> <span class="n">logger</span><span class="p">,</span> <span class="o">*</span><span class="n">kwargs</span><span class="p">):</span> 
-    <span class="c1">#def __init__(self, experiment, columns, logger, sequences=config.HUMAN_REF_SEQUENCES, compendia=config.HUMAN_REF_COMPENDIA, window = 7, data_columns = None): </span>
+    <span class="c1">#def __init__(self, experiment, columns, logger, *kwargs): </span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">experiment</span><span class="p">,</span> <span class="n">columns</span><span class="p">,</span> <span class="n">logger</span><span class="p">,</span> <span class="n">sequences</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">HUMAN_REF_SEQUENCES</span><span class="p">,</span> <span class="n">compendia</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">HUMAN_REF_COMPENDIA</span><span class="p">,</span> <span class="n">window</span> <span class="o">=</span> <span class="mi">7</span><span class="p">,</span> <span class="n">data_columns</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span> 
         <span class="bp">self</span><span class="o">.</span><span class="n">experiment</span> <span class="o">=</span> <span class="n">experiment</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">sequences</span> <span class="o">=</span> <span class="n">sequences</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">compendia</span> <span class="o">=</span> <span class="n">compendia</span>
@@ -510,8 +510,8 @@
 <li class="toctree-l1"><a class="reference internal" href="../../KSTAR.html">KSTAR</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../quickstart.html">Getting Started</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../Tutorial/tutorial.html">Tutorial</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../Examples/Examples.html">Plotting Examples from KSTAR Paper</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../Parallel/parallel.html">Speeding Up Activity Calculation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Examples/Examples.html">Analysis Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Parallel/parallel.html">KSTAR in Parallel</a></li>
 </ul>
 
 <div id="searchbox" style="display: none" role="search">

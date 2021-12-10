@@ -4,10 +4,10 @@ Within python, several KSTAR functions can be run in parallel using the multipro
 simply requires changing the 'PROCESSES' parameter from 1 (default) to the number of processes you would like to run in parallel.
 ```
 # Activity Calculation
-kinact_dict = calculate.run_kstar_analysis(experiment, activity_log, networks, PROCESSES = 4)
+kinact_dict = calculate.enrichment_analysis(experiment, activity_log, networks, PROCESSES = 4)
 
 # Normalization
-calculate.normalize_analysis(kinact_dict, activity_log, num_random_experiments, target_alpha, PROCESSES = 4)
+calculate.randomized_analysis(kinact_dict, activity_log, num_random_experiments, target_alpha, PROCESSES = 4)
 
 # Mann Whitney Calculation
 calculate.Mann_Whitney_analysis(kinact_dict, activity_log, number_sig_trials = 100, PROCESSES = 4)

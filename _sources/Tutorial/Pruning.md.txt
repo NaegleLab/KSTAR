@@ -18,14 +18,15 @@ network = pd.read_csv(network_file)
 
 #set other parameters 
 phospho_type = 'Y'    #type of phosphomodification to generate networks for ('Y', 'ST')
-kinase_size = 200     #minimum number of substrates all kinases must be connected to
-site_limit = 20       #maximum number of kinases a particular substrate can be connected to
+kinase_size = 2000     #minimum number of substrates all kinases must be connected to
+site_limit = 10       #maximum number of kinases a particular substrate can be connected to
 num_networks = 50     #number of pruned networks to generate
 network_id = 'NetworKIN'
-odir = f"{config.PROJECT_DIR}/prune/results"
+odir = f"./prune/results" #where the final pruned networks should be saved
+PROCESSES = 4		#number of cores to use (> 1 for multiprocessing)
 log.info("Beginning to build pruning networks")
 #run and save pruning
-pruner = run_pruning(network, log, use_compendia, phospho_type, kinase_size, site_limit, num_networks, network_id, odir)
+pruner = run_pruning(network, log, use_compendia, phospho_type, kinase_size, site_limit, num_networks, network_id, odir, PROCESSES)
 save_pruning(phospho_type, network_id, kinase_size, site_limit, use_compendia, odir, log)
 ```
 
@@ -38,10 +39,10 @@ cd $KSTAR_DIR
 
 python /kstar/prune/prune.py \
 --network_file /RESOURCE_FILES/NetworKIN/NetworKIN_2020-02-26_all_matrix.csv \
---output_directory /kstar/prune/results \
+--output_directory /prune/results \
 --phospho_type Y \
---kinase_size  200 \
---site_limit 20 \
+--kinase_size  2000 \
+--site_limit 10 \
 --num_networks 50 \
 --network_id NetworKIN \
 --use_compendia yes 

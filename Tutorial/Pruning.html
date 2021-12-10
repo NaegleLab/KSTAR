@@ -63,14 +63,15 @@ predictions on. If wanting to run pruning in python, see below:</p>
 
 <span class="c1">#set other parameters </span>
 <span class="n">phospho_type</span> <span class="o">=</span> <span class="s1">&#39;Y&#39;</span>    <span class="c1">#type of phosphomodification to generate networks for (&#39;Y&#39;, &#39;ST&#39;)</span>
-<span class="n">kinase_size</span> <span class="o">=</span> <span class="mi">200</span>     <span class="c1">#minimum number of substrates all kinases must be connected to</span>
-<span class="n">site_limit</span> <span class="o">=</span> <span class="mi">20</span>       <span class="c1">#maximum number of kinases a particular substrate can be connected to</span>
+<span class="n">kinase_size</span> <span class="o">=</span> <span class="mi">2000</span>     <span class="c1">#minimum number of substrates all kinases must be connected to</span>
+<span class="n">site_limit</span> <span class="o">=</span> <span class="mi">10</span>       <span class="c1">#maximum number of kinases a particular substrate can be connected to</span>
 <span class="n">num_networks</span> <span class="o">=</span> <span class="mi">50</span>     <span class="c1">#number of pruned networks to generate</span>
 <span class="n">network_id</span> <span class="o">=</span> <span class="s1">&#39;NetworKIN&#39;</span>
-<span class="n">odir</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">config</span><span class="o">.</span><span class="n">PROJECT_DIR</span><span class="si">}</span><span class="s2">/prune/results&quot;</span>
+<span class="n">odir</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;./prune/results&quot;</span> <span class="c1">#where the final pruned networks should be saved</span>
+<span class="n">PROCESSES</span> <span class="o">=</span> <span class="mi">4</span>		<span class="c1">#number of cores to use (&gt; 1 for multiprocessing)</span>
 <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Beginning to build pruning networks&quot;</span><span class="p">)</span>
 <span class="c1">#run and save pruning</span>
-<span class="n">pruner</span> <span class="o">=</span> <span class="n">run_pruning</span><span class="p">(</span><span class="n">network</span><span class="p">,</span> <span class="n">log</span><span class="p">,</span> <span class="n">use_compendia</span><span class="p">,</span> <span class="n">phospho_type</span><span class="p">,</span> <span class="n">kinase_size</span><span class="p">,</span> <span class="n">site_limit</span><span class="p">,</span> <span class="n">num_networks</span><span class="p">,</span> <span class="n">network_id</span><span class="p">,</span> <span class="n">odir</span><span class="p">)</span>
+<span class="n">pruner</span> <span class="o">=</span> <span class="n">run_pruning</span><span class="p">(</span><span class="n">network</span><span class="p">,</span> <span class="n">log</span><span class="p">,</span> <span class="n">use_compendia</span><span class="p">,</span> <span class="n">phospho_type</span><span class="p">,</span> <span class="n">kinase_size</span><span class="p">,</span> <span class="n">site_limit</span><span class="p">,</span> <span class="n">num_networks</span><span class="p">,</span> <span class="n">network_id</span><span class="p">,</span> <span class="n">odir</span><span class="p">,</span> <span class="n">PROCESSES</span><span class="p">)</span>
 <span class="n">save_pruning</span><span class="p">(</span><span class="n">phospho_type</span><span class="p">,</span> <span class="n">network_id</span><span class="p">,</span> <span class="n">kinase_size</span><span class="p">,</span> <span class="n">site_limit</span><span class="p">,</span> <span class="n">use_compendia</span><span class="p">,</span> <span class="n">odir</span><span class="p">,</span> <span class="n">log</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -84,10 +85,10 @@ cd $KSTAR_DIR
 
 python /kstar/prune/prune.py \
 --network_file /RESOURCE_FILES/NetworKIN/NetworKIN_2020-02-26_all_matrix.csv \
---output_directory /kstar/prune/results \
+--output_directory /prune/results \
 --phospho_type Y \
---kinase_size  200 \
---site_limit 20 \
+--kinase_size  2000 \
+--site_limit 10 \
 --num_networks 50 \
 --network_id NetworKIN \
 --use_compendia yes 
@@ -118,8 +119,8 @@ python /kstar/prune/prune.py \
 <li class="toctree-l2"><a class="reference internal" href="tutorial.html#activity-prediction">Activity Prediction</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../Examples/Examples.html">Plotting Examples from KSTAR Paper</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../Running_with_nextflow.html">Running Large Datasets with Nextflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Examples/Examples.html">Analysis Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Parallel/parallel.html">KSTAR in Parallel</a></li>
 </ul>
 
   <h4>Previous topic</h4>

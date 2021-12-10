@@ -37,12 +37,12 @@ python setup.py install
 ## Configuring your KSTAR environment
 
 After installing KSTAR, all necessary resource files (reference proteome and phosphoproteome) and networks (either downloaded from
-FigShare or generated with prune.py) will need to be downloaded and configured so that KSTAR can find these files.
+FigShare or generated with the Pruner class) will need to be downloaded and configured so that KSTAR can find these files.
 
 #### Downloading Resource Files
 
 We have provided all resource files required for running KSTAR in a publicly available figshare, which includes the reference proteome and 
-the reference phosphoproteom from KinPred. After installing KSTAR, run *install_resource_files()* within python to obtain these:
+the reference phosphoproteome from KinPred. After installing KSTAR, run *install_resource_files()* within python to obtain these:
 
 ```
 from kstar import config
@@ -63,8 +63,8 @@ If using the published networks:
 
 If using self generated networks:
 
-1. Identify and download the base kinase-substrate prediction graph to use for network generation.
-2. Follow the tutorial for network generation to produce pruned networks (found in Tutorial section of this documentation).
+1. Identify and download the base kinase-substrate prediction graph you would like to use for network generation. This should include weighted edges indicating the likelihood that a kinase phosphorylates a particular substrate, and should include predictions for all sites in the phosphoproteome.
+2. Follow the tutorial for network generation to produce pruned networks from your weighted network (found in Tutorial section of this documentation).
 3. Store the generated networks in an easily accessible location. Individual network files should be placed in a directory within the network
 directory in a folder titled 'INDIVIDUAL_NETWORKS'. 
 
@@ -85,7 +85,7 @@ The python code used should look similar to below:
 from kstar import config
 
 #update network directory: If KSTAR does not find this directory + necessary files, it will notify you
-config.NETWORK_DIR = config.update_network_directory('./Networks/NetworKIN')
+config.NETWORK_DIR = config.update_network_directory('./NETWORKS/NetworKIN')
 
 #create network pickles. Only need to run this function if network pickles were not already generated.
 config.create_network_pickles()
@@ -105,7 +105,7 @@ be performed.
 
 ## Follow the provided tutorial
 
-That is all you need to do to set up your KSTAR environment (if working with large datasets where memory/time is a concern, see 'Running with Nextflow', as
+That is all you need to do to set up your KSTAR environment (if working with large datasets where memory/time is a concern, see 'KSTAR in Parallel', as
 set up is slightly different). We recommend working through the tutorial in the following section to get an idea of the KSTAR workflow, 
 either with the example dataset provided in our supplementary data figshare or with your own dataset of interest. You will only need to follow 
-the 'Generating Pruned Networks' section if you would like to use your own networks for analysis, otherwise go straight to 'Map Datasets to KinPred'.
+the 'Network Generation' section if you would like to use your own networks for analysis, otherwise go straight to 'Activity Prediction'.
