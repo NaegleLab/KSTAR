@@ -268,6 +268,7 @@ def parse_args():
     parser.add_argument('--num_networks', action='store', dest='num_networks', help='number of networks to generate',type=int, required=True)
     parser.add_argument('--network_id', action='store', dest='network_id',help='name of network to use in building dictionary', default='network', required=False)
     parser.add_argument('--use_compendia', action='store', dest='use_compendia', help = 'whether to use compendia ratios to build netwokr', default = 'yes')
+    parser.add_argument('--PROCESSES', action='store', dest='PROCESSES', help = 'number of processes to run in parallel', default = 1)
     results = parser.parse_args()
     return results
 
@@ -334,7 +335,7 @@ def run_pruning(network, log, use_compendia, phospho_type, kinase_size, site_lim
         prune object that contains the number of pruned networks indicated by the num_networks paramater
     """
     log.info("Running pruning algorithm")
-    pruner = Prune(network, log, phospho_type)
+    pruner = Pruner(network, log, phospho_type)
     if use_compendia:
         log.info("Pruning using compendia ratios")
         pruner.build_multiple_compendia_networks(kinase_size, site_limit, num_networks, network_id, odir, PROCESSES = PROCESSES)
@@ -438,6 +439,12 @@ def main():
     num_networks = results.num_networks
     network_id = results.network_id
     odir = results.odir
+    try:
+        PROCESSES = int(results.PROCESSES)
+    else:
+        log.info('PROCESSES parameter must be an integer')
+        exit()
+        
     log.info("Beginning to build pruning networks")
     pruner = run_pruning(network, log, use_compendia, phospho_type, kinase_size, site_limit, num_networks, network_id, odir)
     save_pruning( phospho_type, network_id, kinase_size, site_limit, use_compendia, odir, log)
