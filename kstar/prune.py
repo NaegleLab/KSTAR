@@ -441,7 +441,7 @@ def main():
     odir = results.odir
     try:
         PROCESSES = int(results.PROCESSES)
-    else:
+    except:
         log.info('PROCESSES parameter must be an integer')
         exit()
         
