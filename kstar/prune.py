@@ -33,7 +33,7 @@ class Pruner:
     columns : dict
         relevant columns in network
     """
-    def __init__(self, network, logger, phospho_type = 'Y',):
+    def __init__(self, network, logger, phospho_type = 'Y',acc_col = 'substrate_acc', site_col = 'site', cols_to_drop = ['substrate_acc','site','substrate_id', 'substrate_name', 'pep']):
         
 
         self.phospho_type = tuple(phospho_type)
@@ -46,12 +46,34 @@ class Pruner:
         self.compendia = self.compendia[[config.KSTAR_ACCESSION, config.KSTAR_SITE, 'KSTAR_NUM_COMPENDIA']]
         self.compendia = self.compendia.groupby([config.KSTAR_ACCESSION, config.KSTAR_SITE]).max().reset_index()
 
-        self.network = pd.merge(self.network, self.compendia, how = 'inner', left_on = ['substrate_acc', 'site'], right_on=[config.KSTAR_ACCESSION, config.KSTAR_SITE] )
-        self.network = self.network.drop(columns=['substrate_acc','site','substrate_id', 'substrate_name', 'pep'])
+        self.network = pd.merge(self.network, self.compendia, how = 'inner', left_on = [acc_col, site_col], right_on=[config.KSTAR_ACCESSION, config.KSTAR_SITE] )
+        #update index to indicate site associated with each row
         self.network = self.network.set_index([config.KSTAR_ACCESSION, config.KSTAR_SITE])
+        #drop unneeded columns (or maybe drop any non number columns)
+        if cols_to_drop is not None:
+            cols_to_drop = [col for col in cols_to_drop if col in self.network.columns]
+            self.network = self.network.drop(columns=cols_to_drop)
+            
+        #check to make sure all remaining columns contain only numeric values
+        non_numeric_cols = self.network.select_dtypes(exclude = np.number).columns
+        if len(non_numeric_cols) > 0:
+            print('Following non-numeric columns were identified:', ', '.join(non_numeric_cols))
+            print('It is assumed that these columns do not contain kinase-substrate weights and were removed. If this incorrect, please make sure weight containing columns only contain numeric values')
+            self.network = self.network.select_dtypes(include = np.number)
 
         self.network = self.network.replace('-',np.nan)
         self.network = self.network.dropna(axis='columns', how ='all')
+        
+        #check for duplicate entries/indices
+        if len(self.network.index.duplicated()) > 0:
+            tmp = self.network[self.network.index.duplicated(keep = False)]
+            #check to see if duplicate entries contain different information. If they do not, drop one row. If they do, return error.
+            if any([i and v for i,v in zip(self.network.index.duplicated(keep = False), ~self.network.duplicated(keep = False).values)]):
+                print('Duplicate entries found in network that contain conflicting weights, please fix before running pruning')
+                exit()
+            else:
+                print('Duplicate entries found in network, removing repeat rows')
+                self.network = self.network[~self.network.index.duplicated()]
 
         self.kinases = list(self.network.columns)
         self.kinases.remove('KSTAR_NUM_COMPENDIA')
@@ -304,7 +326,8 @@ def process_args(results):
     return network, log, use_compendia
 
 
-def run_pruning(network, log, use_compendia, phospho_type, kinase_size, site_limit, num_networks, network_id, odir, PROCESSES = 1):
+def run_pruning(network, log, use_compendia, phospho_type, kinase_size, site_limit, num_networks, network_id, odir, 
+                acc_col = 'substrate_acc', site_col = 'site', netcols_todrop = ['substrate_acc','site','substrate_id', 'substrate_name', 'pep'], PROCESSES = 1):
     """
     Generate pruned networks from a weighted kinase-substrate graph and log run information
     
@@ -335,7 +358,7 @@ def run_pruning(network, log, use_compendia, phospho_type, kinase_size, site_lim
         prune object that contains the number of pruned networks indicated by the num_networks paramater
     """
     log.info("Running pruning algorithm")
-    pruner = Pruner(network, log, phospho_type)
+    pruner = Pruner(network, log, phospho_type, acc_col = acc_col, site_col = site_col, cols_to_drop = netcols_todrop)
     if use_compendia:
         log.info("Pruning using compendia ratios")
         pruner.build_multiple_compendia_networks(kinase_size, site_limit, num_networks, network_id, odir, PROCESSES = PROCESSES)
