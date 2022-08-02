@@ -1302,7 +1302,7 @@ def from_kstar_slim(name, odir, log):
         kinact.activities = pd.read_csv(f"{odir}/RESULTS/{name_out}_activities.tsv", sep = '\t', index_col = config.KSTAR_KINASE)
         kinact.evidence_binary = evidence_binary
 
-        if params['mann_whitney']:
+        if 'mann_whitney' in params.keys():
             #read mann_whitney and load
             kinact.activities_mann_whitney = pd.read_csv(f"{odir}/RESULTS/{name_out}_mann_whitney_activities.tsv", sep='\t', index_col = config.KSTAR_KINASE) 
             kinact.fpr_mann_whitney = pd.read_csv(f"{odir}/RESULTS/{name_out}_mann_whitney_fpr.tsv", sep='\t', index_col = config.KSTAR_KINASE) 
@@ -1312,7 +1312,7 @@ def from_kstar_slim(name, odir, log):
         #    kinact.activities_normalized= pd.read_csv(f"{odir}/RESULTS/{name_out}_activities_normalized.tsv", sep = '\t', index_col = config.KSTAR_KINASE)
         #    kinact.fpr_activity = pd.read_csv(f"{odir}/RESULTS/{name_out}_activities_fpr.tsv", sep='\t', index_col=config.KSTAR_KINASE)
         
-        if params['randomized']:
+        if 'randomized' in params.keys():
             rand_experiments = pd.read_csv(f"{odir}/RESULTS/{name_out}_random_experiments.tsv", sep = '\t')
 
             kinact.random_kinact = KinaseActivity(rand_experiments, log, phospho_type=phospho_type)
