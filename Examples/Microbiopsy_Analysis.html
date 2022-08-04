@@ -1,10 +1,11 @@
 
 <!DOCTYPE html>
 
-<html>
+<html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
     <title>Analysis of HER2 Positive Patients using Microbiopsies (Satpathy 2021) &#8212; KSTAR 1 documentation</title>
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../_static/classic.css" />
@@ -12,12 +13,13 @@
     <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
     <script src="../_static/jquery.js"></script>
     <script src="../_static/underscore.js"></script>
+    <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="../_static/doctools.js"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Running Large Datasets with Nextflow" href="../Running_with_nextflow.html" />
+    <link rel="next" title="KSTAR in Parallel" href="../Parallel/parallel.html" />
     <link rel="prev" title="Analysis of PDX Tumor Samples (Huang 2017)" href="PDX_Analysis.html" /> 
   </head><body>
     <div class="related" role="navigation" aria-label="related navigation">
@@ -30,13 +32,13 @@
           <a href="../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="../Running_with_nextflow.html" title="Running Large Datasets with Nextflow"
+          <a href="../Parallel/parallel.html" title="KSTAR in Parallel"
              accesskey="N">next</a> |</li>
         <li class="right" >
           <a href="PDX_Analysis.html" title="Analysis of PDX Tumor Samples (Huang 2017)"
              accesskey="P">previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="../index.html">KSTAR 1 documentation</a> &#187;</li>
-          <li class="nav-item nav-item-1"><a href="Examples.html" accesskey="U">Plotting Examples from KSTAR Paper</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="Examples.html" accesskey="U">Analysis Examples</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Analysis of HER2 Positive Patients using Microbiopsies (Satpathy 2021)</a></li> 
       </ul>
     </div>  
@@ -256,11 +258,12 @@ div.nboutput.container div.output_area > div[class^='highlight']{
 }
 
 /* hide copybtn icon on prompts (needed for 'sphinx_copybutton') */
-.prompt a.copybtn {
+.prompt .copybtn {
     display: none;
 }
 
 /* Some additional styling taken form the Jupyter notebook CSS */
+.jp-RenderedHTMLCommon table,
 div.rendered_html table {
   border: none;
   border-collapse: collapse;
@@ -269,10 +272,14 @@ div.rendered_html table {
   font-size: 12px;
   table-layout: fixed;
 }
+.jp-RenderedHTMLCommon thead,
 div.rendered_html thead {
   border-bottom: 1px solid black;
   vertical-align: bottom;
 }
+.jp-RenderedHTMLCommon tr,
+.jp-RenderedHTMLCommon th,
+.jp-RenderedHTMLCommon td,
 div.rendered_html tr,
 div.rendered_html th,
 div.rendered_html td {
@@ -284,24 +291,26 @@ div.rendered_html td {
   max-width: none;
   border: none;
 }
+.jp-RenderedHTMLCommon th,
 div.rendered_html th {
   font-weight: bold;
 }
+.jp-RenderedHTMLCommon tbody tr:nth-child(odd),
 div.rendered_html tbody tr:nth-child(odd) {
   background: #f5f5f5;
 }
+.jp-RenderedHTMLCommon tbody tr:hover,
 div.rendered_html tbody tr:hover {
   background: rgba(66, 165, 245, 0.2);
 }
 </style>
-<div class="section" id="Analysis-of-HER2-Positive-Patients-using-Microbiopsies-(Satpathy-2021)">
-<h1>Analysis of HER2 Positive Patients using Microbiopsies (Satpathy 2021)<a class="headerlink" href="#Analysis-of-HER2-Positive-Patients-using-Microbiopsies-(Satpathy-2021)" title="Permalink to this headline">¶</a></h1>
+<section id="Analysis-of-HER2-Positive-Patients-using-Microbiopsies-(Satpathy-2021)">
+<h1>Analysis of HER2 Positive Patients using Microbiopsies (Satpathy 2021)<a class="headerlink" href="#Analysis-of-HER2-Positive-Patients-using-Microbiopsies-(Satpathy-2021)" title="Permalink to this heading"></a></h1>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="c1">#Supporting packages for analysis</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">#Supporting packages for analysis</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 
@@ -336,14 +345,13 @@ div.rendered_html tbody tr:hover {
 </pre></div>
 </div>
 </div>
-<div class="section" id="Agglomerative-clustering-of-all-patients-and-kinases,-with-context">
-<h2>Agglomerative clustering of all patients and kinases, with context<a class="headerlink" href="#Agglomerative-clustering-of-all-patients-and-kinases,-with-context" title="Permalink to this headline">¶</a></h2>
+<section id="Agglomerative-clustering-of-all-patients-and-kinases,-with-context">
+<h2>Agglomerative clustering of all patients and kinases, with context<a class="headerlink" href="#Agglomerative-clustering-of-all-patients-and-kinases,-with-context" title="Permalink to this heading"></a></h2>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">s1</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">odir</span><span class="o">+</span><span class="s1">&#39;sample_metadata_mirobiopsy.csv&#39;</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">s1</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">odir</span><span class="o">+</span><span class="s1">&#39;sample_metadata_mirobiopsy.csv&#39;</span><span class="p">)</span>
 <span class="c1">#add data to the Sample ID column so they can be matched</span>
 <span class="n">id_col</span> <span class="o">=</span> <span class="p">[]</span>
 <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">s1</span><span class="o">.</span><span class="n">iterrows</span><span class="p">():</span>
@@ -356,8 +364,7 @@ div.rendered_html tbody tr:hover {
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="c1"># PLot all samples with their context information about treatment and pCR status</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># PLot all samples with their context information about treatment and pCR status</span>
 <span class="n">fig</span><span class="p">,</span> <span class="n">axes</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span> <span class="o">=</span> <span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">15</span><span class="p">),</span>
         <span class="n">nrows</span> <span class="o">=</span> <span class="mi">3</span><span class="p">,</span> <span class="n">ncols</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span>
         <span class="n">sharex</span> <span class="o">=</span> <span class="s1">&#39;col&#39;</span><span class="p">,</span>
@@ -396,15 +403,14 @@ div.rendered_html tbody tr:hover {
 <img alt="../_images/Examples_Microbiopsy_Analysis_4_0.png" src="../_images/Examples_Microbiopsy_Analysis_4_0.png" />
 </div>
 </div>
-</div>
-<div class="section" id="Agglomerative-clustering-of-all-patients-and-all-significant-kinases,-with-context">
-<h2>Agglomerative clustering of all patients and all significant kinases, with context<a class="headerlink" href="#Agglomerative-clustering-of-all-patients-and-all-significant-kinases,-with-context" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="Agglomerative-clustering-of-all-patients-and-all-significant-kinases,-with-context">
+<h2>Agglomerative clustering of all patients and all significant kinases, with context<a class="headerlink" href="#Agglomerative-clustering-of-all-patients-and-all-significant-kinases,-with-context" title="Permalink to this heading"></a></h2>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="c1"># PLot all samples with their context information about treatment and pCR status</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># PLot all samples with their context information about treatment and pCR status</span>
 <span class="n">fig</span><span class="p">,</span> <span class="n">axes</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span> <span class="o">=</span> <span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">15</span><span class="p">),</span>
         <span class="n">nrows</span> <span class="o">=</span> <span class="mi">3</span><span class="p">,</span> <span class="n">ncols</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span>
         <span class="n">sharex</span> <span class="o">=</span> <span class="s1">&#39;col&#39;</span><span class="p">,</span>
@@ -443,15 +449,14 @@ div.rendered_html tbody tr:hover {
 <img alt="../_images/Examples_Microbiopsy_Analysis_6_0.png" src="../_images/Examples_Microbiopsy_Analysis_6_0.png" />
 </div>
 </div>
-</div>
-<div class="section" id="Plot-only-pre-treatment-samples-and-provide-treatment-response-context">
-<h2>Plot only pre-treatment samples and provide treatment response context<a class="headerlink" href="#Plot-only-pre-treatment-samples-and-provide-treatment-response-context" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="Plot-only-pre-treatment-samples-and-provide-treatment-response-context">
+<h2>Plot only pre-treatment samples and provide treatment response context<a class="headerlink" href="#Plot-only-pre-treatment-samples-and-provide-treatment-response-context" title="Permalink to this heading"></a></h2>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[25]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="c1">#Let&#39;s look just at pre-treatment samples</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">#Let&#39;s look just at pre-treatment samples</span>
 <span class="c1">#given the metadata, pull pre-treatment only and take subsets for plotting, sort by ERBB2 activity prediction</span>
 <span class="n">s1_temp</span> <span class="o">=</span> <span class="n">s1</span><span class="p">[</span><span class="n">s1</span><span class="p">[</span><span class="s1">&#39;Treatment&#39;</span><span class="p">]</span><span class="o">==</span><span class="s1">&#39;pre-treatment&#39;</span><span class="p">]</span>
 <span class="c1">#sample_ids = list(s1_temp[&#39;ID&#39;])</span>
@@ -517,15 +522,14 @@ div.rendered_html tbody tr:hover {
 <img alt="../_images/Examples_Microbiopsy_Analysis_8_0.png" src="../_images/Examples_Microbiopsy_Analysis_8_0.png" />
 </div>
 </div>
-</div>
-<div class="section" id="Plot-specific-kinases-for-each-patient-(all-samples)">
-<h2>Plot specific kinases for each patient (all samples)<a class="headerlink" href="#Plot-specific-kinases-for-each-patient-(all-samples)" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="Plot-specific-kinases-for-each-patient-(all-samples)">
+<h2>Plot specific kinases for each patient (all samples)<a class="headerlink" href="#Plot-specific-kinases-for-each-patient-(all-samples)" title="Permalink to this heading"></a></h2>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">kinases</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">activities</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">kinases</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">activities</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
 <span class="n">kinases</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="s1">&#39;ERBB2&#39;</span><span class="p">)</span>
 <span class="n">kinases</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="s1">&#39;EGFR&#39;</span><span class="p">)</span>
 </pre></div>
@@ -535,8 +539,7 @@ div.rendered_html tbody tr:hover {
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[22]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="c1"># What happens if we take, for each patient that has pre- and on-treatment, the difference in ERBB2 activity?</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># What happens if we take, for each patient that has pre- and on-treatment, the difference in ERBB2 activity?</span>
 <span class="c1">#find the paired sample ids</span>
 <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">group</span> <span class="ow">in</span> <span class="n">s1</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;Patient ID&#39;</span><span class="p">):</span>
     <span class="c1">#let&#39;s just plot those results (ERBB2 kinase)</span>
@@ -680,8 +683,7 @@ div.rendered_html tbody tr:hover {
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[163]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="c1">## Create a report by patient of change in ERBB2 values</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">## Create a report by patient of change in ERBB2 values</span>
 
 <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">group</span> <span class="ow">in</span> <span class="n">s1</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;Patient ID&#39;</span><span class="p">):</span>
     <span class="n">sample_ids</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">group</span><span class="p">[</span><span class="s1">&#39;ID&#39;</span><span class="p">])</span>
@@ -754,8 +756,8 @@ BCN 1371
 pre-treatment   data:X1525224   5.12e-20
 </pre></div></div>
 </div>
-</div>
-</div>
+</section>
+</section>
 
 
             <div class="clearer"></div>
@@ -764,15 +766,16 @@ pre-treatment   data:X1525224   5.12e-20
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-  <h3><a href="../index.html">Table of Contents</a></h3>
-  <p class="caption"><span class="caption-text">Contents:</span></p>
+  <div>
+    <h3><a href="../index.html">Table of Contents</a></h3>
+    <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../Overview.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../Dependencies.html">Dependencies</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../KSTAR.html">KSTAR</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Getting Started</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../Tutorial/tutorial.html">Tutorial</a></li>
-<li class="toctree-l1 current"><a class="reference internal" href="Examples.html">Plotting Examples from KSTAR Paper</a><ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="Examples.html">Analysis Examples</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="Examples.html#activation-of-kinases-in-controlled-cell-lines">Activation of Kinases in Controlled Cell Lines</a></li>
 <li class="toctree-l2"><a class="reference internal" href="Examples.html#inhibition-of-kinases-in-controlled-cell-lines">Inhibition of Kinases in Controlled Cell Lines</a></li>
 <li class="toctree-l2 current"><a class="reference internal" href="Examples.html#profiling-her2-therapy-response-in-breast-cancer">Profiling HER2 therapy response in Breast Cancer</a><ul class="current">
@@ -789,15 +792,20 @@ pre-treatment   data:X1525224   5.12e-20
 </li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../Running_with_nextflow.html">Running Large Datasets with Nextflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Parallel/parallel.html">KSTAR in Parallel</a></li>
 </ul>
 
-  <h4>Previous topic</h4>
-  <p class="topless"><a href="PDX_Analysis.html"
-                        title="previous chapter">Analysis of PDX Tumor Samples (Huang 2017)</a></p>
-  <h4>Next topic</h4>
-  <p class="topless"><a href="../Running_with_nextflow.html"
-                        title="next chapter">Running Large Datasets with Nextflow</a></p>
+  </div>
+  <div>
+    <h4>Previous topic</h4>
+    <p class="topless"><a href="PDX_Analysis.html"
+                          title="previous chapter">Analysis of PDX Tumor Samples (Huang 2017)</a></p>
+  </div>
+  <div>
+    <h4>Next topic</h4>
+    <p class="topless"><a href="../Parallel/parallel.html"
+                          title="next chapter">KSTAR in Parallel</a></p>
+  </div>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
@@ -809,12 +817,12 @@ pre-treatment   data:X1525224   5.12e-20
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="../search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
       <input type="submit" value="Go" />
     </form>
     </div>
 </div>
-<script>$('#searchbox').show(0);</script>
+<script>document.getElementById('searchbox').style.display = "block"</script>
         </div>
       </div>
       <div class="clearer"></div>
@@ -829,19 +837,19 @@ pre-treatment   data:X1525224   5.12e-20
           <a href="../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="../Running_with_nextflow.html" title="Running Large Datasets with Nextflow"
+          <a href="../Parallel/parallel.html" title="KSTAR in Parallel"
              >next</a> |</li>
         <li class="right" >
           <a href="PDX_Analysis.html" title="Analysis of PDX Tumor Samples (Huang 2017)"
              >previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="../index.html">KSTAR 1 documentation</a> &#187;</li>
-          <li class="nav-item nav-item-1"><a href="Examples.html" >Plotting Examples from KSTAR Paper</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="Examples.html" >Analysis Examples</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Analysis of HER2 Positive Patients using Microbiopsies (Satpathy 2021)</a></li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2020, Naegle Lab.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.0.1.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.0.2.
     </div>
   </body>
 </html>

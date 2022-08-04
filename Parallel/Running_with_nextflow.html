@@ -1,10 +1,11 @@
 
 <!DOCTYPE html>
 
-<html>
+<html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
     <title>Running Large Datasets with Nextflow &#8212; KSTAR 1 documentation</title>
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../_static/classic.css" />
@@ -12,12 +13,12 @@
     <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
     <script src="../_static/jquery.js"></script>
     <script src="../_static/underscore.js"></script>
+    <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="../_static/doctools.js"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     
     <link rel="index" title="Index" href="../genindex.html" />
-    <link rel="search" title="Search" href="../search.html" />
-    <link rel="prev" title="&lt;no title&gt;" href="multiprocessing.html" /> 
+    <link rel="search" title="Search" href="../search.html" /> 
   </head><body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
@@ -28,11 +29,7 @@
         <li class="right" >
           <a href="../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="right" >
-          <a href="multiprocessing.html" title="&lt;no title&gt;"
-             accesskey="P">previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="../index.html">KSTAR 1 documentation</a> &#187;</li>
-          <li class="nav-item nav-item-1"><a href="parallel.html" accesskey="U">Speeding Up Activity Calculation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Running Large Datasets with Nextflow</a></li> 
       </ul>
     </div>  
@@ -42,22 +39,22 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="tex2jax_ignore mathjax_ignore section" id="running-large-datasets-with-nextflow">
-<h1>Running Large Datasets with Nextflow<a class="headerlink" href="#running-large-datasets-with-nextflow" title="Permalink to this headline">¶</a></h1>
+  <section id="running-large-datasets-with-nextflow">
+<h1>Running Large Datasets with Nextflow<a class="headerlink" href="#running-large-datasets-with-nextflow" title="Permalink to this heading"></a></h1>
 <p>While our standard implementation of KSTAR can be run on most phosphotyrosine datasets and some small phosphoserine/threonine datasets, the memory
 and time costs are often too high for many large datasets. For these cases, we have implemented a highly parallel version of KSTAR implemented
 with the nextflow software package. The remainder of this section will detail how to install and run KSTAR with nextflow.</p>
-<div class="section" id="requirements">
-<h2>Requirements<a class="headerlink" href="#requirements" title="Permalink to this headline">¶</a></h2>
+<section id="requirements">
+<h2>Requirements<a class="headerlink" href="#requirements" title="Permalink to this heading"></a></h2>
 <p>The nextflow pipeline takes advantage of either Docker or Singularity containers. These are compatible with POSIX operating
 systems (Linux, OS X, etc.). However, nextflow can also be run on a Windows machine with the use of WSL2. Windows has provided instructions for
 installing and running WSL2 here: <a class="reference external" href="https://docs.microsoft.com/en-us/windows/wsl/install-win10">WSL Documentation</a>. For other details about
 nextflow, please see their documentation here: <a class="reference external" href="https://www.nextflow.io/">Nextflow Documentaion</a></p>
 <p>This implementation is best suited for high performance computing environments, with a minimum of 8 cpu cores
 and 16GB of available memory suggested.</p>
-</div>
-<div class="section" id="installation">
-<h2>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="installation">
+<h2>Installation<a class="headerlink" href="#installation" title="Permalink to this heading"></a></h2>
 <p>Before implementing KSTAR with nextflow, Docker will need to be installed. The nextflow implementation utilizes a docker container of the
 KSTAR algorithm. For details on how to install Docker, visit <a class="reference external" href="https://docs.docker.com/get-docker/">Install Docker</a>.</p>
 <p>First, it is recommended that you download KSTAR from github into an easily accessible folder:</p>
@@ -70,9 +67,9 @@ KSTAR algorithm. For details on how to install Docker, visit <a class="reference
 <span class="n">conda</span> <span class="n">install</span> <span class="o">-</span><span class="n">c</span> <span class="n">bioconda</span> <span class="n">nextflow</span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="downloading-or-generating-networks-used-in-kstar">
-<h2>Downloading or Generating Networks used in KSTAR<a class="headerlink" href="#downloading-or-generating-networks-used-in-kstar" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="downloading-or-generating-networks-used-in-kstar">
+<h2>Downloading or Generating Networks used in KSTAR<a class="headerlink" href="#downloading-or-generating-networks-used-in-kstar" title="Permalink to this heading"></a></h2>
 <p>As with the standard implementation of KSTAR, you will need to obtain KSTAR pruned networks that will be used in activity calculation. You can
 download KSTAR networks from the <a class="reference external" href="https://figshare.com/articles/dataset/NETWORKS/14944305">Network FigShare</a>. Unlike the standard implementation,
 network pickles do not need to be generated, as nextflow will operate on the individual network files.</p>
@@ -80,14 +77,14 @@ network pickles do not need to be generated, as nextflow will operate on the ind
 need to make sure the directory structure where these networks are located is correct:
 ‘{resource_directory}/{network_directory}/{phospho_event}/INDIVIDUAL_NETWORKS’, where elements in brackets are given as parameters during a nextflow
 run. Each individual pruned network should be a .tsv file located in the above directory.</p>
-</div>
-<div class="section" id="mapping-datasets">
-<h2>Mapping datasets<a class="headerlink" href="#mapping-datasets" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="mapping-datasets">
+<h2>Mapping datasets<a class="headerlink" href="#mapping-datasets" title="Permalink to this heading"></a></h2>
 <p>Datasets must be mapped prior to running KSTAR with nextflow. The nextflow implementation is strictly for activity prediction. The mapped data
 should be a .tsv file that contains at least data columns, KSTAR_ACCESSION, KSTAR_PEPTIDE, AND KSTAR_SITE.</p>
-</div>
-<div class="section" id="running-nextflow">
-<h2>Running nextflow<a class="headerlink" href="#running-nextflow" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="running-nextflow">
+<h2>Running nextflow<a class="headerlink" href="#running-nextflow" title="Permalink to this heading"></a></h2>
 <p>Once all the above requirements are satisfied, KSTAR can be run using a simple bash script within the nextflow directory that looks like
 the one below:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>export KSTAR_DIR = /repo_loc/KSTAR/nextflow
@@ -196,9 +193,9 @@ nextflow run main.nf -profile Y \
 </tr>
 </tbody>
 </table>
-</div>
-<div class="section" id="output-of-a-nextflow-run">
-<h2>Output of a nextflow run<a class="headerlink" href="#output-of-a-nextflow-run" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="output-of-a-nextflow-run">
+<h2>Output of a nextflow run<a class="headerlink" href="#output-of-a-nextflow-run" title="Permalink to this heading"></a></h2>
 <p>Each run with nextflow will deposit all results from a run in the folder indicated by the outdir parameter. There will be seperate folders for tyrosine and serine/threonine results if both types of runs are performed. Within the out directory, there will be the following subfolders, most of which mirror what is saved in the pickle object in the base KSTAR algorithm:</p>
 <table class="colwidths-auto docutils align-default">
 <thead>
@@ -238,9 +235,9 @@ nextflow run main.nf -profile Y \
 </tr>
 </tbody>
 </table>
-</div>
-<div class="section" id="running-kstar-nextflow-on-singularity">
-<h2>Running KSTAR-nextflow on Singularity<a class="headerlink" href="#running-kstar-nextflow-on-singularity" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="running-kstar-nextflow-on-singularity">
+<h2>Running KSTAR-nextflow on Singularity<a class="headerlink" href="#running-kstar-nextflow-on-singularity" title="Permalink to this heading"></a></h2>
 <p>It is also possible to implement the above using singularity containers instead of docker containers. If singularity is already installed, only a small addition at the bottom of the bash script is needed to use singularity instead of docker.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>export KSTAR_DIR = /repo_loc/KSTAR/nextflow
 cd $KSTAR_DIR
@@ -263,8 +260,8 @@ nextflow run main.nf -profile Y \
 -without-docker
 </pre></div>
 </div>
-</div>
-</div>
+</section>
+</section>
 
 
             <div class="clearer"></div>
@@ -273,37 +270,20 @@ nextflow run main.nf -profile Y \
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-  <h3><a href="../index.html">Table of Contents</a></h3>
-  <p class="caption"><span class="caption-text">Contents:</span></p>
-<ul class="current">
+  <div>
+    <h3><a href="../index.html">Table of Contents</a></h3>
+    <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
 <li class="toctree-l1"><a class="reference internal" href="../Overview.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../Dependencies.html">Dependencies</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../KSTAR.html">KSTAR</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Getting Started</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../Tutorial/tutorial.html">Tutorial</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../Examples/Examples.html">Plotting Examples from KSTAR Paper</a></li>
-<li class="toctree-l1 current"><a class="reference internal" href="parallel.html">Speeding Up Activity Calculation</a><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="parallel.html#running-kstar-using-multiprocessing">Running KSTAR using multiprocessing</a></li>
-<li class="toctree-l2 current"><a class="reference internal" href="parallel.html#running-kstar-using-nextflow">Running KSTAR using Nextflow</a><ul class="current">
-<li class="toctree-l3 current"><a class="current reference internal" href="#">Running Large Datasets with Nextflow</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#requirements">Requirements</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#installation">Installation</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#downloading-or-generating-networks-used-in-kstar">Downloading or Generating Networks used in KSTAR</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#mapping-datasets">Mapping datasets</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#running-nextflow">Running nextflow</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#output-of-a-nextflow-run">Output of a nextflow run</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#running-kstar-nextflow-on-singularity">Running KSTAR-nextflow on Singularity</a></li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-</li>
+<li class="toctree-l1"><a class="reference internal" href="../Examples/Examples.html">Analysis Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="parallel.html">KSTAR in Parallel</a></li>
 </ul>
 
-  <h4>Previous topic</h4>
-  <p class="topless"><a href="multiprocessing.html"
-                        title="previous chapter">&lt;no title&gt;</a></p>
+  </div>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
@@ -315,12 +295,12 @@ nextflow run main.nf -profile Y \
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="../search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
       <input type="submit" value="Go" />
     </form>
     </div>
 </div>
-<script>$('#searchbox').show(0);</script>
+<script>document.getElementById('searchbox').style.display = "block"</script>
         </div>
       </div>
       <div class="clearer"></div>
@@ -334,17 +314,13 @@ nextflow run main.nf -profile Y \
         <li class="right" >
           <a href="../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="right" >
-          <a href="multiprocessing.html" title="&lt;no title&gt;"
-             >previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="../index.html">KSTAR 1 documentation</a> &#187;</li>
-          <li class="nav-item nav-item-1"><a href="parallel.html" >Speeding Up Activity Calculation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Running Large Datasets with Nextflow</a></li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2020, Naegle Lab.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.0.1.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.0.2.
     </div>
   </body>
 </html>

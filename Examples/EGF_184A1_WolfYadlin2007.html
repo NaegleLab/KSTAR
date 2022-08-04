@@ -1,10 +1,11 @@
 
 <!DOCTYPE html>
 
-<html>
+<html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
     <title>EGF Stimulation of 184A1 Cells (Wolf Yadlin, 2007) &#8212; KSTAR 1 documentation</title>
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../_static/classic.css" />
@@ -12,13 +13,14 @@
     <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
     <script src="../_static/jquery.js"></script>
     <script src="../_static/underscore.js"></script>
+    <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="../_static/doctools.js"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="EGF and HRG Stimulation of ERBB2 Overexpressing HMEC Cells (Wolf Yadlin 2006)" href="EGF_HER2_WolfYadlin2006.html" />
-    <link rel="prev" title="Plotting Examples from KSTAR Paper" href="Examples.html" /> 
+    <link rel="prev" title="Analysis Examples" href="Examples.html" /> 
   </head><body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
@@ -33,10 +35,10 @@
           <a href="EGF_HER2_WolfYadlin2006.html" title="EGF and HRG Stimulation of ERBB2 Overexpressing HMEC Cells (Wolf Yadlin 2006)"
              accesskey="N">next</a> |</li>
         <li class="right" >
-          <a href="Examples.html" title="Plotting Examples from KSTAR Paper"
+          <a href="Examples.html" title="Analysis Examples"
              accesskey="P">previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="../index.html">KSTAR 1 documentation</a> &#187;</li>
-          <li class="nav-item nav-item-1"><a href="Examples.html" accesskey="U">Plotting Examples from KSTAR Paper</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="Examples.html" accesskey="U">Analysis Examples</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">EGF Stimulation of 184A1 Cells (Wolf Yadlin, 2007)</a></li> 
       </ul>
     </div>  
@@ -256,11 +258,12 @@ div.nboutput.container div.output_area > div[class^='highlight']{
 }
 
 /* hide copybtn icon on prompts (needed for 'sphinx_copybutton') */
-.prompt a.copybtn {
+.prompt .copybtn {
     display: none;
 }
 
 /* Some additional styling taken form the Jupyter notebook CSS */
+.jp-RenderedHTMLCommon table,
 div.rendered_html table {
   border: none;
   border-collapse: collapse;
@@ -269,10 +272,14 @@ div.rendered_html table {
   font-size: 12px;
   table-layout: fixed;
 }
+.jp-RenderedHTMLCommon thead,
 div.rendered_html thead {
   border-bottom: 1px solid black;
   vertical-align: bottom;
 }
+.jp-RenderedHTMLCommon tr,
+.jp-RenderedHTMLCommon th,
+.jp-RenderedHTMLCommon td,
 div.rendered_html tr,
 div.rendered_html th,
 div.rendered_html td {
@@ -284,24 +291,26 @@ div.rendered_html td {
   max-width: none;
   border: none;
 }
+.jp-RenderedHTMLCommon th,
 div.rendered_html th {
   font-weight: bold;
 }
+.jp-RenderedHTMLCommon tbody tr:nth-child(odd),
 div.rendered_html tbody tr:nth-child(odd) {
   background: #f5f5f5;
 }
+.jp-RenderedHTMLCommon tbody tr:hover,
 div.rendered_html tbody tr:hover {
   background: rgba(66, 165, 245, 0.2);
 }
 </style>
-<div class="section" id="EGF-Stimulation-of-184A1-Cells-(Wolf-Yadlin,-2007)">
-<h1>EGF Stimulation of 184A1 Cells (Wolf Yadlin, 2007)<a class="headerlink" href="#EGF-Stimulation-of-184A1-Cells-(Wolf-Yadlin,-2007)" title="Permalink to this headline">¶</a></h1>
+<section id="EGF-Stimulation-of-184A1-Cells-(Wolf-Yadlin,-2007)">
+<h1>EGF Stimulation of 184A1 Cells (Wolf Yadlin, 2007)<a class="headerlink" href="#EGF-Stimulation-of-184A1-Cells-(Wolf-Yadlin,-2007)" title="Permalink to this heading"></a></h1>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="c1">#Supporting packages for analysis</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">#Supporting packages for analysis</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 
@@ -336,14 +345,13 @@ div.rendered_html tbody tr:hover {
 </pre></div>
 </div>
 </div>
-<div class="section" id="Agglomerative-clustering-of-kinases">
-<h2>Agglomerative clustering of kinases<a class="headerlink" href="#Agglomerative-clustering-of-kinases" title="Permalink to this headline">¶</a></h2>
+<section id="Agglomerative-clustering-of-kinases">
+<h2>Agglomerative clustering of kinases<a class="headerlink" href="#Agglomerative-clustering-of-kinases" title="Permalink to this heading"></a></h2>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">results</span> <span class="o">=</span> <span class="n">activities</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">results</span> <span class="o">=</span> <span class="n">activities</span>
 <span class="n">results</span> <span class="o">=</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">results</span><span class="p">)</span>
 
 
@@ -381,15 +389,14 @@ div.rendered_html tbody tr:hover {
 <img alt="../_images/Examples_EGF_184A1_WolfYadlin2007_3_0.png" src="../_images/Examples_EGF_184A1_WolfYadlin2007_3_0.png" />
 </div>
 </div>
-</div>
-<div class="section" id="Agglomerative-clustering-of-only-significant-kinases">
-<h2>Agglomerative clustering of only significant kinases<a class="headerlink" href="#Agglomerative-clustering-of-only-significant-kinases" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="Agglomerative-clustering-of-only-significant-kinases">
+<h2>Agglomerative clustering of only significant kinases<a class="headerlink" href="#Agglomerative-clustering-of-only-significant-kinases" title="Permalink to this heading"></a></h2>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">results</span> <span class="o">=</span> <span class="n">activities</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">results</span> <span class="o">=</span> <span class="n">activities</span>
 <span class="n">results</span> <span class="o">=</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">results</span><span class="p">)</span>
 
 <span class="n">fig</span><span class="p">,</span> <span class="n">axes</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span> <span class="o">=</span> <span class="p">(</span><span class="mi">9</span><span class="p">,</span><span class="mi">12</span><span class="p">),</span>
@@ -431,13 +438,12 @@ div.rendered_html tbody tr:hover {
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>
 </pre></div>
 </div>
 </div>
-</div>
-</div>
+</section>
+</section>
 
 
             <div class="clearer"></div>
@@ -446,15 +452,16 @@ div.rendered_html tbody tr:hover {
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-  <h3><a href="../index.html">Table of Contents</a></h3>
-  <p class="caption"><span class="caption-text">Contents:</span></p>
+  <div>
+    <h3><a href="../index.html">Table of Contents</a></h3>
+    <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../Overview.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../Dependencies.html">Dependencies</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../KSTAR.html">KSTAR</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Getting Started</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../Tutorial/tutorial.html">Tutorial</a></li>
-<li class="toctree-l1 current"><a class="reference internal" href="Examples.html">Plotting Examples from KSTAR Paper</a><ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="Examples.html">Analysis Examples</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="Examples.html#activation-of-kinases-in-controlled-cell-lines">Activation of Kinases in Controlled Cell Lines</a><ul class="current">
 <li class="toctree-l3 current"><a class="current reference internal" href="#">EGF Stimulation of 184A1 Cells (Wolf Yadlin, 2007)</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#Agglomerative-clustering-of-kinases">Agglomerative clustering of kinases</a></li>
@@ -469,15 +476,20 @@ div.rendered_html tbody tr:hover {
 <li class="toctree-l2"><a class="reference internal" href="Examples.html#profiling-her2-therapy-response-in-breast-cancer">Profiling HER2 therapy response in Breast Cancer</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../Running_with_nextflow.html">Running Large Datasets with Nextflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Parallel/parallel.html">KSTAR in Parallel</a></li>
 </ul>
 
-  <h4>Previous topic</h4>
-  <p class="topless"><a href="Examples.html"
-                        title="previous chapter">Plotting Examples from KSTAR Paper</a></p>
-  <h4>Next topic</h4>
-  <p class="topless"><a href="EGF_HER2_WolfYadlin2006.html"
-                        title="next chapter">EGF and HRG Stimulation of ERBB2 Overexpressing HMEC Cells (Wolf Yadlin 2006)</a></p>
+  </div>
+  <div>
+    <h4>Previous topic</h4>
+    <p class="topless"><a href="Examples.html"
+                          title="previous chapter">Analysis Examples</a></p>
+  </div>
+  <div>
+    <h4>Next topic</h4>
+    <p class="topless"><a href="EGF_HER2_WolfYadlin2006.html"
+                          title="next chapter">EGF and HRG Stimulation of ERBB2 Overexpressing HMEC Cells (Wolf Yadlin 2006)</a></p>
+  </div>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
@@ -489,12 +501,12 @@ div.rendered_html tbody tr:hover {
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="../search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
       <input type="submit" value="Go" />
     </form>
     </div>
 </div>
-<script>$('#searchbox').show(0);</script>
+<script>document.getElementById('searchbox').style.display = "block"</script>
         </div>
       </div>
       <div class="clearer"></div>
@@ -512,16 +524,16 @@ div.rendered_html tbody tr:hover {
           <a href="EGF_HER2_WolfYadlin2006.html" title="EGF and HRG Stimulation of ERBB2 Overexpressing HMEC Cells (Wolf Yadlin 2006)"
              >next</a> |</li>
         <li class="right" >
-          <a href="Examples.html" title="Plotting Examples from KSTAR Paper"
+          <a href="Examples.html" title="Analysis Examples"
              >previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="../index.html">KSTAR 1 documentation</a> &#187;</li>
-          <li class="nav-item nav-item-1"><a href="Examples.html" >Plotting Examples from KSTAR Paper</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="Examples.html" >Analysis Examples</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">EGF Stimulation of 184A1 Cells (Wolf Yadlin, 2007)</a></li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2020, Naegle Lab.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.0.1.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.0.2.
     </div>
   </body>
 </html>

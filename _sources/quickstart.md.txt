@@ -78,7 +78,7 @@ these networks. To do so, follow the steps below:
 2. KSTAR uses pickled versions of these network files. By default, *update_network_directory()* will automatically generate network pickles. However, if pickles 
 have not been created (either on purpose or due to errors), use *create_network_pickles()*, which will take individual networks within the network directory and 
 pickle them for you.
-3. If operating in an ipython environment, you will need to restart the kernel for the updates to take place within your environment.
+3. You will need to restart the kernel for the updates to take place within your environment.
 
 The python code used should look similar to below:
 ```
@@ -90,7 +90,8 @@ config.NETWORK_DIR = config.update_network_directory('./NETWORKS/NetworKIN')
 #create network pickles. Only need to run this function if network pickles were not already generated.
 config.create_network_pickles()
 ```
-As long as the network directory does not change, you only need to run the above steps once. All subsequent imports will remember the changes.
+Restart the python environment or reload the kstar package. As long as the network directory does not change, 
+you only need to run the above steps once. All subsequent imports will remember the changes.
 
 #### Verify that KSTAR environment is ready
 

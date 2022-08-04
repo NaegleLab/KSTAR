@@ -15,5 +15,5 @@ KSTAR is a Python package for inferring kinase actiivities from phosphoproteomic
 6. Analysis/Plotting: Use the post-normalized or mann whitney activity calculations to plot/infer kinase activities within the dataset of interest.
 
 
-
+For more details about the algorithm, as well as best use cases, see the original publication: https://www.nature.com/articles/s41467-022-32017-5
 

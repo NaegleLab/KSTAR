@@ -1,7 +1,9 @@
+# Network Generation
+
 The prune class and accompanying functions was created for the process of generating the heuristically pruned networks that KSTAR bases its
 predictions on. Pruning can either be run within a python environment/interpreter, or they can be run using a bash script from the command line.
 
-# Run pruning within python
+## Run pruning within python
 
 The prune class and accompanying functions was created for the process of generating the heuristically pruned networks that KSTAR bases its
 predictions on. If wanting to run pruning in python, see below:
@@ -22,7 +24,7 @@ kinase_size = 2000     #minimum number of substrates all kinases must be connect
 site_limit = 10       #maximum number of kinases a particular substrate can be connected to
 num_networks = 50     #number of pruned networks to generate
 network_id = 'NetworKIN'
-odir = f"./prune/results" #where the final pruned networks should be saved
+odir = f"./prune/results/" #where the final pruned networks should be saved
 PROCESSES = 4		#number of cores to use (> 1 for multiprocessing)
 log.info("Beginning to build pruning networks")
 #run and save pruning
@@ -30,16 +32,16 @@ pruner = run_pruning(network, log, use_compendia, phospho_type, kinase_size, sit
 save_pruning(phospho_type, network_id, kinase_size, site_limit, use_compendia, odir, log)
 ```
 
-# Run pruning from the command line
+## Run pruning from the command line
 It is also possible to run the pruning procedure from start to finish, including saving the results and run info, from the command line. 
 A bash script like the one below can be used to run prune.py and input the necessary parameters. 
 ```
 export KSTAR_DIR = /repo_loc/KSTAR/
 cd $KSTAR_DIR
 
-python /kstar/prune/prune.py \
+python /kstar/prune.py \
 --network_file /RESOURCE_FILES/NetworKIN/NetworKIN_2020-02-26_all_matrix.csv \
---output_directory /prune/results \
+--output_directory /prune/results/ \
 --phospho_type Y \
 --kinase_size  2000 \
 --site_limit 10 \

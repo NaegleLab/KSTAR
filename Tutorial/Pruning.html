@@ -1,17 +1,19 @@
 
 <!DOCTYPE html>
 
-<html>
+<html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Run pruning within python &#8212; KSTAR 1 documentation</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>Network Generation &#8212; KSTAR 1 documentation</title>
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../_static/classic.css" />
     
     <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
     <script src="../_static/jquery.js"></script>
     <script src="../_static/underscore.js"></script>
+    <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="../_static/doctools.js"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     
@@ -37,7 +39,7 @@
              accesskey="P">previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="../index.html">KSTAR 1 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="tutorial.html" accesskey="U">Tutorial</a> &#187;</li>
-        <li class="nav-item nav-item-this"><a href="">Run pruning within python</a></li> 
+        <li class="nav-item nav-item-this"><a href="">Network Generation</a></li> 
       </ul>
     </div>  
 
@@ -46,10 +48,12 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <p>The prune class and accompanying functions was created for the process of generating the heuristically pruned networks that KSTAR bases its
+  <section id="network-generation">
+<h1>Network Generation<a class="headerlink" href="#network-generation" title="Permalink to this heading"></a></h1>
+<p>The prune class and accompanying functions was created for the process of generating the heuristically pruned networks that KSTAR bases its
 predictions on. Pruning can either be run within a python environment/interpreter, or they can be run using a bash script from the command line.</p>
-<div class="tex2jax_ignore mathjax_ignore section" id="run-pruning-within-python">
-<h1>Run pruning within python<a class="headerlink" href="#run-pruning-within-python" title="Permalink to this headline">¶</a></h1>
+<section id="run-pruning-within-python">
+<h2>Run pruning within python<a class="headerlink" href="#run-pruning-within-python" title="Permalink to this heading"></a></h2>
 <p>The prune class and accompanying functions was created for the process of generating the heuristically pruned networks that KSTAR bases its
 predictions on. If wanting to run pruning in python, see below:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1">#load necesary packages</span>
@@ -67,7 +71,7 @@ predictions on. If wanting to run pruning in python, see below:</p>
 <span class="n">site_limit</span> <span class="o">=</span> <span class="mi">10</span>       <span class="c1">#maximum number of kinases a particular substrate can be connected to</span>
 <span class="n">num_networks</span> <span class="o">=</span> <span class="mi">50</span>     <span class="c1">#number of pruned networks to generate</span>
 <span class="n">network_id</span> <span class="o">=</span> <span class="s1">&#39;NetworKIN&#39;</span>
-<span class="n">odir</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;./prune/results&quot;</span> <span class="c1">#where the final pruned networks should be saved</span>
+<span class="n">odir</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;./prune/results/&quot;</span> <span class="c1">#where the final pruned networks should be saved</span>
 <span class="n">PROCESSES</span> <span class="o">=</span> <span class="mi">4</span>		<span class="c1">#number of cores to use (&gt; 1 for multiprocessing)</span>
 <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Beginning to build pruning networks&quot;</span><span class="p">)</span>
 <span class="c1">#run and save pruning</span>
@@ -75,17 +79,17 @@ predictions on. If wanting to run pruning in python, see below:</p>
 <span class="n">save_pruning</span><span class="p">(</span><span class="n">phospho_type</span><span class="p">,</span> <span class="n">network_id</span><span class="p">,</span> <span class="n">kinase_size</span><span class="p">,</span> <span class="n">site_limit</span><span class="p">,</span> <span class="n">use_compendia</span><span class="p">,</span> <span class="n">odir</span><span class="p">,</span> <span class="n">log</span><span class="p">)</span>
 </pre></div>
 </div>
-</div>
-<div class="tex2jax_ignore mathjax_ignore section" id="run-pruning-from-the-command-line">
-<h1>Run pruning from the command line<a class="headerlink" href="#run-pruning-from-the-command-line" title="Permalink to this headline">¶</a></h1>
+</section>
+<section id="run-pruning-from-the-command-line">
+<h2>Run pruning from the command line<a class="headerlink" href="#run-pruning-from-the-command-line" title="Permalink to this heading"></a></h2>
 <p>It is also possible to run the pruning procedure from start to finish, including saving the results and run info, from the command line.
 A bash script like the one below can be used to run prune.py and input the necessary parameters.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>export KSTAR_DIR = /repo_loc/KSTAR/
 cd $KSTAR_DIR
 
-python /kstar/prune/prune.py \
+python /kstar/prune.py \
 --network_file /RESOURCE_FILES/NetworKIN/NetworKIN_2020-02-26_all_matrix.csv \
---output_directory /prune/results \
+--output_directory /prune/results/ \
 --phospho_type Y \
 --kinase_size  2000 \
 --site_limit 10 \
@@ -94,7 +98,8 @@ python /kstar/prune/prune.py \
 --use_compendia yes 
 </pre></div>
 </div>
-</div>
+</section>
+</section>
 
 
             <div class="clearer"></div>
@@ -103,8 +108,9 @@ python /kstar/prune/prune.py \
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-  <h3><a href="../index.html">Table of Contents</a></h3>
-  <p class="caption"><span class="caption-text">Contents:</span></p>
+  <div>
+    <h3><a href="../index.html">Table of Contents</a></h3>
+    <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../Overview.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../Dependencies.html">Dependencies</a></li>
@@ -112,8 +118,11 @@ python /kstar/prune/prune.py \
 <li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Getting Started</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="tutorial.html">Tutorial</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="tutorial.html#network-generation">Network Generation</a><ul class="current">
-<li class="toctree-l3 current"><a class="current reference internal" href="#">Run pruning within python</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#run-pruning-from-the-command-line">Run pruning from the command line</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Network Generation</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#run-pruning-within-python">Run pruning within python</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#run-pruning-from-the-command-line">Run pruning from the command line</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="tutorial.html#activity-prediction">Activity Prediction</a></li>
@@ -123,12 +132,17 @@ python /kstar/prune/prune.py \
 <li class="toctree-l1"><a class="reference internal" href="../Parallel/parallel.html">KSTAR in Parallel</a></li>
 </ul>
 
-  <h4>Previous topic</h4>
-  <p class="topless"><a href="tutorial.html"
-                        title="previous chapter">Tutorial</a></p>
-  <h4>Next topic</h4>
-  <p class="topless"><a href="Activity_Calculation.html"
-                        title="next chapter">Map Datasets to KinPred</a></p>
+  </div>
+  <div>
+    <h4>Previous topic</h4>
+    <p class="topless"><a href="tutorial.html"
+                          title="previous chapter">Tutorial</a></p>
+  </div>
+  <div>
+    <h4>Next topic</h4>
+    <p class="topless"><a href="Activity_Calculation.html"
+                          title="next chapter">Map Datasets to KinPred</a></p>
+  </div>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
@@ -140,12 +154,12 @@ python /kstar/prune/prune.py \
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="../search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
       <input type="submit" value="Go" />
     </form>
     </div>
 </div>
-<script>$('#searchbox').show(0);</script>
+<script>document.getElementById('searchbox').style.display = "block"</script>
         </div>
       </div>
       <div class="clearer"></div>
@@ -167,12 +181,12 @@ python /kstar/prune/prune.py \
              >previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="../index.html">KSTAR 1 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="tutorial.html" >Tutorial</a> &#187;</li>
-        <li class="nav-item nav-item-this"><a href="">Run pruning within python</a></li> 
+        <li class="nav-item nav-item-this"><a href="">Network Generation</a></li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2020, Naegle Lab.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.0.1.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.0.2.
     </div>
   </body>
 </html>
