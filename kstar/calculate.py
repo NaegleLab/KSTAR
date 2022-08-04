@@ -183,13 +183,40 @@ class KinaseActivity:
             num_random_experiments,
             self.phospho_type, 
             self.data_columns,
-            pool,
             PROCESSES = PROCESSES)
         
         self.logger.info("Calculating random kinase activities")
         self.random_kinact = KinaseActivity(self.random_experiments, logger, phospho_type=self.phospho_type)
-        self.random_kinact.add_networks_batch(self.networks)
-        self.random_kinact.calculate_kinase_activities( agg='count', threshold=1.0, greater=True, PROCESSES = PROCESSES )
+        #self.random_kinact.add_networks_batch(self.networks)
+
+        # if no data columns are provided use all columns that start with data:
+        # data columns that filtered have no evidence are removed
+        self.logger.info(f"Predicting Activity for Random Experiments")
+        
+
+        # MULTIPROCESSING
+        if PROCESSES > 1:
+            pool = multiprocessing.Pool(processes = PROCESSES)
+            
+            filtered_evidence_list  = [self.random_kinact.evidence[self.random_kinact.evidence[col] ==1 ] for col in self.data_columns] 
+            networks = itertools.repeat(self.networks)  
+            network_sizes = itertools.repeat(self.network_sizes)
+            iterable = zip(filtered_evidence_list, networks, network_sizes, self.random_kinact.data_columns)
+            activities_list = pool.starmap(calculate_hypergeometric_activities, iterable)
+        
+        # SINGLE CORE PROCESSING
+        else:
+            activities_list =[]
+            for col in self.random_kinact.data_columns:
+                filtered_evidence = self.random_kinact.evidence[self.random_kinact.evidence[col] == 1]
+                act = calculate_hypergeometric_activities(filtered_evidence, self.networks, self.network_sizes, col)
+                act['data'] = col
+                activities_list.append(act)
+        #self.num_networks = len(self.network_sizes)
+
+        self.random_kinact.activities_list = pd.concat(activities_list)
+        
+        #self.random_kinact.calculate_kinase_activities( agg='count', threshold=1.0, greater=True, PROCESSES = PROCESSES )
         self.random_kinact.agg_activities = self.random_kinact.aggregate_activities()
         self.random_kinact.activities = self.random_kinact.summarize_activities()
 
@@ -430,11 +457,9 @@ class KinaseActivity:
         evidence_binary = evidence.copy()
         for col in self.data_columns:
             if greater:
-                evidence_binary[col].mask(evidence[col] >= threshold, 1, inplace=True)
-                evidence_binary[col].mask(evidence[col] < threshold, 0, inplace=True)
+                evidence_binary[col] = (evidence_binary[col] >= threshold).astype(int)
             else:
-                evidence_binary[col].mask(evidence[col] <= threshold, 1, inplace=True)
-                evidence_binary[col].mask(evidence[col] > threshold, 0, inplace=True)
+                evidence_binary[col] = (evidence_binary[col] <= threshold).astype(int)
 
         #remove phosphorylation sites that were not selected in any experiment (useful for very large experiments where removing the need to copy data reduces time)
         evidence_binary.drop(evidence_binary[evidence_binary[self.data_columns].sum(axis=1) == 0].index, inplace = True) 

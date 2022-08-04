@@ -9,7 +9,7 @@ def process_fasta_file(fasta_file):
 	For configuration, to convert the global fasta sequence file into a sequence dictionary that can be used in mapping
 
 	Parameters
-	---------
+	----------
 	fasta_file : str
 		file location of fasta file
 	

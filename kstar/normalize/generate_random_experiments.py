@@ -29,7 +29,7 @@ def build_filtered_experiment(experiment, compendia, filtered_compendia, num_ran
     return rand_experiments
 
 
-def build_random_experiments(binary_evidence, compendia, num_random_experiments, phosphorylation_event, data_columns, pool, selection_type='KSTAR_NUM_COMPENDIA_CLASS', PROCESSES = 1):
+def build_random_experiments(binary_evidence, compendia, num_random_experiments, phosphorylation_event, data_columns, selection_type='KSTAR_NUM_COMPENDIA_CLASS', PROCESSES = 1):
     """
     Given an experimental dataframe and the human phospho compendia, build random experiments such that each random experiment takes on the same
     distribution with respect to the study bias defined as either NUM_COMPENDIA (total number of compendia a site is annotated in) or 
@@ -89,7 +89,7 @@ def build_random_experiments(binary_evidence, compendia, num_random_experiments,
 
     # ************ PARALELLIZATION ************
     if PROCESSES > 1:
-        
+        pool = multiprocessing.Pool(processes = PROCESSES)
         iterable = zip(
                 filtered_experiments, 
                 itertools.repeat(compendia), 
@@ -108,6 +108,10 @@ def build_random_experiments(binary_evidence, compendia, num_random_experiments,
     rand_experiments = compendia[[config.KSTAR_ACCESSION, config.KSTAR_SITE]]
     for r in rand_experiments_list:
         rand_experiments = pd.merge(rand_experiments, r, how = 'left', on = [config.KSTAR_ACCESSION, config.KSTAR_SITE])
+        
+    #remove sites that aren't used in any random experiments
+    random_data_cols = [col for col in rand_experiments if col not in [config.KSTAR_SITE,config.KSTAR_ACCESSION]]
+    rand_experiments = rand_experiments.dropna(how = 'all', subset = random_data_cols)
     return rand_experiments
         
 def parse_args():
