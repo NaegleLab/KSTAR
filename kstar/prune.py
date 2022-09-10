@@ -40,13 +40,14 @@ class Pruner:
         self.logger = logger
         self.network = network[network['site'].str.startswith(self.phospho_type)]
         
-
+        #load human reference phosphoproteome, obtain the correct phosphosites (Y or ST), and combine duplicate entries
         self.compendia = config.HUMAN_REF_COMPENDIA
         self.compendia = self.compendia[self.compendia[config.KSTAR_SITE].str.startswith(self.phospho_type)]
         self.compendia = self.compendia[[config.KSTAR_ACCESSION, config.KSTAR_SITE, 'KSTAR_NUM_COMPENDIA']]
         self.compendia = self.compendia.groupby([config.KSTAR_ACCESSION, config.KSTAR_SITE]).max().reset_index()
-
+        #merge the human phosphoproteome compendia, which contains study bias information for all phosphosites, with the network
         self.network = pd.merge(self.network, self.compendia, how = 'inner', left_on = [acc_col, site_col], right_on=[config.KSTAR_ACCESSION, config.KSTAR_SITE] )
+        
         #update index to indicate site associated with each row
         self.network = self.network.set_index([config.KSTAR_ACCESSION, config.KSTAR_SITE])
         #drop unneeded columns (or maybe drop any non number columns)
@@ -216,7 +217,6 @@ class Pruner:
             pool = multiprocessing.Pool(processes = PROCESSES)
             comp_sizes = itertools.repeat(compendia_sizes, num_networks)
             limits = itertools.repeat(site_limit, num_networks)
-            # names = [os.path.join(odir,f"{network_id}_{i}") for i in range(num_networks)] 
             odirs = itertools.repeat(odir, num_networks)
             iterable = zip(comp_sizes, limits, odirs)
 
@@ -227,41 +227,39 @@ class Pruner:
             pruned_networks = []
             for i in range(num_networks):
                 self.compendia_pruned_network(compendia_sizes, site_limit, os.path.join(odir,f"{network_id}_{i}") )
-                
+                f"{name}.tsv", sep = "\t", index=False
         
-        # pruned_dict = {}
-        # for i in range(num_networks):
-        #     name = os.path.join(odir,f"{network_id}_{i}")
-        #     pruned_dict[f"{network_id}_{i}"] = pd.read_table(f"{name}.tsv")
-        
+  
 
-        # return pruned_dict
+    def build_multiple_networks(self, kinase_size, site_limit, num_networks, network_id, odir, PROCESSES = 1):
+        """
+        Basic Network Generation - only takes into account score when determining sites a kinase 
+        connects to
+        """
+        odir = os.path.join(odir, "work")
+        # MULTIPROCESSING
+        if PROCESSES > 1:
+            pool = multiprocessing.Pool(processes = PROCESSES)
+            network_iter = itertools.repeat(self.network, num_networks)
+            size_iter = itertools.repeat(kinase_size, num_networks)
+            limit_iter = itertools.repeat(site_limit, num_networks)
+            iterable = zip(network_iter, size_iter, limit_iter)
+            pruned_networks = pool.starmap(self.build_pruned_network, iterable)
+            #save each network
+            for i in range(len(pruned_networks)):
+                net = pruned_networks[i]
+                tmp_odir = os.path.join(odir,f"{network_id}_{i}")
+                name = os.path.join(odir,''.join(random.choices(string.ascii_uppercase + string.digits, k=10)))
+                net.to_csv(f"{name}.tsv", sep = "\t", index=False) 
+        # SINGLE CORE PROCESSING
+        else:
+            pruned_networks = []
+            for i in range(num_networks):
+                tmp_odir = os.path.join(odir,f"{network_id}_{i}")
+                name = os.path.join(odir,''.join(random.choices(string.ascii_uppercase + string.digits, k=10)))
+                net = self.build_pruned_network(self.network, kinase_size, site_limit)
+                net.to_csv(f"{name}.tsv", sep = "\t", index=False)
 
-    # def build_multiple_networks(self, kinase_size, site_limit, num_networks, network_id):
-    #     """
-    #     Basic Network Generation - only takes into account score when determining sites a kinase 
-    #     connects to
-    #     """
-    #     # MULTIPROCESSING
-    #     if config.PROCESSES > 1:
-    #         pool = multiprocessing.Pool(processes = config.PROCESSES)
-    #         network_iter = itertools.repeat(self.network, num_networks)
-    #         size_iter = itertools.repeat(kinase_size, num_networks)
-    #         limit_iter = itertools.repeat(site_limit, num_networks)
-    #         iterable = zip(network_iter, size_iter, limit_iter)
-    #         pruned_networks = pool.starmap(self.build_pruned_network, iterable)
-        
-    #     # SINGLE CORE PROCESSING
-    #     else:
-    #         pruned_networks = []
-    #         for i in range(num_networks):
-    #             net = self.build_pruned_network(self.network, kinase_size, site_limit)
-    #             pruned_networks.append(net)
-
-    #     pruned_dict = {}
-    #     for i in range(len(pruned_networks)):
-    #         pruned_dict[f"{network_id}_{i}"] = pruned_networks[i]
-    #     return pruned_dict
 
 
 """
@@ -326,7 +324,7 @@ def process_args(results):
     return network, log, use_compendia
 
 
-def run_pruning(network, log, use_compendia, phospho_type, kinase_size, site_limit, num_networks, network_id, odir, 
+def run_pruning(network, log, phospho_type, kinase_size, site_limit, num_networks, network_id, odir, use_compendia = True,
                 acc_col = 'substrate_acc', site_col = 'site', netcols_todrop = ['substrate_acc','site','substrate_id', 'substrate_name', 'pep'], PROCESSES = 1):
     """
     Generate pruned networks from a weighted kinase-substrate graph and log run information
@@ -362,9 +360,9 @@ def run_pruning(network, log, use_compendia, phospho_type, kinase_size, site_lim
     if use_compendia:
         log.info("Pruning using compendia ratios")
         pruner.build_multiple_compendia_networks(kinase_size, site_limit, num_networks, network_id, odir, PROCESSES = PROCESSES)
-    # else:
-    #     log.info("Pruning without using compendia")
-    #     pruned_networks = pruner.build_multiple_networks(kinase_size, site_limit, num_networks, network_id)
+    else:
+        log.info("Pruning without using compendia")
+        pruned_networks = pruner.build_multiple_networks(kinase_size, site_limit, num_networks, network_id, odir, PROCESSES = PROCESSES)
     return pruner
 
 def save_pruning(phospho_type, network_id, kinase_size, site_limit, use_compendia, odir, log):
