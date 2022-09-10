@@ -116,7 +116,7 @@ class Pruner:
                 pruned_network.at[sample.name, kinase] = 1
                 site_sizes[sample.name] = site_sizes[sample.name] + 1
                 if site_sizes[sample.name] >= site_limit:
-                    network.at[sample.name,:] = np.nan 
+                    network.loc[sample.name,:] = np.nan 
         
         pruned_network = pruned_network.reset_index().melt(id_vars=[config.KSTAR_ACCESSION, config.KSTAR_SITE]).dropna()
         pruned_network = pruned_network.rename(columns={'variable':config.KSTAR_KINASE})
