@@ -1,0 +1,68 @@
+Analysis Examples
+=================
+
+Activation of Kinases in Controlled Cell Lines
+----------------------------------------------
+
+.. toctree::
+	:maxdepth: 2
+	
+	EGF_184A1_WolfYadlin2007.ipynb
+	
+
+.. toctree::
+	:maxdepth: 2
+	
+	EGF_HER2_WolfYadlin2006.ipynb
+	
+
+.. toctree::
+	:maxdepth: 2
+	
+	TCR_Analysis.ipynb
+
+
+Inhibition of Kinases in Controlled Cell Lines
+----------------------------------------------
+
+.. toctree::
+	:maxdepth: 2
+	
+	BCR-ABL_Analysis.ipynb
+
+	
+
+.. toctree::
+	:maxdepth: 2
+	
+	AKT_Inhib_Analysis.ipynb
+	
+
+.. toctree::
+	:maxdepth: 2
+	
+	Vemurafenib_Analysis.ipynb
+	
+
+Profiling HER2 therapy response in Breast Cancer
+------------------------------------------------
+
+.. toctree::
+	:maxdepth: 2
+	
+	CPTAC_Analysis.ipynb
+	
+
+.. toctree::
+	:maxdepth: 2
+	
+	PDX_Analysis.ipynb
+
+
+.. toctree::
+	:maxdepth: 2
+	
+	Microbiopsy_Analysis.ipynb
+
+
+

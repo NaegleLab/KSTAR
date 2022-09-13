@@ -1,0 +1,1709 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>Map Datasets to KinPred &#8212; KSTAR 1 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/classic.css" />
+    
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Analysis Examples" href="../Examples/Examples.html" />
+    <link rel="prev" title="Network Generation" href="Pruning.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="../Examples/Examples.html" title="Analysis Examples"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="Pruning.html" title="Network Generation"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">KSTAR 1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="tutorial.html" accesskey="U">Tutorial</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Map Datasets to KinPred</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  
+<style>
+/* CSS for nbsphinx extension */
+
+/* remove conflicting styling from Sphinx themes */
+div.nbinput.container div.prompt *,
+div.nboutput.container div.prompt *,
+div.nbinput.container div.input_area pre,
+div.nboutput.container div.output_area pre,
+div.nbinput.container div.input_area .highlight,
+div.nboutput.container div.output_area .highlight {
+    border: none;
+    padding: 0;
+    margin: 0;
+    box-shadow: none;
+}
+
+div.nbinput.container > div[class*=highlight],
+div.nboutput.container > div[class*=highlight] {
+    margin: 0;
+}
+
+div.nbinput.container div.prompt *,
+div.nboutput.container div.prompt * {
+    background: none;
+}
+
+div.nboutput.container div.output_area .highlight,
+div.nboutput.container div.output_area pre {
+    background: unset;
+}
+
+div.nboutput.container div.output_area div.highlight {
+    color: unset;  /* override Pygments text color */
+}
+
+/* avoid gaps between output lines */
+div.nboutput.container div[class*=highlight] pre {
+    line-height: normal;
+}
+
+/* input/output containers */
+div.nbinput.container,
+div.nboutput.container {
+    display: -webkit-flex;
+    display: flex;
+    align-items: flex-start;
+    margin: 0;
+    width: 100%;
+}
+@media (max-width: 540px) {
+    div.nbinput.container,
+    div.nboutput.container {
+        flex-direction: column;
+    }
+}
+
+/* input container */
+div.nbinput.container {
+    padding-top: 5px;
+}
+
+/* last container */
+div.nblast.container {
+    padding-bottom: 5px;
+}
+
+/* input prompt */
+div.nbinput.container div.prompt pre {
+    color: #307FC1;
+}
+
+/* output prompt */
+div.nboutput.container div.prompt pre {
+    color: #BF5B3D;
+}
+
+/* all prompts */
+div.nbinput.container div.prompt,
+div.nboutput.container div.prompt {
+    width: 4.5ex;
+    padding-top: 5px;
+    position: relative;
+    user-select: none;
+}
+
+div.nbinput.container div.prompt > div,
+div.nboutput.container div.prompt > div {
+    position: absolute;
+    right: 0;
+    margin-right: 0.3ex;
+}
+
+@media (max-width: 540px) {
+    div.nbinput.container div.prompt,
+    div.nboutput.container div.prompt {
+        width: unset;
+        text-align: left;
+        padding: 0.4em;
+    }
+    div.nboutput.container div.prompt.empty {
+        padding: 0;
+    }
+
+    div.nbinput.container div.prompt > div,
+    div.nboutput.container div.prompt > div {
+        position: unset;
+    }
+}
+
+/* disable scrollbars on prompts */
+div.nbinput.container div.prompt pre,
+div.nboutput.container div.prompt pre {
+    overflow: hidden;
+}
+
+/* input/output area */
+div.nbinput.container div.input_area,
+div.nboutput.container div.output_area {
+    -webkit-flex: 1;
+    flex: 1;
+    overflow: auto;
+}
+@media (max-width: 540px) {
+    div.nbinput.container div.input_area,
+    div.nboutput.container div.output_area {
+        width: 100%;
+    }
+}
+
+/* input area */
+div.nbinput.container div.input_area {
+    border: 1px solid #e0e0e0;
+    border-radius: 2px;
+    /*background: #f5f5f5;*/
+}
+
+/* override MathJax center alignment in output cells */
+div.nboutput.container div[class*=MathJax] {
+    text-align: left !important;
+}
+
+/* override sphinx.ext.imgmath center alignment in output cells */
+div.nboutput.container div.math p {
+    text-align: left;
+}
+
+/* standard error */
+div.nboutput.container div.output_area.stderr {
+    background: #fdd;
+}
+
+/* ANSI colors */
+.ansi-black-fg { color: #3E424D; }
+.ansi-black-bg { background-color: #3E424D; }
+.ansi-black-intense-fg { color: #282C36; }
+.ansi-black-intense-bg { background-color: #282C36; }
+.ansi-red-fg { color: #E75C58; }
+.ansi-red-bg { background-color: #E75C58; }
+.ansi-red-intense-fg { color: #B22B31; }
+.ansi-red-intense-bg { background-color: #B22B31; }
+.ansi-green-fg { color: #00A250; }
+.ansi-green-bg { background-color: #00A250; }
+.ansi-green-intense-fg { color: #007427; }
+.ansi-green-intense-bg { background-color: #007427; }
+.ansi-yellow-fg { color: #DDB62B; }
+.ansi-yellow-bg { background-color: #DDB62B; }
+.ansi-yellow-intense-fg { color: #B27D12; }
+.ansi-yellow-intense-bg { background-color: #B27D12; }
+.ansi-blue-fg { color: #208FFB; }
+.ansi-blue-bg { background-color: #208FFB; }
+.ansi-blue-intense-fg { color: #0065CA; }
+.ansi-blue-intense-bg { background-color: #0065CA; }
+.ansi-magenta-fg { color: #D160C4; }
+.ansi-magenta-bg { background-color: #D160C4; }
+.ansi-magenta-intense-fg { color: #A03196; }
+.ansi-magenta-intense-bg { background-color: #A03196; }
+.ansi-cyan-fg { color: #60C6C8; }
+.ansi-cyan-bg { background-color: #60C6C8; }
+.ansi-cyan-intense-fg { color: #258F8F; }
+.ansi-cyan-intense-bg { background-color: #258F8F; }
+.ansi-white-fg { color: #C5C1B4; }
+.ansi-white-bg { background-color: #C5C1B4; }
+.ansi-white-intense-fg { color: #A1A6B2; }
+.ansi-white-intense-bg { background-color: #A1A6B2; }
+
+.ansi-default-inverse-fg { color: #FFFFFF; }
+.ansi-default-inverse-bg { background-color: #000000; }
+
+.ansi-bold { font-weight: bold; }
+.ansi-underline { text-decoration: underline; }
+
+
+div.nbinput.container div.input_area div[class*=highlight] > pre,
+div.nboutput.container div.output_area div[class*=highlight] > pre,
+div.nboutput.container div.output_area div[class*=highlight].math,
+div.nboutput.container div.output_area.rendered_html,
+div.nboutput.container div.output_area > div.output_javascript,
+div.nboutput.container div.output_area:not(.rendered_html) > img{
+    padding: 5px;
+    margin: 0;
+}
+
+/* fix copybtn overflow problem in chromium (needed for 'sphinx_copybutton') */
+div.nbinput.container div.input_area > div[class^='highlight'],
+div.nboutput.container div.output_area > div[class^='highlight']{
+    overflow-y: hidden;
+}
+
+/* hide copybtn icon on prompts (needed for 'sphinx_copybutton') */
+.prompt .copybtn {
+    display: none;
+}
+
+/* Some additional styling taken form the Jupyter notebook CSS */
+.jp-RenderedHTMLCommon table,
+div.rendered_html table {
+  border: none;
+  border-collapse: collapse;
+  border-spacing: 0;
+  color: black;
+  font-size: 12px;
+  table-layout: fixed;
+}
+.jp-RenderedHTMLCommon thead,
+div.rendered_html thead {
+  border-bottom: 1px solid black;
+  vertical-align: bottom;
+}
+.jp-RenderedHTMLCommon tr,
+.jp-RenderedHTMLCommon th,
+.jp-RenderedHTMLCommon td,
+div.rendered_html tr,
+div.rendered_html th,
+div.rendered_html td {
+  text-align: right;
+  vertical-align: middle;
+  padding: 0.5em 0.5em;
+  line-height: normal;
+  white-space: normal;
+  max-width: none;
+  border: none;
+}
+.jp-RenderedHTMLCommon th,
+div.rendered_html th {
+  font-weight: bold;
+}
+.jp-RenderedHTMLCommon tbody tr:nth-child(odd),
+div.rendered_html tbody tr:nth-child(odd) {
+  background: #f5f5f5;
+}
+.jp-RenderedHTMLCommon tbody tr:hover,
+div.rendered_html tbody tr:hover {
+  background: rgba(66, 165, 245, 0.2);
+}
+</style>
+<section id="Map-Datasets-to-KinPred">
+<h1>Map Datasets to KinPred<a class="headerlink" href="#Map-Datasets-to-KinPred" title="Permalink to this heading"></a></h1>
+<section id="Download-and-Process-Dataset-of-Interest">
+<h2>Download and Process Dataset of Interest<a class="headerlink" href="#Download-and-Process-Dataset-of-Interest" title="Permalink to this heading"></a></h2>
+<p>Prior to predicting kinase activities, datasets need to be mapped to KinPred to obtain the Uniprot ID, phosphosite, and the +/-7 peptide sequence that will be used by KSTAR to identify which kinases are associated with each phosphosite. In order to map kinase activities, the dataframe containing phosphoproteomic data should contain each peptides Uniprot accession, as well as either the site number or peptide sequence. If the peptide sequence is used, it should be formatted with only the
+phosphorylated peptides being lowercased. For example, if a peptide sequence is annotated with ‘(ph)’ in front of the phosphorylated amino acid, you would need to remove the ‘(ph)’ from the sequence and lowercase the phosphorylated amino acid. So, the peptide sequence SGLAYCPND(ph)YHQLFSPR would become SGLAYCPNDyHQLFSPR.</p>
+<p>It is recommended to use the peptide sequence rather than the site number when possible, as this is more likely to be found in the most recent version of KinPred. An example of the processed dataset can be seen below, which is a trimmed, processed, and mapped version of the dataset published publically (Chylek, 2014):</p>
+<p>Reference: L. A. Chylek, V. Akimov, J. Dengjel, K. T. G. Rigbolt, B. Hu, W. S. Hlavacek, and B. Blagoev. Phosphorylation Site Dynamics of Early T-cell Receptor Signaling. PLoS ONE, 9(8):e104240, 2014.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">#import KSTAR and other necesary packages</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pickle</span>
+<span class="kn">import</span> <span class="nn">os</span>
+
+<span class="kn">from</span> <span class="nn">kstar</span> <span class="kn">import</span> <span class="n">config</span><span class="p">,</span> <span class="n">helpers</span><span class="p">,</span> <span class="n">mapping</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">#load data</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s1">&#39;example.tsv&#39;</span><span class="p">,</span> <span class="n">index_col</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">sep</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\t</span><span class="s1">&#39;</span><span class="p">)</span>
+<span class="n">df</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>query_accession</th>
+      <th>mod_sites</th>
+      <th>peptide</th>
+      <th>data:time:0</th>
+      <th>data:time:5</th>
+      <th>data:time:15</th>
+      <th>data:time:30</th>
+      <th>data:time:60</th>
+    </tr>
+    <tr>
+      <th>MS_id</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>7605136</th>
+      <td>Q9P2D3-1</td>
+      <td>Y1104</td>
+      <td>EAAEVCEyAMSLAK</td>
+      <td>0.0</td>
+      <td>-0.01</td>
+      <td>-0.28</td>
+      <td>-0.03</td>
+      <td>-0.27</td>
+    </tr>
+    <tr>
+      <th>7605137</th>
+      <td>A0FGR8-6</td>
+      <td>Y845</td>
+      <td>NLIAFSEDGSDPyVR</td>
+      <td>0.0</td>
+      <td>0.26</td>
+      <td>0.27</td>
+      <td>0.04</td>
+      <td>0.05</td>
+    </tr>
+    <tr>
+      <th>7605138</th>
+      <td>Q5T4S7-2</td>
+      <td>Y5156</td>
+      <td>HNDMPIyEAADK</td>
+      <td>0.0</td>
+      <td>0.31</td>
+      <td>-0.15</td>
+      <td>0.01</td>
+      <td>-0.23</td>
+    </tr>
+    <tr>
+      <th>7605139</th>
+      <td>Q16181-1</td>
+      <td>Y30</td>
+      <td>NLEGyVGFANLPNQVYR</td>
+      <td>0.0</td>
+      <td>-0.14</td>
+      <td>-0.19</td>
+      <td>0.07</td>
+      <td>0.15</td>
+    </tr>
+    <tr>
+      <th>7605140</th>
+      <td>Q16181-1</td>
+      <td>Y41</td>
+      <td>NLEGYVGFANLPNQVyR</td>
+      <td>0.0</td>
+      <td>-0.14</td>
+      <td>-0.09</td>
+      <td>0.04</td>
+      <td>-0.06</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>7605855</th>
+      <td>O95801</td>
+      <td>Y129</td>
+      <td>AAAQYyLGNFR</td>
+      <td>0.0</td>
+      <td>0.15</td>
+      <td>0.39</td>
+      <td>-0.05</td>
+      <td>0.08</td>
+    </tr>
+    <tr>
+      <th>7605859</th>
+      <td>O60711</td>
+      <td>Y22</td>
+      <td>STLQDSDEySNPAPLPLDQHSR</td>
+      <td>0.0</td>
+      <td>-0.73</td>
+      <td>0.76</td>
+      <td>4.48</td>
+      <td>5.88</td>
+    </tr>
+    <tr>
+      <th>7605860</th>
+      <td>O60711</td>
+      <td>Y203</td>
+      <td>SGLAYCPNDyHQLFSPR</td>
+      <td>0.0</td>
+      <td>0.55</td>
+      <td>-1.77</td>
+      <td>3.58</td>
+      <td>5.15</td>
+    </tr>
+    <tr>
+      <th>7605861</th>
+      <td>P47736</td>
+      <td>Y374</td>
+      <td>LINAEyACYK</td>
+      <td>0.0</td>
+      <td>-0.12</td>
+      <td>0.19</td>
+      <td>0.02</td>
+      <td>-0.16</td>
+    </tr>
+    <tr>
+      <th>7605863</th>
+      <td>Q14511</td>
+      <td>Y345</td>
+      <td>DGVyDVPLHNPPDAK</td>
+      <td>0.0</td>
+      <td>-0.41</td>
+      <td>-0.14</td>
+      <td>-0.12</td>
+      <td>-0.29</td>
+    </tr>
+  </tbody>
+</table>
+<p>665 rows × 8 columns</p>
+</div></div>
+</div>
+<p>Notice that all data columns in the dataset have ‘data:’ in front of them. This is how KSTAR will identify which columns to use when making evidence decisions. This can be done manually prior to mapping, or will be done by KSTAR automatically once you indicate which columns you would like to use as evidence.</p>
+</section>
+<section id="Map-the-Dataset-to-KinPred">
+<h2>Map the Dataset to KinPred<a class="headerlink" href="#Map-the-Dataset-to-KinPred" title="Permalink to this heading"></a></h2>
+<p>First, we need to indicate where to save the mapped data and where to record information about the mapping process:</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">#define the directory where mapped dataset and run information will be saved.</span>
+<span class="n">odir</span> <span class="o">=</span> <span class="s1">&#39;./example&#39;</span>
+<span class="c1">#if directory doesn&#39;t exist yet, create it</span>
+<span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">odir</span><span class="si">}</span><span class="s2">/MAPPED_DATA&quot;</span><span class="p">):</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">odir</span><span class="si">}</span><span class="s2">/MAPPED_DATA&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>Next, we want to intialize a log file which will record information about the mapping run, including any errors that arise during the process. This log file will be saved in the location indicated by the second parameter of the ‘helpers.get_logger()’ function.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">#Define the log name</span>
+<span class="n">logName</span> <span class="o">=</span> <span class="s1">&#39;example_run&#39;</span>
+<span class="c1">#intialize logger</span>
+<span class="n">mapping_log</span> <span class="o">=</span> <span class="n">helpers</span><span class="o">.</span><span class="n">get_logger</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;mapping_</span><span class="si">{</span><span class="n">logName</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">odir</span><span class="si">}</span><span class="s2">/MAPPED_DATA/mapping_</span><span class="si">{</span><span class="n">logName</span><span class="si">}</span><span class="s2">.log&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>The last step before mapping your dataset to KinPred is to construct a dictionary which indicates the columns where KSTAR can find information about each peptide. This should include the ‘accession_id’, the uniprot accession corresponding to the identified peptide. It should also include <strong>either</strong> the ‘peptide’ (amino acid sequence with phosphorylation sites lowercased) or the ‘site’ (modified amino acid + modification location, such as Y11). It is recommended to use the peptide sequence when
+possible.</p>
+<p>The format of this dictionary should be: {‘peptide’: ‘Col_with_PeptideInfo’, ‘accession_id’: ‘Col_with_UniprotID’}</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">mapDict</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;peptide&#39;</span><span class="p">:</span><span class="s1">&#39;peptide&#39;</span><span class="p">,</span> <span class="s1">&#39;accession_id&#39;</span><span class="p">:</span><span class="s1">&#39;query_accession&#39;</span><span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<p>You are now ready to map the dataset, which can be done using the ExperimentMapper class.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">#map dataset and record process in the logger</span>
+<span class="n">exp_mapper</span> <span class="o">=</span> <span class="n">mapping</span><span class="o">.</span><span class="n">ExperimentMapper</span><span class="p">(</span><span class="n">experiment</span> <span class="o">=</span> <span class="n">df</span><span class="p">,</span>
+                                      <span class="n">columns</span> <span class="o">=</span> <span class="n">mapDict</span><span class="p">,</span>
+                                      <span class="n">logger</span> <span class="o">=</span> <span class="n">mapping_log</span><span class="p">)</span>
+<span class="c1">#save mapped dataset</span>
+<span class="n">exp_mapper</span><span class="o">.</span><span class="n">experiment</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">odir</span><span class="si">}</span><span class="s2">/MAPPED_DATA/</span><span class="si">{</span><span class="n">logName</span><span class="si">}</span><span class="s2">_mapped.tsv&quot;</span><span class="p">,</span> <span class="n">sep</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\t</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">index</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>If you look at the ExperimentMapper class, you will find that five new columns have been added to the original dataset, which allows for easy mapping to KSTAR networks used in activity prediction.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">exp_mapper</span><span class="o">.</span><span class="n">experiment</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>query_accession</th>
+      <th>mod_sites</th>
+      <th>peptide</th>
+      <th>data:time:0</th>
+      <th>data:time:5</th>
+      <th>data:time:15</th>
+      <th>data:time:30</th>
+      <th>data:time:60</th>
+      <th>KSTAR_ACCESSION</th>
+      <th>KSTAR_PEPTIDE</th>
+      <th>KSTAR_SITE</th>
+      <th>KSTAR_NUM_COMPENDIA</th>
+      <th>KSTAR_NUM_COMPENDIA_CLASS</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>Q9P2D3-1</td>
+      <td>Y1104</td>
+      <td>EAAEVCEyAMSLAK</td>
+      <td>0.0</td>
+      <td>-0.01</td>
+      <td>-0.28</td>
+      <td>-0.03</td>
+      <td>-0.27</td>
+      <td>Q9P2D3</td>
+      <td>EAAEVCEyAMSLAKN</td>
+      <td>Y1104</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>A0FGR8-6</td>
+      <td>Y845</td>
+      <td>NLIAFSEDGSDPyVR</td>
+      <td>0.0</td>
+      <td>0.26</td>
+      <td>0.27</td>
+      <td>0.04</td>
+      <td>0.05</td>
+      <td>A0FGR8</td>
+      <td>SEDGSDPyVRMYLLP</td>
+      <td>Y824</td>
+      <td>2</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>Q5T4S7-2</td>
+      <td>Y5156</td>
+      <td>HNDMPIyEAADK</td>
+      <td>0.0</td>
+      <td>0.31</td>
+      <td>-0.15</td>
+      <td>0.01</td>
+      <td>-0.23</td>
+      <td>Q5T4S7</td>
+      <td>RHNDMPIyEAADKAL</td>
+      <td>Y5135</td>
+      <td>1</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>Q16181-1</td>
+      <td>Y30</td>
+      <td>NLEGyVGFANLPNQVYR</td>
+      <td>0.0</td>
+      <td>-0.14</td>
+      <td>-0.19</td>
+      <td>0.07</td>
+      <td>0.15</td>
+      <td>Q16181</td>
+      <td>QQKNLEGyVGFANLP</td>
+      <td>Y30</td>
+      <td>5</td>
+      <td>2</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>Q16181-1</td>
+      <td>Y41</td>
+      <td>NLEGYVGFANLPNQVyR</td>
+      <td>0.0</td>
+      <td>-0.14</td>
+      <td>-0.09</td>
+      <td>0.04</td>
+      <td>-0.06</td>
+      <td>Q16181</td>
+      <td>ANLPNQVyRKSVKRG</td>
+      <td>Y41</td>
+      <td>1</td>
+      <td>1</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+<p>These additional columns have the following meaning:</p>
+<ol class="arabic simple">
+<li><p>‘KSTAR_ACCESSION’: Uniprot accession id corresponding to reviewed protein sequence, focusing only on the canonical isoforms of each protein.</p></li>
+<li><p>‘KSTAR_PEPTIDE’: Peptide sequence containing a single phosphorylation site, including the 7 amino acids both before and after the modified residue.</p></li>
+<li><p>‘KSTAR_SITE’: Location of modified residue in the protein</p></li>
+<li><p>‘KSTAR_NUM_COMPENDIA’: The number of different phosphoproteome compendia that modification site is identified in, used as an indicator of the study bias of each modification site. For this purpose, PhosphoSitePlus, PhosphoELM, HPRD, ______, and ProteomeScout were profiled.</p></li>
+<li><p>‘KSTAR_NUM_COMPENDIA_CLASS’: Same as 4, but sites are grouped into smaller classes based on study bias (0 is &lt;1 compendia, 1 is 1-3 compendia, 2 is &gt;3 compendia)</p></li>
+</ol>
+</section>
+<section id="Explore-the-Mapped-Dataset">
+<h2>Explore the Mapped Dataset<a class="headerlink" href="#Explore-the-Mapped-Dataset" title="Permalink to this heading"></a></h2>
+<p>One way to check how well the mapping worked is to check the number of peptides in the original dataframe vs. the newly mapped dataframe.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">#Look at how many of the peptides in the dataset were actually mapped. This indicates how well the mapping worked</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Original number of lines in df: </span><span class="si">%d</span><span class="se">\n</span><span class="s2">New number of lines in mapped:</span><span class="si">%d</span><span class="s2">&quot;</span><span class="o">%</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">exp_mapper</span><span class="o">.</span><span class="n">experiment</span><span class="p">)))</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Original number of lines in df: 665
+New number of lines in mapped:665
+</pre></div></div>
+</div>
+<p>In this case, no peptides were lost during the mapping process. Changes to the number of peptides could be a result of several things: 1. Failure to find the corresponding peptide 2. A peptide with multiple phosphorylation sites was seperated into seperate peptides</p>
+<p>For specifics on mapping failures, go to the log file for details.</p>
+</section>
+</section>
+<section id="Predict-Kinase-Activities">
+<h1>Predict Kinase Activities<a class="headerlink" href="#Predict-Kinase-Activities" title="Permalink to this heading"></a></h1>
+<p>Once pruned networks have been generated or downloaded and data has been mapped, you are now ready to generate kinase activity predictions. Kinase activity calculation requires selection of the following choices</p>
+<ol class="arabic simple">
+<li><p><em>phospho_type:</em> Tyrosine [‘Y’] or Serine/Threonine [‘ST’], or both [‘Y, ’ST’] (default).</p></li>
+<li><p><em>agg:</em> How to handle duplicates of the same peptide (i.e. aggregation) and determine sites to use as evidence. a) ‘count’ counts the total number of times a non-NaN value of that peptide occurred in an experiment, and accepts any site that appears an amount of times equal to or above the threshold. This is recommended if you do not want to use quantification values and instead want to focus only on sites identified in each sample. b) ‘mean’ averages the non-NaN values found for multiple
+peptides. We recommend using this when you do want to use quantification values, such as when comparing a pre and post treatment condition.</p></li>
+<li><p><em>threshold:</em> defines which of the phosphorylation sites to use as evidence for each condition. If greater == True (default), any site with an aggregated value greater than the threshold will be used as evidence for prediction for each condition. If greater == False, any site with an aggreagated value less than the threshold will be used as evidence for prediction for each condition.</p></li>
+</ol>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">#Import preamble of kstar and other necessary functions</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">pickle</span>
+
+<span class="kn">from</span> <span class="nn">kstar</span> <span class="kn">import</span> <span class="n">config</span><span class="p">,</span> <span class="n">helpers</span><span class="p">,</span> <span class="n">calculate</span>
+</pre></div>
+</div>
+</div>
+<section id="Determine-Thresholds">
+<h2>Determine Thresholds<a class="headerlink" href="#Determine-Thresholds" title="Permalink to this heading"></a></h2>
+<p>It is useful to determine the best threshold to use (which sites to use as evidence for each sample). One easy benchmark way is to identify the number of sites that will be used as evidence at different thresholds. For tyrosine kinase activities, it is generally recommended that samples have at least 50 tyrosine sites used as evidence, while for serine/threonine kinase activities, it is recommended that samples have at least 1000 sites used as evidence. While not a necessity, it is also
+beneficial to have comparable site numbers across samples.</p>
+<p>Similar to mapping, a log file will be generated to indicate the progress of activity prediction and any errors that arise during the process. To intialize the log file, run the below code. It can be useful to name your log files differently based on whether you are generating predictions for tyrosine kinases or serine/threonine kinases.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">#define the directory where mapped dataset and run information will be saved.</span>
+<span class="n">odir</span> <span class="o">=</span> <span class="s1">&#39;./example&#39;</span>
+<span class="n">logName</span> <span class="o">=</span> <span class="s1">&#39;example_run&#39;</span>
+<span class="c1">#Name</span>
+<span class="n">logName_new</span> <span class="o">=</span> <span class="n">logName</span> <span class="o">+</span> <span class="s1">&#39;_Y&#39;</span>
+<span class="c1">#if directory does not exits, create it</span>
+<span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">odir</span><span class="si">}</span><span class="s2">/RESULTS&quot;</span><span class="p">):</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">odir</span><span class="si">}</span><span class="s2">/RESULTS&quot;</span><span class="p">)</span>
+<span class="c1">#intialize log file</span>
+<span class="n">activity_log</span> <span class="o">=</span> <span class="n">helpers</span><span class="o">.</span><span class="n">get_logger</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;activity_</span><span class="si">{</span><span class="n">logName_new</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">odir</span><span class="si">}</span><span class="s2">/RESULTS/activity_</span><span class="si">{</span><span class="n">logName_new</span><span class="si">}</span><span class="s2">.log&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">#load mapped data, if necessary</span>
+<span class="n">experiment</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">odir</span><span class="si">}</span><span class="s1">/MAPPED_DATA/</span><span class="si">{</span><span class="n">logName</span><span class="si">}</span><span class="s1">_mapped.tsv&#39;</span><span class="p">,</span> <span class="n">sep</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\t</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">index_col</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>Next, we need to define the parameters to use for the generation of evidence in this experiment. These parameters include: 1. data_columns: the location of abundance values from phosphoproteomic experiment. Either can provide a list of column names, or if is None, KSTAR will look for any column that contains ‘data:’ at the beginning of the name. Since the example dataset includes this ‘data:’ format, we will set this parameter to None. 2. agg: We would like phosphorylation sites select sites
+based on the their abundance relative to the pre-stimulation condition, with sites appearing multiple times aggregated using a mean. As such, we will set this to be ‘mean’. 3. greater: boolean that indicates whether sites greater than or less than the threshold should be kept. We are interested in knowing which kinases activate upon TCR stimulation, so we want to look at phosphorylation sites with phosphorylation. For this reason, we will set greater = True. 3. threshold: This will define the
+cutoff for keeping a phosphorylation site as evidence. If we look at the original data, abundance values are relative to the 0 minute timepoint and appear to be log transformed. We want to focus on kinases that have increased activity after stimulation, so we think that 0.2 (phosphorylation sites logfold change &gt;0.2 used as evidnece) will be a good threshold.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">#Define parameters</span>
+<span class="n">data_columns</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="n">agg</span> <span class="o">=</span> <span class="s1">&#39;mean&#39;</span>
+<span class="n">greater</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="n">threshold</span> <span class="o">=</span> <span class="mf">0.2</span>
+</pre></div>
+</div>
+</div>
+<p>For all activity prediction steps, the KinaseActivity class (found within the calculate module) is used. To initialize the class, you only need to provide the original experiment, the logger, the data columns with abundance information, and the modification type of interest. We can then use the KinaseActivity class to determine the sites that will be used as evidence in each condition given a threshold of 2.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">#intialize KinaseActivity class object</span>
+<span class="n">kinact</span> <span class="o">=</span> <span class="n">calculate</span><span class="o">.</span><span class="n">KinaseActivity</span><span class="p">(</span><span class="n">experiment</span><span class="p">,</span> <span class="n">activity_log</span><span class="p">,</span><span class="n">data_columns</span> <span class="o">=</span> <span class="n">data_columns</span><span class="p">,</span> <span class="n">phospho_type</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;Y&#39;</span><span class="p">])</span>
+<span class="c1">#convert evidence into binary evidence based on the provided threshold</span>
+<span class="n">evidence_binary</span> <span class="o">=</span> <span class="n">kinact</span><span class="o">.</span><span class="n">create_binary_evidence</span><span class="p">(</span><span class="n">agg</span> <span class="o">=</span> <span class="n">agg</span><span class="p">,</span> <span class="n">threshold</span> <span class="o">=</span> <span class="n">threshold</span><span class="p">,</span>  <span class="n">greater</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>Now that we have the binary evidence that will be used as prediction, we can identify the number of sites that will be used as evidence for prediction for each condition:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">#inspect the number of sites used for each sample</span>
+<span class="n">data_cols</span> <span class="o">=</span> <span class="p">[</span><span class="n">col</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">evidence_binary</span><span class="o">.</span><span class="n">columns</span> <span class="k">if</span> <span class="s1">&#39;data:&#39;</span> <span class="ow">in</span> <span class="n">col</span><span class="p">]</span>
+<span class="n">evidence_binary</span><span class="p">[</span><span class="n">data_cols</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+data:time:0       0.0
+data:time:5     128.0
+data:time:15    135.0
+data:time:30    191.0
+data:time:60    200.0
+dtype: float64
+</pre></div></div>
+</div>
+<p>All samples above (except for the 0 time point, which will be removed prior to activity calculation) have greater than 50 sites being used as evidence, and the evidence sizes are generally comparable. This is a good threshold to use.</p>
+</section>
+<section id="Calculate-Statistical-Enrichment-(Hypergeometric-p-values)">
+<h2>Calculate Statistical Enrichment (Hypergeometric p-values)<a class="headerlink" href="#Calculate-Statistical-Enrichment-(Hypergeometric-p-values)" title="Permalink to this heading"></a></h2>
+<p>The first step to obtaining activity predictions is calculating the statistical enrichment of kinase substrates in the dataset using the hypergeometric test. For each network + kinase, the hypergeometric tests asks the likelihood that k kinase substrates were identified in an experiment with n identified peptides, given that there are K kinase substrates in the entire phosphoproteome, N. From these tests, a set of 50 p-values for each kinase will be generated indicating the enrichment found in
+each pruned network. To obtain these predictions, use the following steps</p>
+<ol class="arabic simple">
+<li><p>Load the pruned kinase-substrate networks from the network pickles. Since the example dataset provided here is tyrosine enriched, using tyrosine networks.</p></li>
+</ol>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">phospho_types</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Y&#39;</span><span class="p">]</span> <span class="c1">#running on this type of kinase/substrate network</span>
+
+<span class="c1">#Load the pickles containing the 50 pruned networks for tyrosine kinases</span>
+<span class="n">networks</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="n">networks</span><span class="p">[</span><span class="s1">&#39;Y&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pickle</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">NETWORK_Y_PICKLE</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span> <span class="p">)</span> <span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<ol class="arabic simple" start="2">
+<li><p>Initialize an activity log, which will store information about each run, including any errors that arise</p></li>
+</ol>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">#Create activity log: if already did this, ignore.</span>
+<span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">odir</span><span class="si">}</span><span class="s2">/RESULTS&quot;</span><span class="p">):</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">odir</span><span class="si">}</span><span class="s2">/RESULTS&quot;</span><span class="p">)</span>
+<span class="n">activity_log</span> <span class="o">=</span> <span class="n">helpers</span><span class="o">.</span><span class="n">get_logger</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;activity_</span><span class="si">{</span><span class="n">logName</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">odir</span><span class="si">}</span><span class="s2">/RESULTS/activity_</span><span class="si">{</span><span class="n">logName</span><span class="si">}</span><span class="s2">.log&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<ol class="arabic simple" start="3">
+<li><p>Define the parameter values to use for activity calculation. These are the same as those described in the ‘Determine Threshold’ section for generating binary evidence.</p></li>
+</ol>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">data_columns</span> <span class="o">=</span> <span class="kc">None</span> <span class="c1">#by passing None, all columns prefixed by data: will be used to calculate activity</span>
+<span class="n">agg</span> <span class="o">=</span> <span class="s1">&#39;mean&#39;</span>
+<span class="n">threshold</span> <span class="o">=</span> <span class="mf">0.2</span>
+<span class="n">greater</span> <span class="o">=</span> <span class="kc">True</span>
+</pre></div>
+</div>
+</div>
+<ol class="arabic simple" start="4">
+<li><p>Perform enrichment calculations. The enrichment_analysis() function within the calculate module can be used to generate the statistical enrichment values. This will return a dictionary containing a different KinaseActivity object for each modification type with predictions (‘Y’ and/or ’ST).</p></li>
+</ol>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">kinact_dict</span> <span class="o">=</span> <span class="n">calculate</span><span class="o">.</span><span class="n">enrichment_analysis</span><span class="p">(</span><span class="n">experiment</span><span class="p">,</span> <span class="n">activity_log</span><span class="p">,</span> <span class="n">networks</span><span class="p">,</span> <span class="n">phospho_types</span> <span class="o">=</span> <span class="n">phospho_types</span><span class="p">,</span>
+                                                <span class="n">agg</span> <span class="o">=</span><span class="n">agg</span><span class="p">,</span> <span class="n">threshold</span> <span class="o">=</span> <span class="n">threshold</span><span class="p">,</span>
+                                                <span class="n">greater</span> <span class="o">=</span> <span class="n">greater</span><span class="p">,</span> <span class="n">PROCESSES</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>You can view the median p-values obtained for each kinase by looking at ‘activities’ attribute of the KinaseActivity class. We recommend continuing to the subsequent sections to generate more robust activity predictions, as the we have found that the median p-values suffer from kinase-specific false positive rates.</p>
+</section>
+<section id="Generate-random-datasets,-run-kinase-activity-on-random-datasets,-normalize-original-analysis">
+<h2>Generate random datasets, run kinase activity on random datasets, normalize original analysis<a class="headerlink" href="#Generate-random-datasets,-run-kinase-activity-on-random-datasets,-normalize-original-analysis" title="Permalink to this heading"></a></h2>
+<p>Once the enrichment of each kinase in the pruned networks has been calculated from the enrichment_analysis() function, we would next like to ask, for each kinase, how likely it is to have obtained that same enrichment (as indicated by the p-value) or better from a random phosphoproteomic experiment. To do so, we will first need to generate random phosphoproteomic experiments and repeat hypergeometric enrichment on these experiments. In order to perform random activity calculation, you will need
+to indicate the number of random experiments to generate. We have found that 150 provides a good balance between statistical power and computational complexity.</p>
+<p><em>Note: For larger datasets this can be slow and memory intensive. In order to speed up these calculations, it is possible to use multiprocessing by adjusting the ‘PROCESSES’ parameter to the number of core you would like to use. The default is 1 (use only a single core). You can also use a highly parallelized version through nextflow (see ‘KSTAR in Parallel’)</em></p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">#Set the number of random experiments</span>
+<span class="n">num_random_experiments</span><span class="o">=</span><span class="mi">150</span>
+<span class="c1">#Generate random experiments</span>
+<span class="n">calculate</span><span class="o">.</span><span class="n">randomized_analysis</span><span class="p">(</span><span class="n">kinact_dict</span><span class="p">,</span> <span class="n">activity_log</span><span class="p">,</span> <span class="n">num_random_experiments</span><span class="p">,</span> <span class="n">PROCESSES</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>The random experiments generated from the above function can be found in the ‘random_experiments’ attribute of the KinaseActivity class. For each random experiment, the sites that will be included for random activity generation are indicated with 1.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">#This object holds the random datasets that were used, where NaN means a site was not selected and 1 means it was</span>
+<span class="n">kinact_dict</span><span class="p">[</span><span class="s1">&#39;Y&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">random_experiments</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>KSTAR_ACCESSION</th>
+      <th>KSTAR_SITE</th>
+      <th>data:time:5:0</th>
+      <th>data:time:5:1</th>
+      <th>data:time:5:2</th>
+      <th>data:time:5:3</th>
+      <th>data:time:5:4</th>
+      <th>data:time:5:5</th>
+      <th>data:time:5:6</th>
+      <th>data:time:5:7</th>
+      <th>...</th>
+      <th>data:time:60:140</th>
+      <th>data:time:60:141</th>
+      <th>data:time:60:142</th>
+      <th>data:time:60:143</th>
+      <th>data:time:60:144</th>
+      <th>data:time:60:145</th>
+      <th>data:time:60:146</th>
+      <th>data:time:60:147</th>
+      <th>data:time:60:148</th>
+      <th>data:time:60:149</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>A0AUZ9</td>
+      <td>Y792</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>...</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>A0AV02</td>
+      <td>Y107</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>...</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>A0AVF1</td>
+      <td>Y174</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>...</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>A0AVI2</td>
+      <td>Y1801</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>...</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>A0AVK6</td>
+      <td>Y202</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>...</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+  </tbody>
+</table>
+<p>5 rows × 602 columns</p>
+</div></div>
+</div>
+<p>If you sum the random experiments object, it will tell you how many total sites were selected for each random experiment, which should match the parent experiment:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[21]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># If you sum the random_experiments it will tell you how many total sites were selected, which should match</span>
+<span class="c1"># the parent experiment</span>
+<span class="n">kinact_dict</span><span class="p">[</span><span class="s1">&#39;Y&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">random_experiments</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[21]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+KSTAR_ACCESSION     A0AUZ9A0AV02A0AVF1A0AVI2A0AVK6A0AVK6A0AVT1A0AV...
+KSTAR_SITE          Y792Y107Y174Y1801Y202Y316Y1046Y44Y558Y979Y824Y...
+data:time:5:0                                                   128.0
+data:time:5:1                                                   128.0
+data:time:5:2                                                   128.0
+                                          ...
+data:time:60:145                                                200.0
+data:time:60:146                                                200.0
+data:time:60:147                                                200.0
+data:time:60:148                                                200.0
+data:time:60:149                                                200.0
+Length: 602, dtype: object
+</pre></div></div>
+</div>
+</section>
+<section id="Calculate-Mann-Whitney-Significance">
+<h2>Calculate Mann Whitney Significance<a class="headerlink" href="#Calculate-Mann-Whitney-Significance" title="Permalink to this heading"></a></h2>
+<p>Finally, final activity scores are calculated by implementing the Mann Whitney U-test to compare the distribution of real p-values (activity predictions on the real dataset) to the random p-values (activity predictions on the random dataset). Further, a false positive rate is calculated by pulling out one of the random datasets and comparing to all other random datasets using the same Mann Whitney test. The parameter ‘number_sig_trials’ indicates the number of times to repeat this calculation to
+obtain the false positive rate. As with the previous analysis, the ‘PROCESSES’ parameter can be adjusted to perform multiprocessing.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[22]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">calculate</span><span class="o">.</span><span class="n">Mann_Whitney_analysis</span><span class="p">(</span><span class="n">kinact_dict</span><span class="p">,</span> <span class="n">activity_log</span><span class="p">,</span> <span class="n">number_sig_trials</span> <span class="o">=</span> <span class="mi">100</span><span class="p">,</span> <span class="n">PROCESSES</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Save-KSTAR-Results">
+<h2>Save KSTAR Results<a class="headerlink" href="#Save-KSTAR-Results" title="Permalink to this heading"></a></h2>
+<p>There are a couple of options to save the results of KSTAR analysis. To save all information (hypergeometric enrichment results, random experiments, mann whitney activities and fpr), we have provided a function to save all information while not taking up too much memory.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">calculate</span><span class="o">.</span><span class="n">save_kstar_slim</span><span class="p">(</span><span class="n">kinact_dict</span><span class="p">,</span> <span class="n">logName</span><span class="p">,</span> <span class="n">odir</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>Lastly, it is possible to just save each KinaseActivity attribute individually using pandas:</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">kinact_dict</span><span class="p">[</span><span class="s1">&#39;Y&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">activities_mann_whitney</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">logName</span><span class="si">}</span><span class="s1">_Y_mann_whitney_activities.tsv&#39;</span><span class="p">,</span> <span class="n">sep</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\t</span><span class="s1">&#39;</span><span class="p">)</span>
+<span class="n">kinact_dict</span><span class="p">[</span><span class="s1">&#39;Y&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">fpr_mann_whitney</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">logName</span><span class="si">}</span><span class="s1">_Y_mann_whitney_fpr.tsv&#39;</span><span class="p">,</span> <span class="n">sep</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\t</span><span class="s1">&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</section>
+</section>
+<section id="Plot-Results">
+<h1>Plot Results<a class="headerlink" href="#Plot-Results" title="Permalink to this heading"></a></h1>
+<p>Kinase activities predicted by KSTAR can be visualized using a specialized plot called a dotplot. In these plots, the size of each “dot” is dictated by the -log10(p-value) and the color is dicated by the false positive rate (significance).</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[24]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">#import necessary packages</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">from</span> <span class="nn">kstar.plot</span> <span class="kn">import</span> <span class="n">DotPlot</span>
+<span class="kn">from</span> <span class="nn">kstar</span> <span class="kn">import</span> <span class="n">helpers</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">calculate</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[25]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">odir</span> <span class="o">=</span> <span class="s1">&#39;./example&#39;</span>
+<span class="n">logName</span> <span class="o">=</span> <span class="s1">&#39;example_run&#39;</span>
+<span class="n">phosphomod</span> <span class="o">=</span> <span class="s1">&#39;Y&#39;</span>
+<span class="n">logName_new</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">logName</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">phosphomod</span><span class="si">}</span><span class="s2">&quot;</span>
+<span class="c1">#get activity log</span>
+<span class="n">activity_log</span> <span class="o">=</span> <span class="n">helpers</span><span class="o">.</span><span class="n">get_logger</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;activity_</span><span class="si">{</span><span class="n">logName</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">odir</span><span class="si">}</span><span class="s2">/RESULTS/activity_</span><span class="si">{</span><span class="n">logName</span><span class="si">}</span><span class="s2">.log&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<section id="Load-in-KSTAR-results">
+<h2>Load in KSTAR results<a class="headerlink" href="#Load-in-KSTAR-results" title="Permalink to this heading"></a></h2>
+<p>To load a kstar_slim save, use the ‘from_kstar_slim’ function</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[27]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">#Load kstar_slim save</span>
+<span class="n">kinact_dict</span> <span class="o">=</span> <span class="n">calculate</span><span class="o">.</span><span class="n">from_kstar_slim</span><span class="p">(</span><span class="n">logName</span><span class="p">,</span> <span class="n">odir</span><span class="p">,</span> <span class="n">activity_log</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>If nextflow was used (see Running Large Datasets with Nextflow), there is a seperate function that will allow you to load in results from nextflow into a kinase_dict object:</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[28]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">kinact_dict</span> <span class="o">=</span> <span class="n">calculate</span><span class="o">.</span><span class="n">from_kstar_nextflow</span><span class="p">(</span><span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;example_run&#39;</span><span class="p">,</span><span class="n">odir</span> <span class="o">=</span> <span class="s1">&#39;example_run&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>Lastly, you may only be concerned about the predicted activities and false positive rates. If that is the case, load these directly with pandas:</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[29]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">results</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">odir</span><span class="si">}</span><span class="s2">/RESULTS/</span><span class="si">{</span><span class="n">logName</span><span class="si">}</span><span class="s2">_Y_mann_whitney_activities.tsv&quot;</span><span class="p">,</span> <span class="n">sep</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\t</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">index_col</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span>
+<span class="n">fpr</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">odir</span><span class="si">}</span><span class="s2">/RESULTS/</span><span class="si">{</span><span class="n">logName</span><span class="si">}</span><span class="s2">_Y_mann_whitney_fpr.tsv&quot;</span><span class="p">,</span> <span class="n">sep</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\t</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">index_col</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Plot-the-base-dotplot">
+<h2>Plot the base dotplot<a class="headerlink" href="#Plot-the-base-dotplot" title="Permalink to this heading"></a></h2>
+<p>In the most simple case, we can plot all kinases and samples with activity predictions, sorted in the same order as the provided activities/fpr dataframe. First, we need to extract the activity and false positive rate from the kinact_dict object.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[26]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">#if using kinase_dict object, extract results and fpr values</span>
+<span class="n">activities</span> <span class="o">=</span> <span class="n">kinact_dict</span><span class="p">[</span><span class="s1">&#39;Y&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">activities_mann_whitney</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+<span class="n">fpr</span> <span class="o">=</span> <span class="n">kinact_dict</span><span class="p">[</span><span class="s1">&#39;Y&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">fpr_mann_whitney</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<p>Activities first need to be transformed to activity scores, a log transformed version of the Mann Whitney p-values. Doing so makes it so that the activity score increases with increase kinase activity.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[27]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">#log transform the results: this will make visualization much easier</span>
+<span class="n">log_results</span> <span class="o">=</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">activities</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>To generate a dotplot, the DotPlot class can be used. First, instantiate the class to construct the base dotplot. To show the dotplot, use the dotplot() function.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[28]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">#instantiate the dotplot object</span>
+<span class="n">dots</span> <span class="o">=</span> <span class="n">DotPlot</span><span class="p">(</span><span class="n">log_results</span><span class="p">,</span>
+               <span class="n">fpr</span><span class="p">,</span>
+               <span class="n">figsize</span> <span class="o">=</span> <span class="p">(</span><span class="mi">4</span><span class="p">,</span><span class="mi">10</span><span class="p">),</span>
+               <span class="n">legend_title</span> <span class="o">=</span> <span class="s1">&#39;-log10(p-value)&#39;</span><span class="p">)</span>
+
+
+<span class="c1">#generate the dotplot</span>
+<span class="n">dots</span><span class="o">.</span><span class="n">dotplot</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/Tutorial_Activity_Calculation_76_0.png" src="../_images/Tutorial_Activity_Calculation_76_0.png" />
+</div>
+</div>
+</section>
+<section id="Change-the-axis-labels-and-sort-kinases-based-on-activity">
+<h2>Change the axis labels and sort kinases based on activity<a class="headerlink" href="#Change-the-axis-labels-and-sort-kinases-based-on-activity" title="Permalink to this heading"></a></h2>
+<p>In many cases, you may wish to plot different axis labels for each experiment or use different naming conventions then those that are defaults in NetworKIN. To adjust, you can manually update the results and fpr dataframe prior to creating the dotplot object. Or, you can pass in dictionaries to the dotplot object that will adjust the axis labels accordingly without changing the original activities/fpr dataframes.</p>
+<p>In this example, the x-axis labels are a bit wordy. Let’s simplify it to just include the numeric time value. In addition, we would like to change the kinase labels so that kinases like KDR (VEGFR2) are indicated by their more well known name.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[29]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">#create the xlabel dict to remove &#39;data&#39; and &#39;time&#39; from x-axis labels</span>
+<span class="n">x_label_dict</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">activities</span><span class="o">.</span><span class="n">columns</span><span class="p">)):</span>
+    <span class="n">x_label_dict</span><span class="p">[</span><span class="n">activities</span><span class="o">.</span><span class="n">columns</span><span class="p">[</span><span class="n">i</span><span class="p">]]</span> <span class="o">=</span> <span class="n">activities</span><span class="o">.</span><span class="n">columns</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;:&#39;</span><span class="p">)[</span><span class="mi">2</span><span class="p">]</span>
+
+<span class="n">x_label_dict</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[29]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+{&#39;data:time:5&#39;: &#39;5&#39;,
+ &#39;data:time:15&#39;: &#39;15&#39;,
+ &#39;data:time:30&#39;: &#39;30&#39;,
+ &#39;data:time:60&#39;: &#39;60&#39;}
+</pre></div></div>
+</div>
+<p>In addition, we would like to change the kinase labels so that kinases like KDR (VEGFR2) are indicated by their more well known name.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[30]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">#set preferred kinase names (make a kinase_dict)</span>
+<span class="n">kinase_dict</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="n">kinase_map</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s1">&#39;globalKinaseMap.csv&#39;</span><span class="p">,</span> <span class="n">index_col</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">kinase</span> <span class="ow">in</span> <span class="n">activities</span><span class="o">.</span><span class="n">index</span><span class="p">:</span>
+    <span class="n">kinase_dict</span><span class="p">[</span><span class="n">kinase</span><span class="p">]</span> <span class="o">=</span> <span class="n">kinase_map</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">kinase</span><span class="p">,</span><span class="s1">&#39;Preferred Name&#39;</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<p>Any sorting of the results needs to be done before instantiating the dotplot. Only the activities dataframe needs to be updated, the fpr dataframe will be automatically updated in order to match the activities dataframe.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[31]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">#sort the data by the activities at the 30 second timepoint</span>
+<span class="n">log_results</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">by</span> <span class="o">=</span> <span class="s1">&#39;data:time:30&#39;</span><span class="p">,</span> <span class="n">inplace</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span>
+<span class="c1">#reorder axis labels to be in time order</span>
+<span class="n">log_results</span> <span class="o">=</span> <span class="n">log_results</span><span class="p">[[</span><span class="s1">&#39;data:time:5&#39;</span><span class="p">,</span><span class="s1">&#39;data:time:15&#39;</span><span class="p">,</span><span class="s1">&#39;data:time:30&#39;</span><span class="p">,</span> <span class="s1">&#39;data:time:60&#39;</span><span class="p">]]</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[32]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">#reinstantiate the dotplot object</span>
+<span class="n">dots</span> <span class="o">=</span> <span class="n">DotPlot</span><span class="p">(</span><span class="n">log_results</span><span class="p">,</span>
+               <span class="n">fpr</span><span class="p">,</span>
+               <span class="n">x_label_dict</span> <span class="o">=</span> <span class="n">x_label_dict</span><span class="p">,</span>
+               <span class="n">kinase_dict</span> <span class="o">=</span> <span class="n">kinase_dict</span><span class="p">,</span>
+               <span class="n">figsize</span> <span class="o">=</span> <span class="p">(</span><span class="mi">4</span><span class="p">,</span><span class="mi">10</span><span class="p">),</span>
+               <span class="n">legend_title</span> <span class="o">=</span> <span class="s1">&#39;-log10(p-value)&#39;</span><span class="p">)</span>
+
+<span class="c1">#plot</span>
+<span class="n">dots</span><span class="o">.</span><span class="n">dotplot</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/Tutorial_Activity_Calculation_83_0.png" src="../_images/Tutorial_Activity_Calculation_83_0.png" />
+</div>
+</div>
+</section>
+<section id="Remove-kinases-that-never-show-significant-activity">
+<h2>Remove kinases that never show significant activity<a class="headerlink" href="#Remove-kinases-that-never-show-significant-activity" title="Permalink to this heading"></a></h2>
+<p>In many cases, there will be kinases that do not show significant activity in any of the experiments. It can be advantageous to remove these kinases in order to simplify the plot.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[33]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">#drop kinases with that are not significant for any of the samples (fpr &lt;= alpha).</span>
+<span class="n">dots</span><span class="o">.</span><span class="n">drop_kinases_with_no_significance</span><span class="p">()</span>
+
+<span class="c1">#generate the dotplot</span>
+<span class="n">dots</span><span class="o">.</span><span class="n">dotplot</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/Tutorial_Activity_Calculation_85_0.png" src="../_images/Tutorial_Activity_Calculation_85_0.png" />
+</div>
+</div>
+<p>Specific kinases can also be removed prior to plotting. For example, say we were less interested in the activity in EPHA kinases. We can tell the dotplot object to remove these kinases specifically.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[34]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">#drop kinases that are not of interest. For example, we may not be interested in visualizing EPHA kinases.</span>
+<span class="n">eph</span> <span class="o">=</span> <span class="p">[</span><span class="n">kin</span> <span class="k">for</span> <span class="n">kin</span> <span class="ow">in</span> <span class="n">log_results</span><span class="o">.</span><span class="n">index</span> <span class="k">if</span> <span class="s1">&#39;EPHA&#39;</span> <span class="ow">in</span> <span class="n">kin</span> <span class="ow">or</span> <span class="s1">&#39;EPHB&#39;</span> <span class="ow">in</span> <span class="n">kin</span><span class="p">]</span>
+<span class="n">dots</span><span class="o">.</span><span class="n">drop_kinases</span><span class="p">(</span><span class="n">eph</span><span class="p">)</span>
+
+<span class="c1">#generate the dotplot</span>
+<span class="n">dots</span><span class="o">.</span><span class="n">dotplot</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/Tutorial_Activity_Calculation_87_0.png" src="../_images/Tutorial_Activity_Calculation_87_0.png" />
+</div>
+</div>
+</section>
+<section id="Cluster-the-kinase-activities">
+<h2>Cluster the kinase activities<a class="headerlink" href="#Cluster-the-kinase-activities" title="Permalink to this heading"></a></h2>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[35]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">#Setup subplots so that dendrogram are included</span>
+<span class="n">fig</span><span class="p">,</span> <span class="n">axes</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span> <span class="o">=</span> <span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">10</span><span class="p">),</span>
+        <span class="n">nrows</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">ncols</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span>
+        <span class="n">sharex</span> <span class="o">=</span> <span class="s1">&#39;col&#39;</span><span class="p">,</span>
+        <span class="n">sharey</span> <span class="o">=</span> <span class="s1">&#39;row&#39;</span><span class="p">,</span>
+        <span class="n">gridspec_kw</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;width_ratios&#39;</span><span class="p">:[</span><span class="mf">0.1</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span>
+        <span class="p">},)</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">subplots_adjust</span><span class="p">(</span><span class="n">wspace</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">hspace</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+<span class="c1">#cluster the kinases with hierarchical clustering, sort them accordingly,and add a dendrogram to the left of the dotplot</span>
+<span class="n">dots</span><span class="o">.</span><span class="n">cluster</span><span class="p">(</span><span class="n">orientation</span> <span class="o">=</span> <span class="s1">&#39;left&#39;</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;ward&#39;</span><span class="p">)</span>
+<span class="c1">#cluster the samples with hierarchical clustering, sort them accordingly, and add a dendrogram to the top of the dotplot</span>
+<span class="c1">#dots.cluster(orientation = &#39;top&#39;, ax = axes[0,1], method=&#39;ward&#39;)</span>
+
+<span class="c1">#generate the dotplot</span>
+<span class="n">dots</span><span class="o">.</span><span class="n">dotplot</span><span class="p">(</span><span class="n">ax</span> <span class="o">=</span> <span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/Tutorial_Activity_Calculation_89_0.png" src="../_images/Tutorial_Activity_Calculation_89_0.png" />
+</div>
+</div>
+<p>Notice that clustering the kinase activities resorted the y-axis, undoing the sorting from earlier.</p>
+</section>
+<section id="Add-context-to-dotplot">
+<h2>Add context to dotplot<a class="headerlink" href="#Add-context-to-dotplot" title="Permalink to this heading"></a></h2>
+<p>In some cases you may want to add additional context to the dotplot that indicates significant characteristics about each sample. These could include things like pre vs. post-treatment, normal vs. tumor sample, subtype of cancer, etc.</p>
+<p>To do so, you need to create a new dataframe, which contains a row for each sample in the dotplot (with an id column indicating the sample), and columns for each layer of context you want to be added. In the below example, we will add “Context 1” to the plot, which is either true or false. “Context 2” has multiple different options indicated by a number.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[36]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">#create context dataframe which indicates different information about each sample</span>
+<span class="n">context</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s1">&#39;Sample&#39;</span><span class="p">:</span> <span class="n">activities</span><span class="o">.</span><span class="n">columns</span><span class="p">,</span> <span class="s1">&#39;Context 1&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;Yes&#39;</span><span class="p">,</span><span class="s1">&#39;Yes&#39;</span><span class="p">,</span><span class="s1">&#39;No&#39;</span><span class="p">,</span><span class="s1">&#39;No&#39;</span><span class="p">],</span> <span class="s1">&#39;Context 2&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;0&#39;</span><span class="p">,</span><span class="s1">&#39;1&#39;</span><span class="p">,</span><span class="s1">&#39;2&#39;</span><span class="p">,</span><span class="s1">&#39;3&#39;</span><span class="p">]})</span>
+<span class="n">context</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[36]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>Sample</th>
+      <th>Context 1</th>
+      <th>Context 2</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>data:time:5</td>
+      <td>Yes</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>data:time:15</td>
+      <td>Yes</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>data:time:30</td>
+      <td>No</td>
+      <td>2</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>data:time:60</td>
+      <td>No</td>
+      <td>3</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+<p>Next to plot, with the context information above, setup your subplots as before, but this time, make sure to add another subplot row above the dotplot, which will contain the context strip.</p>
+<p>You can then use the ‘context’ function to create the strip plot. The ‘info’ parameter should point to the context dataframe, while the ‘id_column’ should list the column name that contains the sample names, and the ‘context_columns’ should be a list containing all column names with the desired context. If you choose to also sort your samples by hierarchical clustering, you should do this before generating your context strip (otherwise the sorted samples will not match the context). The result
+is below:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[37]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">#Setup subplots so that dendrogram and context are included</span>
+<span class="n">fig</span><span class="p">,</span> <span class="n">axes</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span> <span class="o">=</span> <span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">10</span><span class="p">),</span>
+        <span class="n">nrows</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span> <span class="n">ncols</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span>
+        <span class="n">sharex</span> <span class="o">=</span> <span class="s1">&#39;col&#39;</span><span class="p">,</span>
+        <span class="n">sharey</span> <span class="o">=</span> <span class="s1">&#39;row&#39;</span><span class="p">,</span>
+        <span class="n">gridspec_kw</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;height_ratios&#39;</span><span class="p">:[</span><span class="mf">0.1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+            <span class="s1">&#39;width_ratios&#39;</span><span class="p">:[</span><span class="mf">0.1</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span>
+        <span class="p">},)</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">subplots_adjust</span><span class="p">(</span><span class="n">wspace</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">hspace</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+<span class="c1">#cluster the kinases with hierarchical clustering, sort them accordingly,and add a dendrogram to the left of the dotplot</span>
+<span class="n">dots</span><span class="o">.</span><span class="n">cluster</span><span class="p">(</span><span class="n">orientation</span> <span class="o">=</span> <span class="s1">&#39;left&#39;</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;ward&#39;</span><span class="p">)</span>
+
+<span class="c1">#add context to plot (if clustering the experiments, this must come after clustering)</span>
+<span class="n">dots</span><span class="o">.</span><span class="n">context</span><span class="p">(</span><span class="n">ax</span><span class="o">=</span><span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span><span class="n">info</span> <span class="o">=</span> <span class="n">context</span><span class="p">,</span> <span class="n">id_column</span> <span class="o">=</span> <span class="s1">&#39;Sample&#39;</span><span class="p">,</span>
+             <span class="n">context_columns</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Context 1&#39;</span><span class="p">,</span> <span class="s1">&#39;Context 2&#39;</span><span class="p">],</span> <span class="n">orientation</span> <span class="o">=</span> <span class="s1">&#39;top&#39;</span><span class="p">,</span> <span class="n">margin</span> <span class="o">=</span> <span class="mf">0.5</span><span class="p">)</span>
+
+<span class="c1">#generate the dotplot</span>
+<span class="n">dots</span><span class="o">.</span><span class="n">dotplot</span><span class="p">(</span><span class="n">ax</span> <span class="o">=</span> <span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">])</span>
+
+<span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="s1">&#39;off&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/Tutorial_Activity_Calculation_96_0.png" src="../_images/Tutorial_Activity_Calculation_96_0.png" />
+</div>
+</div>
+</section>
+<section id="Plot-dotplot-with-the-false-positive-rate-indicated-by-hue">
+<h2>Plot dotplot with the false positive rate indicated by hue<a class="headerlink" href="#Plot-dotplot-with-the-false-positive-rate-indicated-by-hue" title="Permalink to this heading"></a></h2>
+<p>In some cases, the binary coloring of significance can make certain kinases appear less significant than they really are, with false positive rates hovering around 0.05. As such, it may be of interest to encode the false positive rate using a gradient hue instead. This is easy to accomplish in the dotplot class, as this is controlled by the binary_sig parameter.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[38]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">#Setup subplots so that dendrogram and context are included</span>
+<span class="n">fig</span><span class="p">,</span> <span class="n">axes</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span> <span class="o">=</span> <span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">10</span><span class="p">),</span>
+        <span class="n">nrows</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span> <span class="n">ncols</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span>
+        <span class="n">sharex</span> <span class="o">=</span> <span class="s1">&#39;col&#39;</span><span class="p">,</span>
+        <span class="n">sharey</span> <span class="o">=</span> <span class="s1">&#39;row&#39;</span><span class="p">,</span>
+        <span class="n">gridspec_kw</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;height_ratios&#39;</span><span class="p">:[</span><span class="mf">0.1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+            <span class="s1">&#39;width_ratios&#39;</span><span class="p">:[</span><span class="mf">0.1</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span>
+        <span class="p">},)</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">subplots_adjust</span><span class="p">(</span><span class="n">wspace</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">hspace</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+<span class="c1">#reinstantiate the dotplot object, this time with binary_sig set to False</span>
+<span class="n">dots</span> <span class="o">=</span> <span class="n">DotPlot</span><span class="p">(</span><span class="n">log_results</span><span class="p">,</span>
+               <span class="n">fpr</span><span class="p">,</span>
+               <span class="n">binary_sig</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="c1">#change this parameter</span>
+               <span class="n">x_label_dict</span> <span class="o">=</span> <span class="n">x_label_dict</span><span class="p">,</span>
+               <span class="n">kinase_dict</span> <span class="o">=</span> <span class="n">kinase_dict</span><span class="p">,</span>
+               <span class="n">legend_title</span> <span class="o">=</span> <span class="s1">&#39;-log10(p-value)&#39;</span><span class="p">)</span>
+
+<span class="c1">#repeat the same processing steps as before</span>
+<span class="n">dots</span><span class="o">.</span><span class="n">drop_kinases_with_no_significance</span><span class="p">()</span>
+<span class="n">eph</span> <span class="o">=</span> <span class="p">[</span><span class="n">kin</span> <span class="k">for</span> <span class="n">kin</span> <span class="ow">in</span> <span class="n">log_results</span><span class="o">.</span><span class="n">index</span> <span class="k">if</span> <span class="s1">&#39;EPHA&#39;</span> <span class="ow">in</span> <span class="n">kin</span> <span class="ow">or</span> <span class="s1">&#39;EPHB&#39;</span> <span class="ow">in</span> <span class="n">kin</span><span class="p">]</span>
+<span class="n">dots</span><span class="o">.</span><span class="n">drop_kinases</span><span class="p">(</span><span class="n">eph</span><span class="p">)</span>
+<span class="n">dots</span><span class="o">.</span><span class="n">cluster</span><span class="p">(</span><span class="n">orientation</span> <span class="o">=</span> <span class="s1">&#39;left&#39;</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;ward&#39;</span><span class="p">)</span>
+<span class="n">dots</span><span class="o">.</span><span class="n">context</span><span class="p">(</span><span class="n">ax</span><span class="o">=</span><span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span><span class="n">info</span> <span class="o">=</span> <span class="n">context</span><span class="p">,</span> <span class="n">id_column</span> <span class="o">=</span> <span class="s1">&#39;Sample&#39;</span><span class="p">,</span>
+             <span class="n">context_columns</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Context 1&#39;</span><span class="p">,</span> <span class="s1">&#39;Context 2&#39;</span><span class="p">],</span> <span class="n">orientation</span> <span class="o">=</span> <span class="s1">&#39;top&#39;</span><span class="p">,</span> <span class="n">margin</span> <span class="o">=</span> <span class="mf">0.5</span><span class="p">)</span>
+
+
+<span class="c1">#generate the dotplot</span>
+<span class="n">dots</span><span class="o">.</span><span class="n">dotplot</span><span class="p">(</span><span class="n">ax</span> <span class="o">=</span> <span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">])</span>
+
+<span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="s1">&#39;off&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/Tutorial_Activity_Calculation_99_0.png" src="../_images/Tutorial_Activity_Calculation_99_0.png" />
+</div>
+</div>
+</section>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <div>
+    <h3><a href="../index.html">Table of Contents</a></h3>
+    <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../Overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Dependencies.html">Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../KSTAR.html">KSTAR</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Getting Started</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="tutorial.html">Tutorial</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="tutorial.html#network-generation">Network Generation</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="tutorial.html#activity-prediction">Activity Prediction</a><ul class="current">
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Map Datasets to KinPred</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#Download-and-Process-Dataset-of-Interest">Download and Process Dataset of Interest</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#Map-the-Dataset-to-KinPred">Map the Dataset to KinPred</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#Explore-the-Mapped-Dataset">Explore the Mapped Dataset</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#Predict-Kinase-Activities">Predict Kinase Activities</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#Determine-Thresholds">Determine Thresholds</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#Calculate-Statistical-Enrichment-(Hypergeometric-p-values)">Calculate Statistical Enrichment (Hypergeometric p-values)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#Generate-random-datasets,-run-kinase-activity-on-random-datasets,-normalize-original-analysis">Generate random datasets, run kinase activity on random datasets, normalize original analysis</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#Calculate-Mann-Whitney-Significance">Calculate Mann Whitney Significance</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#Save-KSTAR-Results">Save KSTAR Results</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#Plot-Results">Plot Results</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#Load-in-KSTAR-results">Load in KSTAR results</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#Plot-the-base-dotplot">Plot the base dotplot</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#Change-the-axis-labels-and-sort-kinases-based-on-activity">Change the axis labels and sort kinases based on activity</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#Remove-kinases-that-never-show-significant-activity">Remove kinases that never show significant activity</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#Cluster-the-kinase-activities">Cluster the kinase activities</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#Add-context-to-dotplot">Add context to dotplot</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#Plot-dotplot-with-the-false-positive-rate-indicated-by-hue">Plot dotplot with the false positive rate indicated by hue</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../Examples/Examples.html">Analysis Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Parallel/parallel.html">KSTAR in Parallel</a></li>
+</ul>
+
+  </div>
+  <div>
+    <h4>Previous topic</h4>
+    <p class="topless"><a href="Pruning.html"
+                          title="previous chapter">Network Generation</a></p>
+  </div>
+  <div>
+    <h4>Next topic</h4>
+    <p class="topless"><a href="../Examples/Examples.html"
+                          title="next chapter">Analysis Examples</a></p>
+  </div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/Tutorial/Activity_Calculation.ipynb.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="../Examples/Examples.html" title="Analysis Examples"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="Pruning.html" title="Network Generation"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">KSTAR 1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="tutorial.html" >Tutorial</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Map Datasets to KinPred</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2020, Naegle Lab.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.0.2.
+    </div>
+  </body>
+</html>

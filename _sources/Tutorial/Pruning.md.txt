@@ -1,22 +1,36 @@
 # Network Generation
 
-The prune class and accompanying functions was created for the process of generating the heuristically pruned networks that KSTAR bases its
-predictions on. Pruning can either be run within a python environment/interpreter, or they can be run using a bash script from the command line.
+The prune class and accompanying functions were created for generating the ensemble of pruned networks used by KSTAR from
+any weighted kinase-substrate network (we recommend NetworKIN/KinomeXplorer). Pruning can either be run within a python environment/interpreter, 
+or they can be run using a bash script from the command line.
 
 ## Run pruning within python
 
-The prune class and accompanying functions was created for the process of generating the heuristically pruned networks that KSTAR bases its
-predictions on. If wanting to run pruning in python, see below:
+If wanting to run pruning in python, follow these steps:
+1. Import necessary packages
+2. Load the weighted kinase-substrate network. This should contain a column with Uniprot accession IDs for each substrate,
+the residue/site number of each substrate, and score columns containing the weight/likelihood of interaction
+between the given kinase and substrate. The pruning class should be told where to find the accession and 
+site columns (via acc_col and site_col parameters). You can also indicate the columns that do not contain
+the kinase-substrate weights via the netcols_todrop parameter. If this is set to None, KSTAR will automatically
+drop all non-numeric columns.
+3. Set all necessary parameters. The recommended parameters for tyrosine kinases in NetworKIN are shown in the code
+snippet below.
+3. Run the pruning algorithm via the master 'run_pruning()' function.
+4. Save the networks and run information.
 
 ```
 #load necesary packages
 import pandas as pd
 from kstar.prune import run_pruning, save_pruning, save_run_information
-from kstar import config
+from kstar import config, helpers
 
 #Load networks and define parameters used during the pruning run
 network_file = f'{config.NETWORK_DIR}/network_file_name.csv'
 network = pd.read_csv(network_file)
+
+#create logger (will record important information about the pruning run)
+log = helpers.get_logger('kstar_log', "pruning.log")
 
 #set other parameters 
 phospho_type = 'Y'    #type of phosphomodification to generate networks for ('Y', 'ST')
@@ -24,15 +38,23 @@ kinase_size = 2000     #minimum number of substrates all kinases must be connect
 site_limit = 10       #maximum number of kinases a particular substrate can be connected to
 num_networks = 50     #number of pruned networks to generate
 network_id = 'NetworKIN'
+use_compendia = True  #indicates whether kinases are forced to be connected to the same substrate study bias distribution
+acc_col = 'substrate_acc' # column that contains Uniprot Accession ID of each substrate in the weighted network
+site_col = 'site' # column that contains residue and site number of each substrate in the weighted network
+netcols_todrop = None
 odir = f"./prune/results/" #where the final pruned networks should be saved
 PROCESSES = 4		#number of cores to use (> 1 for multiprocessing)
+
 log.info("Beginning to build pruning networks")
 #run and save pruning
-pruner = run_pruning(network, log, use_compendia, phospho_type, kinase_size, site_limit, num_networks, network_id, odir, PROCESSES)
-save_pruning(phospho_type, network_id, kinase_size, site_limit, use_compendia, odir, log)
+pruner = run_pruning(network, log, phospho_type, kinase_size, site_limit, num_networks, network_id, odir, use_compendia, 
+	acc_col = acc_col, site_col = site_col, netcols_todrop = netcols_todrop, PROCESSES = PROCESSES)
+pruner.save_networks()
+pruner.save_run_information()
 ```
 
 ## Run pruning from the command line
+
 It is also possible to run the pruning procedure from start to finish, including saving the results and run info, from the command line. 
 A bash script like the one below can be used to run prune.py and input the necessary parameters. 
 ```

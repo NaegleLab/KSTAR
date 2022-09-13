@@ -1,0 +1,112 @@
+# Getting Started
+
+Here, we have provided a quick start guide that will allow you to get up and running quickly, especially if you wish to simply use the
+same pruned networks as utilized in the KSTAR paper. 
+
+## Installation
+
+KSTAR can be installed via `pip`, `conda`, tarball, and directly from the Git repository. We recommend using conda to install the scientific packages `conda install anaconda` before installing openensembles. 
+
+#### Pip
+
+To install via pip, execute `pip install kstar`.
+
+#### Conda
+To install via conda, execute `conda install -c naeglelab kstar`.
+
+#### Tarball
+
+To install via a tarball, head over to the [Releases page](https://github.com/NaegleLab/KSTAR/releases) and download the latest stable tar release.
+
+Afterwards, navigate to your downloads directory and execute the following commands, substituting <version> for the release's version number:
+```
+tar -xvf KSTAR-<version>.tar.gz
+cd KSTAR-<version>
+python setup.py install
+```
+
+#### Git
+
+If you want to try out the latest commit, you can install directly from the Git repository by executing the following commands:
+```
+git clone https://github.com/NaegleLab/KSTAR
+cd KSTAR
+python setup.py install
+```
+
+## Configuring your KSTAR environment
+
+After installing KSTAR, all necessary resource files (reference proteome and phosphoproteome) and networks (either downloaded from
+FigShare or generated with the Pruner class) will need to be downloaded and configured so that KSTAR can find these files.
+
+#### Downloading Resource Files
+
+We have provided all resource files required for running KSTAR in a publicly available figshare, which includes the reference proteome and 
+the reference phosphoproteome from KinPred. After installing KSTAR, run *install_resource_files()* within python to obtain these:
+
+```
+from kstar import config
+
+config.install_resource_files()
+```
+
+
+#### Downloading Networks
+
+In addition to the resource files above, KSTAR also requires heuristically pruned kinase-substrate graphs used for activity calculation.
+Pre-generated networks are available for download, which were generated based on NetworKIN. You may also generate your own networks if preferred.
+
+If using the published networks:
+
+1. Go to [Network Figshare](https://figshare.com/articles/dataset/NETWORKS/14944305)
+2. Download the networks, decompress/unzip the files, and store in easily accessible folder.
+
+If using self generated networks:
+
+1. Identify and download the base kinase-substrate prediction graph you would like to use for network generation. This should include weighted edges indicating the likelihood that a kinase phosphorylates a particular substrate, and should include predictions for all sites in the phosphoproteome.
+2. Follow the tutorial for network generation to produce pruned networks from your weighted network (found in Tutorial section of this documentation).
+3. Store the generated networks in an easily accessible location. Individual network files should be placed in a directory within the network
+directory in a folder titled 'INDIVIDUAL_NETWORKS'. 
+
+#### Configure KSTAR to point to the correct network directory
+
+Once the networks have been downloaded/generated, the last step is to tell KSTAR where to find these networks and to create pickled versions of 
+these networks. To do so, follow the steps below:
+
+1. Use the *update_network_directory()* function in config.py to tell config where the network directory is located. On install, KSTAR is set to look in the 
+'./NETWORKS/NetworKIN'. 
+2. KSTAR uses pickled versions of these network files. By default, *update_network_directory()* will automatically generate network pickles. However, if pickles 
+have not been created (either on purpose or due to errors), use *create_network_pickles()*, which will take individual networks within the network directory and 
+pickle them for you.
+3. You will need to restart the kernel for the updates to take place within your environment.
+
+The python code used should look similar to below:
+```
+from kstar import config
+
+#update network directory: If KSTAR does not find this directory + necessary files, it will notify you
+config.NETWORK_DIR = config.update_network_directory('./NETWORKS/NetworKIN')
+
+#create network pickles. Only need to run this function if network pickles were not already generated.
+config.create_network_pickles()
+```
+Restart the python environment or reload the kstar package. As long as the network directory does not change, 
+you only need to run the above steps once. All subsequent imports will remember the changes.
+
+#### Verify that KSTAR environment is ready
+
+To check to make sure the previous steps all worked as desired, run *check_configuration()*:
+```
+from kstar import config
+
+config.check_configuration()
+```
+This will indicate whether you are ready to generate kinase activity predictions or not. If you are not, it will tell you what steps still need to
+be performed. 
+
+## Follow the provided tutorial
+
+That is all you need to do to set up your KSTAR environment (if working with large datasets where memory/time is a concern, see 'KSTAR in Parallel', as
+set up is slightly different). We recommend working through the tutorial in the following section to get an idea of the KSTAR workflow, 
+either with the example dataset provided in our supplementary data figshare or with your own dataset of interest. You will only need to follow 
+the 'Network Generation' section if you would like to use your own networks for analysis, otherwise go straight to 'Activity Prediction'.

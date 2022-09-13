@@ -1,0 +1,19 @@
+Overview
+=============
+KSTAR is a Python package for inferring kinase actiivities from phosphoproteomic data. It requires the following steps, given a phosphoproteomic dataset of interest.
+
+1. Network Generation: This produces an ensemble of binary, heuristically pruned kinase-substrate graphs to be used in subsequent analyses. This step can be skipped if using the provided networks (see Quick Start Guide).
+
+2. Mapping: This maps the phosphosites of the dataset the KinPred resource, which is an ontology for substrates for kinase-substrate prediction algorithms.
+
+3. Kinase Activity Calculation: Given sites identified in an experiment, for each experiment (column) in a dataset, calculate the likelihood that those sites were pulled randomly from the kinase-substrate networks. (Low pvalues means highly unlikely that data is randomly pulled)
+
+4. Negative set generation and activity calculation: Given the distribution of study bias of the sites in each experiment for a dataset, generate random datasets and repeat activity calculation. 
+
+5. Normalization or Mann Whitney Significance Estimation: Use the random datasets to normalize/interpret the calculations within the real experiments.
+
+6. Analysis/Plotting: Use the post-normalized or mann whitney activity calculations to plot/infer kinase activities within the dataset of interest.
+
+
+For more details about the algorithm, as well as best use cases, see the original publication: https://www.nature.com/articles/s41467-022-32017-5
+

@@ -1,0 +1,136 @@
+# Running Large Datasets with Nextflow
+
+While our standard implementation of KSTAR can be run on most phosphotyrosine datasets and some small phosphoserine/threonine datasets, the memory 
+and time costs are often too high for many large datasets. For these cases, we have implemented a highly parallel version of KSTAR implemented 
+with the nextflow software package. The remainder of this section will detail how to install and run KSTAR with nextflow.
+
+## Requirements
+
+The nextflow pipeline takes advantage of either Docker or Singularity containers. These are compatible with POSIX operating 
+systems (Linux, OS X, etc.). However, nextflow can also be run on a Windows machine with the use of WSL2. Windows has provided instructions for 
+installing and running WSL2 here: [WSL Documentation](https://docs.microsoft.com/en-us/windows/wsl/install-win10). For other details about 
+nextflow, please see their documentation here: [Nextflow Documentaion](https://www.nextflow.io/)
+
+This implementation is best suited for high performance computing environments, with a minimum of 8 cpu cores 
+and 16GB of available memory suggested.
+
+## Installation
+
+Before implementing KSTAR with nextflow, Docker will need to be installed. The nextflow implementation utilizes a docker container of the 
+KSTAR algorithm. For details on how to install Docker, visit [Install Docker](https://docs.docker.com/get-docker/). 
+
+First, it is recommended that you download KSTAR from github into an easily accessible folder:
+```
+git clone https://github.com/NaegleLab/KSTAR.git
+```
+
+Next, set up a conda virtual environment and install nextflow:
+
+```
+conda create -n kstar
+conda activate kstar
+conda install -c bioconda nextflow
+```
+
+## Downloading or Generating Networks used in KSTAR
+
+As with the standard implementation of KSTAR, you will need to obtain KSTAR pruned networks that will be used in activity calculation. You can
+download KSTAR networks from the [Network FigShare](https://figshare.com/articles/dataset/NETWORKS/14944305). Unlike the standard implementation,
+network pickles do not need to be generated, as nextflow will operate on the individual network files.
+
+If choosing to generate your own networks, this should be done outside of the nextflow environment as described in the tutorial. You will
+need to make sure the directory structure where these networks are located is correct: 
+'{resource_directory}/{network_directory}/{phospho_event}/INDIVIDUAL_NETWORKS', where elements in brackets are given as parameters during a nextflow 
+run. Each individual pruned network should be a .tsv file located in the above directory.
+
+
+## Mapping datasets
+
+Datasets must be mapped prior to running KSTAR with nextflow. The nextflow implementation is strictly for activity prediction. The mapped data 
+should be a .tsv file that contains at least data columns, KSTAR_ACCESSION, KSTAR_PEPTIDE, AND KSTAR_SITE. 
+
+## Running nextflow
+
+Once all the above requirements are satisfied, KSTAR can be run using a simple bash script within the nextflow directory that looks like 
+the one below:
+
+```
+export KSTAR_DIR = /repo_loc/KSTAR/nextflow
+cd $KSTAR_DIR
+
+nextflow run main.nf -profile Y \
+--name example \
+--phospho_event Y \
+--outdir ./results \
+--experiment_file data/example_data_mapped.tsv \
+--outdir ./results \
+--resource_directory ../RESOURCE_FILES \
+--network_directoyr /NETWORKS/NetworKIN \
+--data_columns data:Column1,data:Column2,data:Column3,data:Column4 \
+--num_random_experiments 150 \
+--threshold 0.5 \
+--activity_aggregate mean \
+--fpr_alpha 0.05 \
+--number_of_sig_trials 100
+```
+
+The first line of the bash script starts the nextflow pipeline and indicates which type of phospho_mod is of interest (either pY or pST). The remaining lines are parameters accepted by nextflow, which either indicate where to find/deposit files or are KSTAR parameters. See the table below for a description of the accepted parameters by nextflow:
+
+| Parameter | Description | Required? | Default |
+--- | --- | --- | ---
+| experiment_file | full filename of the experiment | Yes | None |
+| name | the name of the experiment. This will be used to name folders/files outputted by KSTAR | No | 'kstar' |
+| phospho_event | Type of phosphorylation network to analyze. Either Y or ST. | Yes | false |
+| num_random_experiments | The number of random experiments to generate for use in normalization and mann whitney tests | Yes | N/A |
+| number_of_sig_trials | The number of significance trials to perform for the mann whitney tests | Yes | false |
+| resource_directory | directory where all necesary resources can be found. Should contain the network directory | Yes | false |
+| threshold | The cutoff value to use for determining whether a site is used as evidence for a particular sample | No | 1 |
+| outdir | directory where results should be deposited | No | './results' |
+| network_directory | directory where all networks to be used in the analysis can be found | No | NETWORKS/NetworKIN |
+| data_columns | list of pre-mapped data columns to analyze. Must follow the following rules:  <ul><li>cannot include parenthesis, spaces, or commas in name</li><li> different data columns are split by a comma with no space in between</li><li>if left blank or false, all columns that start with 'data:' are analyzed </li></ul>| No | false |
+|add_data_before | boolean, where if true, 'data:' is added in front of each column name | No | false |
+| activity_aggregate | aggregate for binarizing the experiments. Choices include count, mean, median, max, min | No | count |
+| fpr_alpha | Desired false positive rate | No | 0.05 |
+| greater | Boolean value that indicates whether sites above or below the threshold are used as evidence. If True, sites greater than evidence will be used| No | True |
+| chunk_size | chunk size to use in hypergeometric calculation, adjust this to help with memory issues | No | 10 |
+
+## Output of a nextflow run
+
+Each run with nextflow will deposit all results from a run in the folder indicated by the outdir parameter. There will be seperate folders for tyrosine and serine/threonine results if both types of runs are performed. Within the out directory, there will be the following subfolders, most of which mirror what is saved in the pickle object in the base KSTAR algorithm:
+
+| Subfolder | Description | Files within the folder |
+--- | --- | --- 
+| random_hypergeometric activity | Contains the predicted activities for each of the random experiments | <ul><li>example_random_activities.tsv</li><li> example_aggregated_activities.tsv</li></ul>|
+| pipeline_info | Contains all information about the nextflow run, including run time, memory used, and cpus used |<ul><li>pipeline_dag.svg </li><li> execution_trace.txt </li><li>execution_timeline.html </li><li> execution_report.html</li></ul> |
+| normalized_activity | Contains activity and fpr predictions after original predictions have been normalized relative to the median p-values obtained from the random experiments| <ul><li>example_normalized_aggregate_activity.tsv </li><li> example_normalized_activities.tsv </li></ul>  |
+| mann_whitney | Contains activity and fpr predictions obtained via the Mann Whitney statistical test, comparing the experiment p-values to the random experiments. These are the activity/fpr values we recommend using for analysis | <ul><li>example_mann_whitney_fpr.tsv </li><li> example_mann_whitney_activities.tsv </li><li>mann_whitney_combined </li></ul> |
+| individual_experiments | This contains all of the random datasets generated for use in getting both the normalized and Mann Whitney activities | <ul><li>folders containing results for each individual experiment/sample</li></ul>  |
+| hypergeometric_activity | Contains activity predictions prior to accounting for the expected p-values due to random chance |<ul><li>example_aggregated_activities.tsv </li><li> example_activities_list.tsv </li><li>example_activities.tsv </li></ul>  |
+| binary_experiment | Contains the mapped data after the evidence columns have been binarized based on the given threshold |<ul><li> example_binarized_experiment.tsv </li></ul>  | 
+
+
+## Running KSTAR-nextflow on Singularity
+
+It is also possible to implement the above using singularity containers instead of docker containers. If singularity is already installed, only a small addition at the bottom of the bash script is needed to use singularity instead of docker.
+
+```
+export KSTAR_DIR = /repo_loc/KSTAR/nextflow
+cd $KSTAR_DIR
+
+nextflow run main.nf -profile Y \
+--name example \
+--phospho_event Y \
+--outdir ./results \
+--experiment_file data/example_data_mapped.tsv \
+--outdir ./results \
+--resource_directory ../RESOURCE_FILES \
+--network_directoyr /NETWORKS/NetworKIN \
+--data_columns data:Column1,data:Column2,data:Column3,data:Column4 \
+--num_random_experiments 150 \
+--threshold 0.5 \
+--activity_aggregate mean \
+--fpr_alpha 0.05 \
+--number_of_sig_trials 100
+-with-singularity
+-without-docker
+```

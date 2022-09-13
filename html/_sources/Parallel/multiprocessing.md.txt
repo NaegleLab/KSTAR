@@ -1,0 +1,17 @@
+# Running KSTAR using multiprocessing
+
+Within python, several KSTAR functions can be run in parallel using the multiprocessing module. For these functions, switching to multiprocessing
+simply requires changing the 'PROCESSES' parameter from 1 (default) to the number of processes you would like to run in parallel.
+```
+# Activity Calculation
+kinact_dict = calculate.enrichment_analysis(experiment, activity_log, networks, PROCESSES = 4)
+
+# Normalization
+calculate.randomized_analysis(kinact_dict, activity_log, num_random_experiments, target_alpha, PROCESSES = 4)
+
+# Mann Whitney Calculation
+calculate.Mann_Whitney_analysis(kinact_dict, activity_log, number_sig_trials = 100, PROCESSES = 4)
+```
+
+While this strategy helps to improve the speed of analysis, it can be very memory intensive for large datasets. For large tyrosine datasets
+and most serine/threonine datasets, we recommend running KSTAR using nextflow, described in the following section.

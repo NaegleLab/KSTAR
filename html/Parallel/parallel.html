@@ -1,0 +1,392 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>KSTAR in Parallel &#8212; KSTAR 1 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/classic.css" />
+    
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="prev" title="Analysis of HER2 Positive Patients using Microbiopsies (Satpathy 2021)" href="../Examples/Microbiopsy_Analysis.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="../Examples/Microbiopsy_Analysis.html" title="Analysis of HER2 Positive Patients using Microbiopsies (Satpathy 2021)"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">KSTAR 1 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">KSTAR in Parallel</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="kstar-in-parallel">
+<h1>KSTAR in Parallel<a class="headerlink" href="#kstar-in-parallel" title="Permalink to this heading"></a></h1>
+<p>The base implementation of KSTAR operates with only a single processor. However, this can often be time consuming, particularly for datasets with
+many sites and/or many samples. It is possible to run KSTAR as a parallel process, either within your python environment or using a software
+package called nextflow. See the following sections for more details.</p>
+<section id="option-1-running-kstar-using-multiprocessing">
+<h2>Option 1: Running KSTAR using Multiprocessing<a class="headerlink" href="#option-1-running-kstar-using-multiprocessing" title="Permalink to this heading"></a></h2>
+<p>Within python, several KSTAR functions can be run in parallel using the multiprocessing module. For these functions, switching to multiprocessing
+simply requires changing the ‘PROCESSES’ parameter from 1 (default) to the number of processes you would like to run in parallel.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Activity Calculation</span>
+<span class="n">kinact_dict</span> <span class="o">=</span> <span class="n">calculate</span><span class="o">.</span><span class="n">run_kstar_analysis</span><span class="p">(</span><span class="n">experiment</span><span class="p">,</span> <span class="n">activity_log</span><span class="p">,</span> <span class="n">networks</span><span class="p">,</span> <span class="n">PROCESSES</span> <span class="o">=</span> <span class="mi">4</span><span class="p">)</span>
+
+<span class="c1"># Normalization</span>
+<span class="n">calculate</span><span class="o">.</span><span class="n">normalize_analysis</span><span class="p">(</span><span class="n">kinact_dict</span><span class="p">,</span> <span class="n">activity_log</span><span class="p">,</span> <span class="n">num_random_experiments</span><span class="p">,</span> <span class="n">target_alpha</span><span class="p">,</span> <span class="n">PROCESSES</span> <span class="o">=</span> <span class="mi">4</span><span class="p">)</span>
+
+<span class="c1"># Mann Whitney Calculation</span>
+<span class="n">calculate</span><span class="o">.</span><span class="n">Mann_Whitney_analysis</span><span class="p">(</span><span class="n">kinact_dict</span><span class="p">,</span> <span class="n">activity_log</span><span class="p">,</span> <span class="n">number_sig_trials</span> <span class="o">=</span> <span class="mi">100</span><span class="p">,</span> <span class="n">PROCESSES</span> <span class="o">=</span> <span class="mi">4</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>While this strategy helps to improve the speed of analysis, it can be very memory intensive for large datasets. For large tyrosine datasets
+and most serine/threonine datasets, we recommend running KSTAR using nextflow, described in the following section.</p>
+</section>
+<section id="option-2-running-large-datasets-with-nextflow">
+<h2>Option 2: Running Large Datasets with Nextflow<a class="headerlink" href="#option-2-running-large-datasets-with-nextflow" title="Permalink to this heading"></a></h2>
+<p>While our standard implementation of KSTAR can be run on most phosphotyrosine datasets and some small phosphoserine/threonine datasets, the memory
+and time costs are often too high for many large datasets. For these cases, we have implemented a highly parallel version of KSTAR implemented
+with the nextflow software package. The remainder of this section will detail how to install and run KSTAR with nextflow.</p>
+<section id="requirements">
+<h3>Requirements<a class="headerlink" href="#requirements" title="Permalink to this heading"></a></h3>
+<p>The nextflow pipeline takes advantage of either Docker or Singularity containers. These are compatible with POSIX operating
+systems (Linux, OS X, etc.). However, nextflow can also be run on a Windows machine with the use of WSL2. Windows has provided instructions for
+installing and running WSL2 here: <a class="reference external" href="https://docs.microsoft.com/en-us/windows/wsl/install-win10">WSL Documentation</a>. For other details about
+nextflow, please see their documentation here: <a class="reference external" href="https://www.nextflow.io/">Nextflow Documentation</a></p>
+<p>This implementation is best suited for high performance computing environments, with a minimum of 8 cpu cores
+and 16GB of available memory suggested.</p>
+</section>
+<section id="installation">
+<h3>Installation<a class="headerlink" href="#installation" title="Permalink to this heading"></a></h3>
+<p>Before implementing KSTAR with nextflow, Docker will need to be installed. The nextflow implementation utilizes a docker container of the
+KSTAR algorithm. For details on how to install Docker, visit <a class="reference external" href="https://docs.docker.com/get-docker/">Install Docker</a>.</p>
+<p>First, it is recommended that you download KSTAR from github into an easily accessible folder:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git clone https://github.com/NaegleLab/KSTAR.git
+</pre></div>
+</div>
+<p>Next, set up a conda virtual environment and install nextflow:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>conda create -n kstar
+conda activate kstar
+conda install -c bioconda nextflow
+</pre></div>
+</div>
+</section>
+<section id="downloading-or-generating-networks-used-in-kstar">
+<h3>Downloading or Generating Networks used in KSTAR<a class="headerlink" href="#downloading-or-generating-networks-used-in-kstar" title="Permalink to this heading"></a></h3>
+<p>As with the standard implementation of KSTAR, you will need to obtain KSTAR pruned networks that will be used in activity calculation. You can
+download KSTAR networks from the <a class="reference external" href="https://figshare.com/articles/dataset/NETWORKS/14944305">Network FigShare</a>. Unlike the standard implementation,
+network pickles do not need to be generated, as nextflow will operate on the individual network files.</p>
+<p>If choosing to generate your own networks, this should be done outside of the nextflow environment as described in the tutorial. You will
+need to make sure the directory structure where these networks are located is correct:
+‘{resource_directory}/{network_directory}/{phospho_event}/INDIVIDUAL_NETWORKS’, where elements in brackets are given as parameters during a nextflow
+run. Each individual pruned network should be a .tsv file located in the above directory.</p>
+</section>
+<section id="mapping-datasets">
+<h3>Mapping datasets<a class="headerlink" href="#mapping-datasets" title="Permalink to this heading"></a></h3>
+<p>Datasets must be mapped prior to running KSTAR with nextflow. The nextflow implementation is strictly for activity prediction. The mapped data
+should be a .tsv file that contains at least data columns, KSTAR_ACCESSION, KSTAR_PEPTIDE, AND KSTAR_SITE.</p>
+</section>
+<section id="running-nextflow">
+<h3>Running nextflow<a class="headerlink" href="#running-nextflow" title="Permalink to this heading"></a></h3>
+<p>Once all the above requirements are satisfied, KSTAR can be run using a simple bash script within the nextflow directory that looks like
+the one below:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">export</span> <span class="nv">KSTAR_DIR</span> <span class="o">=</span> /repo_loc/KSTAR/nextflow
+<span class="nb">cd</span> <span class="nv">$KSTAR_DIR</span>
+
+nextflow run main.nf -profile Y <span class="se">\</span>
+--name example <span class="se">\</span>
+--phospho_event Y <span class="se">\</span>
+--outdir ./results <span class="se">\</span>
+--experiment_file data/example_data_mapped.tsv <span class="se">\</span>
+--outdir ./results <span class="se">\</span>
+--resource_directory ../RESOURCE_FILES <span class="se">\</span>
+--network_directoyr /NETWORKS/NetworKIN <span class="se">\</span>
+--data_columns data:Column1,data:Column2,data:Column3,data:Column4 <span class="se">\</span>
+--num_random_experiments <span class="m">150</span> <span class="se">\</span>
+--threshold <span class="m">0</span>.5 <span class="se">\</span>
+--activity_aggregate mean <span class="se">\</span>
+--fpr_alpha <span class="m">0</span>.05 <span class="se">\</span>
+--number_of_sig_trials <span class="m">100</span>
+</pre></div>
+</div>
+<p>The first line of the bash script starts the nextflow pipeline and indicates which type of phospho_mod is of interest (either pY or pST).
+The remaining lines are parameters accepted by nextflow, which either indicate where to find/deposit files or are KSTAR parameters. See the table
+below for a description of the accepted parameters by nextflow:</p>
+<table class="colwidths-given docutils align-default" id="id1">
+<caption><span class="caption-text">Available Parameters</span><a class="headerlink" href="#id1" title="Permalink to this table"></a></caption>
+<colgroup>
+<col style="width: 20%" />
+<col style="width: 50%" />
+<col style="width: 10%" />
+<col style="width: 20%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Parameter</p></th>
+<th class="head"><p>Description</p></th>
+<th class="head"><p>Required</p></th>
+<th class="head"><p>Default</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>experiment_file</p></td>
+<td><p>full filename of the experiment</p></td>
+<td><p>Yes</p></td>
+<td><p>None</p></td>
+</tr>
+<tr class="row-odd"><td><p>name</p></td>
+<td><p>the name of the experiment. This will be used to name folders/files outputted by KSTAR</p></td>
+<td><p>No</p></td>
+<td><p>kstar’</p></td>
+</tr>
+<tr class="row-even"><td><p>phospho_event</p></td>
+<td><p>Type of phosphorylation network to analyze. Either Y or ST.</p></td>
+<td><p>Yes</p></td>
+<td><p>FALSE</p></td>
+</tr>
+<tr class="row-odd"><td><p>num_random_experiments</p></td>
+<td><p>The number of random experiments to generate for use in normalization and mann whitney tests</p></td>
+<td><p>Yes</p></td>
+<td><p>150</p></td>
+</tr>
+<tr class="row-even"><td><p>number_of_sig_trials</p></td>
+<td><p>The number of significance trials to perform for the mann whitney tests</p></td>
+<td><p>Yes</p></td>
+<td><p>FALSE</p></td>
+</tr>
+<tr class="row-odd"><td><p>resource_directory</p></td>
+<td><p>directory where all necesary resources can be found. Should contain the network directory</p></td>
+<td><p>Yes</p></td>
+<td><p>FALSE</p></td>
+</tr>
+<tr class="row-even"><td><p>network_directory</p></td>
+<td><p>directory where all networks to be used in the analysis can be found</p></td>
+<td><p>No</p></td>
+<td><p>NETWORKS/NetworKIN</p></td>
+</tr>
+<tr class="row-odd"><td><p>outdir</p></td>
+<td><p>directory where results should be deposited</p></td>
+<td><p>No</p></td>
+<td><p>./results</p></td>
+</tr>
+<tr class="row-even"><td><p>threshold</p></td>
+<td><p>The cutoff value to use for determining whether a site is used as evidence for a particular sample</p></td>
+<td><p>No</p></td>
+<td><p>1</p></td>
+</tr>
+<tr class="row-odd"><td><p>data_columns</p></td>
+<td><p>list of pre-mapped data columns to analyze. Must follow the following rules:  1) cannot include parenthesis, spaces, or commas in name 2) different data columns are split by a comma with no space in between 3) if left blank or false, all columns that start with ‘data:’ are analyzed.</p></td>
+<td><p>No</p></td>
+<td><p>FALSE</p></td>
+</tr>
+<tr class="row-even"><td><p>add_data_before</p></td>
+<td><p>boolean, where if true, ‘data:’ is added in front of each column name</p></td>
+<td><p>No</p></td>
+<td><p>FALSE</p></td>
+</tr>
+<tr class="row-odd"><td><p>activity_aggregate</p></td>
+<td><p>aggregate for binarizing the experiments. Choices include count, mean, median, max, min</p></td>
+<td><p>No</p></td>
+<td><p>count</p></td>
+</tr>
+<tr class="row-even"><td><p>fpr_alpha</p></td>
+<td><p>Desired false positive rate</p></td>
+<td><p>No</p></td>
+<td><p>0.05</p></td>
+</tr>
+<tr class="row-odd"><td><p>greater</p></td>
+<td><p>Boolean value that indicates whether sites above or below the threshold are used as evidence. If True, sites greater than evidence will be used</p></td>
+<td><p>No</p></td>
+<td><p>TRUE</p></td>
+</tr>
+<tr class="row-even"><td><p>chunk_size</p></td>
+<td><p>chunk size to use in hypergeometric calculation, adjust this to help with memory issues</p></td>
+<td><p>No</p></td>
+<td><p>10</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="output-of-a-nextflow-run">
+<h3>Output of a nextflow run<a class="headerlink" href="#output-of-a-nextflow-run" title="Permalink to this heading"></a></h3>
+<p>Each run with nextflow will deposit all results from a run in the folder indicated by the outdir parameter. There will be seperate folders for tyrosine
+and serine/threonine results if both types of runs are performed. Within the out directory, there will be the following subfolders, most of which mirror
+what is saved in the pickle object in the base KSTAR algorithm:</p>
+<table class="colwidths-given docutils align-default" id="id2">
+<caption><span class="caption-text">Nextflow Run Outputs</span><a class="headerlink" href="#id2" title="Permalink to this table"></a></caption>
+<colgroup>
+<col style="width: 15%" />
+<col style="width: 77%" />
+<col style="width: 8%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Subfolder</p></th>
+<th class="head"><p>Description</p></th>
+<th class="head"><p>Files within folder</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>random_hypergeometric_activity</p></td>
+<td><p>Contains the predicted activities for each of the random experiments</p></td>
+<td><p>example_random_activities.tsv, example_aggregated_activities.tsv</p></td>
+</tr>
+<tr class="row-odd"><td><p>pipeline_info</p></td>
+<td><p>Contains all information about the nextflow run, including run time, memory used, and cpus used</p></td>
+<td><p>pipeline_dag.svg, execution_trace.txt, execution_timeline.html, execution_report.html</p></td>
+</tr>
+<tr class="row-even"><td><p>normalized_activity</p></td>
+<td><p>Contains activity and fpr predictions after original predictions have been normalized relative to the median p-values obtained from the random experiments</p></td>
+<td><p>example_normalized_aggregate_activity.tsv, example_normalized_activities.tsv</p></td>
+</tr>
+<tr class="row-odd"><td><p>mann_whitney</p></td>
+<td><p>Contains activity and fpr predictions obtained via the Mann Whitney statistical test, comparing the experiment p-values to the random experiments. These are the activity/fpr values we recommend using for analysis</p></td>
+<td><p>example_mann_whitney_fpr.tsv, example_mann_whitney_activities.tsv, mann_whitney_combined</p></td>
+</tr>
+<tr class="row-even"><td><p>individual_experiments</p></td>
+<td><p>This contains all of the random datasets generated for use in getting both the normalized and Mann Whitney activities</p></td>
+<td><p>folders containing results for each individual experiment/sample</p></td>
+</tr>
+<tr class="row-odd"><td><p>hypergeometric_activity</p></td>
+<td><p>Contains activity predictions prior to accounting for the expected p-values due to random chance</p></td>
+<td><p>example_aggregated_activities.tsv, example_activities_list.tsv, example_activities.tsv</p></td>
+</tr>
+<tr class="row-even"><td><p>binary_experiment</p></td>
+<td><p>Contains the mapped data after the evidence columns have been binarized based on the given threshold</p></td>
+<td><p>example_binarized_experiment.tsv</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="running-nextflow-on-singularity">
+<h3>Running nextflow on Singularity<a class="headerlink" href="#running-nextflow-on-singularity" title="Permalink to this heading"></a></h3>
+<p>It is also possible to implement the above using singularity containers instead of docker containers. If singularity is already installed, only a small
+addition at the bottom of the bash script is needed to use singularity instead of docker.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">export</span> <span class="nv">KSTAR_DIR</span> <span class="o">=</span> /repo_loc/KSTAR/nextflow
+<span class="nb">cd</span> <span class="nv">$KSTAR_DIR</span>
+
+nextflow run main.nf -profile Y <span class="se">\</span>
+--name example <span class="se">\</span>
+--phospho_event Y <span class="se">\</span>
+--outdir ./results <span class="se">\</span>
+--experiment_file data/example_data_mapped.tsv <span class="se">\</span>
+--outdir ./results <span class="se">\</span>
+--resource_directory ../RESOURCE_FILES <span class="se">\</span>
+--network_directoyr /NETWORKS/NetworKIN <span class="se">\</span>
+--data_columns data:Column1,data:Column2,data:Column3,data:Column4 <span class="se">\</span>
+--num_random_experiments <span class="m">150</span> <span class="se">\</span>
+--threshold <span class="m">0</span>.5 <span class="se">\</span>
+--activity_aggregate mean <span class="se">\</span>
+--fpr_alpha <span class="m">0</span>.05 <span class="se">\</span>
+--number_of_sig_trials <span class="m">100</span>
+-with-singularity
+-without-docker
+</pre></div>
+</div>
+</section>
+</section>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <div>
+    <h3><a href="../index.html">Table of Contents</a></h3>
+    <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../Overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Dependencies.html">Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../KSTAR.html">KSTAR</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Tutorial/tutorial.html">Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Examples/Examples.html">Analysis Examples</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">KSTAR in Parallel</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#option-1-running-kstar-using-multiprocessing">Option 1: Running KSTAR using Multiprocessing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#option-2-running-large-datasets-with-nextflow">Option 2: Running Large Datasets with Nextflow</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#requirements">Requirements</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#installation">Installation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#downloading-or-generating-networks-used-in-kstar">Downloading or Generating Networks used in KSTAR</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#mapping-datasets">Mapping datasets</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#running-nextflow">Running nextflow</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#output-of-a-nextflow-run">Output of a nextflow run</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#running-nextflow-on-singularity">Running nextflow on Singularity</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  </div>
+  <div>
+    <h4>Previous topic</h4>
+    <p class="topless"><a href="../Examples/Microbiopsy_Analysis.html"
+                          title="previous chapter">Analysis of HER2 Positive Patients using Microbiopsies (Satpathy 2021)</a></p>
+  </div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/Parallel/parallel.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="../Examples/Microbiopsy_Analysis.html" title="Analysis of HER2 Positive Patients using Microbiopsies (Satpathy 2021)"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">KSTAR 1 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">KSTAR in Parallel</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2020, Naegle Lab.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.0.2.
+    </div>
+  </body>
+</html>

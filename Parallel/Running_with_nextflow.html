@@ -4,7 +4,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
     <title>Running Large Datasets with Nextflow &#8212; KSTAR 1 documentation</title>
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
@@ -26,9 +26,6 @@
         <li class="right" style="margin-right: 10px">
           <a href="../genindex.html" title="General Index"
              accesskey="I">index</a></li>
-        <li class="right" >
-          <a href="../py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
         <li class="nav-item nav-item-0"><a href="../index.html">KSTAR 1 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Running Large Datasets with Nextflow</a></li> 
       </ul>
@@ -40,12 +37,12 @@
           <div class="body" role="main">
             
   <section id="running-large-datasets-with-nextflow">
-<h1>Running Large Datasets with Nextflow<a class="headerlink" href="#running-large-datasets-with-nextflow" title="Permalink to this heading"></a></h1>
+<h1>Running Large Datasets with Nextflow<a class="headerlink" href="#running-large-datasets-with-nextflow" title="Permalink to this heading">¶</a></h1>
 <p>While our standard implementation of KSTAR can be run on most phosphotyrosine datasets and some small phosphoserine/threonine datasets, the memory
 and time costs are often too high for many large datasets. For these cases, we have implemented a highly parallel version of KSTAR implemented
 with the nextflow software package. The remainder of this section will detail how to install and run KSTAR with nextflow.</p>
 <section id="requirements">
-<h2>Requirements<a class="headerlink" href="#requirements" title="Permalink to this heading"></a></h2>
+<h2>Requirements<a class="headerlink" href="#requirements" title="Permalink to this heading">¶</a></h2>
 <p>The nextflow pipeline takes advantage of either Docker or Singularity containers. These are compatible with POSIX operating
 systems (Linux, OS X, etc.). However, nextflow can also be run on a Windows machine with the use of WSL2. Windows has provided instructions for
 installing and running WSL2 here: <a class="reference external" href="https://docs.microsoft.com/en-us/windows/wsl/install-win10">WSL Documentation</a>. For other details about
@@ -54,7 +51,7 @@ nextflow, please see their documentation here: <a class="reference external" hre
 and 16GB of available memory suggested.</p>
 </section>
 <section id="installation">
-<h2>Installation<a class="headerlink" href="#installation" title="Permalink to this heading"></a></h2>
+<h2>Installation<a class="headerlink" href="#installation" title="Permalink to this heading">¶</a></h2>
 <p>Before implementing KSTAR with nextflow, Docker will need to be installed. The nextflow implementation utilizes a docker container of the
 KSTAR algorithm. For details on how to install Docker, visit <a class="reference external" href="https://docs.docker.com/get-docker/">Install Docker</a>.</p>
 <p>First, it is recommended that you download KSTAR from github into an easily accessible folder:</p>
@@ -69,7 +66,7 @@ KSTAR algorithm. For details on how to install Docker, visit <a class="reference
 </div>
 </section>
 <section id="downloading-or-generating-networks-used-in-kstar">
-<h2>Downloading or Generating Networks used in KSTAR<a class="headerlink" href="#downloading-or-generating-networks-used-in-kstar" title="Permalink to this heading"></a></h2>
+<h2>Downloading or Generating Networks used in KSTAR<a class="headerlink" href="#downloading-or-generating-networks-used-in-kstar" title="Permalink to this heading">¶</a></h2>
 <p>As with the standard implementation of KSTAR, you will need to obtain KSTAR pruned networks that will be used in activity calculation. You can
 download KSTAR networks from the <a class="reference external" href="https://figshare.com/articles/dataset/NETWORKS/14944305">Network FigShare</a>. Unlike the standard implementation,
 network pickles do not need to be generated, as nextflow will operate on the individual network files.</p>
@@ -79,12 +76,12 @@ need to make sure the directory structure where these networks are located is co
 run. Each individual pruned network should be a .tsv file located in the above directory.</p>
 </section>
 <section id="mapping-datasets">
-<h2>Mapping datasets<a class="headerlink" href="#mapping-datasets" title="Permalink to this heading"></a></h2>
+<h2>Mapping datasets<a class="headerlink" href="#mapping-datasets" title="Permalink to this heading">¶</a></h2>
 <p>Datasets must be mapped prior to running KSTAR with nextflow. The nextflow implementation is strictly for activity prediction. The mapped data
 should be a .tsv file that contains at least data columns, KSTAR_ACCESSION, KSTAR_PEPTIDE, AND KSTAR_SITE.</p>
 </section>
 <section id="running-nextflow">
-<h2>Running nextflow<a class="headerlink" href="#running-nextflow" title="Permalink to this heading"></a></h2>
+<h2>Running nextflow<a class="headerlink" href="#running-nextflow" title="Permalink to this heading">¶</a></h2>
 <p>Once all the above requirements are satisfied, KSTAR can be run using a simple bash script within the nextflow directory that looks like
 the one below:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>export KSTAR_DIR = /repo_loc/KSTAR/nextflow
@@ -107,7 +104,7 @@ nextflow run main.nf -profile Y \
 </pre></div>
 </div>
 <p>The first line of the bash script starts the nextflow pipeline and indicates which type of phospho_mod is of interest (either pY or pST). The remaining lines are parameters accepted by nextflow, which either indicate where to find/deposit files or are KSTAR parameters. See the table below for a description of the accepted parameters by nextflow:</p>
-<table class="colwidths-auto docutils align-default">
+<table class="docutils align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p>Parameter</p></th>
 <th class="head"><p>Description</p></th>
@@ -195,9 +192,9 @@ nextflow run main.nf -profile Y \
 </table>
 </section>
 <section id="output-of-a-nextflow-run">
-<h2>Output of a nextflow run<a class="headerlink" href="#output-of-a-nextflow-run" title="Permalink to this heading"></a></h2>
+<h2>Output of a nextflow run<a class="headerlink" href="#output-of-a-nextflow-run" title="Permalink to this heading">¶</a></h2>
 <p>Each run with nextflow will deposit all results from a run in the folder indicated by the outdir parameter. There will be seperate folders for tyrosine and serine/threonine results if both types of runs are performed. Within the out directory, there will be the following subfolders, most of which mirror what is saved in the pickle object in the base KSTAR algorithm:</p>
-<table class="colwidths-auto docutils align-default">
+<table class="docutils align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p>Subfolder</p></th>
 <th class="head"><p>Description</p></th>
@@ -237,7 +234,7 @@ nextflow run main.nf -profile Y \
 </table>
 </section>
 <section id="running-kstar-nextflow-on-singularity">
-<h2>Running KSTAR-nextflow on Singularity<a class="headerlink" href="#running-kstar-nextflow-on-singularity" title="Permalink to this heading"></a></h2>
+<h2>Running KSTAR-nextflow on Singularity<a class="headerlink" href="#running-kstar-nextflow-on-singularity" title="Permalink to this heading">¶</a></h2>
 <p>It is also possible to implement the above using singularity containers instead of docker containers. If singularity is already installed, only a small addition at the bottom of the bash script is needed to use singularity instead of docker.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>export KSTAR_DIR = /repo_loc/KSTAR/nextflow
 cd $KSTAR_DIR
@@ -311,16 +308,13 @@ nextflow run main.nf -profile Y \
         <li class="right" style="margin-right: 10px">
           <a href="../genindex.html" title="General Index"
              >index</a></li>
-        <li class="right" >
-          <a href="../py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
         <li class="nav-item nav-item-0"><a href="../index.html">KSTAR 1 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Running Large Datasets with Nextflow</a></li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2020, Naegle Lab.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.0.2.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.1.1.
     </div>
   </body>
 </html>

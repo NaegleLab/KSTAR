@@ -1,0 +1,138 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>Examples &#8212; KSTAR 1 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/classic.css" />
+    
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Running Large Datasets with Nextflow" href="Running_with_nextflow.html" />
+    <link rel="prev" title="Tutorial" href="Tutorial/tutorial.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="Running_with_nextflow.html" title="Running Large Datasets with Nextflow"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="Tutorial/tutorial.html" title="Tutorial"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">KSTAR 1 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Examples</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="examples">
+<h1>Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h1>
+<section id="mapping">
+<h2>Mapping<a class="headerlink" href="#mapping" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="calculating-activities">
+<h2>Calculating Activities<a class="headerlink" href="#calculating-activities" title="Permalink to this headline">¶</a></h2>
+<p>NO: Not going to copy the cols into a list of ‘’ separted lists. Implement and add special flag for designated data columns. INCLUDE usage here
+<code class="docutils literal notranslate"><span class="pre">`</span> <span class="pre">python</span> <span class="pre">run_kstar.py</span> <span class="pre">--exp_file=./../analysis/TCGA/tcga_mapped.csv.</span> <span class="pre">-rdir=../RESOURCE_FILES</span> <span class="pre">--acc='KSTAR_ACCESSION'</span> <span class="pre">-pep='KSTAR_PEPTIDE'</span> <span class="pre">--agg=count</span> <span class="pre">--num=150</span> <span class="pre">--normalize=True</span> <span class="pre">--cols=[]</span>
+<span class="pre">`</span></code></p>
+<p>FAILS: FILE NOT FOUND, even though file is there
+<code class="docutils literal notranslate"><span class="pre">`python</span> <span class="pre">run_kstar.py</span>&#160; <span class="pre">--exp_file</span> <span class="pre">='../analysis/BCR-ABL/PRE-MAPPED/experiment.1704.csv'</span> <span class="pre">--rdir='../RESOURCE_FILES/'</span> <span class="pre">--odir='./'</span> <span class="pre">--acc='query_accession'</span> <span class="pre">--pep='aligned_peptides'</span> <span class="pre">--agg='mean'</span> <span class="pre">--thresh=0.5</span> <span class="pre">--cols='average:data:treated_to_untreated:EOE(drug</span> <span class="pre">washout)','average:data:treated_to_untreated:HDP3(3hrs</span> <span class="pre">post</span> <span class="pre">treatment)','average:data:treated_to_untreated:HDP6(6hrs</span> <span class="pre">post</span> <span class="pre">treatment)','average:data:treated_to_untreated:pre-treatment'</span> <span class="pre">`</span></code></p>
+</section>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table of Contents</a></h3>
+  <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="Overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Dependencies.html">Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="KSTAR.html">KSTAR</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Tutorial/tutorial.html">Tutorial</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Examples</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#mapping">Mapping</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#calculating-activities">Calculating Activities</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="Running_with_nextflow.html">Running Large Datasets with Nextflow</a></li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="Tutorial/tutorial.html"
+                        title="previous chapter">Tutorial</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="Running_with_nextflow.html"
+                        title="next chapter">Running Large Datasets with Nextflow</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/Examples.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="Running_with_nextflow.html" title="Running Large Datasets with Nextflow"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="Tutorial/tutorial.html" title="Tutorial"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">KSTAR 1 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Examples</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2020, Naegle Lab.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.0.1.
+    </div>
+  </body>
+</html>

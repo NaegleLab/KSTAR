@@ -1,0 +1,872 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Download and Process Dataset of Interest &#8212; KSTAR 1 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/classic.css" />
+    
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">KSTAR 1 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Download and Process Dataset of Interest</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  
+<style>
+/* CSS for nbsphinx extension */
+
+/* remove conflicting styling from Sphinx themes */
+div.nbinput.container div.prompt *,
+div.nboutput.container div.prompt *,
+div.nbinput.container div.input_area pre,
+div.nboutput.container div.output_area pre,
+div.nbinput.container div.input_area .highlight,
+div.nboutput.container div.output_area .highlight {
+    border: none;
+    padding: 0;
+    margin: 0;
+    box-shadow: none;
+}
+
+div.nbinput.container > div[class*=highlight],
+div.nboutput.container > div[class*=highlight] {
+    margin: 0;
+}
+
+div.nbinput.container div.prompt *,
+div.nboutput.container div.prompt * {
+    background: none;
+}
+
+div.nboutput.container div.output_area .highlight,
+div.nboutput.container div.output_area pre {
+    background: unset;
+}
+
+div.nboutput.container div.output_area div.highlight {
+    color: unset;  /* override Pygments text color */
+}
+
+/* avoid gaps between output lines */
+div.nboutput.container div[class*=highlight] pre {
+    line-height: normal;
+}
+
+/* input/output containers */
+div.nbinput.container,
+div.nboutput.container {
+    display: -webkit-flex;
+    display: flex;
+    align-items: flex-start;
+    margin: 0;
+    width: 100%;
+}
+@media (max-width: 540px) {
+    div.nbinput.container,
+    div.nboutput.container {
+        flex-direction: column;
+    }
+}
+
+/* input container */
+div.nbinput.container {
+    padding-top: 5px;
+}
+
+/* last container */
+div.nblast.container {
+    padding-bottom: 5px;
+}
+
+/* input prompt */
+div.nbinput.container div.prompt pre {
+    color: #307FC1;
+}
+
+/* output prompt */
+div.nboutput.container div.prompt pre {
+    color: #BF5B3D;
+}
+
+/* all prompts */
+div.nbinput.container div.prompt,
+div.nboutput.container div.prompt {
+    width: 4.5ex;
+    padding-top: 5px;
+    position: relative;
+    user-select: none;
+}
+
+div.nbinput.container div.prompt > div,
+div.nboutput.container div.prompt > div {
+    position: absolute;
+    right: 0;
+    margin-right: 0.3ex;
+}
+
+@media (max-width: 540px) {
+    div.nbinput.container div.prompt,
+    div.nboutput.container div.prompt {
+        width: unset;
+        text-align: left;
+        padding: 0.4em;
+    }
+    div.nboutput.container div.prompt.empty {
+        padding: 0;
+    }
+
+    div.nbinput.container div.prompt > div,
+    div.nboutput.container div.prompt > div {
+        position: unset;
+    }
+}
+
+/* disable scrollbars on prompts */
+div.nbinput.container div.prompt pre,
+div.nboutput.container div.prompt pre {
+    overflow: hidden;
+}
+
+/* input/output area */
+div.nbinput.container div.input_area,
+div.nboutput.container div.output_area {
+    -webkit-flex: 1;
+    flex: 1;
+    overflow: auto;
+}
+@media (max-width: 540px) {
+    div.nbinput.container div.input_area,
+    div.nboutput.container div.output_area {
+        width: 100%;
+    }
+}
+
+/* input area */
+div.nbinput.container div.input_area {
+    border: 1px solid #e0e0e0;
+    border-radius: 2px;
+    /*background: #f5f5f5;*/
+}
+
+/* override MathJax center alignment in output cells */
+div.nboutput.container div[class*=MathJax] {
+    text-align: left !important;
+}
+
+/* override sphinx.ext.imgmath center alignment in output cells */
+div.nboutput.container div.math p {
+    text-align: left;
+}
+
+/* standard error */
+div.nboutput.container div.output_area.stderr {
+    background: #fdd;
+}
+
+/* ANSI colors */
+.ansi-black-fg { color: #3E424D; }
+.ansi-black-bg { background-color: #3E424D; }
+.ansi-black-intense-fg { color: #282C36; }
+.ansi-black-intense-bg { background-color: #282C36; }
+.ansi-red-fg { color: #E75C58; }
+.ansi-red-bg { background-color: #E75C58; }
+.ansi-red-intense-fg { color: #B22B31; }
+.ansi-red-intense-bg { background-color: #B22B31; }
+.ansi-green-fg { color: #00A250; }
+.ansi-green-bg { background-color: #00A250; }
+.ansi-green-intense-fg { color: #007427; }
+.ansi-green-intense-bg { background-color: #007427; }
+.ansi-yellow-fg { color: #DDB62B; }
+.ansi-yellow-bg { background-color: #DDB62B; }
+.ansi-yellow-intense-fg { color: #B27D12; }
+.ansi-yellow-intense-bg { background-color: #B27D12; }
+.ansi-blue-fg { color: #208FFB; }
+.ansi-blue-bg { background-color: #208FFB; }
+.ansi-blue-intense-fg { color: #0065CA; }
+.ansi-blue-intense-bg { background-color: #0065CA; }
+.ansi-magenta-fg { color: #D160C4; }
+.ansi-magenta-bg { background-color: #D160C4; }
+.ansi-magenta-intense-fg { color: #A03196; }
+.ansi-magenta-intense-bg { background-color: #A03196; }
+.ansi-cyan-fg { color: #60C6C8; }
+.ansi-cyan-bg { background-color: #60C6C8; }
+.ansi-cyan-intense-fg { color: #258F8F; }
+.ansi-cyan-intense-bg { background-color: #258F8F; }
+.ansi-white-fg { color: #C5C1B4; }
+.ansi-white-bg { background-color: #C5C1B4; }
+.ansi-white-intense-fg { color: #A1A6B2; }
+.ansi-white-intense-bg { background-color: #A1A6B2; }
+
+.ansi-default-inverse-fg { color: #FFFFFF; }
+.ansi-default-inverse-bg { background-color: #000000; }
+
+.ansi-bold { font-weight: bold; }
+.ansi-underline { text-decoration: underline; }
+
+
+div.nbinput.container div.input_area div[class*=highlight] > pre,
+div.nboutput.container div.output_area div[class*=highlight] > pre,
+div.nboutput.container div.output_area div[class*=highlight].math,
+div.nboutput.container div.output_area.rendered_html,
+div.nboutput.container div.output_area > div.output_javascript,
+div.nboutput.container div.output_area:not(.rendered_html) > img{
+    padding: 5px;
+    margin: 0;
+}
+
+/* fix copybtn overflow problem in chromium (needed for 'sphinx_copybutton') */
+div.nbinput.container div.input_area > div[class^='highlight'],
+div.nboutput.container div.output_area > div[class^='highlight']{
+    overflow-y: hidden;
+}
+
+/* hide copybtn icon on prompts (needed for 'sphinx_copybutton') */
+.prompt a.copybtn {
+    display: none;
+}
+
+/* Some additional styling taken form the Jupyter notebook CSS */
+div.rendered_html table {
+  border: none;
+  border-collapse: collapse;
+  border-spacing: 0;
+  color: black;
+  font-size: 12px;
+  table-layout: fixed;
+}
+div.rendered_html thead {
+  border-bottom: 1px solid black;
+  vertical-align: bottom;
+}
+div.rendered_html tr,
+div.rendered_html th,
+div.rendered_html td {
+  text-align: right;
+  vertical-align: middle;
+  padding: 0.5em 0.5em;
+  line-height: normal;
+  white-space: normal;
+  max-width: none;
+  border: none;
+}
+div.rendered_html th {
+  font-weight: bold;
+}
+div.rendered_html tbody tr:nth-child(odd) {
+  background: #f5f5f5;
+}
+div.rendered_html tbody tr:hover {
+  background: rgba(66, 165, 245, 0.2);
+}
+</style>
+<div class="section" id="Download-and-Process-Dataset-of-Interest">
+<h1>Download and Process Dataset of Interest<a class="headerlink" href="#Download-and-Process-Dataset-of-Interest" title="Permalink to this headline">¶</a></h1>
+<p>Prior to predicting kinase activities, datasets need to be mapped to KinPred to obtain the Uniprot ID, phosphosite, and the +/-7 peptide sequence that will be used by KSTAR to identify which kinases are associated with each phosphosite. In order to map kinase activities, the dataframe containing phosphoproteomic data should contain each peptides Uniprot accession, as well as either the site number or peptide sequence. If the peptide sequence is used, it should be formatted with only the
+phosphorylated peptides being lowercased. It is recommended to use the peptide sequence rather than the site number when possibl, as this is more likely to be found in the most recent version of KinPred. An example of the processed dataset can be seen below, which is a trimmed and processed version of the dataset published publically (Chylek, 2014):</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="c1">#import KSTAR and other necesary packages</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pickle</span>
+<span class="kn">import</span> <span class="nn">os</span>
+
+<span class="kn">from</span> <span class="nn">kstar</span> <span class="kn">import</span> <span class="n">config</span><span class="p">,</span> <span class="n">helpers</span><span class="p">,</span> <span class="n">mapping</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Could not find reference proteome. Please update the resource directory using config.update_directories()
+Could not find reference phosphoproteome. Please update the resource directory using config.update_directories()
+</pre></div></div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">updates</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">update_directories</span><span class="p">(</span><span class="n">resource</span> <span class="o">=</span> <span class="s1">&#39;C:/Users/Sam/Documents/Grad/KinaseActivity/KSTAR/RESOURCE_FILES&#39;</span><span class="p">,</span> <span class="n">network</span> <span class="o">=</span> <span class="s1">&#39;C:/Users/Sam/Documents/Grad/KinaseActivity/KSTAR/RESOURCE_FILES/Networks/Networkin&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">config</span><span class="o">.</span><span class="n">directories</span> <span class="o">=</span> <span class="n">updates</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">config</span><span class="o">.</span><span class="n">HUMAN_REF_SEQUENCES</span> <span class="o">=</span> <span class="n">updates</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+<span class="n">config</span><span class="o">.</span><span class="n">HUMAN_REF_COMPENDIA</span> <span class="o">=</span> <span class="n">updates</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+<span class="n">config</span><span class="o">.</span><span class="n">PROJECT_DIR</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">directories</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">config</span><span class="o">.</span><span class="n">RESOURCE_DIR</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">config</span><span class="o">.</span><span class="n">PROJECT_DIR</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">config</span><span class="o">.</span><span class="n">directories</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span>
+<span class="n">config</span><span class="o">.</span><span class="n">NETWORK_DIR</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">config</span><span class="o">.</span><span class="n">RESOURCE_DIR</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">config</span><span class="o">.</span><span class="n">directories</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="c1">#load data</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s1">&#39;example.tsv&#39;</span><span class="p">,</span> <span class="n">index_col</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">sep</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\t</span><span class="s1">&#39;</span><span class="p">)</span>
+<span class="n">df</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>query_accession</th>
+      <th>mod_sites</th>
+      <th>peptide</th>
+      <th>data:time:0</th>
+      <th>data:time:5</th>
+      <th>data:time:15</th>
+      <th>data:time:30</th>
+      <th>data:time:60</th>
+    </tr>
+    <tr>
+      <th>MS_id</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>7605136</th>
+      <td>Q9P2D3-1</td>
+      <td>Y1104</td>
+      <td>EAAEVCEyAMSLAK</td>
+      <td>0.0</td>
+      <td>-0.01</td>
+      <td>-0.28</td>
+      <td>-0.03</td>
+      <td>-0.27</td>
+    </tr>
+    <tr>
+      <th>7605137</th>
+      <td>A0FGR8-6</td>
+      <td>Y845</td>
+      <td>NLIAFSEDGSDPyVR</td>
+      <td>0.0</td>
+      <td>0.26</td>
+      <td>0.27</td>
+      <td>0.04</td>
+      <td>0.05</td>
+    </tr>
+    <tr>
+      <th>7605138</th>
+      <td>Q5T4S7-2</td>
+      <td>Y5156</td>
+      <td>HNDMPIyEAADK</td>
+      <td>0.0</td>
+      <td>0.31</td>
+      <td>-0.15</td>
+      <td>0.01</td>
+      <td>-0.23</td>
+    </tr>
+    <tr>
+      <th>7605139</th>
+      <td>Q16181-1</td>
+      <td>Y30</td>
+      <td>NLEGyVGFANLPNQVYR</td>
+      <td>0.0</td>
+      <td>-0.14</td>
+      <td>-0.19</td>
+      <td>0.07</td>
+      <td>0.15</td>
+    </tr>
+    <tr>
+      <th>7605140</th>
+      <td>Q16181-1</td>
+      <td>Y41</td>
+      <td>NLEGYVGFANLPNQVyR</td>
+      <td>0.0</td>
+      <td>-0.14</td>
+      <td>-0.09</td>
+      <td>0.04</td>
+      <td>-0.06</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>7605855</th>
+      <td>O95801</td>
+      <td>Y129</td>
+      <td>AAAQYyLGNFR</td>
+      <td>0.0</td>
+      <td>0.15</td>
+      <td>0.39</td>
+      <td>-0.05</td>
+      <td>0.08</td>
+    </tr>
+    <tr>
+      <th>7605859</th>
+      <td>O60711</td>
+      <td>Y22</td>
+      <td>STLQDSDEySNPAPLPLDQHSR</td>
+      <td>0.0</td>
+      <td>-0.73</td>
+      <td>0.76</td>
+      <td>4.48</td>
+      <td>5.88</td>
+    </tr>
+    <tr>
+      <th>7605860</th>
+      <td>O60711</td>
+      <td>Y203</td>
+      <td>SGLAYCPNDyHQLFSPR</td>
+      <td>0.0</td>
+      <td>0.55</td>
+      <td>-1.77</td>
+      <td>3.58</td>
+      <td>5.15</td>
+    </tr>
+    <tr>
+      <th>7605861</th>
+      <td>P47736</td>
+      <td>Y374</td>
+      <td>LINAEyACYK</td>
+      <td>0.0</td>
+      <td>-0.12</td>
+      <td>0.19</td>
+      <td>0.02</td>
+      <td>-0.16</td>
+    </tr>
+    <tr>
+      <th>7605863</th>
+      <td>Q14511</td>
+      <td>Y345</td>
+      <td>DGVyDVPLHNPPDAK</td>
+      <td>0.0</td>
+      <td>-0.41</td>
+      <td>-0.14</td>
+      <td>-0.12</td>
+      <td>-0.29</td>
+    </tr>
+  </tbody>
+</table>
+<p>665 rows × 8 columns</p>
+</div></div>
+</div>
+<p>Notice that all data columns in the dataset have ‘data:’ in front of them. This is how KSTAR will identify which columns to use when making evidence decisions. This can be done manually prior to mapping, or will be done by KSTAR automatically once you indicate which columns you would like to use as evidence.</p>
+</div>
+<div class="section" id="Map-Dataset">
+<h1>Map Dataset<a class="headerlink" href="#Map-Dataset" title="Permalink to this headline">¶</a></h1>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="c1">#define the directory where mapped dataset and run information will be saved</span>
+<span class="n">odir</span> <span class="o">=</span> <span class="s1">&#39;./example&#39;</span>
+<span class="c1">#Define the log name. The log will store information regarding any errors that occur during the mapping process.</span>
+<span class="n">logName</span> <span class="o">=</span> <span class="s1">&#39;example_run&#39;</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="c1">###Construct a dictionary which identifies which columns contain the accession + peptide and/or site for each peptide.</span>
+<span class="c1">#Format of this dictionary should be: {&#39;peptide&#39;: &#39;Col_with_PeptideInfo&#39;,&#39;accession_id&#39;: &#39;Col_with_UniprotID&#39;}</span>
+<span class="n">mapDict</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;peptide&#39;</span><span class="p">:</span><span class="s1">&#39;peptide&#39;</span><span class="p">,</span> <span class="s1">&#39;accession_id&#39;</span><span class="p">:</span><span class="s1">&#39;query_accession&#39;</span><span class="p">}</span>
+
+<span class="c1">#get mapping log</span>
+<span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">odir</span><span class="si">}</span><span class="s2">/MAPPED_DATA&quot;</span><span class="p">):</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">odir</span><span class="si">}</span><span class="s2">/MAPPED_DATA&quot;</span><span class="p">)</span>
+<span class="n">mapping_log</span> <span class="o">=</span> <span class="n">helpers</span><span class="o">.</span><span class="n">get_logger</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;mapping_</span><span class="si">{</span><span class="n">logName</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">odir</span><span class="si">}</span><span class="s2">/MAPPED_DATA/mapping_</span><span class="si">{</span><span class="n">logName</span><span class="si">}</span><span class="s2">.log&quot;</span><span class="p">)</span>
+<span class="c1">#map dataset and record process in the logger</span>
+<span class="n">exp_mapper</span> <span class="o">=</span> <span class="n">mapping</span><span class="o">.</span><span class="n">ExperimentMapper</span><span class="p">(</span><span class="n">experiment</span> <span class="o">=</span> <span class="n">df</span><span class="p">,</span>
+                                      <span class="n">columns</span> <span class="o">=</span> <span class="n">mapDict</span><span class="p">,</span>
+                                      <span class="n">logger</span> <span class="o">=</span> <span class="n">mapping_log</span><span class="p">)</span>
+<span class="c1">#save mapped dataset</span>
+<span class="n">exp_mapper</span><span class="o">.</span><span class="n">experiment</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">odir</span><span class="si">}</span><span class="s2">/MAPPED_DATA/</span><span class="si">{</span><span class="n">logName</span><span class="si">}</span><span class="s2">_mapped.tsv&quot;</span><span class="p">,</span> <span class="n">sep</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\t</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">index</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">exp_mapper</span><span class="o">.</span><span class="n">experiment</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>query_accession</th>
+      <th>mod_sites</th>
+      <th>peptide</th>
+      <th>data:time:0</th>
+      <th>data:time:5</th>
+      <th>data:time:15</th>
+      <th>data:time:30</th>
+      <th>data:time:60</th>
+      <th>KSTAR_ACCESSION</th>
+      <th>KSTAR_PEPTIDE</th>
+      <th>KSTAR_SITE</th>
+      <th>KSTAR_NUM_COMPENDIA</th>
+      <th>KSTAR_NUM_COMPENDIA_CLASS</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>Q9P2D3-1</td>
+      <td>Y1104</td>
+      <td>EAAEVCEyAMSLAK</td>
+      <td>0.0</td>
+      <td>-0.01</td>
+      <td>-0.28</td>
+      <td>-0.03</td>
+      <td>-0.27</td>
+      <td>Q9P2D3</td>
+      <td>EAAEVCEyAMSLAKN</td>
+      <td>Y1104</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>A0FGR8-6</td>
+      <td>Y845</td>
+      <td>NLIAFSEDGSDPyVR</td>
+      <td>0.0</td>
+      <td>0.26</td>
+      <td>0.27</td>
+      <td>0.04</td>
+      <td>0.05</td>
+      <td>A0FGR8</td>
+      <td>SEDGSDPyVRMYLLP</td>
+      <td>Y824</td>
+      <td>2</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>Q5T4S7-2</td>
+      <td>Y5156</td>
+      <td>HNDMPIyEAADK</td>
+      <td>0.0</td>
+      <td>0.31</td>
+      <td>-0.15</td>
+      <td>0.01</td>
+      <td>-0.23</td>
+      <td>Q5T4S7</td>
+      <td>RHNDMPIyEAADKAL</td>
+      <td>Y5135</td>
+      <td>1</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>Q16181-1</td>
+      <td>Y30</td>
+      <td>NLEGyVGFANLPNQVYR</td>
+      <td>0.0</td>
+      <td>-0.14</td>
+      <td>-0.19</td>
+      <td>0.07</td>
+      <td>0.15</td>
+      <td>Q16181</td>
+      <td>QQKNLEGyVGFANLP</td>
+      <td>Y30</td>
+      <td>5</td>
+      <td>2</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>Q16181-1</td>
+      <td>Y41</td>
+      <td>NLEGYVGFANLPNQVyR</td>
+      <td>0.0</td>
+      <td>-0.14</td>
+      <td>-0.09</td>
+      <td>0.04</td>
+      <td>-0.06</td>
+      <td>Q16181</td>
+      <td>ANLPNQVyRKSVKRG</td>
+      <td>Y41</td>
+      <td>1</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>660</th>
+      <td>O95801</td>
+      <td>Y129</td>
+      <td>AAAQYyLGNFR</td>
+      <td>0.0</td>
+      <td>0.15</td>
+      <td>0.39</td>
+      <td>-0.05</td>
+      <td>0.08</td>
+      <td>O95801</td>
+      <td>NRAAAQYyLGNFRSA</td>
+      <td>Y129</td>
+      <td>1</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>661</th>
+      <td>O60711</td>
+      <td>Y22</td>
+      <td>STLQDSDEySNPAPLPLDQHSR</td>
+      <td>0.0</td>
+      <td>-0.73</td>
+      <td>0.76</td>
+      <td>4.48</td>
+      <td>5.88</td>
+      <td>O60711</td>
+      <td>TLQDSDEySNPAPLP</td>
+      <td>Y22</td>
+      <td>5</td>
+      <td>2</td>
+    </tr>
+    <tr>
+      <th>662</th>
+      <td>O60711</td>
+      <td>Y203</td>
+      <td>SGLAYCPNDyHQLFSPR</td>
+      <td>0.0</td>
+      <td>0.55</td>
+      <td>-1.77</td>
+      <td>3.58</td>
+      <td>5.15</td>
+      <td>O60711</td>
+      <td>LAYCPNDyHQLFSPR</td>
+      <td>Y203</td>
+      <td>2</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>663</th>
+      <td>P47736</td>
+      <td>Y374</td>
+      <td>LINAEyACYK</td>
+      <td>0.0</td>
+      <td>-0.12</td>
+      <td>0.19</td>
+      <td>0.02</td>
+      <td>-0.16</td>
+      <td>P47736</td>
+      <td>TKLINAEyACYKAEK</td>
+      <td>Y374</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>664</th>
+      <td>Q14511</td>
+      <td>Y345</td>
+      <td>DGVyDVPLHNPPDAK</td>
+      <td>0.0</td>
+      <td>-0.41</td>
+      <td>-0.14</td>
+      <td>-0.12</td>
+      <td>-0.29</td>
+      <td>Q14511</td>
+      <td>PQERDGVyDVPLHNP</td>
+      <td>Y345</td>
+      <td>4</td>
+      <td>2</td>
+    </tr>
+  </tbody>
+</table>
+<p>665 rows × 13 columns</p>
+</div></div>
+</div>
+</div>
+<div class="section" id="Explore-the-Mapped-Dataset">
+<h1>Explore the Mapped Dataset<a class="headerlink" href="#Explore-the-Mapped-Dataset" title="Permalink to this headline">¶</a></h1>
+<p>One way to check how well the mapping worked is to check the number of peptides in the original dataframe vs. the newly mapped dataframe. Changes to the number of peptides could be a result of several things: 1. Failure to find the corresponding peptide 2. A peptide with multiple phosphorylation sites was seperated into seperate peptides</p>
+<p>For specifics on mapping failures, go to the log file for details.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="c1">#Look at how many of the peptides in the dataset were actually mapped. This indicates how well the mapping worked</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Original number of lines in df: </span><span class="si">%d</span><span class="se">\n</span><span class="s2">New number of lines in mapped:</span><span class="si">%d</span><span class="s2">&quot;</span><span class="o">%</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">exp_mapper</span><span class="o">.</span><span class="n">experiment</span><span class="p">)))</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Original number of lines in df: 665
+New number of lines in mapped:665
+</pre></div></div>
+</div>
+</div>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table of Contents</a></h3>
+  <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../Overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Dependencies.html">Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../KSTAR.html">KSTAR</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial.html">Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Examples/Examples.html">Plotting Examples from KSTAR Paper</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Running_with_nextflow.html">Running Large Datasets with Nextflow</a></li>
+</ul>
+
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/Tutorial/MapData.ipynb.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">KSTAR 1 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Download and Process Dataset of Interest</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2020, Naegle Lab.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.0.1.
+    </div>
+  </body>
+</html>

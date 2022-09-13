@@ -1,0 +1,1294 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>KSTAR &#8212; KSTAR 1 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/classic.css" />
+    
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Getting Started" href="quickstart.html" />
+    <link rel="prev" title="Dependencies" href="Dependencies.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="quickstart.html" title="Getting Started"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="Dependencies.html" title="Dependencies"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">KSTAR 1 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">KSTAR</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="module-kstar">
+<span id="kstar"></span><h1>KSTAR<a class="headerlink" href="#module-kstar" title="Permalink to this heading"></a></h1>
+<section id="module-kstar.config">
+<span id="the-config-module"></span><h2>The “Config” Module<a class="headerlink" href="#module-kstar.config" title="Permalink to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="kstar.config.create_network_pickles">
+<span class="sig-prename descclassname"><span class="pre">kstar.config.</span></span><span class="sig-name descname"><span class="pre">create_network_pickles</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">phosphoTypes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">['Y',</span> <span class="pre">'ST']</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">network_directory</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'./NETWORKS/NetworKIN'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/kstar/config.html#create_network_pickles"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kstar.config.create_network_pickles" title="Permalink to this definition"></a></dt>
+<dd><p>Given network files declared in globals, create pickles of the kstar object that can then be quickly loaded in analysis
+Assumes that the Network structure has two folders Y and ST under the NETWORK_DIR global variable and that 
+all .csv files in those directories should be loaded into a network pickle.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kstar.config.install_resource_files">
+<span class="sig-prename descclassname"><span class="pre">kstar.config.</span></span><span class="sig-name descname"><span class="pre">install_resource_files</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/kstar/config.html#install_resource_files"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kstar.config.install_resource_files" title="Permalink to this definition"></a></dt>
+<dd><p>Retrieves RESOURCE_FILES that are the companion for this version release from FigShare, unzips them to the correct directory for resource files.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kstar.config.update_network_directory">
+<span class="sig-prename descclassname"><span class="pre">kstar.config.</span></span><span class="sig-name descname"><span class="pre">update_network_directory</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">directory</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">create_pickles</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">KSTAR_DIR</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'/home/srcrowl/miniconda3/envs/documentation/lib/python3.10/site-packages'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">NETWORK_DIR</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'./NETWORKS/NetworKIN'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/kstar/config.html#update_network_directory"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kstar.config.update_network_directory" title="Permalink to this definition"></a></dt>
+<dd><p>Update the location of network the network files, and verify that all necessary files are located in directory</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>directory: string</strong></dt><dd><p>path to where network files are located</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="the-prune-module">
+<h2>The “Prune” Module<a class="headerlink" href="#the-prune-module" title="Permalink to this heading"></a></h2>
+<section id="the-pruner-class">
+<h3>The “Pruner” Class<a class="headerlink" href="#the-pruner-class" title="Permalink to this heading"></a></h3>
+<dl class="py class">
+<dt class="sig sig-object py" id="kstar.prune.Pruner">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">kstar.prune.</span></span><span class="sig-name descname"><span class="pre">Pruner</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">network</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">phospho_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Y'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/kstar/prune.html#Pruner"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kstar.prune.Pruner" title="Permalink to this definition"></a></dt>
+<dd><p>Pruning Algorithm used for KSTAR.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>network</strong><span class="classifier">pandas df</span></dt><dd><p>kinase-site prediction network where there is an accession, site, kinase, and score column</p>
+</dd>
+<dt><strong>logger</strong></dt><dd><p>logger used for pruning</p>
+</dd>
+<dt><strong>phospho_type</strong><span class="classifier">str</span></dt><dd><p>phospho_type(s) to use when building pruned networks</p>
+</dd>
+<dt><strong>columns</strong><span class="classifier">dict</span></dt><dd><p>relevant columns in network</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Methods</p>
+<table class="autosummary longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#kstar.prune.Pruner.build_multiple_compendia_networks" title="kstar.prune.Pruner.build_multiple_compendia_networks"><code class="xref py py-obj docutils literal notranslate"><span class="pre">build_multiple_compendia_networks</span></code></a>(...[, ...])</p></td>
+<td><p>Builds multiple compendia-limited networks</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#kstar.prune.Pruner.build_pruned_network" title="kstar.prune.Pruner.build_pruned_network"><code class="xref py py-obj docutils literal notranslate"><span class="pre">build_pruned_network</span></code></a>(network, kinase_size, ...)</p></td>
+<td><p>Builds a heuristic pruned network where each kinase has a specified number of connected sites and each site has an upper limit to the number of kinases it can connect to</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#kstar.prune.Pruner.calculate_compendia_sizes" title="kstar.prune.Pruner.calculate_compendia_sizes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">calculate_compendia_sizes</span></code></a>(kinase_size)</p></td>
+<td><p>Calculates the number of sites per compendia size that a kinase should connect to using same ratios  of compendia sizes as found in compendia</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#kstar.prune.Pruner.compendia_pruned_network" title="kstar.prune.Pruner.compendia_pruned_network"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compendia_pruned_network</span></code></a>(compendia_sizes, ...)</p></td>
+<td><p>Builds a compendia-pruned network that takes into account compendia size limits per kinase</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py method">
+<dt class="sig sig-object py" id="kstar.prune.Pruner.build_multiple_compendia_networks">
+<span class="sig-name descname"><span class="pre">build_multiple_compendia_networks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">kinase_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">site_limit</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_networks</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">network_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">odir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">PROCESSES</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/kstar/prune.html#Pruner.build_multiple_compendia_networks"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kstar.prune.Pruner.build_multiple_compendia_networks" title="Permalink to this definition"></a></dt>
+<dd><p>Builds multiple compendia-limited networks</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>kinase_size: int</strong></dt><dd><p>number of sites each kinase should connect to</p>
+</dd>
+<dt><strong>site_limit</strong><span class="classifier">int</span></dt><dd><p>upper limit of number of kinases a site can connect to</p>
+</dd>
+<dt><strong>num_networks: int</strong></dt><dd><p>number of networks to build</p>
+</dd>
+<dt><strong>network_id</strong><span class="classifier">str</span></dt><dd><p>id to use for each network in dictionary</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>pruned_networks</strong><span class="classifier">dict</span></dt><dd><p>key : &lt;network_id&gt;_&lt;i&gt;
+value : pruned network</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kstar.prune.Pruner.build_pruned_network">
+<span class="sig-name descname"><span class="pre">build_pruned_network</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">network</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kinase_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">site_limit</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/kstar/prune.html#Pruner.build_pruned_network"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kstar.prune.Pruner.build_pruned_network" title="Permalink to this definition"></a></dt>
+<dd><p>Builds a heuristic pruned network where each kinase has a specified number of connected sites and
+each site has an upper limit to the number of kinases it can connect to</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>network</strong><span class="classifier">pandas DataFrame</span></dt><dd><p>network to build pruned network on</p>
+</dd>
+<dt><strong>kinase_size: int</strong></dt><dd><p>number of sites each kinase should connect to</p>
+</dd>
+<dt><strong>site_limit</strong><span class="classifier">int</span></dt><dd><p>upper limit of number of kinases a site can connect to</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>pruned network</strong><span class="classifier">pandas DataFrame</span></dt><dd><p>subset of network that has been pruned</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kstar.prune.Pruner.calculate_compendia_sizes">
+<span class="sig-name descname"><span class="pre">calculate_compendia_sizes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">kinase_size</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/kstar/prune.html#Pruner.calculate_compendia_sizes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kstar.prune.Pruner.calculate_compendia_sizes" title="Permalink to this definition"></a></dt>
+<dd><p>Calculates the number of sites per compendia size that a kinase should connect to using same ratios 
+of compendia sizes as found in compendia</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>kinase_size: int</strong></dt><dd><p>number of sites each kinase should connect to</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>sizes</strong><span class="classifier">dict</span></dt><dd><p>key : compendia size
+value : number of sites each kinase should pull from given compendia size</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kstar.prune.Pruner.compendia_pruned_network">
+<span class="sig-name descname"><span class="pre">compendia_pruned_network</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">compendia_sizes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">site_limit</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">odir</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/kstar/prune.html#Pruner.compendia_pruned_network"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kstar.prune.Pruner.compendia_pruned_network" title="Permalink to this definition"></a></dt>
+<dd><p>Builds a compendia-pruned network that takes into account compendia size limits per kinase</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>compendia_sizes</strong><span class="classifier">dict</span></dt><dd><p>key : compendia size
+value : number of sites to connect to kinase</p>
+</dd>
+<dt><strong>site_limit</strong><span class="classifier">int</span></dt><dd><p>upper limit of number of kinases a site can connect to</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>pruned_network</strong><span class="classifier">pandas DataFrame</span></dt><dd><p>subset of network that has been pruned according to compendia ratios</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-kstar.prune">
+<span id="functions-to-perform-pruning"></span><h3>Functions to Perform Pruning<a class="headerlink" href="#module-kstar.prune" title="Permalink to this heading"></a></h3>
+<dl class="py function">
+<dt class="sig sig-object py" id="kstar.prune.run_pruning">
+<span class="sig-prename descclassname"><span class="pre">kstar.prune.</span></span><span class="sig-name descname"><span class="pre">run_pruning</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">network</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_compendia</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">phospho_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kinase_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">site_limit</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_networks</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">network_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">odir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">PROCESSES</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/kstar/prune.html#run_pruning"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kstar.prune.run_pruning" title="Permalink to this definition"></a></dt>
+<dd><p>Generate pruned networks from a weighted kinase-substrate graph and log run information</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>network: pandas dataframe</strong></dt><dd><p>kinase substrate network matrix, with values indicating weight of kinase-substrate relationship</p>
+</dd>
+<dt><strong>log: logger</strong></dt><dd><p>logger to document the pruning process from start to finish</p>
+</dd>
+<dt><strong>use_compendia: string</strong></dt><dd><p>whether to use compendia ratios to build network</p>
+</dd>
+<dt><strong>phospho_type: string</strong></dt><dd><p>phospho type (‘Y’, ‘ST’, …)</p>
+</dd>
+<dt><strong>kinase_size: int</strong></dt><dd><p>number of sites a kinase connects to</p>
+</dd>
+<dt><strong>site_limit: int</strong></dt><dd><p>upper limit of number of kinases can connect to</p>
+</dd>
+<dt><strong>num_networks: int</strong></dt><dd><p>number of networks to generate</p>
+</dd>
+<dt><strong>network_id: string</strong></dt><dd><p>name of network to use in building dictionary</p>
+</dd>
+<dt><strong>odir: string</strong></dt><dd><p>output directory for results</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt>pruner: Prune object</dt><dd><p>prune object that contains the number of pruned networks indicated by the num_networks paramater</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kstar.prune.save_pruning">
+<span class="sig-prename descclassname"><span class="pre">kstar.prune.</span></span><span class="sig-name descname"><span class="pre">save_pruning</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">phospho_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">network_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kinase_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">site_limit</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_compendia</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">odir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/kstar/prune.html#save_pruning"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kstar.prune.save_pruning" title="Permalink to this definition"></a></dt>
+<dd><p>Save the pruned networks generated by run_pruning function as a pickle to be loaded by KSTAR</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>phosho_type: string</strong></dt><dd><p>type of phosphomodification to networks were generated for (either ‘Y’ or ‘ST’)</p>
+</dd>
+<dt><strong>network_id: string</strong></dt><dd><p>name of network used to build dictionary</p>
+</dd>
+<dt><strong>kinase_size: int</strong></dt><dd><p>number of sites a kinase connects to</p>
+</dd>
+<dt><strong>site_limit: int</strong></dt><dd><p>upper limit of number of kinases can connect to</p>
+</dd>
+<dt><strong>use_compendia: string</strong></dt><dd><p>whether compendia was used for ratios to build networks</p>
+</dd>
+<dt><strong>odir: string</strong></dt><dd><p>output directory for results</p>
+</dd>
+<dt><strong>log: logger</strong></dt><dd><p>logger to document pruning process from start to finish</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt>Nothing</dt><dd></dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kstar.prune.save_run_information">
+<span class="sig-prename descclassname"><span class="pre">kstar.prune.</span></span><span class="sig-name descname"><span class="pre">save_run_information</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">results</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_compendia</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pruner</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/kstar/prune.html#save_run_information"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kstar.prune.save_run_information" title="Permalink to this definition"></a></dt>
+<dd><p>Save information about the generation of networks during run_pruning, 
+including the parameters used for generation. Primarily used when running bash script.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>results:</strong></dt><dd><p>object that stores all parameters used in the pruning process</p>
+</dd>
+<dt><strong>use_compendia: string</strong></dt><dd><p>whether compendia was used for ratios to build network</p>
+</dd>
+<dt><strong>pruner: Prune object</strong></dt><dd><p>output of the run_pruning() function</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt>Nothing</dt><dd></dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+</section>
+<section id="the-experimentmapper-class">
+<h2>The “ExperimentMapper” class<a class="headerlink" href="#the-experimentmapper-class" title="Permalink to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="kstar.mapping.ExperimentMapper">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">kstar.mapping.</span></span><span class="sig-name descname"><span class="pre">ExperimentMapper</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">experiment</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">columns</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sequences</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">compendia</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">window</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">7</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_columns</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/kstar/mapping.html#ExperimentMapper"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kstar.mapping.ExperimentMapper" title="Permalink to this definition"></a></dt>
+<dd><p>Given an experiment object and reference sequences, map the phosphorylation sites to the common reference.
+Inputs</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>name</strong><span class="classifier">str</span></dt><dd><p>Name of experiment. Used for logging</p>
+</dd>
+<dt><strong>experiment: pandas dataframe</strong></dt><dd><p>Pandas dataframe of an experiment that has a reference accession, a peptide column and/or a site column. 
+The peptide column should be upper case, with lower case indicating the site of phosphorylation - this is preferred
+The site column should be in the format S/T/Y&lt;pos&gt;, e.g. Y15 or S345</p>
+</dd>
+<dt><strong>columns: dict</strong></dt><dd><p>Dictionary with mappings of the experiment dataframe column names for the required names ‘accession_id’, ‘peptide’, or ‘site’. 
+One of ‘peptide’ or ‘site’ is required.</p>
+</dd>
+<dt><strong>logger: Logger object</strong></dt><dd><p>used for logging when peptides cannot be matched and when a site location changes</p>
+</dd>
+<dt><strong>sequences: dict</strong></dt><dd><p>Dictionary of sequences. Key : accession. Value : protein sequence. 
+Default is imported from kstar.config</p>
+</dd>
+<dt><strong>compendia: pd.DataFrame</strong></dt><dd><p>Human phosphoproteome compendia, mapped to KinPred and annotated with number of compendia. 
+Default is imported from kstar.config</p>
+</dd>
+<dt><strong>window</strong><span class="classifier">int</span></dt><dd><p>The length of amino acids to the N- and C-terminal sides of the central phosphoprotein to map a site to.
+Default is 7.</p>
+</dd>
+<dt><strong>data_columns: list, or empty</strong></dt><dd><p>The list of data columns to use. If this is empty, logger will look for anything that starts with statement data: and those values
+Default is None.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Attributes</dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>experiment: pandas dataframe</strong></dt><dd><p>mapped experiment, which for each peptide, no contains the mapped accession, site, peptide, number of compendia, compendia type</p>
+</dd>
+<dt><strong>sequences: dict</strong></dt><dd><p>Dictionary of sequences passed into the class</p>
+</dd>
+<dt><strong>compendia: pandas dataframe</strong></dt><dd><p>compendia dataframe passed into the class</p>
+</dd>
+<dt><strong>data_columns: list</strong></dt><dd><p>indicates which columns will be used as data</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Methods</p>
+<table class="autosummary longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#kstar.mapping.ExperimentMapper.align_sites" title="kstar.mapping.ExperimentMapper.align_sites"><code class="xref py py-obj docutils literal notranslate"><span class="pre">align_sites</span></code></a>([window])</p></td>
+<td><p>Map the peptide/sites to the common sequence reference and remove and report errors for sites that do not align as expected.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#kstar.mapping.ExperimentMapper.get_experiment" title="kstar.mapping.ExperimentMapper.get_experiment"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_experiment</span></code></a>()</p></td>
+<td><p>Return the mapped experiment dataframe</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#kstar.mapping.ExperimentMapper.get_sequence" title="kstar.mapping.ExperimentMapper.get_sequence"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_sequence</span></code></a>(accession)</p></td>
+<td><p>Gets the sequence that matches the given accession</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#kstar.mapping.ExperimentMapper.set_data_columns" title="kstar.mapping.ExperimentMapper.set_data_columns"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_data_columns</span></code></a>(data_columns)</p></td>
+<td><p>Identifies which columns in the experiment should be used as data columns.</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py method">
+<dt class="sig sig-object py" id="kstar.mapping.ExperimentMapper.align_sites">
+<span class="sig-name descname"><span class="pre">align_sites</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">window</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">7</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/kstar/mapping.html#ExperimentMapper.align_sites"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kstar.mapping.ExperimentMapper.align_sites" title="Permalink to this definition"></a></dt>
+<dd><p>Map the peptide/sites to the common sequence reference and remove and report errors for sites that do not align as expected.
+expMapper.align_sites(window=7). Operates on the experiment dataframe of class.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>window: int</strong></dt><dd><p>The length of amino acids to the N- and C-terminal sides of the central phosphoprotein to map a site to.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kstar.mapping.ExperimentMapper.get_experiment">
+<span class="sig-name descname"><span class="pre">get_experiment</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/kstar/mapping.html#ExperimentMapper.get_experiment"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kstar.mapping.ExperimentMapper.get_experiment" title="Permalink to this definition"></a></dt>
+<dd><p>Return the mapped experiment dataframe</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kstar.mapping.ExperimentMapper.get_sequence">
+<span class="sig-name descname"><span class="pre">get_sequence</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">accession</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/kstar/mapping.html#ExperimentMapper.get_sequence"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kstar.mapping.ExperimentMapper.get_sequence" title="Permalink to this definition"></a></dt>
+<dd><p>Gets the sequence that matches the given accession</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kstar.mapping.ExperimentMapper.set_data_columns">
+<span class="sig-name descname"><span class="pre">set_data_columns</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_columns</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/kstar/mapping.html#ExperimentMapper.set_data_columns"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kstar.mapping.ExperimentMapper.set_data_columns" title="Permalink to this definition"></a></dt>
+<dd><p>Identifies which columns in the experiment should be used as data columns. If data_columns is provided,
+then ‘data:’ is added to the front and experiment dataframe is renamed. Otherwise, function will look for columns
+with ‘data:’ in front and this to the data_columns attribute.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="the-kinaseactivity-class">
+<h2>The “KinaseActivity” class<a class="headerlink" href="#the-kinaseactivity-class" title="Permalink to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="kstar.calculate.KinaseActivity">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">kstar.calculate.</span></span><span class="sig-name descname"><span class="pre">KinaseActivity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">evidence</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_columns</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">phospho_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Y'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/kstar/calculate.html#KinaseActivity"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kstar.calculate.KinaseActivity" title="Permalink to this definition"></a></dt>
+<dd><p>Kinase Activity calculates the estimated activity of kinases given an experiment using hypergeometric distribution.
+Hypergeometric distribution examines the number of protein sites found to be active in evidence compared to the 
+number of protein sites attributed to a kinase on a provided network.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>evidence</strong><span class="classifier">pandas df</span></dt><dd><p>a dataframe that contains (at minimum, but can have more) data columms as evidence to use in analysis and KSTAR_ACCESSION and KSTAR_SITE</p>
+</dd>
+<dt><strong>data_columns: list</strong></dt><dd><p>list of the columns containing the abundance values, which will be used to determine which sites will be used as evidence for activity prediction in each sample</p>
+</dd>
+<dt><strong>logger</strong><span class="classifier">Logger object</span></dt><dd><p>keeps track of kstar analysis, including any errors that occur</p>
+</dd>
+<dt><strong>phospho_type: string, either ‘Y’ or ‘ST’</strong></dt><dd><p>indicates the phoshpo modification of interest</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Attributes</dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>——————-</strong></dt><dd></dd>
+<dt><strong>Upon Initialization</strong></dt><dd></dd>
+<dt><strong>——————-</strong></dt><dd></dd>
+<dt><strong>evidence: pandas dataframe</strong></dt><dd><p>inputted evidence column</p>
+</dd>
+<dt><strong>data_columns: list</strong></dt><dd><p>list of columns containing abundance values, which will be used to determine which sites will be used as evidence. If inputted data_columns parameter was None, this lists includes in column in evidence prefixed by ‘data:’</p>
+</dd>
+<dt><strong>logger</strong><span class="classifier">Logger object</span></dt><dd><p>keeps track of kstar analysis, including any errors that occur</p>
+</dd>
+<dt><strong>phospho_type: string</strong></dt><dd><p>indicated phosphomod of interest</p>
+</dd>
+<dt><strong>network_directory: string</strong></dt><dd><p>directory where kinase substrate networks can be downloaded, as indicated in config.py</p>
+</dd>
+<dt><strong>normalized: bool</strong></dt><dd><p>indicates whether normalization analysis has been performed</p>
+</dd>
+<dt><strong>aggregate: string</strong></dt><dd><p>the type of aggregation to use when determining binary evidence, either ‘count’ or ‘mean’. Default is ‘count’.</p>
+</dd>
+<dt><strong>threshold: float</strong></dt><dd><p>cutoff to use when determining what sites to use for each experiment</p>
+</dd>
+<dt><strong>greater: bool</strong></dt><dd><p>indicates whether sites with greater or lower abundances than the threshold will be used</p>
+</dd>
+<dt><strong>run_data: string</strong></dt><dd><p>indicates the date that kinase activity object was initialized</p>
+</dd>
+<dt><strong>———————————</strong></dt><dd></dd>
+<dt><strong>After Hypergeometric Calculations</strong></dt><dd></dd>
+<dt><strong>———————————</strong></dt><dd></dd>
+<dt><strong>activities_list: pandas dataframe</strong></dt><dd><p>p-values obtained for all pruned networks indicating statistical enrichment of a kinase’s substrates for each network, based on hypergeometric 
+tests</p>
+</dd>
+<dt><strong>activities: pandas dataframe</strong></dt><dd><p>median p-values obtained from the activities_list object for each experiment/kinase</p>
+</dd>
+<dt><strong>agg_activities: pandas dataframe</strong></dt><dd></dd>
+<dt><strong>———————————–</strong></dt><dd></dd>
+<dt><strong>After Random Enrichment Calculation</strong></dt><dd></dd>
+<dt><strong>———————————–</strong></dt><dd></dd>
+<dt><strong>random_experiments: pandas dataframe</strong></dt><dd><p>contains information about the sites randomly sampled for each random experiment</p>
+</dd>
+<dt><strong>random_kinact: KinaseActivity object</strong></dt><dd><p>KinaseActivity object containing random activities predicted from each of the random experiments</p>
+</dd>
+<dt><strong>—————————</strong></dt><dd></dd>
+<dt><strong>After Mann Whitney Analysis</strong></dt><dd></dd>
+<dt><strong>—————————</strong></dt><dd></dd>
+<dt><strong>activities_mann_whitney: pandas dataframe</strong></dt><dd><p>p-values obtained from comparing the real distribution of p-values to the distribution of p-values from random datasets, based
+the Mann Whitney U-test</p>
+</dd>
+<dt><strong>fpr_mann_whitney: pandas dataframe</strong></dt><dd><p>false positive rates for predicted kinase activities</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Methods</p>
+<table class="autosummary longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#kstar.calculate.KinaseActivity.calculate_Mann_Whitney_activities_sig" title="kstar.calculate.KinaseActivity.calculate_Mann_Whitney_activities_sig"><code class="xref py py-obj docutils literal notranslate"><span class="pre">calculate_Mann_Whitney_activities_sig</span></code></a>(log[, ...])</p></td>
+<td><p>For a kinact_dict, where random generation and activity has already been run for the phospho_types of interest,  this will calculate the Mann-Whitney U test for comparing the array of p-values for real data  to those of random data, across the number of networks used.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#kstar.calculate.KinaseActivity.calculate_kinase_activities" title="kstar.calculate.KinaseActivity.calculate_kinase_activities"><code class="xref py py-obj docutils literal notranslate"><span class="pre">calculate_kinase_activities</span></code></a>([agg, ...])</p></td>
+<td><p>Calculates combined activity of experiments based that uses a threshold value to determine if an experiment sees a site or not To use values use 'mean' as agg     mean aggregation drops NA values from consideration To use count use 'count' as agg - present if not na</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#kstar.calculate.KinaseActivity.calculate_random_activities" title="kstar.calculate.KinaseActivity.calculate_random_activities"><code class="xref py py-obj docutils literal notranslate"><span class="pre">calculate_random_activities</span></code></a>(logger[, ...])</p></td>
+<td><p>Generate random experiments and calculate the kinase activities for these random experiments</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#kstar.calculate.KinaseActivity.check_data_columns" title="kstar.calculate.KinaseActivity.check_data_columns"><code class="xref py py-obj docutils literal notranslate"><span class="pre">check_data_columns</span></code></a>()</p></td>
+<td><p>Checks data columns to make sure column is in evidence and that evidence filtered on that data column  has at least one point of evidence.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#kstar.calculate.KinaseActivity.create_binary_evidence" title="kstar.calculate.KinaseActivity.create_binary_evidence"><code class="xref py py-obj docutils literal notranslate"><span class="pre">create_binary_evidence</span></code></a>([agg, threshold, greater])</p></td>
+<td><p>Returns a binary evidence data frame according to the parameters passed in for method for aggregating duplicates and considering whether a site is included as evidence or not</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#kstar.calculate.KinaseActivity.find_pvalue_limits" title="kstar.calculate.KinaseActivity.find_pvalue_limits"><code class="xref py py-obj docutils literal notranslate"><span class="pre">find_pvalue_limits</span></code></a>(data_columns[, agg, ...])</p></td>
+<td><p>For each data column and network find the lowest p-value achievable and how many  seen sites are required to get to that limit. Assumptions     - kinase size in network is same for all kinases.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#kstar.calculate.KinaseActivity.get_run_date" title="kstar.calculate.KinaseActivity.get_run_date"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_run_date</span></code></a>()</p></td>
+<td><p>return date that kinase activities were run</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#kstar.calculate.KinaseActivity.set_data_columns" title="kstar.calculate.KinaseActivity.set_data_columns"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_data_columns</span></code></a>([data_columns])</p></td>
+<td><p>Sets the data columns to use in the kinase activity calculation If data_columns is None or an empty list then set data_columns to  be all columns that start with data:</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py method">
+<dt class="sig sig-object py" id="kstar.calculate.KinaseActivity.calculate_Mann_Whitney_activities_sig">
+<span class="sig-name descname"><span class="pre">calculate_Mann_Whitney_activities_sig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">log</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">number_sig_trials</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">PROCESSES</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/kstar/calculate.html#KinaseActivity.calculate_Mann_Whitney_activities_sig"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kstar.calculate.KinaseActivity.calculate_Mann_Whitney_activities_sig" title="Permalink to this definition"></a></dt>
+<dd><p>For a kinact_dict, where random generation and activity has already been run for the phospho_types of interest, 
+this will calculate the Mann-Whitney U test for comparing the array of p-values for real data 
+to those of random data, across the number of networks used.
+It will also calculate the false positive rate for a pvalue, given observations of a random bootstrapping analysis</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>kinact_dict: dictionary</strong></dt><dd><p>A dictionary of kinact objects, with keys ‘Y’ and/or ‘ST’</p>
+</dd>
+<dt><strong>log: logger</strong></dt><dd><p>Logger for logging activity messages</p>
+</dd>
+<dt><strong>phospho_types: {[‘Y’, ‘ST’], [‘Y’], [‘ST’]}</strong></dt><dd><p>Which substrate/kinaset-type to run activity for: Both [‘Y, ‘ST’] (default), Tyrosine [‘Y’], or Serine/Threonine [‘ST’]</p>
+</dd>
+<dt><strong>number_sig_trials: int</strong></dt><dd><p>Maximum number of significant trials to run</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"></dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kstar.calculate.KinaseActivity.calculate_kinase_activities">
+<span class="sig-name descname"><span class="pre">calculate_kinase_activities</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">agg</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'mean'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">greater</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">PROCESSES</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/kstar/calculate.html#KinaseActivity.calculate_kinase_activities"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kstar.calculate.KinaseActivity.calculate_kinase_activities" title="Permalink to this definition"></a></dt>
+<dd><p>Calculates combined activity of experiments based that uses a threshold value to determine if an experiment sees a site or not
+To use values use ‘mean’ as agg</p>
+<blockquote>
+<div><p>mean aggregation drops NA values from consideration</p>
+</div></blockquote>
+<p>To use count use ‘count’ as agg - present if not na</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl>
+<dt><strong>data_columns</strong><span class="classifier">list</span></dt><dd><p>columns that represent experimental result, if None, takes the columns that start with <a href="#id1"><span class="problematic" id="id2">`</span></a>data:’’ in experiment. 
+Pass this value in as a list, if seeking to calculate on fewer than all available data columns</p>
+</dd>
+<dt><strong>threshold</strong><span class="classifier">float</span></dt><dd><p>threshold value used to filter rows</p>
+</dd>
+<dt><strong>agg</strong><span class="classifier">{‘count’, ‘mean’}</span></dt><dd><p>method to use when aggregating duplicate substrate-sites. 
+‘count’ combines multiple representations and adds if values are non-NaN
+‘mean’ uses the mean value of numerical data from multiple representations of the same peptide.</p>
+<blockquote>
+<div><p>NA values are droped from consideration.</p>
+</div></blockquote>
+</dd>
+<dt><strong>greater: Boolean</strong></dt><dd><p>whether to keep sites that have a numerical value &gt;=threshold (TRUE, default) or &lt;=threshold (FALSE)</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl>
+<dt><strong>activities</strong><span class="classifier">dict</span></dt><dd><p>key : experiment
+value : pd DataFrame</p>
+<blockquote>
+<div><p>network : network name, from networks key
+kinase : kinase examined
+frequency : number of times kinase was seen in subgraph of evidence and network
+kinase_activity : hypergeometric kinase activity</p>
+</div></blockquote>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kstar.calculate.KinaseActivity.calculate_random_activities">
+<span class="sig-name descname"><span class="pre">calculate_random_activities</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">logger</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_random_experiments</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">150</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">PROCESSES</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/kstar/calculate.html#KinaseActivity.calculate_random_activities"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kstar.calculate.KinaseActivity.calculate_random_activities" title="Permalink to this definition"></a></dt>
+<dd><p>Generate random experiments and calculate the kinase activities for these random experiments</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kstar.calculate.KinaseActivity.check_data_columns">
+<span class="sig-name descname"><span class="pre">check_data_columns</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/kstar/calculate.html#KinaseActivity.check_data_columns"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kstar.calculate.KinaseActivity.check_data_columns" title="Permalink to this definition"></a></dt>
+<dd><p>Checks data columns to make sure column is in evidence and that evidence filtered on that data column 
+has at least one point of evidence. Removes all columns that do not meet criteria</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kstar.calculate.KinaseActivity.create_binary_evidence">
+<span class="sig-name descname"><span class="pre">create_binary_evidence</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">agg</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'mean'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">greater</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/kstar/calculate.html#KinaseActivity.create_binary_evidence"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kstar.calculate.KinaseActivity.create_binary_evidence" title="Permalink to this definition"></a></dt>
+<dd><p>Returns a binary evidence data frame according to the parameters passed in for method for aggregating
+duplicates and considering whether a site is included as evidence or not</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl>
+<dt><strong>threshold</strong><span class="classifier">float</span></dt><dd><p>threshold value used to filter rows</p>
+</dd>
+<dt><strong>agg</strong><span class="classifier">{‘count’, ‘mean’}</span></dt><dd><p>method to use when aggregating duplicate substrate-sites. 
+‘count’ combines multiple representations and adds if values are non-NaN
+‘mean’ uses the mean value of numerical data from multiple representations of the same peptide.</p>
+<blockquote>
+<div><p>NA values are droped from consideration.</p>
+</div></blockquote>
+</dd>
+<dt><strong>greater: Boolean</strong></dt><dd><p>whether to keep sites that have a numerical value &gt;=threshold (TRUE, default) or &lt;=threshold (FALSE)</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>evidence_binary</strong><span class="classifier">pd.DataFrame</span></dt><dd><p>Matches the evidence dataframe of the kinact object, but with 0 or 1 if a site is included or not.
+This is uniquified and rows that are never used are removed.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kstar.calculate.KinaseActivity.find_pvalue_limits">
+<span class="sig-name descname"><span class="pre">find_pvalue_limits</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_columns</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">agg</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'count'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/kstar/calculate.html#KinaseActivity.find_pvalue_limits"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kstar.calculate.KinaseActivity.find_pvalue_limits" title="Permalink to this definition"></a></dt>
+<dd><p>For each data column and network find the lowest p-value achievable and how many 
+seen sites are required to get to that limit.
+Assumptions</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>kinase size in network is same for all kinases</p></li>
+</ul>
+</div></blockquote>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>data_columns</strong><span class="classifier">list</span></dt><dd><p>what columns in evidence to compare</p>
+</dd>
+<dt><strong>agg</strong><span class="classifier">str</span></dt><dd><dl class="simple">
+<dt>aggregate function - what function to use for determining if site is present</dt><dd><p>count : use when using activity_count
+mean : use when using activity_threshold</p>
+</dd>
+</dl>
+</dd>
+<dt><strong>threshold</strong><span class="classifier">float</span></dt><dd><p>threshold to use in determining if site present in evidence</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl>
+<dt><strong>all_limits</strong><span class="classifier">pandas DataFrame</span></dt><dd><p>p-value limits of each column for each network
+columns:</p>
+<blockquote>
+<div><p>evidence        evidence data column
+network         network being compared
+kinase          kinase being evaluated
+evidence_size   size of evidence
+limit_size      number of sites to get non-zero p-value
+p-value          p-value generated</p>
+</div></blockquote>
+</dd>
+<dt><strong>limit_summary</strong><span class="classifier">pandas DataFrame</span></dt><dd><p>summary of all_limits by taking average over by evidence</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kstar.calculate.KinaseActivity.get_run_date">
+<span class="sig-name descname"><span class="pre">get_run_date</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/kstar/calculate.html#KinaseActivity.get_run_date"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kstar.calculate.KinaseActivity.get_run_date" title="Permalink to this definition"></a></dt>
+<dd><p>return date that kinase activities were run</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kstar.calculate.KinaseActivity.set_data_columns">
+<span class="sig-name descname"><span class="pre">set_data_columns</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_columns</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/kstar/calculate.html#KinaseActivity.set_data_columns"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kstar.calculate.KinaseActivity.set_data_columns" title="Permalink to this definition"></a></dt>
+<dd><p>Sets the data columns to use in the kinase activity calculation
+If data_columns is None or an empty list then set data_columns to 
+be all columns that start with data:</p>
+<p>Checks all set columns to make sure columns are vaild after filtering evidence</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="the-dotplot-class">
+<h2>The “DotPlot” class<a class="headerlink" href="#the-dotplot-class" title="Permalink to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="kstar.plot.DotPlot">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">kstar.plot.</span></span><span class="sig-name descname"><span class="pre">DotPlot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">values</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fpr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inclusive_alpha</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">binary_sig</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dotsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">colormap</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{0:</span> <span class="pre">'#6b838f',</span> <span class="pre">1:</span> <span class="pre">'#FF3300'}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">facecolor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'white'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">labelmap</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">legend_title</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'p-value'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">size_number</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">size_color</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'gray'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color_title</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Significant'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">markersize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">legend_distance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(20,</span> <span class="pre">4)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xlabel</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ylabel</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_label_dict</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kinase_dict</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/kstar/plot.html#DotPlot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kstar.plot.DotPlot" title="Permalink to this definition"></a></dt>
+<dd><p>The DotPlot class is used for plotting dotplots, with the option to add clustering and context plots.
+The size of the dots based on the values dataframe, where the size of the dot is the area of the value * dotsize</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>values: pandas DataFrame instance</strong></dt><dd><p>values to plot</p>
+</dd>
+<dt><strong>fpr</strong><span class="classifier">pandas DataFrame instance</span></dt><dd><p>false positive rates associated with values being plotted</p>
+</dd>
+<dt><strong>alpha: float, optional</strong></dt><dd><p>fpr value that defines the significance cutoff to use when plt
+default : 0.05</p>
+</dd>
+<dt><strong>inclusive_alpha: boolean</strong></dt><dd><p>whether to include the alpha (significance &lt;= alpha), or not (significance &lt; alpha).
+default: True</p>
+</dd>
+<dt><strong>binary_sig: boolean, optional</strong></dt><dd><p>indicates whether to plot fpr with binary significance or as a change color hue
+default : True</p>
+</dd>
+<dt><strong>dotsize</strong><span class="classifier">float, optional</span></dt><dd><p>multiplier to use for scaling size of dots</p>
+</dd>
+<dt><strong>colormap</strong><span class="classifier">dict, optional</span></dt><dd><p>maps color values to actual color to use in plotting
+default : {0: ‘#6b838f’, 1: ‘#FF3300’}</p>
+</dd>
+<dt><strong>labelmap =</strong></dt><dd><p>maps labels of colors, default is to indicate FPR cutoff in legend
+default : None</p>
+</dd>
+<dt><strong>facecolor</strong><span class="classifier">color, optional</span></dt><dd><p>Background color of dotplot
+default : ‘white’</p>
+</dd>
+<dt><strong>legend_title</strong><span class="classifier">str, optional</span></dt><dd><p>Legend Title for dot sizes, default is <a href="#id3"><span class="problematic" id="id4">`</span></a>p-value’</p>
+</dd>
+<dt><strong>size_number</strong><span class="classifier">int, optional</span></dt><dd><p>Number of dots to attempt to generate for dot size legend</p>
+</dd>
+<dt><strong>size_color</strong><span class="classifier">color, optional</span></dt><dd><p>Size Legend Color to use</p>
+</dd>
+<dt><strong>color_title</strong><span class="classifier">str, optional</span></dt><dd><p>Legend Title for the Color Legend</p>
+</dd>
+<dt><strong>markersize</strong><span class="classifier">int, optional</span></dt><dd><p>Size of dots for Color Legend</p>
+</dd>
+<dt><strong>legend_distance</strong><span class="classifier">int, optional</span></dt><dd><p>relative distance to place legends</p>
+</dd>
+<dt><strong>figsize</strong><span class="classifier">tuple, optional</span></dt><dd><p>size of dotplot figure</p>
+</dd>
+<dt><strong>title</strong><span class="classifier">str, optional</span></dt><dd><p>Title of dotplot</p>
+</dd>
+<dt><strong>xlabel</strong><span class="classifier">bool, optional</span></dt><dd><p>Show xlabel on graph if True</p>
+</dd>
+<dt><strong>ylabel</strong><span class="classifier">bool, optional</span></dt><dd><p>Show ylabel on graph if True</p>
+</dd>
+<dt><strong>x_label_dict: dict, optional</strong></dt><dd><p>Mapping dictionary of labels as they appear in values dataframe (keys) to how they should appear on plot (values)</p>
+</dd>
+<dt><strong>kinase_dict: dict, optional</strong></dt><dd><p>Mapping dictionary of kinase names as they appear in values dataframe (keys) to how they should appear on plot (values)</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Attributes</dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>values: pandas dataframe</strong></dt><dd><p>a copy of the original values dataframe</p>
+</dd>
+<dt><strong>fpr: pandas dataframe</strong></dt><dd><p>a copy of the original fpr dataframe</p>
+</dd>
+<dt><strong>alpha: float</strong></dt><dd><p>cutoff used for significance, default 0.05</p>
+</dd>
+<dt><strong>inclusive_alpha: boolean</strong></dt><dd><p>whether to include the alpha (significance &lt;= alpha), or not (significance &lt; alpha)</p>
+</dd>
+<dt><strong>significance: pandas dataframe</strong></dt><dd><p>indicates whether a particular kinases activity is significant, where fpr &lt;= alpha is significant, otherwise it is insignificant</p>
+</dd>
+<dt><strong>colors: pandas dataframe</strong></dt><dd><p>dataframe indicating the color to use when plotting: either a copy of the fpr or significance dataframe</p>
+</dd>
+<dt><strong>binary_sig: boolean</strong></dt><dd><p>indicates whether coloring will be done based on binary significance or fpr values. Default True</p>
+</dd>
+<dt><strong>labelmap: dict</strong></dt><dd><p>indicates how to label each significance color</p>
+</dd>
+<dt><strong>figsize: tuple</strong></dt><dd><p>size of the outputted figure, which is overridden if axes is provided for dotplot</p>
+</dd>
+<dt><strong>title: string</strong></dt><dd><p>title of the dotplot</p>
+</dd>
+<dt><strong>xlabel: boolean</strong></dt><dd><p>indicates whether to plot x-axis labels</p>
+</dd>
+<dt><strong>ylabel: boolean</strong></dt><dd><p>indicates whether to plot y-axis labels</p>
+</dd>
+<dt><strong>colormap: dict</strong></dt><dd><p>colors to be used when plotting</p>
+</dd>
+<dt><strong>facecolor: string</strong></dt><dd><p>background color of dotplot</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Methods</p>
+<table class="autosummary longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#kstar.plot.DotPlot.cluster" title="kstar.plot.DotPlot.cluster"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cluster</span></code></a>(ax[, method, metric, orientation, ...])</p></td>
+<td><p>Performs hierarchical clustering on data and plots result to provided Axes.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#kstar.plot.DotPlot.context" title="kstar.plot.DotPlot.context"><code class="xref py py-obj docutils literal notranslate"><span class="pre">context</span></code></a>(ax, info, id_column, context_columns)</p></td>
+<td><p>Context plot is generated and returned.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#kstar.plot.DotPlot.dotplot" title="kstar.plot.DotPlot.dotplot"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dotplot</span></code></a>([ax, orientation, size_legend, ...])</p></td>
+<td><p>Generates the dotplot plot, where size is determined by values dataframe and color is determined by significant dataframe</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#kstar.plot.DotPlot.drop_kinases" title="kstar.plot.DotPlot.drop_kinases"><code class="xref py py-obj docutils literal notranslate"><span class="pre">drop_kinases</span></code></a>(kinase_list)</p></td>
+<td><p>Given a list of kinases, drop these from the dot.values dataframe in all future plotting of this object.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#kstar.plot.DotPlot.drop_kinases_with_no_significance" title="kstar.plot.DotPlot.drop_kinases_with_no_significance"><code class="xref py py-obj docutils literal notranslate"><span class="pre">drop_kinases_with_no_significance</span></code></a>()</p></td>
+<td><p>Drop kinases from the values dataframe (inplace) when plotting if they are never observed as significant</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py method">
+<dt class="sig sig-object py" id="kstar.plot.DotPlot.cluster">
+<span class="sig-name descname"><span class="pre">cluster</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ax</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'single'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metric</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'euclidean'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">orientation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'top'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color_threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-</span> <span class="pre">inf</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/kstar/plot.html#DotPlot.cluster"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kstar.plot.DotPlot.cluster" title="Permalink to this definition"></a></dt>
+<dd><p>Performs hierarchical clustering on data and plots result to provided Axes. 
+result and significant dataframes are ordered according to clustering</p>
+<dl class="simple">
+<dt>ax<span class="classifier">matplotlib Axes instance</span></dt><dd><p>Axes to plot dendogram to</p>
+</dd>
+<dt>method<span class="classifier">str, optional</span></dt><dd><p>The linkage algorithm to use.</p>
+</dd>
+<dt>metric<span class="classifier">str or function, optional</span></dt><dd><p>The distance metric to use in the case that y is a collection of observation vectors; 
+ignored otherwise. See the pdist function for a list of valid distance metrics. A custom distance function can also be used.</p>
+</dd>
+<dt>orientation<span class="classifier">str, optional</span></dt><dd><p>The direction to plot the dendrogram, which can be any of the following strings:
+‘top’: Plots the root at the top, and plot descendent links going downwards. (default).
+‘bottom’: Plots the root at the bottom, and plot descendent links going upwards.
+‘left’: Plots the root at the left, and plot descendent links going right.
+‘right’: Plots the root at the right, and plot descendent links going left.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kstar.plot.DotPlot.context">
+<span class="sig-name descname"><span class="pre">context</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ax</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">info</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">id_column</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">context_columns</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dotsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">200</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">markersize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">20</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">orientation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'left'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color_palette</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'colorblind'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">margin</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">make_legend</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/kstar/plot.html#DotPlot.context"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kstar.plot.DotPlot.context" title="Permalink to this definition"></a></dt>
+<dd><p>Context plot is generated and returned. The context plot contains the categorical data used for describing the data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>ax</strong><span class="classifier">maptlotlib axis</span></dt><dd><p>where to map subtype information to</p>
+</dd>
+<dt><strong>info</strong><span class="classifier">pandas df</span></dt><dd><p>Dataframe where context information is pulled from</p>
+</dd>
+<dt><strong>id_column: str</strong></dt><dd><p>Column used to map the subtype information to</p>
+</dd>
+<dt><strong>context_columns</strong><span class="classifier">list</span></dt><dd><p>list of columns to pull context informaiton from</p>
+</dd>
+<dt><strong>dotsize</strong><span class="classifier">int, optional</span></dt><dd><p>size of context dots</p>
+</dd>
+<dt><strong>markersize: int, optional</strong></dt><dd><p>size of legend markers</p>
+</dd>
+<dt><strong>orientation</strong><span class="classifier">str, optional</span></dt><dd><p>orientation to plot context plots to - determines where legends are placed
+options : left, right, top, bottom</p>
+</dd>
+<dt><strong>color_palette</strong><span class="classifier">str, optional</span></dt><dd><p>seaborn color palette to use</p>
+</dd>
+<dt><strong>margin: float, optional</strong></dt><dd><p>margin</p>
+</dd>
+<dt><strong>make_legend</strong><span class="classifier">bool, optional</span></dt><dd><p>whether to create legend for context colors</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kstar.plot.DotPlot.dotplot">
+<span class="sig-name descname"><span class="pre">dotplot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">orientation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'left'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">size_legend</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color_legend</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/kstar/plot.html#DotPlot.dotplot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kstar.plot.DotPlot.dotplot" title="Permalink to this definition"></a></dt>
+<dd><p>Generates the dotplot plot, where size is determined by values dataframe and color is determined by significant dataframe</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>ax</strong><span class="classifier">matplotlib Axes instance, optional</span></dt><dd><p>axes dotplot will be plotted on. If None then new plot generated</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kstar.plot.DotPlot.drop_kinases">
+<span class="sig-name descname"><span class="pre">drop_kinases</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">kinase_list</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/kstar/plot.html#DotPlot.drop_kinases"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kstar.plot.DotPlot.drop_kinases" title="Permalink to this definition"></a></dt>
+<dd><p>Given a list of kinases, drop these from the dot.values dataframe in all future plotting of this object. Removal 
+is in place</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>kinase_list: list</strong></dt><dd><p>list of kinase names to remove</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kstar.plot.DotPlot.drop_kinases_with_no_significance">
+<span class="sig-name descname"><span class="pre">drop_kinases_with_no_significance</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/kstar/plot.html#DotPlot.drop_kinases_with_no_significance"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kstar.plot.DotPlot.drop_kinases_with_no_significance" title="Permalink to this definition"></a></dt>
+<dd><p>Drop kinases from the values dataframe (inplace) when plotting if they are never observed as significant</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="supporting-functions">
+<h2>Supporting Functions<a class="headerlink" href="#supporting-functions" title="Permalink to this heading"></a></h2>
+<section id="module-kstar.calculate">
+<span id="master-functions-for-running-kstar-pipeline"></span><h3>Master Functions for Running KSTAR Pipeline<a class="headerlink" href="#module-kstar.calculate" title="Permalink to this heading"></a></h3>
+<dl class="py function">
+<dt class="sig sig-object py" id="kstar.calculate.Mann_Whitney_analysis">
+<span class="sig-prename descclassname"><span class="pre">kstar.calculate.</span></span><span class="sig-name descname"><span class="pre">Mann_Whitney_analysis</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">kinact_dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">number_sig_trials</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">PROCESSES</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/kstar/calculate.html#Mann_Whitney_analysis"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kstar.calculate.Mann_Whitney_analysis" title="Permalink to this definition"></a></dt>
+<dd><p>For a kinact_dict, where random generation and activity has already been run for the phospho_types of interest, 
+this will calculate the Mann-Whitney U test for comparing the array of p-values for real data 
+to those of random data, across the number of networks used.
+It will also calculate the false positive rate for a pvalue, given observations of a random bootstrapping analysis</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>kinact_dict: dictionary</strong></dt><dd><p>A dictionary of kinact objects, with keys ‘Y’ and/or ‘ST’</p>
+</dd>
+<dt><strong>log: logger</strong></dt><dd><p>Logger for logging activity messages</p>
+</dd>
+<dt><strong>number_sig_trials: int</strong></dt><dd><p>Maximum number of significant trials to run</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kstar.calculate.enrichment_analysis">
+<span class="sig-prename descclassname"><span class="pre">kstar.calculate.</span></span><span class="sig-name descname"><span class="pre">enrichment_analysis</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">experiment</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">networks</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">phospho_types</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">['Y',</span> <span class="pre">'ST']</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_columns</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">agg</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'mean'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">greater</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">PROCESSES</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/kstar/calculate.html#enrichment_analysis"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kstar.calculate.enrichment_analysis" title="Permalink to this definition"></a></dt>
+<dd><p>Function to establish a kstar KinaseActivity object from an experiment with an activity log
+add the networks, calculate, aggregate, and summarize the hypergeometric enrichment into a final activity object. Should be followed by 
+randomized_analyis, then Mann_Whitney_analysis.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl>
+<dt><strong>experiment: pandas df</strong></dt><dd><p>experiment dataframe that has been mapped, includes KSTAR_SITE, KSTAR_ACCESSION, etc.</p>
+</dd>
+<dt><strong>log: logger object</strong></dt><dd><p>Log to write activity log error and update to</p>
+</dd>
+<dt><strong>networks: dictionary of dictionaries</strong></dt><dd><p>Outer dictionary keys are ‘Y’ and ‘ST’.
+Establish a network by loading a pickle of desired networks. See the helpers and config file for this.
+If downloaded from FigShare, then the GLOBAL network pickles in config file can be loaded
+For example: networks[‘Y’] = pickle.load(open(config.NETWORK_Y_PICKLE, “rb” ))</p>
+</dd>
+<dt><strong>phospho_types: {[‘Y’, ‘ST’], [‘Y’], [‘ST’]}</strong></dt><dd><p>Which substrate/kinaset-type to run activity for: Both [‘Y, ‘ST’] (default), Tyrosine [‘Y’], or Serine/Threonine [‘ST’]</p>
+</dd>
+<dt><strong>data_columns</strong><span class="classifier">list</span></dt><dd><p>columns that represent experimental result, if None, takes the columns that start with <a href="#id5"><span class="problematic" id="id6">`</span></a>data:’’ in experiment. 
+Pass this value in as a list, if seeking to calculate on fewer than all available data columns</p>
+</dd>
+<dt><strong>agg</strong><span class="classifier">{‘count’, ‘mean’}</span></dt><dd><p>method to use when aggregating duplicate substrate-sites. 
+‘count’ combines multiple representations and adds if values are non-NaN
+‘mean’ uses the mean value of numerical data from multiple representations of the same peptide.</p>
+<blockquote>
+<div><p>NA values are droped from consideration.</p>
+</div></blockquote>
+</dd>
+<dt><strong>threshold</strong><span class="classifier">float</span></dt><dd><p>threshold value used to filter rows</p>
+</dd>
+<dt><strong>greater: Boolean</strong></dt><dd><p>whether to keep sites that have a numerical value &gt;=threshold (TRUE, default) or &lt;=threshold (FALSE)</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt>kinactDict: dictionary of Kinase Activity Objects</dt><dd><p>Outer keys are phosphoTypes run ‘Y’ and ‘ST’
+Includes the activities dictionary (see calculate_kinase_activities)
+aggregation of activities across networks (see aggregate activities)
+activity summary (see summarize_activities)</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kstar.calculate.randomized_analysis">
+<span class="sig-prename descclassname"><span class="pre">kstar.calculate.</span></span><span class="sig-name descname"><span class="pre">randomized_analysis</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">kinact_dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_random_experiments</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">150</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">PROCESSES</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/kstar/calculate.html#randomized_analysis"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kstar.calculate.randomized_analysis" title="Permalink to this definition"></a></dt>
+<dd><p>Creates random experiments, drawn from the human phosphoproteome, according to the distribution of the number of compendia
+that each data column in the experiment has for num_random_experiments. Kinase activity calculation is then run on every random experiment.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>kinact_dict: KinaseActivities dictionary</strong></dt><dd><p>Has keys [‘Y’] and/or [‘ST’] and values that are KinaseActivity objects. These objects are modified to add normalization</p>
+</dd>
+<dt><strong>log: logger</strong></dt><dd><p>Logger for logging activity messages</p>
+</dd>
+<dt><strong>num_random_experiments: int</strong></dt><dd><p>Number of random experiments, for each data column, to create and run activity from</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-0">
+<span id="functions-for-saving-and-loading-kstar-results"></span><h3>Functions for Saving and Loading KSTAR results<a class="headerlink" href="#module-0" title="Permalink to this heading"></a></h3>
+<dl class="py function">
+<dt class="sig sig-object py" id="kstar.calculate.from_kstar_nextflow">
+<span class="sig-prename descclassname"><span class="pre">kstar.calculate.</span></span><span class="sig-name descname"><span class="pre">from_kstar_nextflow</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">odir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/kstar/calculate.html#from_kstar_nextflow"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kstar.calculate.from_kstar_nextflow" title="Permalink to this definition"></a></dt>
+<dd><p>Given the name and output directory of a saved kstar analyis from the nextflow pipeline, load the results into new kinact object with
+the minimum dataframes required for analysis (binary experiment, hypergeometric activities, normalized activities, mann whitney activities)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>name: string</strong></dt><dd><p>The name to used when saving activities and mapped data</p>
+</dd>
+<dt><strong>odir:  string</strong></dt><dd><p>Output directory of saved files</p>
+</dd>
+<dt><strong>log: logger</strong></dt><dd><p>logger used when loading nextflow data into kinase activity object. If not provided, new logger will be created.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kstar.calculate.from_kstar_slim">
+<span class="sig-prename descclassname"><span class="pre">kstar.calculate.</span></span><span class="sig-name descname"><span class="pre">from_kstar_slim</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">odir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/kstar/calculate.html#from_kstar_slim"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kstar.calculate.from_kstar_slim" title="Permalink to this definition"></a></dt>
+<dd><p>Given the name and output directory of a saved kstar analyis, load the parameters and minimum dataframes needed for reinstantiating a kinact object
+This minimum list will allow you to repeat normalization or mann whitney at a different false positive rate threshold and plot results.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>name: string</strong></dt><dd><p>The name to used when saving activities and mapped data</p>
+</dd>
+<dt><strong>odir:  string</strong></dt><dd><p>Output directory of saved files and parameter pickle</p>
+</dd>
+<dt><strong>log: logger</strong></dt><dd><p>Logger for logging activity messages</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kstar.calculate.save_kstar">
+<span class="sig-prename descclassname"><span class="pre">kstar.calculate.</span></span><span class="sig-name descname"><span class="pre">save_kstar</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">kinact_dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">odir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">PICKLE</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/kstar/calculate.html#save_kstar"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kstar.calculate.save_kstar" title="Permalink to this definition"></a></dt>
+<dd><p>Having performed kinase activities (run_kstar_analyis), save each of the important dataframes to files and the final pickle
+Saves an activities, aggregated_activities, summarized_activities tab-separated files
+Saves a pickle file of dictionary</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>kinact_dict: dictionary of Kinase Activity Objects</strong></dt><dd><p>Outer keys are phosphoTypes run ‘Y’ and ‘ST’
+Includes the activities dictionary (see calculate_kinase_activities)
+aggregation of activities across networks (see aggregate activities)
+activity summary (see summarize_activities)</p>
+</dd>
+<dt><strong>name: string</strong></dt><dd><p>The name to use when saving activities</p>
+</dd>
+<dt><strong>odir:  string</strong></dt><dd><p>Outputdirectory to save files and pickle to</p>
+</dd>
+<dt><strong>PICKLE: boolean</strong></dt><dd><p>Whether to save the entire pickle file</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt>Nothing</dt><dd></dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kstar.calculate.save_kstar_slim">
+<span class="sig-prename descclassname"><span class="pre">kstar.calculate.</span></span><span class="sig-name descname"><span class="pre">save_kstar_slim</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">kinact_dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">odir</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/kstar/calculate.html#save_kstar_slim"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kstar.calculate.save_kstar_slim" title="Permalink to this definition"></a></dt>
+<dd><p>Having performed kinase activities (run_kstar_analyis), save each of the important dataframes, minimizing the memory storage needed to get back 
+to a rebuilt version for plotting results and analysis. For each phospho_type in the kinact_dict, this will save three .tsv files for every activities
+analysis run, two additional if random analysis was run, and two more if Mann Whitney based analysis was run. It also creates a readme file of the parameter values 
+used</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>kinact_dict: dictionary of Kinase Activity Objects</strong></dt><dd><p>Outer keys are phosphoTypes run ‘Y’ and ‘ST’
+Includes the activities dictionary (see calculate_kinase_activities)
+aggregation of activities across networks (see aggregate activities)
+activity summary (see summarize_activities)</p>
+</dd>
+<dt><strong>name: string</strong></dt><dd><p>The name to use when saving activities</p>
+</dd>
+<dt><strong>odir:  string</strong></dt><dd><p>Outputdirectory to save files and pickle to</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt>Nothing</dt><dd></dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-kstar.helpers">
+<span id="other-helper-functions"></span><h3>Other Helper Functions<a class="headerlink" href="#module-kstar.helpers" title="Permalink to this heading"></a></h3>
+<dl class="py function">
+<dt class="sig sig-object py" id="kstar.helpers.convert_acc_to_uniprot">
+<span class="sig-prename descclassname"><span class="pre">kstar.helpers.</span></span><span class="sig-name descname"><span class="pre">convert_acc_to_uniprot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">acc_col_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">acc_col_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">acc_uni_name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/kstar/helpers.html#convert_acc_to_uniprot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kstar.helpers.convert_acc_to_uniprot" title="Permalink to this definition"></a></dt>
+<dd><p>Given an experimental dataframe (df) with an accession column (acc_col_name) that is not uniprot, use uniprot 
+to append an accession column of uniprot IDS</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>df: pandas.DataFrame</strong></dt><dd><p>Dataframe with at least a column of accession of interest</p>
+</dd>
+<dt><strong>acc_col_name: string</strong></dt><dd><p>name of column to convert FROM</p>
+</dd>
+<dt><strong>acc_col_type: string</strong></dt><dd><p>Uniprot string designation of the accession type to convert FROM, see <a class="reference external" href="https://www.uniprot.org/help/api_idmapping">https://www.uniprot.org/help/api_idmapping</a></p>
+</dd>
+<dt><strong>acc_uni_name:</strong></dt><dd><p>name of new column</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt>appended_df: pandas.DataFrame</dt><dd><p>Input dataframe with an appended acc column of uniprot IDs</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kstar.helpers.get_logger">
+<span class="sig-prename descclassname"><span class="pre">kstar.helpers.</span></span><span class="sig-name descname"><span class="pre">get_logger</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/kstar/helpers.html#get_logger"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kstar.helpers.get_logger" title="Permalink to this definition"></a></dt>
+<dd><p>Finds and returns logger if it exists. Creates new logger if log file does not exist</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>name</strong><span class="classifier">str</span></dt><dd></dd>
+<dt><strong>log name</strong></dt><dd></dd>
+<dt><strong>filename</strong><span class="classifier">str</span></dt><dd></dd>
+<dt><strong>location to store log file</strong></dt><dd></dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kstar.helpers.process_fasta_file">
+<span class="sig-prename descclassname"><span class="pre">kstar.helpers.</span></span><span class="sig-name descname"><span class="pre">process_fasta_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fasta_file</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/kstar/helpers.html#process_fasta_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kstar.helpers.process_fasta_file" title="Permalink to this definition"></a></dt>
+<dd><p>For configuration, to convert the global fasta sequence file into a sequence dictionary that can be used in mapping</p>
+<dl class="simple">
+<dt>fasta_file<span class="classifier">str</span></dt><dd><p>file location of fasta file</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>sequences</strong><span class="classifier">dict</span></dt><dd><p>{acc : sequence} dictionary generated from fasta file</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="kstar.helpers.string_to_boolean">
+<span class="sig-prename descclassname"><span class="pre">kstar.helpers.</span></span><span class="sig-name descname"><span class="pre">string_to_boolean</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">string</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/kstar/helpers.html#string_to_boolean"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kstar.helpers.string_to_boolean" title="Permalink to this definition"></a></dt>
+<dd><p>Converts string to boolean</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>string</strong><span class="classifier">str</span></dt><dd><p>input string</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>result</strong><span class="classifier">bool</span></dt><dd><p>output boolean</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+</section>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <div>
+    <h3><a href="index.html">Table of Contents</a></h3>
+    <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="Overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Dependencies.html">Dependencies</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">KSTAR</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#module-kstar.config">The “Config” Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#the-prune-module">The “Prune” Module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#the-pruner-class">The “Pruner” Class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-kstar.prune">Functions to Perform Pruning</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#the-experimentmapper-class">The “ExperimentMapper” class</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#the-kinaseactivity-class">The “KinaseActivity” class</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#the-dotplot-class">The “DotPlot” class</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#supporting-functions">Supporting Functions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#module-kstar.calculate">Master Functions for Running KSTAR Pipeline</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-0">Functions for Saving and Loading KSTAR results</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-kstar.helpers">Other Helper Functions</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Tutorial/tutorial.html">Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Examples/Examples.html">Analysis Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Parallel/parallel.html">KSTAR in Parallel</a></li>
+</ul>
+
+  </div>
+  <div>
+    <h4>Previous topic</h4>
+    <p class="topless"><a href="Dependencies.html"
+                          title="previous chapter">Dependencies</a></p>
+  </div>
+  <div>
+    <h4>Next topic</h4>
+    <p class="topless"><a href="quickstart.html"
+                          title="next chapter">Getting Started</a></p>
+  </div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/KSTAR.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="quickstart.html" title="Getting Started"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="Dependencies.html" title="Dependencies"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">KSTAR 1 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">KSTAR</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2020, Naegle Lab.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.0.2.
+    </div>
+  </body>
+</html>
