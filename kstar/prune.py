@@ -254,6 +254,8 @@ class Pruner:
         self.use_compendia = False
         
         odir = os.path.join(odir, "work")
+        if not path.exists(odir):
+            os.mkdir(odir)
         # MULTIPROCESSING
         if PROCESSES > 1:
             pool = multiprocessing.Pool(processes = PROCESSES)
@@ -320,7 +322,7 @@ class Pruner:
             info_file.write(f"# of Networks\t{self.num_networks}\n")
             info_file.write(f"Use Compendia\t{self.use_compendia}\n")
             if self.use_compendia:
-                compendia_sizes = pruner.calculate_compendia_sizes(self.kinase_size)
+                compendia_sizes = self.calculate_compendia_sizes(self.kinase_size)
                 for comp, size in compendia_sizes.items():
                     info_file.write(f"\tCompendia {comp}\t{size}\n")
 
