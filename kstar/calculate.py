@@ -198,7 +198,7 @@ class KinaseActivity:
         if PROCESSES > 1:
             pool = multiprocessing.Pool(processes = PROCESSES)
             
-            filtered_evidence_list  = [self.random_kinact.evidence[self.random_kinact.evidence[col] ==1 ] for col in self.data_columns] 
+            filtered_evidence_list  = [self.random_kinact.evidence[self.random_kinact.evidence[col] ==1 ] for col in self.random_kinact.data_columns] 
             networks = itertools.repeat(self.networks)  
             network_sizes = itertools.repeat(self.network_sizes)
             iterable = zip(filtered_evidence_list, networks, network_sizes, self.random_kinact.data_columns)
