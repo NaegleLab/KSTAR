@@ -107,12 +107,15 @@ def update_network_directory(directory, create_pickles = True, KSTAR_DIR = KSTAR
     #check that directory exists
     if not os.path.isdir(directory):
         print('Directory not found, so directories.txt was not updated and no pickles were generated. Please verify that directory is correct')
-        return NETWORK_DIR
+        return
     
+    #update network directory in config (temporary change)
+    NETWORK_DIR = directory
     #update network directory in directories.txt (permanent change)
     with open(f'{KSTAR_DIR}/kstar/directories.txt', 'w') as d:
         d.write(directory)
     print('Network directory updated.')
+    
     
     #If create_pickles is true, look for individual networks and create pickles
     if create_pickles:
@@ -140,8 +143,11 @@ def update_network_directory(directory, create_pickles = True, KSTAR_DIR = KSTAR
                 print('Could not find individual networks for ST. Make sure networks are deposited in "{NETWORK_DIR}/ST/INDIVIDUAL_NETWORKS/", , then rerun create_network_pickles()')
         else:
             print('Network pickles already generated')
-    
-    return directory
+            
+    #update location of network pickles
+    NETWORK_Y_PICKLE = f"{NETWORK_DIR}/network_Y.p" # created by create_networkin_pickles()
+    NETWORK_ST_PICKLE = f"{NETWORK_DIR}/network_ST.p" #created by create_networkin_pickles()
+    return NETWORK_DIR, NETWORK_Y_PICKLE, NETWORK_ST_PICKLE
 
 #def create_network_pickles(phosphoType = ['Y','ST'], *kwargs)
 def create_network_pickles(phosphoTypes = ['Y','ST'], network_directory = NETWORK_DIR):
