@@ -43,7 +43,7 @@ class Pruner:
 
         self.phospho_type = phospho_type
         self.logger = logger
-        self.network = network[network['site'].str.startswith(tuple(self.phospho_type))]
+        self.network = network[network[site_col].str.startswith(tuple(self.phospho_type))]
         
         #load human reference phosphoproteome, obtain the correct phosphosites (Y or ST), and combine duplicate entries
         self.compendia = config.HUMAN_REF_COMPENDIA
@@ -110,18 +110,24 @@ class Pruner:
         site_sizes = defaultdict()
         for i in network.index:
             site_sizes[i] = 0
-
+        num_edges = {}
         pruned_network = pd.DataFrame(index = network.index, columns = network.columns, data=np.nan)
         for i in range(kinase_size):
             random.shuffle(self.kinases)
             for kinase in self.kinases:
-                sample = network.sample(weights=kinase).iloc[0]
-                # return sample
-                network.at[sample.name, kinase] = np.nan
-                pruned_network.at[sample.name, kinase] = 1
-                site_sizes[sample.name] = site_sizes[sample.name] + 1
-                if site_sizes[sample.name] >= site_limit:
-                    network.loc[sample.name,:] = np.nan 
+                if network[kinase].isna().all():
+                    if kinase not in num_edges:
+                        num_edges[kinase] = i+1
+                        logger.info(f'{kinase} has no more available edges.')
+                else:
+                    sample = network.sample(weights=kinase).iloc[0]
+                    network.at[sample.name, kinase] = np.nan
+                    pruned_network.at[sample.name, kinase] = 1
+                    site_sizes[sample.name] = site_sizes[sample.name] + 1
+                    if site_sizes[sample.name] >= site_limit:
+                        network.loc[sample.name,:] = np.nan 
+
+
         
         pruned_network = pruned_network.reset_index().melt(id_vars=[config.KSTAR_ACCESSION, config.KSTAR_SITE]).dropna()
         pruned_network = pruned_network.rename(columns={'variable':config.KSTAR_KINASE})
