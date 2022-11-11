@@ -118,7 +118,7 @@ class Pruner:
                 if network[kinase].isna().all():
                     if kinase not in num_edges:
                         num_edges[kinase] = i+1
-                        logger.info(f'{kinase} has no more available edges.')
+                        logger.info(f'{kinase} has no more available edges. Total edge count for this network = {num_edges[kinase]}')
                 else:
                     sample = network.sample(weights=kinase).iloc[0]
                     network.at[sample.name, kinase] = np.nan
