@@ -104,14 +104,6 @@ class KinaseActivity:
         self.agg_activities = None
         self.activities = None
 
-
-        #Properties for normalized information
-        #self.normalizers = defaultdict()
-        #self.normalized = False
-        #self.normalized_activities_list = None
-        #self.normalized_agg_activities = None
-        #self.activities_normalized = None
-        #self.fpr_activity = None
         
         #Location of random experiments
         self.randomized = False
@@ -220,59 +212,7 @@ class KinaseActivity:
         self.random_kinact.agg_activities = self.random_kinact.aggregate_activities()
         self.random_kinact.activities = self.random_kinact.summarize_activities()
 
-    
-    #def run_normalization(self, logger, num_random_experiments=150, target_alpha=0.05, PROCESSES = 1):
-    #    """
-    #    Run entire normaliation pipeline (Generate random experiments, calculate kinase activities for random experiments, and normalize p-values based on provided target_alpha)
-    #    """
-    #    self.logger.info("Running Normalization Pipeline")
-    #    pool = multiprocessing.Pool(processes = PROCESSES)
-    #    self.normalized = True
-    #    self.num_random_experiments = num_random_experiments
-    #    self.logger.info("Generating random experiments")
-    #    self.random_experiments = generate_random_experiments.build_random_experiments(
-    #        self.evidence_binary, 
-    #        config.HUMAN_REF_COMPENDIA, 
-    #        num_random_experiments,
-    #        self.phospho_type, 
-    #        self.data_columns,
-    #        pool,
-    #        PROCESSES = PROCESSES)
-
-        
-    #    self.logger.info("Calculating random kinase activities")
-    #    self.random_kinact = KinaseActivity(self.random_experiments, logger, phospho_type=self.phospho_type)
-    #    self.random_kinact.add_networks_batch(self.networks)
-    #    self.random_kinact.calculate_kinase_activities( agg='count', threshold=1.0, greater=True, PROCESSES = PROCESSES )
-        
-    #    self.logger.info("Normalizing Activities")
-    #    self.normalize(target_alpha=target_alpha)
-
-
-
-    #def normalize(self, target_alpha=0.05):
-    #    """
-    #    Given random_kinace.activities, summarize, calculate FPR, and normalize. Called in the run_normalization pipelin
-    #    and useful for changing the target_alpha value, without requiring generation and calculation of random datasets
-    #    such as in reading a project from slim format.
-    #
-    #    Parameters
-    #    ----------
-    #    target_alpha: float
-    #        FPR target value between 0 and 1
-    #
-    #
-    #    """
-    #    if target_alpha > 1 or target_alpha < 0:
-    #        self.logger.info("ERROR: Target alpha should be between 0 an 1, setting to default of 0.05")
-    #        target_alpha = 0.05
-    #    self.random_kinact.aggregate_activities()
-    #    self.random_kinact.activities = self.random_kinact.summarize_activities()
-
-    #    self.normalizers, self.fpr_activity = calculate_fpr.generate_fpr_values(self.activities, self.random_kinact.activities, target_alpha)
-
-    #    self.normalize_activities(default_normalization=target_alpha)
-    #    self.activities_normalized = self.summarize_activities(self.normalized_agg_activities,'median_normalized_activity',normalized=True)
+   
         
 
     def add_networks_batch(self,networks):
@@ -323,108 +263,7 @@ class KinaseActivity:
         else:
             self.logger.warning(f"Evidence not set. Evidence columns must include '{config.KSTAR_ACCESSION}' and '{config.KSTAR_SITE}' keys")
     
-    #def set_normalizers(self, normalizers):
-    #    """
-    #    Sets the Kinase normalization values to be used in calculating the updated p-values
-    #    Updated p-values normalized via original p-value / normalization-factor * normalization_factor
 
-    #    Parameters
-    #    ----------
-    #    normalizers : dict or pandas df
-    #        Kinase Activity Normalizers
-    #        index : kinase
-    #        columns : data_column normalization values
-    #    """
-    #    self.normalizers = normalizers
-
-    # def calculate_hypergeometric_single_network(self, evidence, network_id):
-    #     """
-    #     Hypergeometric Cumulative Distribution Function calculated for each kinase given evidence
-    #         k : number of times kinase seen in evidence
-    #         M : number of unique sites in network
-    #         n : number of times kinase seen in network
-    #         N : size of evidence
-        
-    #     Parameters
-    #     ----------
-    #     evidence : pandas df
-    #         subset of kstar evidence that has been filtered to only include evidence associated with experimetn
-    #     network_id : str
-    #         network to use for analysis
-        
-    #     Returns
-    #     -------
-    #     results : pandas df
-    #         Hypergeometric results of evidence for given network
-    #         index : kinase_id
-    #         columns
-    #             frequency : number of times kinase seen in network
-    #             kinase_activity : activity derived from hypergometric cdf 
-    #     """
-        
-    #     network = self.networks[network_id]
-    #     intersect = pd.merge(network, evidence, how='inner',
-    #         on=[config.KSTAR_ACCESSION, config.KSTAR_SITE])
-    #     counts = intersect.groupby(config.KSTAR_KINASE).size()
-    #     N = len(intersect.groupby([config.KSTAR_ACCESSION, config.KSTAR_SITE]).size())
-    #     results = pd.DataFrame(counts, columns = ['frequency'])
-    #     results['kinase_activity'] = 1.0
-
-    #     K = network.groupby(config.KSTAR_KINASE).size()
-        
-    #     kinases = counts.index
-    #     for kin in kinases:
-    #         k = 0
-    #         if counts.loc[kin] > 0:
-    #             k = counts.loc[kin] - 1
-    #         prb = stats.hypergeom.sf(
-    #             k = int(k), 
-    #             M = int(self.network_sizes[network_id]), 
-    #             n = int(K.loc[kin]), 
-    #             N = int(N)
-    #             )
-    #         results.at[kin, 'kinase_activity'] = prb
-    #     results['network'] = network_id
-    #     return results
-        
-    # def calculate_hypergeometric_activities(self, evidence, name):
-    #     """
-    #     Perform hypergeometric kinase activity analysis given evidence on all networks
-        
-    #     Parameters
-    #     ----------
-    #     evidence : pandas df
-    #         subset of class evidence variable where data is filtered based on experiment
-    #     name : str
-    #         name of experiment being performed
-            
-    #     Returns
-    #     ---------
-    #     fdr_act : pd DataFrame
-    #         network : network name, from networks key
-    #         frequency : number of times kinase was seen in subgraph of evidence and network
-    #         kinase_activity : hypergeometric kinase activity
-    #         fdr_corrected_kinase_activity : kinase activity after fdr correction
-    #         significant : whether kinase activity is significant based on fdr alpha
-    #     combined : pd DataFrame
-    #         significant : number of networks where kinase was found to be significant
-    #         fraction_significant : fraction of networks kinase was found to be significant through FDR correction
-    #         avg_p_value : combined p-values of kinase using mean
-    #         median_p_value : combined p-values of kinase using median
-    #     """
-        
-    #     self.logger.info(f"Running hypergeometric analysis on {name}")
-        
-    #     results = []
-    #     for network_id in self.networks.keys(): # calculate kinase activity within each network 
-    #         result = self.calculate_hypergeometric_single_network(evidence, network_id) 
-    #         results.append(result)
-
-    #     # combine results into single dataframe
-    #     hyp_act = pd.concat(results)
-    #     hyp_act = hyp_act.reset_index()
-    #     hyp_act['data'] = name
-    #     return hyp_act
 
     def create_binary_evidence(self, agg = 'mean', threshold = 1.0,  greater = True):
         """
@@ -591,112 +430,6 @@ class KinaseActivity:
         ).reset_index()
         return self.agg_activities
     
-    #def normalize_activities(self, activities = None, default_normalization = 0.05, normalization_multiplier = 0.05):
-    #    """
-    #    Generates the normalized activities and corresponding summary statistics
-
-    #    Parameters
-    #    ----------
-    #    activities : dict
-    #        hypergeometric activities generated by KSTAR algorithm
-    #        key : experiment
-    #        value : hypergeometric result
-    #    default_normalization: float
-    #        value to normalize to, if no normalizers are set.
-        
-    #    Returns
-    #    --------
-    #    normalized_activities : dict
-    #        normalized Kinase Activity results
-    #        key : experiment
-    #        value : normalized results
-    #    summarized_activities : dict
-    #        summary statistics of normalized kinase activity
-    #        key : experiment
-    #        value : summary statistics
-    #    """
-    #    self.normalized = True
-    #    
-    #    if activities is None:
-    #        activities = self.activities_list
-    #    normalized_activities = []
-    #    for data in self.data_columns:
-    #        if type(self.normalizers) is dict:
-    #            normalizers = self.normalizers
-    #        elif type(self.normalizers) is pd.DataFrame and data #in self.normalizers.columns:
-    #            #print("setting normalizers")
-    #            normalizers = self.normalizers[data].to_dict()
-    #        else:
-    #            normalizers = {}
-    #        activity = activities[activities['data'] == data]
-    #        normalized_activities.append(
-    #            self.calculate_normalized_activity(
-    #                activity, 
-    #                normalizers, 
-    #                default_normalization, 
-    #                normalization_multiplier))
-    #    self.normalized_activities_list = pd.concat(normalized_activities)
-    #    self.aggregate_normalized_activities(self.normalized_activities_list)
-        
-    #    return self.normalized_activities_list, self.normalized_agg_activities
-    
-    
-    #def calculate_normalized_activity(self, kinase_activity, normalizers, default_normalization = 0.05, normalization_multiplier = 0.05):
-    #    """
-    #    Activity is normalized based on kinase normalization factors. 
-    #    Added Columns : 
-    #        Normalization Factor : normalization factor for given Kinase
-    #        Significant : 1 if Kinase Activity <= Normalization Factor
-    #        Normalized Activity : ( Kinase Activity ) / ( Normalization Factor ) * Normalization Multiplier
-
-    #    Parameters
-    #    ----------
-    #    kinase_activity : pandas df
-    #        hypergeometric activity calculated through KSTAR algorithm
-    #    default_normalization : float
-    #        Normalization factor to use if one not provided
-    #    normalization_multiplier : float
-    #        normalization multiplier to use for calculated #normalized kinase activity
-    #    """
-
-    #    normalized_activity = kinase_activity.copy()
-    #    normalized_activity['Normalization Factor'] = normalized_activity[config.KSTAR_KINASE].apply(lambda name: normalizers[name] if name in normalizers.keys() else default_normalization)
-    #    if len(self.networks) > 0:
-    #        normalized_activity['Significant'] = normalized_activity.apply(lambda row: (row['kinase_activity'] <= row['Normalization Factor'] / len( self.networks ) ) * 1, axis = 1)
-    #    else:
-    #        normalized_activity['Significant'] = normalized_activity.apply(lambda row: (row['kinase_activity'] <= row['Normalization Factor']) * 1, axis = 1)
-    #    normalized_activity['Normalized Activity'] = normalized_activity.apply(lambda row: np.clip( row['kinase_activity'] / row['Normalization Factor'] * normalization_multiplier, 0.0, 1.0 ), axis = 1)
-    #    return normalized_activity
-    
-    
-    #def aggregate_normalized_activities(self, normalized_activities):
-    #    """
-    #    Summarizes normalized kinase activity results of all networks by kinase
-    #    Summaries provided : 
-    #        median original activity
-    #        average original activity
-    #        median normalized activity
-    #        average normalized activity
-    #        count significant
-    #        fraction significant
-        
-    #    Parameters
-    #    ----------
-    #    normalized_activity : pandas df
-    #        Normalized kinase activty
-        
-    #    Returns
-    #    --------
-    #    summary : pandas df
-    #        summarized data of all networks by kinase
-    #    """
-    #    self.normalized_agg_activities = normalized_activities.groupby(['data',config.KSTAR_KINASE]).agg(
-    #        median_original_activity = ('kinase_activity', 'median'),
-    #        median_normalized_activity = ('Normalized Activity', 'median'),
-    #        count_significant = ('Significant', 'sum'),
-    #        fraction_significant = ('Significant', 'mean')
-    #    ).reset_index()
-    #    return self.normalized_agg_activities
 
     def  find_pvalue_limits(self, data_columns, agg = 'count', threshold = 1.0):
         """
@@ -1086,33 +819,6 @@ def enrichment_analysis(experiment, log, networks, phospho_types =['Y', 'ST'], d
         kinact_dict[phospho_type] = kinact
     return kinact_dict
 
-#def normalize_analysis(kinact_dict, log, num_random_experiments=150, target_alpha = 0.05, PROCESSES = 1):
-#    """
-#    Creates random experiments, drawn from the human phosphoproteome, according to the distribution of the number of compendia
-#    that each data column in the experiment has for num_random_experiments. Kinase activity calculation is then run on every random experiment
-#    and then assembled for each data column to calculate the pvalue at which a kinase hits the target_alpha value of false positives. 
-#    Finally, it takes these empirically defined pvalue corrections and normalizes the kinase activities according to these, such that
-#    the real experimental data also has the target_alpha value. 
-#
-#    Parameters
-#    ----------
-#    kinact_dict: KinaseActivities dictionary
-#        Has keys ['Y'] and/or ['ST'] and values that are KinaseActivity objects. These objects are modified to add normalization
-#    log: logger 
-#        Logger for logging activity messages
-#    num_random_experiments: int
-#        Number of random experiments, for each data column, to create and run activity from
-#    target_alpha: float 
-#        Value between 0 and 1 that is the target false positive rate. 
-#
-#
-#    """
-#
-#    if target_alpha > 1 or target_alpha < 0: 
-#        raise ValueError('ERROR: target_alpha must be value between 0 and 1')
-#
-#    for phospho_type, kinact in kinact_dict.items():
-#        kinact.run_normalization(log, num_random_experiments, target_alpha, PROCESSES = PROCESSES)
         
 def randomized_analysis(kinact_dict, log, num_random_experiments=150, PROCESSES = 1):
     """
@@ -1199,12 +905,6 @@ def save_kstar(kinact_dict, name, odir, PICKLE=True):
                 kinact.random_experiments.to_csv(f"{odir}/RESULTS/{name_out}_random_experiments.tsv", sep = '\t', index = False)
                 kinact.random_kinact.evidence.to_csv(f"{odir}/RESULTS/{name_out}_random_experiments.tsv", sep = '\t', index = False)
                 
-            #if kinact.normalized:
-
-            #    kinact.normalized_activities_list.to_csv(f"{odir}/RESULTS/{name_out}_normalized_activities_list.tsv", sep = '\t', index = True)
-            #    kinact.normalized_agg_activities.to_csv(f"{odir}/RESULTS/{name_out}_normalized_aggregated_activities.tsv", sep = '\t', index = True)
-            #    kinact.activities_normalized.to_csv(f"{odir}/RESULTS/{name_out}_activities_normalized.tsv", sep = '\t', index = True)
-            #    kinact.fpr_activity.to_csv(f"{odir}/RESULTS/{name_out}_activities_fpr.tsv", sep='\t', index=True)
 
 
             if hasattr(kinact, 'activities_mann_whitney'):
@@ -1267,10 +967,6 @@ def save_kstar_slim(kinact_dict, name, odir):
         kinact.activities.to_csv(f"{odir}/RESULTS/{name_out}_activities.tsv", sep = '\t', index = True)
         kinact.evidence_binary.to_csv(f"{odir}/RESULTS/{name_out}_binarized_experiment.tsv", sep='\t', index=False)
 
-        #if kinact.normalized:
-        #    param_temp['normalized'] = True
-        #    kinact.activities_normalized.to_csv(f"{odir}/RESULTS/{name_out}_activities_normalized.tsv", sep = '\t', index = True)
-        #    kinact.fpr_activity.to_csv(f"{odir}/RESULTS/{name_out}_activities_fpr.tsv", sep='\t', index=True)
             
         if hasattr(kinact, 'random_kinact'):
             param_temp['randomized'] = True
@@ -1333,9 +1029,6 @@ def from_kstar_slim(name, odir, log):
             kinact.fpr_mann_whitney = pd.read_csv(f"{odir}/RESULTS/{name_out}_mann_whitney_fpr.tsv", sep='\t', index_col = config.KSTAR_KINASE) 
             params.pop('mann_whitney', None)
             
-        #if params['normalized']:
-        #    kinact.activities_normalized= pd.read_csv(f"{odir}/RESULTS/{name_out}_activities_normalized.tsv", sep = '\t', index_col = config.KSTAR_KINASE)
-        #    kinact.fpr_activity = pd.read_csv(f"{odir}/RESULTS/{name_out}_activities_fpr.tsv", sep='\t', index_col=config.KSTAR_KINASE)
         
         if 'randomized' in params.keys():
             rand_experiments = pd.read_csv(f"{odir}/RESULTS/{name_out}_random_experiments.tsv", sep = '\t')
@@ -1387,12 +1080,7 @@ def from_kstar_nextflow(name, odir, log = None):
             #read mann_whitney and load
             kinact.activities_mann_whitney = pd.read_csv(f"{odir}/{phospho_type}/mann_whitney/{name}_mann_whitney_activities.tsv", sep='\t', index_col = config.KSTAR_KINASE) 
             kinact.fpr_mann_whitney = pd.read_csv(f"{odir}/{phospho_type}/mann_whitney/{name}_mann_whitney_fpr.tsv", sep='\t', index_col = config.KSTAR_KINASE) 
-            #rand_experiments = pd.read_csv(f"{odir}/{phospho_type}/{name_out}_random_experiments.tsv", sep = '\t')
-            #kinact.random_kinact = KinaseActivity(rand_experiments, log, phospho_type=phospho_type)
-            #kinact.random_kinact.activities_list = pd.read_csv(f"{odir}/{phospho_type}/{name}_random_activities_list.tsv", sep = '\t', index_col=0)
-            #kinact.random_kinact.evidence = pd.read_csv(f"{odir}/{phospho_type}/{name_out}_random_experiments.tsv", sep = '\t')
-            #set data columns according to file
-            #kinact.random_kinact.set_data_columns(data_columns=None)
+
 
             kinact_dict[phospho_type] = kinact
             
