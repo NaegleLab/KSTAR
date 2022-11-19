@@ -1,10 +1,31 @@
 # Network Generation
 
-The prune class and accompanying functions were created for generating the ensemble of pruned networks used by KSTAR from
-any weighted kinase-substrate network (we recommend NetworKIN/KinomeXplorer). Pruning can either be run within a python environment/interpreter, 
-or they can be run using a bash script from the command line.
+## Download pre-generated networks
 
-## Run pruning within python
+We have provided pre-pruned networks that can be downloaded [here](https://figshare.com/articles/dataset/NETWORKS/14944305). If choosing to use these networks, you can go straight to [activity calculation](Activity_Calculation.ipynb) and skip the remainder of this section
+
+## Generate your own networks
+
+The prune class and accompanying functions were created for generating the ensemble of pruned networks used by KSTAR from any weighted kinase-substrate network (we recommend NetworKIN/KinomeXplorer). Pruning can either be run within a python environment/interpreter, or they can be run using a bash script from the command line.
+
+### Required format of weighted kinase-substrate network
+
+The weighted network (such as one obtained from NetworKIN) should be in a matrix format, containing 3+ columns: 
+- site_col: Uniprot Accession of the protein
+- acc_col: phosphorylation site number
+- Each additional column should be labeled by the associated kinase and contain the probability of that kinase phosphorylate each substrate.
+
+Here is a small example of such a matrix:
+| substrate_acc | site | ABL1 | ABL2 | ACVR2A |
+|---------------|------|------|------|--------|
+| A0AV02 | Y107 | 0.2054 | 0.1582 | |
+| A0AV02 | T485 | | | |
+| A0AV02 | S488 | | | 0.2836 |
+
+For an example of a weighted kinase-substrate network that can be used during pruning, see the [KinPred figshare](https://figshare.com/articles/dataset/Final_Data_-_Matrix_of_kinase_substrate_edge_weights_by_predictor/12749324). These networks are also available for use if you would like to use different pruning parameters from those used in the KSTAR publication.
+
+
+### Run pruning within python
 
 If wanting to run pruning in python, follow these steps:
 1. Import necessary packages
@@ -53,7 +74,7 @@ pruner.save_networks()
 pruner.save_run_information()
 ```
 
-## Run pruning from the command line
+### Run pruning from the command line
 
 It is also possible to run the pruning procedure from start to finish, including saving the results and run info, from the command line. 
 A bash script like the one below can be used to run prune.py and input the necessary parameters. 

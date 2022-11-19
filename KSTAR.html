@@ -15,6 +15,7 @@
     <script src="_static/underscore.js"></script>
     <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     
     <link rel="index" title="Index" href="genindex.html" />
@@ -884,6 +885,8 @@ default : ‘white’</p>
 <span class="sig-name descname"><span class="pre">cluster</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ax</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'single'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metric</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'euclidean'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">orientation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'top'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color_threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-inf</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/kstar/plot.html#DotPlot.cluster"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kstar.plot.DotPlot.cluster" title="Permalink to this definition">¶</a></dt>
 <dd><p>Performs hierarchical clustering on data and plots result to provided Axes. 
 result and significant dataframes are ordered according to clustering</p>
+<section id="parameters">
+<h3>Parameters<a class="headerlink" href="#parameters" title="Permalink to this heading">¶</a></h3>
 <dl class="simple">
 <dt>ax<span class="classifier">matplotlib Axes instance</span></dt><dd><p>Axes to plot dendogram to</p>
 </dd>
@@ -899,6 +902,7 @@ ignored otherwise. See the pdist function for a list of valid distance metrics. 
 ‘right’: Plots the root at the right, and plot descendent links going left.</p>
 </dd>
 </dl>
+</section>
 </dd></dl>
 
 <dl class="py method">
@@ -1268,19 +1272,90 @@ to append an accession column of uniprot IDS</p>
 <li class="toctree-l1"><a class="reference internal" href="Overview.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="Dependencies.html">Dependencies</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">KSTAR</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#module-kstar.config">The “Config” Module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#the-prune-module">The “Prune” Module</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#the-pruner-class">The “Pruner” Class</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#module-kstar.prune">Functions to Perform Pruning</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-kstar.config">The “Config” Module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#kstar.config.create_network_pickles"><code class="docutils literal notranslate"><span class="pre">create_network_pickles()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#kstar.config.install_resource_files"><code class="docutils literal notranslate"><span class="pre">install_resource_files()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#kstar.config.update_network_directory"><code class="docutils literal notranslate"><span class="pre">update_network_directory()</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#the-experimentmapper-class">The “ExperimentMapper” class</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#the-kinaseactivity-class">The “KinaseActivity” class</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#the-dotplot-class">The “DotPlot” class</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#the-prune-module">The “Prune” Module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#the-pruner-class">The “Pruner” Class</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#kstar.prune.Pruner"><code class="docutils literal notranslate"><span class="pre">Pruner</span></code></a><ul>
+<li class="toctree-l5"><a class="reference internal" href="#kstar.prune.Pruner.build_multiple_compendia_networks"><code class="docutils literal notranslate"><span class="pre">Pruner.build_multiple_compendia_networks()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#kstar.prune.Pruner.build_multiple_networks"><code class="docutils literal notranslate"><span class="pre">Pruner.build_multiple_networks()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#kstar.prune.Pruner.build_pruned_network"><code class="docutils literal notranslate"><span class="pre">Pruner.build_pruned_network()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#kstar.prune.Pruner.calculate_compendia_sizes"><code class="docutils literal notranslate"><span class="pre">Pruner.calculate_compendia_sizes()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#kstar.prune.Pruner.compendia_pruned_network"><code class="docutils literal notranslate"><span class="pre">Pruner.compendia_pruned_network()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#kstar.prune.Pruner.save_networks"><code class="docutils literal notranslate"><span class="pre">Pruner.save_networks()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#kstar.prune.Pruner.save_run_information"><code class="docutils literal notranslate"><span class="pre">Pruner.save_run_information()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#module-kstar.prune">Functions to Perform Pruning</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#kstar.prune.run_pruning"><code class="docutils literal notranslate"><span class="pre">run_pruning()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#kstar.prune.save_pruning"><code class="docutils literal notranslate"><span class="pre">save_pruning()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#kstar.prune.save_run_information"><code class="docutils literal notranslate"><span class="pre">save_run_information()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#the-experimentmapper-class">The “ExperimentMapper” class</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#kstar.mapping.ExperimentMapper"><code class="docutils literal notranslate"><span class="pre">ExperimentMapper</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#kstar.mapping.ExperimentMapper.align_sites"><code class="docutils literal notranslate"><span class="pre">ExperimentMapper.align_sites()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#kstar.mapping.ExperimentMapper.get_experiment"><code class="docutils literal notranslate"><span class="pre">ExperimentMapper.get_experiment()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#kstar.mapping.ExperimentMapper.get_sequence"><code class="docutils literal notranslate"><span class="pre">ExperimentMapper.get_sequence()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#kstar.mapping.ExperimentMapper.set_data_columns"><code class="docutils literal notranslate"><span class="pre">ExperimentMapper.set_data_columns()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#the-kinaseactivity-class">The “KinaseActivity” class</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#kstar.calculate.KinaseActivity"><code class="docutils literal notranslate"><span class="pre">KinaseActivity</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#kstar.calculate.KinaseActivity.calculate_Mann_Whitney_activities_sig"><code class="docutils literal notranslate"><span class="pre">KinaseActivity.calculate_Mann_Whitney_activities_sig()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#kstar.calculate.KinaseActivity.calculate_kinase_activities"><code class="docutils literal notranslate"><span class="pre">KinaseActivity.calculate_kinase_activities()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#kstar.calculate.KinaseActivity.calculate_random_activities"><code class="docutils literal notranslate"><span class="pre">KinaseActivity.calculate_random_activities()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#kstar.calculate.KinaseActivity.check_data_columns"><code class="docutils literal notranslate"><span class="pre">KinaseActivity.check_data_columns()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#kstar.calculate.KinaseActivity.create_binary_evidence"><code class="docutils literal notranslate"><span class="pre">KinaseActivity.create_binary_evidence()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#kstar.calculate.KinaseActivity.find_pvalue_limits"><code class="docutils literal notranslate"><span class="pre">KinaseActivity.find_pvalue_limits()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#kstar.calculate.KinaseActivity.get_run_date"><code class="docutils literal notranslate"><span class="pre">KinaseActivity.get_run_date()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#kstar.calculate.KinaseActivity.set_data_columns"><code class="docutils literal notranslate"><span class="pre">KinaseActivity.set_data_columns()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#the-dotplot-class">The “DotPlot” class</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#kstar.plot.DotPlot"><code class="docutils literal notranslate"><span class="pre">DotPlot</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#kstar.plot.DotPlot.cluster"><code class="docutils literal notranslate"><span class="pre">DotPlot.cluster()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#kstar.plot.DotPlot.context"><code class="docutils literal notranslate"><span class="pre">DotPlot.context()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#kstar.plot.DotPlot.dotplot"><code class="docutils literal notranslate"><span class="pre">DotPlot.dotplot()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#kstar.plot.DotPlot.drop_kinases"><code class="docutils literal notranslate"><span class="pre">DotPlot.drop_kinases()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#kstar.plot.DotPlot.drop_kinases_with_no_significance"><code class="docutils literal notranslate"><span class="pre">DotPlot.drop_kinases_with_no_significance()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="#supporting-functions">Supporting Functions</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#module-kstar.calculate">Master Functions for Running KSTAR Pipeline</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#module-0">Functions for Saving and Loading KSTAR results</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#module-kstar.helpers">Other Helper Functions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-kstar.calculate">Master Functions for Running KSTAR Pipeline</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#kstar.calculate.Mann_Whitney_analysis"><code class="docutils literal notranslate"><span class="pre">Mann_Whitney_analysis()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#kstar.calculate.enrichment_analysis"><code class="docutils literal notranslate"><span class="pre">enrichment_analysis()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#kstar.calculate.randomized_analysis"><code class="docutils literal notranslate"><span class="pre">randomized_analysis()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#module-0">Functions for Saving and Loading KSTAR results</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#kstar.calculate.from_kstar_nextflow"><code class="docutils literal notranslate"><span class="pre">from_kstar_nextflow()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#kstar.calculate.from_kstar_slim"><code class="docutils literal notranslate"><span class="pre">from_kstar_slim()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#kstar.calculate.save_kstar"><code class="docutils literal notranslate"><span class="pre">save_kstar()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#kstar.calculate.save_kstar_slim"><code class="docutils literal notranslate"><span class="pre">save_kstar_slim()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#module-kstar.helpers">Other Helper Functions</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#kstar.helpers.convert_acc_to_uniprot"><code class="docutils literal notranslate"><span class="pre">convert_acc_to_uniprot()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#kstar.helpers.get_logger"><code class="docutils literal notranslate"><span class="pre">get_logger()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#kstar.helpers.process_fasta_file"><code class="docutils literal notranslate"><span class="pre">process_fasta_file()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#kstar.helpers.string_to_boolean"><code class="docutils literal notranslate"><span class="pre">string_to_boolean()</span></code></a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -1344,7 +1419,7 @@ to append an accession column of uniprot IDS</p>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2020, Naegle Lab.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.1.1.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.3.0.
     </div>
   </body>
 </html>
