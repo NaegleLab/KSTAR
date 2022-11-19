@@ -235,7 +235,7 @@ class KinaseActivity:
         if network_size is not None and isinstance(network_size, int):
             self.network_sizes[network_id] = network_size
         else:
-            self.network_sizes[network_id] = len(network.groupby([config.KSTAR_ACCESSION, config.KSTAR_SITE]).size())
+            self.network_sizes[network_id] = network.drop_duplicates(subset = [config.KSTAR_ACCESSION, config.KSTAR_SITE]).shape[0]
             self.logger.info(f'ADD NETWORK : Number of Accession Sites : {self.network_sizes[network_id]}')
     
     def get_run_date(self):
