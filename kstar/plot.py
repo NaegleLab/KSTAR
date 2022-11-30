@@ -519,6 +519,35 @@ class DotPlot:
                 ax.add_artist(leg)
     
                 running_total += len(ids) + 1
+                
+    def evidence_count(self, ax, binary_evidence):
+        """
+        Add bars to dotplot indicating the total number of sites used as evidence in activity calculation
 
+        Parameters
+        ----------
+        ax: axes object
+            where to plot the bars
+        binary_evidence: pandas dataframe
+            binarized dataframe produced during activity calculation (threshold applied to original experiment)
+        """
+        #make sure binary evidence contains unique sites
+        binary_evidence = binary_evidence.drop_duplicates()
+
+        #get the number of sites used as evidence
+        total_num_sites = binary_evidence.shape[0]
+        num_sites_in_sample = binary_evidence[self.x_label_dict.keys()].sum()
+        
+        #get correct order of samples
+        order = self.values.columns
+        xticks = [tick * self.multiplier + self.offset for tick in range(len(order))]
+        num_sites_in_sample = num_sites_in_sample[order]
+        
+        #plot a bar graph
+        ax.bar(xticks, num_sites_in_sample, width = self.offset, color = 'gray')
+        ax.set_ylabel('Evidence Size', rotation = 0, ha = 'right', va = 'center')
+        
+        
+        
       
         
