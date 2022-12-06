@@ -115,16 +115,16 @@ def build_random_experiments(binary_evidence, compendia, num_random_experiments,
     return rand_experiments
         
 ##### Faster single experiment tests ####
-def build_single_filtered_experiment(experiment, filtered_compendia, name ,selection_type='KSTAR_NUM_COMPENDIA_CLASS'):
+def build_single_filtered_experiment(compendia_sizes, filtered_compendia, name ,selection_type='KSTAR_NUM_COMPENDIA_CLASS'):
     #rand_experiments = compendia[[config.KSTAR_ACCESSION, config.KSTAR_SITE]]
-    if len(experiment) == 0:
-        empty_columns = [f"{name}:{i}" for i in range(num_random_experiments)]
-        rand_experiments = pd.concat([rand_experiments,pd.DataFrame(columns=empty_columns)])
-        return rand_experiments
+    #if len(experiment) == 0:
+    #    empty_columns = [f"{name}:{i}" for i in range(num_random_experiments)]
+    #    rand_experiments = pd.concat([rand_experiments,pd.DataFrame(columns=empty_columns)])
+    #    return rand_experiments
 
-    sizes = experiment.groupby(selection_type).size()
+    #sizes = experiment.groupby(selection_type).size()
     rand_experiment_list = []
-    for num, size in sizes.iteritems():
+    for num, size in compendia_sizes.iteritems():
         filtered = filtered_compendia[int(num)]
         filtered_random = filtered.sample(size)
         filtered_random["Experiment"] = name

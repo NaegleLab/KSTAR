@@ -161,9 +161,29 @@ class KinaseActivity:
             self.data_columns = data_columns
         self.check_data_columns()    
    
-
+    def calculate_random_activity_singleExperiment(compendia_sizes, filtered_compendia, data_col, num_random_experiments = 150, save_experiments = False):
+        if save_experiments:
+            activities_list = []
+            all_rand_experiments = []
+            for i in range(num_random_experiments):
+                name = f'{data_col}:{i}'
+                rand_experiment = generate_random_experiments.build_single_filtered_experiment(filtered_evidence, filtered_compendia, name, selection_type = 'KSTAR_NUM_COMPENDIA_CLASS')
+                all_rand_experiments.append(rand_experiment)
+                act = calculate_hypergeometric_activities(rand_experiment, self.networks, self.network_sizes,name)
+                activities_list.append(act)
+            return activities_list, all_rand_experiments
+        else:
+            activities_list = []
+            for i in range(num_random_experiments):
+                name = f'{data_col}:{i}'
+                rand_experiment = generate_random_experiments.build_single_filtered_experiment(filtered_evidence, filtered_compendia, name, selection_type = 'KSTAR_NUM_COMPENDIA_CLASS')
+                act = calculate_hypergeometric_activities(rand_experiment, self.networks, self.network_sizes,name)
+                activities_list.append(act)
+            return activities_list
             
-    def calculate_random_activities(self, logger, num_random_experiments=150, save_experiments = False, PROCESSES = 1):
+        
+            
+    def calculate_random_activities(self, logger, num_random_experiments=150, selection_type = 'KSTAR_NUM_COMPENDIA_CLASS', save_experiments = False, PROCESSES = 1):
         """
         change to calculate_random_activities to immediately calculate the kinase activities for each random experiment and discard the resulting random experiment
         """
@@ -171,18 +191,36 @@ class KinaseActivity:
         self.logger.info("Running Randomization Pipeline")
         pool = multiprocessing.Pool(processes = PROCESSES)
         self.num_random_experiments = num_random_experiments
-        filtered_compendia = self.getFilteredCompendia("KSTAR_NUM_COMPENDIA_CLASS")
+        filtered_compendia = self.getFilteredCompendia(selection_type)
         if PROCESSES > 1:
-            print('not active')
+            pool = multiprocessing.Pool(processes = PROCESSES)
+            
+            compendia_sizes_list  = [self.evidence_binary[self.evidence_binary[col] ==1 ].groupby(selection_type).size() for col in self.data_columns] 
+            filtered_compendia = itertools.repeat(filtered_compendia)
+            networks = itertools.repeat(self.networks)
+            network_sizes = itertools.repeat(self.network_sizes)
+            save_experiments_list = itertools.repeat(save_experiments)
+            num_random_experiments = itertools.repeat(num_random_experiments)
+            iterable = zip(compendia_sizes_list, filtered_compendia, networks, network_sizes, self.data_columns, num_random_experiments, save_experiments_list)
+            result = pool.starmap(calculate_random_activity_singleExperiment, iterable)
+            if save_experiments:
+                self.random_act = result
+                #random_activities = [res[0] for res in result]
+                #self.random_activities = pd.concat(random_activities)
+                #random_experiments = [res[1] for res in result]
+                #random_experiments['weight'] = 1
+                #self.random_experiments = pd.pivot(random_experiments, index = [config.KSTAR_ACCESSION, config.KSTAR_SITE], columns = 'Experiment', values = 'weight')
+            else:
+                self.random_activities = pd.concat(result[0])
         else:
             if save_experiments:
                 all_rand_experiments = []
                 activities_list = []
                 for col in self.data_columns:
-                    filtered_evidence = self.evidence_binary[self.evidence_binary[col] == 1]
+                    compendia_sizes = self.evidence_binary[self.evidence_binary[col] == 1].groupby(selection_type).size()
                     for i in range(num_random_experiments):
                         name = f'{col}:{i}'
-                        rand_experiment = generate_random_experiments.build_single_filtered_experiment(filtered_evidence, filtered_compendia, name, selection_type = 'KSTAR_NUM_COMPENDIA_CLASS')
+                        rand_experiment = generate_random_experiments.build_single_filtered_experiment(compendia_sizes, filtered_compendia, name, selection_type = selection_type)
                         all_rand_experiments.append(rand_experiment)
                         act = calculate_hypergeometric_activities(rand_experiment, self.networks, self.network_sizes,name)
                         activities_list.append(act)
@@ -198,10 +236,11 @@ class KinaseActivity:
             else:
                 activities_list = []
                 for col in self.data_columns:
-                    filtered_evidence = self.evidence_binary[self.evidence_binary[col] == 1]
+                    #determine distribution of study bias across real dataset
+                    compendia_sizes = self.evidence_binary[self.evidence_binary[col] == 1].groupby(selection_type).size()
                     for i in range(num_random_experiments):
                         name = f'{col}:{i}'
-                        rand_experiment = generate_random_experiments.build_single_filtered_experiment(filtered_evidence, filtered_compendia, name, selection_type = 'KSTAR_NUM_COMPENDIA_CLASS')
+                        rand_experiment = generate_random_experiments.build_single_filtered_experiment(compendia_sizes, filtered_compendia, name, selection_type = 'KSTAR_NUM_COMPENDIA_CLASS')
                         act = calculate_hypergeometric_activities(rand_experiment, self.networks, self.network_sizes,name)
                         activities_list.append(act)
                 
@@ -672,6 +711,26 @@ def calculate_hypergeometric_activities(evidence, networks, network_sizes, name)
         hyp_act = hyp_act.reset_index()
         hyp_act['data'] = name
         return hyp_act
+        
+def calculate_random_activity_singleExperiment(filtered_evidence, filtered_compendia, networks, network_sizes, data_col, num_random_experiments = 150, save_experiments = False):
+    if save_experiments:
+        activities_list = []
+        all_rand_experiments = []
+        for i in range(num_random_experiments):
+            name = f'{data_col}:{i}'
+            rand_experiment = generate_random_experiments.build_single_filtered_experiment(filtered_evidence, filtered_compendia, name, selection_type = 'KSTAR_NUM_COMPENDIA_CLASS')
+            all_rand_experiments.append(rand_experiment)
+            act = calculate_hypergeometric_activities(rand_experiment, networks, network_sizes,name)
+            activities_list.append(act)
+        return activities_list, all_rand_experiments
+    else:
+        activities_list = []
+        for i in range(num_random_experiments):
+            name = f'{data_col}:{i}'
+            rand_experiment = generate_random_experiments.build_single_filtered_experiment(filtered_evidence, filtered_compendia, name, selection_type = 'KSTAR_NUM_COMPENDIA_CLASS')
+            act = calculate_hypergeometric_activities(rand_experiment, networks, network_sizes,name)
+            activities_list.append(act)
+        return activities_list
 
 """
 ****************************************
