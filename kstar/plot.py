@@ -520,7 +520,8 @@ class DotPlot:
     
                 running_total += len(ids) + 1
                 
-    def evidence_count(self, ax, binary_evidence):
+    def evidence_count(self, ax, binary_evidence, plot_type = 'bars', phospho_type = None, dot_size = 1, include_recommendations = True,
+                      ideal_min = None, recommended_min = None):
         """
         Add bars to dotplot indicating the total number of sites used as evidence in activity calculation
 
@@ -531,21 +532,77 @@ class DotPlot:
         binary_evidence: pandas dataframe
             binarized dataframe produced during activity calculation (threshold applied to original experiment)
         """
+        palette = sns.color_palette('colorblind')
+        
         #make sure binary evidence contains unique sites
         binary_evidence = binary_evidence.drop_duplicates()
 
         #get the number of sites used as evidence
         total_num_sites = binary_evidence.shape[0]
         num_sites_in_sample = binary_evidence[self.x_label_dict.keys()].sum()
-        
+
         #get correct order of samples
         order = self.values.columns
         xticks = [tick * self.multiplier + self.offset for tick in range(len(order))]
         num_sites_in_sample = num_sites_in_sample[order]
         
-        #plot a bar graph
-        ax.bar(xticks, num_sites_in_sample, width = self.offset, color = 'gray')
-        ax.set_ylabel('Evidence Size', rotation = 0, ha = 'right', va = 'center')
+        #add recommended labels
+        if include_recommendations:
+            #if minimums not indicated, use our recommendations
+            if phospho_type == 'Y':
+                if ideal_min is None:
+                    ideal_min = 50
+                if recommended_min is None:
+                    recommended_min = 25
+            elif phospho_type == 'ST':
+                if ideal_min is None:
+                    ideal_min = 1000
+                if recommended_min is None:
+                    recommended_min = 250
+            else:
+                print('Please indicate which phospho_type this plot is for to get appropriate recommendations')
+                
+            #calculate bar colors (color any samples with)
+            colors = ['gray' if val >= recommended_min else 'lightgrey' for val in num_sites_in_sample.values]
+        else:
+            colors = 'gray'
+            
+                
+        if plot_type == 'bars':
+            #plot a bar graph
+            ax.bar(xticks, num_sites_in_sample, width = self.offset*2, color = colors)
+            ax.set_ylabel('Evidence Size', rotation = 0, ha = 'right', va = 'center')
+            
+            #add recommended labels
+            if include_recommendations:
+                ax.axhline(ideal_min, c = palette[8], linestyle = 'dashed', linewidth = 0.8, label =f'Ideal Minimum (n>{ideal_min})')
+                ax.axhline(recommended_min, c = palette[3], linewidth = 0.8, label = f'Recommended Minimum (n>{recommended_min})')
+                ax.legend(bbox_to_anchor = (1, 1))
+                    
+        elif plot_type == 'dots':
+            colors = []
+            if include_recommendations:
+                for size in num_sites_in_sample:
+                    if size > ideal_min:
+                        colors.append(palette[2])
+                    elif size > recommended_min:
+                        colors.append(palette[8])
+                    else:
+                        colors.append(palette[0])
+                        
+                #create legend
+                legend_elements = [Line2D([0],[0], color = 'white',markerfacecolor = palette[2], 
+                                          label = f'Ideal Evidence Size (n>{ideal_min})', marker = 'o', markersize = 10),
+                                  Line2D([0],[0], color = 'white',markerfacecolor = palette[8], 
+                                         label = f'Sufficient Evidence Size (n>{recommended_min})', marker = 'o', markersize = 10),
+                                  Line2D([0],[0], color='white',markerfacecolor = palette[3], 
+                                         label = f'Low Evidence Size (n<{recommended_min})', marker = 'o', markersize = 10)]
+                ax.legend(handles = legend_elements, bbox_to_anchor = (1,1))
+            else:
+                colors = 'gray'
+                circles = patches.Circle(0,0, color = palette[0], )
+            ax.scatter(xticks, np.repeat(0.5, len(num_sites_in_sample)),s = num_sites_in_sample*dot_size, c = colors)
+            ax.axes.get_yaxis().set_visible(False)
         
         
         
