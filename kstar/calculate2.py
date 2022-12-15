@@ -339,6 +339,40 @@ class KinaseActivity:
         #remove phosphorylation sites that were not selected in any experiment (useful for very large experiments where removing the need to copy data reduces time)
         evidence_binary.drop(evidence_binary[evidence_binary[self.data_columns].sum(axis=1) == 0].index, inplace = True) 
         return evidence_binary
+        
+    def create_binary_evidence_size(self, evidence_size, agg = 'mean', greater = True):
+        """
+        Given an experiment, set the same number of sites as evidence for each experiment, based on quantification. For example, if evidence_size = 200 and greater = True, the binary evidence for each sample will be the top 200 sites with the largest quantification values. An alternative to thresholding in situations where there is either lots of observed sites across all samples or when evidence sizes are highly variable.
+        
+        Parameters
+        ----------
+        evidence_size: int
+            number of phosphorylation sites to use as evidence for each sample
+        agg : {'count', 'mean'}
+            method to use when aggregating duplicate substrate-sites. 
+            'count' combines multiple representations and adds if values are non-NaN
+            'mean' uses the mean value of numerical data from multiple representations of the same peptide.
+                NA values are droped from consideration.
+        greater: Boolean
+            whether to keep sites with highest (True) or lowest (False) quantification values. Default is True.
+        
+        Returns
+        -------
+        evidence_binary : pd.DataFrame
+            Matches the evidence dataframe of the kinact object, but with 0 or 1 if a site is included or not.
+            This is uniquified and rows that are never used are removed.
+        """
+        evidence = self.evidence.groupby([config.KSTAR_ACCESSION, config.KSTAR_SITE]).agg(agg).reset_index()
+        #set the binary evidence for whether a site is included
+        evidence_binary = evidence.copy()
+        #create the list 
+        for col in self.data_columns:
+            if greater:
+                #calculate the smallest value among the top 
+                #min_value = 
+                evidence_binary[col] = (evidence_binary[col] >= threshold).astype(int)
+            else:
+                evidence_binary[col] = (evidence_binary[col] <= threshold).astype(int)
 
 
     def calculate_kinase_activities(self, agg = 'mean', threshold = 1.0,  greater = True, PROCESSES = 1):
@@ -570,7 +604,7 @@ class KinaseActivity:
 
         """
         #First, check that objects are correct and values can be found
-        if not isinstance(self.random_kinact.activities_list, pd.DataFrame):
+        if not isinstance(self.random_activities, pd.DataFrame):
             raise ValueError("Random activities do not exist, please run kstar_activity.normalize_analysis")
 
         if number_sig_trials > self.num_random_experiments:
@@ -586,7 +620,7 @@ class KinaseActivity:
 
             #Get a subset of the random and real activites for this experiment
             activities_sub = self.activities_list[self.activities_list['data']==exp]
-            rand_activities_sub = self.random_kinact.activities_list[self.random_kinact.activities_list['data'].str.startswith(exp)]
+            rand_activities_sub = self.random_activities[self.random_activities['data'].str.startswith(exp)]
 
             pval_arr = []
             fpr_arr = []
