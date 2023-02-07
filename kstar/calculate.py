@@ -289,8 +289,8 @@ class KinaseActivity:
             This is uniquified and rows that are never used are removed.
         
         """
-
-        evidence = self.evidence.groupby([config.KSTAR_ACCESSION, config.KSTAR_SITE]).agg(agg).reset_index()
+        #collapse sites into single row based on agg parameter
+        evidence = self.evidence.groupby([config.KSTAR_ACCESSION, config.KSTAR_SITE])[self.data_columns].agg(agg).reset_index()
         
         #set the binary evidence for whether a site is included
         evidence_binary = evidence.copy()
@@ -302,6 +302,12 @@ class KinaseActivity:
 
         #remove phosphorylation sites that were not selected in any experiment (useful for very large experiments where removing the need to copy data reduces time)
         evidence_binary.drop(evidence_binary[evidence_binary[self.data_columns].sum(axis=1) == 0].index, inplace = True) 
+ 
+        #add back compendia/study bias information to binary evidence
+        compendia = config.HUMAN_REF_COMPENDIA[['KSTAR_ACCESSION','KSTAR_SITE','KSTAR_NUM_COMPENDIA','KSTAR_NUM_COMPENDIA_CLASS']]
+        evidence_binary = evidence_binary.merge(compendia, on = [config.KSTAR_ACCESSION, config.KSTAR_SITE], how = 'left')
+            
+            
         return evidence_binary
 
 
