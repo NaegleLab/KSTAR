@@ -521,7 +521,7 @@ class DotPlot:
                 running_total += len(ids) + 1
                 
     def evidence_count(self, ax, binary_evidence, plot_type = 'bars', phospho_type = None, dot_size = 1, include_recommendations = True,
-                      ideal_min = None, recommended_min = None):
+                      ideal_min = None, recommended_min = None, dot_colors = None, bar_line_colors = None):
         """
         Add bars to dotplot indicating the total number of sites used as evidence in activity calculation
 
@@ -575,32 +575,42 @@ class DotPlot:
             
             #add recommended labels
             if include_recommendations:
-                ax.axhline(ideal_min, c = palette[8], linestyle = 'dashed', linewidth = 0.8, label =f'Ideal Minimum (n>{ideal_min})')
-                ax.axhline(recommended_min, c = palette[3], linewidth = 0.8, label = f'Recommended Minimum (n>{recommended_min})')
+                if bar_line_colors is None:
+                    bar_line_colors = [palette[8], palette[3]]
+                elif len(bar_line_colors) != 2:
+                    print('Must provide 2 colors in the following order: ideal min, recommended min. Using default colors')
+                    bar_line_colors = [palette[8], palette[3]]
+                ax.axhline(ideal_min, c = bar_line_colors[0], linestyle = 'dashed', linewidth = 0.8, label =f'Ideal Minimum (n>{ideal_min})')
+                ax.axhline(recommended_min, c = bar_line_colors[1], linewidth = 0.8, label = f'Recommended Minimum (n>{recommended_min})')
                 ax.legend(bbox_to_anchor = (1, 1))
                     
         elif plot_type == 'dots':
             colors = []
             if include_recommendations:
+                if dot_colors is None:
+                    dot_colors = [palette[2],palette[8],palette[0]]
+                elif len(dot_colors) != 3:
+                    print('Must provide 3 colors in the following order: ideal, sufficient, low. Using default colors')
+                    palette = sns.color_palette('colorblind')
+                    dot_colors = [palette[2],palette[8],palette[0]]
                 for size in num_sites_in_sample:
                     if size > ideal_min:
-                        colors.append(palette[2])
+                        colors.append(dot_colors[0])
                     elif size > recommended_min:
-                        colors.append(palette[8])
+                        colors.append(dot_colors[1])
                     else:
-                        colors.append(palette[0])
+                        colors.append(dot_colors[2])
                         
                 #create legend
-                legend_elements = [Line2D([0],[0], color = 'white',markerfacecolor = palette[2], 
+                legend_elements = [Line2D([0],[0], color = 'white',markerfacecolor = dot_colors[0], 
                                           label = f'Ideal Evidence Size (n>{ideal_min})', marker = 'o', markersize = 10),
-                                  Line2D([0],[0], color = 'white',markerfacecolor = palette[8], 
+                                  Line2D([0],[0], color = 'white',markerfacecolor = dot_colors[1], 
                                          label = f'Sufficient Evidence Size (n>{recommended_min})', marker = 'o', markersize = 10),
-                                  Line2D([0],[0], color='white',markerfacecolor = palette[3], 
+                                  Line2D([0],[0], color='white',markerfacecolor = dot_colors[2], 
                                          label = f'Low Evidence Size (n<{recommended_min})', marker = 'o', markersize = 10)]
                 ax.legend(handles = legend_elements, bbox_to_anchor = (1,1))
             else:
                 colors = 'gray'
-                circles = patches.Circle(0,0, color = palette[0], )
             ax.scatter(xticks, np.repeat(0.5, len(num_sites_in_sample)),s = num_sites_in_sample*dot_size, c = colors)
             ax.axes.get_yaxis().set_visible(False)
         
