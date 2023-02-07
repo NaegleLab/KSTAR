@@ -1,19 +1,20 @@
 import pandas as pd
 import numpy as np
-import networkx as nx
 import copy
 import seaborn as sns
 import matplotlib.pyplot as plt
 
     
-def plot_kinase_heatmap(heatmap, use_mask = True, annotate = True):
+def plot_kinase_heatmap(heatmap, use_mask = True, annotate = False):
     """
     Plots Kinase network heatmap
     
     Parameters
     ----------
     heatmap : pandas dataframe
-        Network Heatmap to plot
+        Network Heatmap to plot (must be square matrix)
+    info_type: str
+        Indicates what type of informatin is included in heatmap variable. Default is mutual information, equivalent to the normalized matrix obtained from kinase_mutual_information function
     use_mask : bool
         If true a mask is applied to the heatmap 
     annotate : bool
@@ -23,66 +24,11 @@ def plot_kinase_heatmap(heatmap, use_mask = True, annotate = True):
     if use_mask:
         mask[np.triu_indices_from(mask)] = True
     with sns.axes_style("white"):
-        sns.heatmap(heatmap, mask=mask, square=True, annot=annotate)
-
-
-def kinase_network_similarity(network1, network2, kinase_column, substrate_column):
-    """
-    Compares two networks for shared substrates between kinases
-    Similarity based on Jaccard Index. Returned dataframes set index to be network1 kinases
-    and columns to be network2 kinases
-
-    Parameters
-    ----------
-    network1 : pandas dataframe
-        Network 1 to compare
-    network2 : pandas dataframe
-        Network 2 to compare
-
-    Returns
-    --------
-    heatmap : pandas dataframe
-        Number of substrates that overlap between kinases of two networks
-    normalized : pandas dataframe
-        Normalized mutual information into Jaccard Index. 
-        size of intersection of two kinase networks / size of union of two kinase networks.
-    heatlist : pandas dataframe
-        intersction of kinase networks
-    """
-    n1_kinases = list(network1[kinase_column].unique())
-    n2_kinases = list(network2[kinase_column].unique())
-    n1_num_kinases=len(n1_kinases)
-    n2_num_kinases=len(n2_kinases)
-
-    n1_kinasemap = {}
-    n2_kinasemap = {}
-
-    for kin in n1_kinases:
-        n1_kinasemap[kin] = set(network1[network1[kinase_column] == kin][substrate_column])
-    for kin in n2_kinases:
-        n2_kinasemap[kin] = set(network2[network2[kinase_column] == kin][substrate_column])
-
-    heatlist = [[set() for i in range(n2_num_kinases)] for j in range(n1_num_kinases)]                                                           
-    heatmap = np.zeros((n1_num_kinases, n2_num_kinases))
-    normalized = np.zeros((n1_num_kinases, n2_num_kinases))
-
-    for i in range(n1_num_kinases):
-        n1_kin = n1_kinases[i]
-        for j in range(n2_num_kinases):
-            n2_kin = n2_kinases[j]
-            heatlist[i][j] = n1_kinasemap[n1_kin].intersection(n2_kinasemap[n2_kin])
-            heatmap[i][j] = len(heatlist[i][j])
-            normalized[i][j] = len(heatlist[i][j]) / len(n1_kinasemap[n1_kin].union(n2_kinasemap[n2_kin]))
-    
-    heatmap = pd.DataFrame(heatmap, index = n1_kinases, columns = n2_kinases)
-    normalized = pd.DataFrame(normalized, index = n1_kinases, columns = n2_kinases)
-    heatlist = pd.DataFrame(heatlist, index = n1_kinases, columns = n2_kinases)
-
-    return heatmap, normalized, heatlist
+        sns.heatmap(heatmap, mask=mask, square=True, annot=annotate, xticklabels=1, yticklabels=1)
     
 
 
-def kinase_mutual_information(network, kinase_column, substrate_column, substrate_list=[]):
+def kinase_mutual_information(network, kinase_column = 'KSTAR_KINASE', accession_column = 'KSTAR_ACCESSION', site_column ='KSTAR_SITE', substrate_list=None):
     """
     Finds mutual information shared between kinases based on the substrate phosphorylated
     Mutual Information is defined as the intersection substrates between two kinases
@@ -119,20 +65,24 @@ def kinase_mutual_information(network, kinase_column, substrate_column, substrat
         networkNames = list(network.keys())
         #get a network to start and then march through the rest, averaging
         net = network[networkNames[0]]
+        #create substrate columns
+        net['Substrate'] = net[accession_column]+'_'+net[site_column]
         if substrate_list:
-            net = net[net[substrate_column].isin(substrate_list)]
+            net = net[net['Substrate'].isin(substrate_list)]
             if net.empty:
                 raise ValueError("Mapping of substrate_list to the network failed")
                 return -1, -1, -1
-        heatmap_all, normalized_all, heatlist[networkNames[0]] = kinase_mutual_information_singleNetwork(net, kinase_column, substrate_column)
+        heatmap_all, normalized_all, heatlist[networkNames[0]] = kinase_mutual_information_singleNetwork(net, kinase_column, 'Substrate')
         for i in range(1,len(networkNames)):
             net = network[networkNames[i]]
+            #create substrate columns
+            net['Substrate'] = net[accession_column]+'_'+net[site_column]
             if substrate_list:
-                net = net[net[substrate_column].isin(substrate_list)]
+                net = net[net['Substrate'].isin(substrate_list)]
                 if net.empty:
                     raise ValueError("Mapping of substrate_list to the network failed")
                     return -1, -1, -1
-            heatmap, normalized, heatlist[networkNames[i]] = kinase_mutual_information_singleNetwork(net, kinase_column, substrate_column)
+            heatmap, normalized, heatlist[networkNames[i]] = kinase_mutual_information_singleNetwork(net, kinase_column, 'Substrate')
             normalized_all = pd.concat([normalized_all, normalized], sort=True)
             heatmap_all = pd.concat([heatmap_all, heatmap], sort=True)
         average_MI = normalized_all.groupby(level=0).mean()
@@ -140,12 +90,14 @@ def kinase_mutual_information(network, kinase_column, substrate_column, substrat
         return average_heatmap, average_MI, heatlist
     else:
         net = network
+        #create substrate columns
+        net['Substrate'] = net[accession_column]+'_'+net[site_column]
         if substrate_list:
-            net = net[net[substrate_column].isin(substrate_list)]
+            net = net[net['Substrate'].isin(substrate_list)]
             if net.empty:
                 raise ValueError("Mapping of substrate_list to the network failed")
                 return -1, -1, -1
-        heatmap, normalized, heatlist = kinase_mutual_information_singleNetwork(net, kinase_column, substrate_column)
+        heatmap, normalized, heatlist = kinase_mutual_information_singleNetwork(net, kinase_column, 'Substrate')
         return heatmap, normalized, heatlist
 
 

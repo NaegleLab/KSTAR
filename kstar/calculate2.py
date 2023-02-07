@@ -60,11 +60,11 @@ class KinaseActivity:
     ---------------------------------
     After Hypergeometric Calculations
     ---------------------------------
-    activities_list: pandas dataframe
+    real_enrichment: pandas dataframe
         p-values obtained for all pruned networks indicating statistical enrichment of a kinase's substrates for each network, based on hypergeometric 
         tests
     activities: pandas dataframe
-        median p-values obtained from the activities_list object for each experiment/kinase
+        median p-values obtained from the real_enrichment object for each experiment/kinase
     agg_activities: pandas dataframe
     
     -----------------------------------
@@ -95,14 +95,14 @@ class KinaseActivity:
         self.networks = defaultdict()
         self.network_sizes = defaultdict()
         self.logger = logger
-        self.normalizers = defaultdict()
+        #self.normalizers = defaultdict()
         self.network_directory = config.NETWORK_DIR
 
         self.num_networks = None
 
-        self.activities_list = None
-        self.agg_activities = None
-        self.activities = None
+        self.real_enrichment = None
+        #self.agg_activities = None
+        #self.activities = None
 
         
         #Location of random experiments
@@ -160,57 +160,140 @@ class KinaseActivity:
         else:
             self.data_columns = data_columns
         self.check_data_columns()    
-
-    def calculate_random_activities(self, logger, num_random_experiments=150, PROCESSES = 1):
+   
+    def calculate_random_activity_singleExperiment(compendia_sizes, filtered_compendia, data_col, num_random_experiments = 150, save_experiments = False):
+        if save_experiments:
+            activities_list = []
+            all_rand_experiments = []
+            for i in range(num_random_experiments):
+                name = f'{data_col}:{i}'
+                rand_experiment = generate_random_experiments.build_single_filtered_experiment(compendia_sizes, filtered_compendia, name, selection_type = 'KSTAR_NUM_COMPENDIA_CLASS')
+                all_rand_experiments.append(rand_experiment)
+                act = calculate_hypergeometric_activities(rand_experiment, self.networks, self.network_sizes,name)
+                activities_list.append(act)
+            return activities_list, all_rand_experiments
+        else:
+            activities_list = []
+            for i in range(num_random_experiments):
+                name = f'{data_col}:{i}'
+                rand_experiment = generate_random_experiments.build_single_filtered_experiment(compendia_sizes, filtered_compendia, name, selection_type = 'KSTAR_NUM_COMPENDIA_CLASS')
+                act = calculate_hypergeometric_activities(rand_experiment, self.networks, self.network_sizes,name)
+                activities_list.append(act)
+            return activities_list
+            
+    def calculate_random_activity_singleExperiment2(compendia_sizes, filtered_compendia, data_col, exp_num, save_experiments = False):
+        name = f'{data_col}:{exp_num}'
+        rand_experiment = generate_random_experiments.build_single_filtered_experiment(compendia_sizes, filtered_compendia, name, selection_type = 'KSTAR_NUM_COMPENDIA_CLASS')
+        act = calculate_hypergeometric_activities(rand_experiment, self.networks, self.network_sizes,name)
+        if save_experiments:
+            return act, rand_experiment
+        else:
+            return act
+            
+    def calculate_random_enrichment(self, logger, num_random_experiments=150, selection_type = 'KSTAR_NUM_COMPENDIA_CLASS', save_experiments = False, PROCESSES = 1):
         """
-        Generate random experiments and calculate the kinase activities for these random experiments
+        change to calculate_random_enrichment to immediately calculate the kinase activities for each random experiment and discard the resulting random experiment
         """
+        
         self.logger.info("Running Randomization Pipeline")
-        pool = multiprocessing.Pool(processes = PROCESSES)
         self.num_random_experiments = num_random_experiments
-        self.logger.info("Generating random experiments")
-        self.random_experiments = generate_random_experiments.build_random_experiments(
-            self.evidence_binary, 
-            config.HUMAN_REF_COMPENDIA, 
-            num_random_experiments,
-            self.phospho_type, 
-            self.data_columns,
-            PROCESSES = PROCESSES)
-        
-        self.logger.info("Calculating random kinase activities")
-        self.random_kinact = KinaseActivity(self.random_experiments, logger, phospho_type=self.phospho_type)
-        #self.random_kinact.add_networks_batch(self.networks)
-
-        # if no data columns are provided use all columns that start with data:
-        # data columns that filtered have no evidence are removed
-        self.logger.info(f"Predicting Activity for Random Experiments")
-        
-
-        # MULTIPROCESSING
+        filtered_compendia = self.getFilteredCompendia(selection_type)
         if PROCESSES > 1:
             pool = multiprocessing.Pool(processes = PROCESSES)
-            
-            filtered_evidence_list  = [self.random_kinact.evidence[self.random_kinact.evidence[col] ==1 ] for col in self.random_kinact.data_columns] 
-            networks = itertools.repeat(self.networks)  
+            filtered_compendia = itertools.repeat(filtered_compendia)
+            networks = itertools.repeat(self.networks)
             network_sizes = itertools.repeat(self.network_sizes)
-            iterable = zip(filtered_evidence_list, networks, network_sizes, self.random_kinact.data_columns)
-            activities_list = pool.starmap(calculate_hypergeometric_activities, iterable)
-        
-        # SINGLE CORE PROCESSING
+            rand_exp_numbers = list(range(num_random_experiments))
+            if save_experiments:
+                activities_list = []
+                rand_experiments = []
+                save_experiments = itertools.repeat(save_experiments)
+                for col in self.data_columns:
+                    compendia_sizes = self.evidence_binary[self.evidence_binary[col] == 1].groupby(selection_type).size()
+                    compendia_sizes = itertools.repeat(compendia_sizes)
+                    networks = itertools.repeat(self.networks)
+                    network_sizes = itertools.repeat(self.network_sizes)
+                    col_name = itertools.repeat(col)
+                    iterable = zip(compendia_sizes, filtered_compendia, networks, network_sizes, col_name, rand_exp_numbers, save_experiments)
+                    result = pool.starmap(calculate_random_activity_singleExperiment2, iterable)
+                    #extract results
+                    activities_list = activities_list + [x for x in result[0]]
+                    rand_experiments = activities_list + [x for x in result[1]]
+                    
+                #save data
+                self.random_enrichment = pd.concat(activities_list).reset_index(drop = True)
+                rand_experiments = pd.concat(rand_experiments).reset_index(drop = True)
+                rand_experiments['weight'] = 1
+                self.random_experiments = pd.pivot(rand_experiments, index = [config.KSTAR_ACCESSION, config.KSTAR_SITE], columns = 'Experiment', values = 'weight')
+            else:
+                activities_list = []
+                save_experiments = itertools.repeat(save_experiments)
+                for col in self.data_columns:
+                    compendia_sizes = self.evidence_binary[self.evidence_binary[col] == 1].groupby(selection_type).size()
+                    compendia_sizes = itertools.repeat(compendia_sizes)
+                    col_name = itertools.repeat(col)
+                    iterable = zip(compendia_sizes, filtered_compendia, networks, network_sizes, col_name, rand_exp_numbers, save_experiments)
+                    result = pool.starmap(calculate_random_activity_singleExperiment2, iterable)
+                    #extract results
+                    activities_list = activities_list + result
+                    
+                self.random_enrichment = pd.concat(result).reset_index(drop = True)
+            #pool = multiprocessing.Pool(processes = PROCESSES)
+            
+            #compendia_sizes_list  = [self.evidence_binary[self.evidence_binary[col] ==1 ].groupby(selection_type).size() for col in self.data_columns] 
+            #filtered_compendia = itertools.repeat(filtered_compendia)
+            #networks = itertools.repeat(self.networks)
+            #network_sizes = itertools.repeat(self.network_sizes)
+            #save_experiments_list = itertools.repeat(save_experiments)
+            #num_random_experiments = itertools.repeat(num_random_experiments)
+            #iterable = zip(compendia_sizes_list, filtered_compendia, networks, network_sizes, self.data_columns, num_random_experiments, save_experiments_list)
+            #result = pool.starmap(calculate_random_activity_singleExperiment, iterable)
+            #if save_experiments:
+            #    unpacked_enrichment = [y for x in result for y in x[0] ]
+            #    unpacked_experiments = [y for x in result for y in x[1]] 
+            #    self.random_enrichment = pd.concat(unpacked_enrichment).reset_index(drop = True)
+            #    random_experiments = pd.concat(unpacked_experiments).reset_index(drop = True)
+            #    random_experiments['weight'] = 1
+            #    self.random_experiments = pd.pivot(random_experiments, index = [config.KSTAR_ACCESSION, config.KSTAR_SITE], columns = 'Experiment', values = 'weight')
+            #else:
+            #    #unpack list returned by multiprocessor
+            #    unpacked_results = [y for x in result for y in x]
+            #    self.random_enrichment = pd.concat(unpacked_results).reset_index(drop = True)
         else:
-            activities_list =[]
-            for col in self.random_kinact.data_columns:
-                filtered_evidence = self.random_kinact.evidence[self.random_kinact.evidence[col] == 1]
-                act = calculate_hypergeometric_activities(filtered_evidence, self.networks, self.network_sizes, col)
-                act['data'] = col
-                activities_list.append(act)
-        #self.num_networks = len(self.network_sizes)
-
-        self.random_kinact.activities_list = pd.concat(activities_list)
-        
-        #self.random_kinact.calculate_kinase_activities( agg='count', threshold=1.0, greater=True, PROCESSES = PROCESSES )
-        self.random_kinact.agg_activities = self.random_kinact.aggregate_activities()
-        self.random_kinact.activities = self.random_kinact.summarize_activities()
+            if save_experiments:
+                all_rand_experiments = []
+                activities_list = []
+                for col in self.data_columns:
+                    compendia_sizes = self.evidence_binary[self.evidence_binary[col] == 1].groupby(selection_type).size()
+                    for i in range(num_random_experiments):
+                        name = f'{col}:{i}'
+                        rand_experiment = generate_random_experiments.build_single_filtered_experiment(compendia_sizes, filtered_compendia, name, selection_type = selection_type)
+                        all_rand_experiments.append(rand_experiment)
+                        act = calculate_hypergeometric_activities(rand_experiment, self.networks, self.network_sizes,name)
+                        activities_list.append(act)
+                
+                #combine all random activities
+                activities_list = pd.concat(activities_list).reset_index(drop = True)
+                self.random_enrichment = activities_list
+                
+                #reformat random experiments into single matrix
+                all_rand_experiments = pd.concat(all_rand_experiments)
+                all_rand_experiments['weight'] = 1
+                self.random_experiments = pd.pivot(all_rand_experiments, index = [config.KSTAR_ACCESSION, config.KSTAR_SITE], columns = 'Experiment', values = 'weight')
+            else:
+                activities_list = []
+                for col in self.data_columns:
+                    #determine distribution of study bias across real dataset
+                    compendia_sizes = self.evidence_binary[self.evidence_binary[col] == 1].groupby(selection_type).size()
+                    for i in range(num_random_experiments):
+                        name = f'{col}:{i}'
+                        rand_experiment = generate_random_experiments.build_single_filtered_experiment(compendia_sizes, filtered_compendia, name, selection_type = 'KSTAR_NUM_COMPENDIA_CLASS')
+                        act = calculate_hypergeometric_activities(rand_experiment, self.networks, self.network_sizes,name)
+                        activities_list.append(act)
+                
+                #combine all random activities
+                activities_list = pd.concat(activities_list).reset_index(drop = True)
+                self.random_enrichment = real_enrichment
 
    
         
@@ -289,8 +372,8 @@ class KinaseActivity:
             This is uniquified and rows that are never used are removed.
         
         """
-        #collapse sites into single row based on agg parameter
-        evidence = self.evidence.groupby([config.KSTAR_ACCESSION, config.KSTAR_SITE])[self.data_columns].agg(agg).reset_index()
+
+        evidence = self.evidence.groupby([config.KSTAR_ACCESSION, config.KSTAR_SITE]).agg(agg).reset_index()
         
         #set the binary evidence for whether a site is included
         evidence_binary = evidence.copy()
@@ -302,13 +385,52 @@ class KinaseActivity:
 
         #remove phosphorylation sites that were not selected in any experiment (useful for very large experiments where removing the need to copy data reduces time)
         evidence_binary.drop(evidence_binary[evidence_binary[self.data_columns].sum(axis=1) == 0].index, inplace = True) 
- 
-        #add back compendia/study bias information to binary evidence
-        compendia = config.HUMAN_REF_COMPENDIA[['KSTAR_ACCESSION','KSTAR_SITE','KSTAR_NUM_COMPENDIA','KSTAR_NUM_COMPENDIA_CLASS']]
-        evidence_binary = evidence_binary.merge(compendia, on = [config.KSTAR_ACCESSION, config.KSTAR_SITE], how = 'left')
-            
-            
         return evidence_binary
+        
+    def create_binary_evidence_size(self, evidence_size, agg = 'mean', greater = True):
+        """
+        Given an experiment, set the same number of sites as evidence for each experiment, based on quantification. For example, if evidence_size = 200 and greater = True, the binary evidence for each sample will be the top 200 sites with the largest quantification values. An alternative to thresholding in situations where there is either lots of observed sites across all samples or when evidence sizes are highly variable.
+        
+        Parameters
+        ----------
+        evidence_size: int
+            number of phosphorylation sites to use as evidence for each sample
+        agg : {'count', 'mean'}
+            method to use when aggregating duplicate substrate-sites. 
+            'count' combines multiple representations and adds if values are non-NaN
+            'mean' uses the mean value of numerical data from multiple representations of the same peptide.
+                NA values are droped from consideration.
+        greater: Boolean
+            whether to keep sites with highest (True) or lowest (False) quantification values. Default is True.
+        
+        Returns
+        -------
+        evidence_binary : pd.DataFrame
+            Matches the evidence dataframe of the kinact object, but with 0 or 1 if a site is included or not.
+            This is uniquified and rows that are never used are removed.
+        """
+        evidence = self.evidence.groupby([config.KSTAR_ACCESSION, config.KSTAR_SITE]).agg(agg).reset_index()
+        #set the binary evidence for whether a site is included
+        evidence_binary = evidence.copy()
+        #create the list 
+        for col in self.data_columns:
+            #check how many non_nan sites there (if less than N, set n to be equal to number of sites available
+            num_sites_available = self.evidence_binary.dropna().shape[0]
+            if num_sites_available >= evidence_size:
+                n = evidence_size
+            else:
+                n = num_sites_available
+                
+            if greater:
+                max_indices = np.argsort(-self.evidence_binary[col].values)[0:n]
+                self.evidence_binary[col] = 0
+                col_loc = np.where(self.evidence_binary.columns == col)[0][0]
+                self.evidence_binary.iloc[max_indices, col_loc] = 1
+            else:
+                min_indices = np.argsort(self.evidence_binary[col].values)[0:n]
+                self.evidence_binary[col] = 0
+                col_loc = np.where(self.evidence_binary.columns == col)[0][0]
+                self.evidence_binary.iloc[min_indices, col_loc] = 1
 
 
     def calculate_kinase_activities(self, agg = 'mean', threshold = 1.0,  greater = True, PROCESSES = 1):
@@ -366,20 +488,20 @@ class KinaseActivity:
             networks = itertools.repeat(self.networks)  
             network_sizes = itertools.repeat(self.network_sizes)
             iterable = zip(filtered_evidence_list, networks, network_sizes, self.data_columns)
-            activities_list = pool.starmap(calculate_hypergeometric_activities, iterable)
+            real_enrichment = pool.starmap(calculate_hypergeometric_activities, iterable)
         
         # SINGLE CORE PROCESSING
         else:
-            activities_list =[]
+            real_enrichment =[]
             for col in self.data_columns:
                 filtered_evidence = self.evidence_binary[self.evidence_binary[col] == 1]
                 act = calculate_hypergeometric_activities(filtered_evidence, self.networks, self.network_sizes, col)
                 act['data'] = col
-                activities_list.append(act)
+                real_enrichment.append(act)
         self.num_networks = len(self.network_sizes)
 
-        self.activities_list = pd.concat(activities_list)
-        return self.activities_list
+        self.real_enrichment = pd.concat(real_enrichment)
+        return self.real_enrichment
 
     def summarize_activities(self, activities = None, method = 'median_activity', normalized = False):
         """
@@ -430,7 +552,7 @@ class KinaseActivity:
             value : summarized kinase activities accross networks
         """
         if activities is None:
-            activities = self.activities_list
+            activities = self.real_enrichment
         self.agg_activities = activities.groupby(['data', config.KSTAR_KINASE ]).agg(
             median_activity = ('kinase_activity', 'median'),
         ).reset_index()
@@ -540,37 +662,55 @@ class KinaseActivity:
 
         """
         #First, check that objects are correct and values can be found
-        if not isinstance(self.random_kinact.activities_list, pd.DataFrame):
+        if not isinstance(self.random_enrichment, pd.DataFrame):
             raise ValueError("Random activities do not exist, please run kstar_activity.normalize_analysis")
 
         if number_sig_trials > self.num_random_experiments:
             log.info("Warning: number of trials for Mann Whitney exceeds number available, using %d instead of %d"%(self.num_random_experiments, number_sig_trials))
             number_sig_trials = self.num_random_experiments
-
-        self.activities_mann_whitney = pd.DataFrame(index=self.activities.index, columns=self.activities.columns)
-        self.fpr_mann_whitney = pd.DataFrame(index=self.activities.index, columns=self.activities.columns)
+        
+        self.kinases = self.real_enrichment['KSTAR_KINASE'].unique()
+        self.activities_mann_whitney = pd.DataFrame(index=self.kinases, columns=self.data_columns)
+        self.fpr_mann_whitney = pd.DataFrame(index=self.kinases, columns=self.data_columns)
         #for every kinase and every dataset, calculate and assemble dataframes of activities and significance values
 
         for exp in self.data_columns:
             log.info("MW Working on %s: "%(exp))
 
             #Get a subset of the random and real activites for this experiment
-            activities_sub = self.activities_list[self.activities_list['data']==exp]
-            rand_activities_sub = self.random_kinact.activities_list[self.random_kinact.activities_list['data'].str.startswith(exp)]
+            activities_sub = self.real_enrichment[self.real_enrichment['data']==exp]
+            if activities_sub.shape[0] == 0:
+                raise ValueError('activities_sub failed')
+            rand_activities_sub = self.random_enrichment[self.random_enrichment['data'].str.startswith(exp)]
+            if rand_activities_sub.shape[0] == 0:
+                raise ValueError(f'rand_activities_sub failed, {exp}')
 
             pval_arr = []
             fpr_arr = []
             with concurrent.futures.ProcessPoolExecutor(max_workers=PROCESSES) as executor:
-                for pval, fpr in executor.map(calculate_MannWhitney_one_experiment_one_kinase, repeat(activities_sub), repeat(rand_activities_sub), repeat(self.num_networks), self.activities.index, repeat(exp), repeat(number_sig_trials)):
+                for pval, fpr in executor.map(calculate_MannWhitney_one_experiment_one_kinase, repeat(activities_sub), repeat(rand_activities_sub), repeat(self.num_networks), self.kinases, repeat(exp), repeat(number_sig_trials)):
                     pval_arr.append(pval)
                     fpr_arr.append(fpr)
 
             self.activities_mann_whitney[exp] = pval_arr
             self.fpr_mann_whitney[exp] = fpr_arr
     
+    def getFilteredCompendia(self, selection_type = 'KSTAR_NUM_COMPENDIA_CLASS'):
+        """
+        Get phosphorylation sites binned based on selection type
+        """
+        
+        compendia = config.HUMAN_REF_COMPENDIA[config.HUMAN_REF_COMPENDIA[config.KSTAR_SITE].str.startswith(tuple(self.phospho_type))]
 
 
-
+        compendia = compendia[[config.KSTAR_ACCESSION, config.KSTAR_SITE, selection_type]]
+        compendia = compendia.groupby([config.KSTAR_ACCESSION, config.KSTAR_SITE]).max().reset_index() #uniquify the compendia by KSTAR_ACCESSION and KSTAR_SITE
+        sizes = compendia[selection_type].unique()
+        filtered_compendia = {}
+        for s in sizes:
+            filtered_compendia[s] = compendia[compendia[selection_type] == s][[config.KSTAR_ACCESSION, config.KSTAR_SITE]]
+            
+        return filtered_compendia
 
 def calculate_hypergeometric_single_network(evidence, network, network_size, network_id ):
         """
@@ -668,6 +808,35 @@ def calculate_hypergeometric_activities(evidence, networks, network_sizes, name)
         hyp_act = hyp_act.reset_index()
         hyp_act['data'] = name
         return hyp_act
+        
+def calculate_random_activity_singleExperiment(filtered_evidence, filtered_compendia, networks, network_sizes, data_col, num_random_experiments = 150, save_experiments = False):
+    if save_experiments:
+        real_enrichment = []
+        all_rand_experiments = []
+        for i in range(num_random_experiments):
+            name = f'{data_col}:{i}'
+            rand_experiment = generate_random_experiments.build_single_filtered_experiment(filtered_evidence, filtered_compendia, name, selection_type = 'KSTAR_NUM_COMPENDIA_CLASS')
+            all_rand_experiments.append(rand_experiment)
+            act = calculate_hypergeometric_activities(rand_experiment, networks, network_sizes,name)
+            real_enrichment.append(act)
+        return real_enrichment, all_rand_experiments
+    else:
+        real_enrichment = []
+        for i in range(num_random_experiments):
+            name = f'{data_col}:{i}'
+            rand_experiment = generate_random_experiments.build_single_filtered_experiment(filtered_evidence, filtered_compendia, name, selection_type = 'KSTAR_NUM_COMPENDIA_CLASS')
+            act = calculate_hypergeometric_activities(rand_experiment, networks, network_sizes,name)
+            real_enrichment.append(act)
+        return real_enrichment
+        
+def calculate_random_activity_singleExperiment2(compendia_sizes, filtered_compendia, networks, network_sizes, data_col, exp_num, save_experiments = False):
+    name = f'{data_col}:{exp_num}'
+    rand_experiment = generate_random_experiments.build_single_filtered_experiment(compendia_sizes, filtered_compendia, name, selection_type = 'KSTAR_NUM_COMPENDIA_CLASS')
+    act = calculate_hypergeometric_activities(rand_experiment, networks, network_sizes,name)
+    if save_experiments:
+        return act, rand_experiment
+    else:
+        return act
 
 """
 ****************************************
@@ -739,6 +908,8 @@ def calculate_MannWhitney_one_experiment_one_kinase(kinact_activities, rand_acti
     for i in range(0, number_sig_trials):
         # get the kinase activity values for all networks for a random set
         experiment_name = experiment+':'+str(i)
+        if len(rand_activities[(rand_activities[config.KSTAR_KINASE]==kinase) & (rand_activities['data']==experiment_name)].kinase_activity.values) == 0:
+            raise ValueError(f'rand_activities empty, {experiment_name}')
         random_kinase_activity_array[i,:]=rand_activities[(rand_activities[config.KSTAR_KINASE]==kinase) & (rand_activities['data']==experiment_name)].kinase_activity.values
        
     [stat, p_value] = stats.mannwhitneyu(-np.log10(kinase_activity_list), -np.log10(random_kinase_activity_array.reshape(random_kinase_activity_array.size)), alternative='greater')
@@ -820,13 +991,13 @@ def enrichment_analysis(experiment, log, networks, phospho_types =['Y', 'ST'], d
         kinact = KinaseActivity(experiment_sub, log, data_columns = data_columns, phospho_type=phospho_type)
         kinact.add_networks_batch(networks[phospho_type])
         kinact.calculate_kinase_activities(agg=agg, threshold=threshold, greater=greater, PROCESSES = PROCESSES)
-        kinact.aggregate_activities()
-        kinact.activities = kinact.summarize_activities()
+        #kinact.aggregate_activities()
+        #kinact.activities = kinact.summarize_activities()
         kinact_dict[phospho_type] = kinact
     return kinact_dict
 
         
-def randomized_analysis(kinact_dict, log, num_random_experiments=150, PROCESSES = 1):
+def randomized_analysis(kinact_dict, log, num_random_experiments=150, save_experiments = False, PROCESSES = 1):
     """
     Creates random experiments, drawn from the human phosphoproteome, according to the distribution of the number of compendia
     that each data column in the experiment has for num_random_experiments. Kinase activity calculation is then run on every random experiment. 
@@ -842,7 +1013,7 @@ def randomized_analysis(kinact_dict, log, num_random_experiments=150, PROCESSES 
     """
 
     for phospho_type, kinact in kinact_dict.items():
-        kinact.calculate_random_activities(log, num_random_experiments, PROCESSES = PROCESSES)
+        kinact.calculate_random_enrichment(log, num_random_experiments, save_experiments = save_experiments,PROCESSES = PROCESSES)
         
 def Mann_Whitney_analysis(kinact_dict, log, number_sig_trials = 100, PROCESSES = 1):
     """
@@ -899,17 +1070,16 @@ def save_kstar(kinact_dict, name, odir, PICKLE=True):
         for phospho_type in kinact_dict:
             kinact = kinact_dict[phospho_type]
             name_out = f"{name}_{phospho_type}"
-            kinact.activities_list.to_csv(f"{odir}/RESULTS/{name_out}_activities_list.tsv", sep = '\t')
-            kinact.agg_activities.to_csv(f"{odir}/RESULTS/{name_out}_aggregated_activities.tsv", sep = '\t', index = False)
-            kinact.activities.to_csv(f"{odir}/RESULTS/{name_out}_activities.tsv", sep = '\t', index = True)
+            kinact.real_enrichment.to_csv(f"{odir}/RESULTS/{name_out}_real_enrichment.tsv", sep = '\t')
+            #kinact.agg_activities.to_csv(f"{odir}/RESULTS/{name_out}_aggregated_activities.tsv", sep = '\t', index = False)
+            #kinact.activities.to_csv(f"{odir}/RESULTS/{name_out}_activities.tsv", sep = '\t', index = True)
             kinact.evidence_binary.to_csv(f"{odir}/RESULTS/{name_out}_binarized_experiment.tsv", sep='\t', index=False)
             
-            if hasattr(kinact, 'random_kinact'):
-                kinact.random_kinact.activities_list.to_csv(f"{odir}/RESULTS/{name_out}_random_activities_list.tsv", sep = '\t')
-                kinact.random_kinact.agg_activities.to_csv(f"{odir}/RESULTS/{name_out}_random_aggregated_activities.tsv", sep = '\t', index = False)
-                kinact.random_kinact.activities.to_csv(f"{odir}/RESULTS/{name_out}_random_activities.tsv", sep = '\t', index = True)
+            if hasattr(kinact, 'random_experiments'):
                 kinact.random_experiments.to_csv(f"{odir}/RESULTS/{name_out}_random_experiments.tsv", sep = '\t', index = False)
-                kinact.random_kinact.evidence.to_csv(f"{odir}/RESULTS/{name_out}_random_experiments.tsv", sep = '\t', index = False)
+            
+            if hasattr(kinact, 'random_enrichment'):
+                kinact.random_enrichment.to_csv(f"{odir}/RESULTS/{name_out}_random_enrichment.tsv", sep = '\t')
                 
 
 
@@ -969,16 +1139,17 @@ def save_kstar_slim(kinact_dict, name, odir):
         param_temp['network_directory'] = kinact.network_directory
 
 
-        kinact.activities_list.to_csv(f"{odir}/RESULTS/{name_out}_activities_list.tsv", sep = '\t')
-        kinact.activities.to_csv(f"{odir}/RESULTS/{name_out}_activities.tsv", sep = '\t', index = True)
+        kinact.real_enrichment.to_csv(f"{odir}/RESULTS/{name_out}_real_enrichment.tsv", sep = '\t')
+        #kinact.activities.to_csv(f"{odir}/RESULTS/{name_out}_activities.tsv", sep = '\t', index = True)
         kinact.evidence_binary.to_csv(f"{odir}/RESULTS/{name_out}_binarized_experiment.tsv", sep='\t', index=False)
 
             
-        if hasattr(kinact, 'random_kinact'):
+        if hasattr(kinact, 'random_enrichment'):
             param_temp['randomized'] = True
             param_temp['num_random_experiments'] = kinact.num_random_experiments
-            kinact.random_kinact.activities_list.to_csv(f"{odir}/RESULTS/{name_out}_random_activities_list.tsv", sep = '\t')
-            kinact.random_kinact.evidence.to_csv(f"{odir}/RESULTS/{name_out}_random_experiments.tsv", sep = '\t', index = False)
+            kinact.random_enrichment.to_csv(f"{odir}/RESULTS/{name_out}_random_enrichment.tsv", sep = '\t')
+            if hasattr(kinact, 'random_experiments'):
+                kinact.random_experiments.to_csv(f"{odir}/RESULTS/{name_out}_random_experiments.tsv", sep = '\t', index = False)
 
         if hasattr(kinact, 'activities_mann_whitney'):
             param_temp['mann_whitney'] = True
@@ -1025,8 +1196,8 @@ def from_kstar_slim(name, odir, log):
 
         kinact = KinaseActivity(evidence_binary, log, phospho_type=phospho_type)
 
-        kinact.activities_list = pd.read_csv(f"{odir}/RESULTS/{name_out}_activities_list.tsv", sep = '\t', index_col = 0)
-        kinact.activities = pd.read_csv(f"{odir}/RESULTS/{name_out}_activities.tsv", sep = '\t', index_col = config.KSTAR_KINASE)
+        kinact.real_enrichment = pd.read_csv(f"{odir}/RESULTS/{name_out}_real_enrichment.tsv", sep = '\t', index_col = 0)
+        #kinact.activities = pd.read_csv(f"{odir}/RESULTS/{name_out}_activities.tsv", sep = '\t', index_col = config.KSTAR_KINASE)
         kinact.evidence_binary = evidence_binary
 
         if 'mann_whitney' in params.keys():
@@ -1037,13 +1208,9 @@ def from_kstar_slim(name, odir, log):
             
         
         if 'randomized' in params.keys():
-            rand_experiments = pd.read_csv(f"{odir}/RESULTS/{name_out}_random_experiments.tsv", sep = '\t')
-
-            kinact.random_kinact = KinaseActivity(rand_experiments, log, phospho_type=phospho_type)
-            kinact.random_kinact.activities_list = pd.read_csv(f"{odir}/RESULTS/{name_out}_random_activities_list.tsv", sep = '\t')
-            kinact.random_kinact.evidence = pd.read_csv(f"{odir}/RESULTS/{name_out}_random_experiments.tsv", sep = '\t')
-            #set data columns according to file
-            kinact.random_kinact.set_data_columns(data_columns=None)
+            kinact.random_enrichment = pd.read_csv(f"{odir}/RESULTS/{name_out}_random_enrichment.tsv", sep = '\t')
+            if os.path.isfile(f"{odir}/RESULTS/{name_out}_random_experiments.tsv"):
+                kinact.random_experiments = pd.read_csv(f"{odir}/RESULTS/{name_out}_random_experiments.tsv", sep = '\t')
 
 
         for param_name in params:
@@ -1079,7 +1246,7 @@ def from_kstar_nextflow(name, odir, log = None):
 
             kinact = KinaseActivity(evidence_binary, log, phospho_type=phospho_type)
 
-            kinact.activities_list = pd.read_csv(f"{odir}/{phospho_type}/hypergeometric_activity/{name}_activities_list.tsv", sep = '\t', index_col = 0)
+            kinact.real_enrichment = pd.read_csv(f"{odir}/{phospho_type}/hypergeometric_activity/{name}_real_enrichment.tsv", sep = '\t', index_col = 0)
             kinact.activities = pd.read_csv(f"{odir}/{phospho_type}/hypergeometric_activity/{name}_activities.tsv", sep = '\t', index_col = config.KSTAR_KINASE)
             kinact.evidence_binary = evidence_binary
 

@@ -14,6 +14,8 @@ from kstar import helpers, config
 import shutil
 import random
 import string
+import warnings
+import math
 
 #%%
 #%%
@@ -43,7 +45,7 @@ class Pruner:
 
         self.phospho_type = phospho_type
         self.logger = logger
-        self.network = network[network['site'].str.startswith(tuple(self.phospho_type))]
+        self.network = network[network[site_col].str.startswith(tuple(self.phospho_type))]
         
         #load human reference phosphoproteome, obtain the correct phosphosites (Y or ST), and combine duplicate entries
         self.compendia = config.HUMAN_REF_COMPENDIA
@@ -52,6 +54,9 @@ class Pruner:
         self.compendia = self.compendia.groupby([config.KSTAR_ACCESSION, config.KSTAR_SITE]).max().reset_index()
         #merge the human phosphoproteome compendia, which contains study bias information for all phosphosites, with the network
         self.network = pd.merge(self.network, self.compendia, how = 'inner', left_on = [acc_col, site_col], right_on=[config.KSTAR_ACCESSION, config.KSTAR_SITE] )
+        
+        print(f'There are {self.network.shape[0]} unique substrates found in the weighted network that mapped to KinPred reference phosphoproteome\n')
+        
         
         #update index to indicate site associated with each row
         self.network = self.network.set_index([config.KSTAR_ACCESSION, config.KSTAR_SITE])
@@ -63,8 +68,8 @@ class Pruner:
         #check to make sure all remaining columns contain only numeric values
         non_numeric_cols = self.network.select_dtypes(exclude = np.number).columns
         if len(non_numeric_cols) > 0:
-            print('Following non-numeric columns were identified:', ', '.join(non_numeric_cols))
-            print('It is assumed that these columns do not contain kinase-substrate weights and were removed. If this incorrect, please make sure weight containing columns only contain numeric values')
+            print('The following non-numeric columns were identified and removed:', ', '.join(non_numeric_cols))
+            print('It is assumed that these columns do not contain kinase-substrate weights. If this is incorrect, please make sure weight containing columns only contain numeric values or indicate non-weight containing columns via "nonweight_cols" parameter\n')
             self.network = self.network.select_dtypes(include = np.number)
 
         self.network = self.network.replace('-',np.nan)
@@ -75,14 +80,16 @@ class Pruner:
             tmp = self.network[self.network.index.duplicated(keep = False)]
             #check to see if duplicate entries contain different information. If they do not, drop one row. If they do, return error.
             if any([i and v for i,v in zip(self.network.index.duplicated(keep = False), ~self.network.duplicated(keep = False).values)]):
-                print('Duplicate entries found in network that contain conflicting weights, please fix before running pruning')
-                exit()
+                raise ValueError('Duplicate entries found in network that contain conflicting weights, please fix before running pruning')
+
             else:
-                print('Duplicate entries found in network, removing repeat rows')
+                print('Duplicate entries found in network, removing repeat rows\n')
                 self.network = self.network[~self.network.index.duplicated()]
 
         self.kinases = list(self.network.columns)
         self.kinases.remove('KSTAR_NUM_COMPENDIA')
+        print(f'There are {len(self.kinases)} {phospho_type} kinases found in the weighted network')
+        print(f'There are {self.network.shape[0]} unique substrates found in the weighted network that mapped to KinPred reference phosphoproteome\n')
 
         self.logger.info("Pruning initialization complete")
     
@@ -110,18 +117,24 @@ class Pruner:
         site_sizes = defaultdict()
         for i in network.index:
             site_sizes[i] = 0
-
+        num_edges = {}
         pruned_network = pd.DataFrame(index = network.index, columns = network.columns, data=np.nan)
         for i in range(kinase_size):
             random.shuffle(self.kinases)
             for kinase in self.kinases:
-                sample = network.sample(weights=kinase).iloc[0]
-                # return sample
-                network.at[sample.name, kinase] = np.nan
-                pruned_network.at[sample.name, kinase] = 1
-                site_sizes[sample.name] = site_sizes[sample.name] + 1
-                if site_sizes[sample.name] >= site_limit:
-                    network.loc[sample.name,:] = np.nan 
+                if network[kinase].isna().all():
+                    if kinase not in num_edges:
+                        num_edges[kinase] = i+1
+                        logger.info(f'{kinase} has no more available edges. Total edge count for this network = {num_edges[kinase]}')
+                else:
+                    sample = network.sample(weights=kinase).iloc[0]
+                    network.at[sample.name, kinase] = np.nan
+                    pruned_network.at[sample.name, kinase] = 1
+                    site_sizes[sample.name] = site_sizes[sample.name] + 1
+                    if site_sizes[sample.name] >= site_limit:
+                        network.loc[sample.name,:] = np.nan 
+
+
         
         pruned_network = pruned_network.reset_index().melt(id_vars=[config.KSTAR_ACCESSION, config.KSTAR_SITE]).dropna()
         pruned_network = pruned_network.rename(columns={'variable':config.KSTAR_KINASE})
@@ -277,6 +290,75 @@ class Pruner:
                 net = self.build_pruned_network(self.network, kinase_size, site_limit)
                 net.to_csv(f"{name}.tsv", sep = "\t", index=False)
                 
+                
+    def getMaximumKinaseSize(self, site_limit):
+        """
+        Given a network and site_limit (maximum number of kinases a phosphorylation site can provide evidence to), will calculate the theoretical maximum number of connections each kinase can have (kinase_size parameter)
+        
+        Theoretical maximum exists when each substrate hits the maximum site_limit
+        
+        Parameters
+        ----------
+        site_limit: int
+            Parameter used in pruning: indicates the maximum number of kinases a phosphorylation site can be connected to in the final pruned network
+        
+        Returns
+        -------
+        theoretical_max_ksize: int
+            largest possible value that 'kinase_size' parameter can have without throwing any errors
+        """
+        
+        num_substrates = self.network.shape[0]
+        
+        theoretical_max_ksize = (num_substrates*site_limit)/len(self.kinases)
+        return theoretical_max_ksize
+        
+        
+    def getRecommendedKinaseSize(self, site_limit):
+        """
+        Given a network and site_limit (maximum number of kinases a phosphorylation site can provide evidence to), will calculate the theoretical maximum number of connections each kinase can have (kinase_size parameter) and recommend a range of values for kinase_size
+        
+        Theoretical maximum exists when each substrate hits the maximum site_limit
+        
+        Parameters
+        ----------
+        site_limit: int
+            Parameter used in pruning: indicates the maximum number of kinases a phosphorylation site can be connected to in the final pruned network
+        
+        Returns
+        -------
+        Nothing, prints theoretical maximum of kinase size and the recommened values for the parameter given the site_limit
+        """
+        #get the total number of substrates in the network
+        theoretical_max_ksize = self.getMaximumKinaseSize(site_limit)
+        print(f'Theoretical maximum value of kinase_size parameter is {theoretical_max_ksize}, given site_limit of {site_limit}')
+        print(f'Recommended value of kinase size parameter is between 20-40% of theoretical maximum: {theoretical_max_ksize*0.2} - {theoretical_max_ksize*0.4}')
+        
+    def checkParameters(self, kinase_size, site_limit):
+        """
+        Given the site_limit and kinase_size parameters to be used during pruning, raise errors if not feasible, and raise warnings if value is higher than we would recommend (>40% of the maximum kinase_size value)
+        
+        Parameters
+        ----------
+        kinase_size: int
+            Parameter used in pruning: indicates the number of substrates each kinase will be connected to
+        site_limit: int
+            Parameter used in pruning: indicates the maximum number of kinases a phosphorylation site can be connected to in the final pruned network
+            
+        Returns
+        -------
+        Nothing, will only raise errors/warnings if parameters are not feasible
+        """
+        
+        theoretical_max_ksize = self.getMaximumKinaseSize(site_limit)
+        
+        if kinase_size > theoretical_max_ksize:
+            raise ValueError(f"Value of 'kinase_size' is not feasible. Please decrease 'kinase_size' to {math.floor(theoretical_max_ksize)} or increase the value of site_limit")
+        elif kinase_size > theoretical_max_ksize*0.4:
+            warnings.warn("Value of 'kinase_size' may be higher than desired. Check the log file for potential errors after completion")
+            
+        
+                
     def save_networks(self):
         """
         Save the pruned networks generated by the 'build_multiple_networks' or 'build_multiple_compendia_networks' as a pickle to be loaded by KSTAR
@@ -422,6 +504,7 @@ def run_pruning(network, log, phospho_type, kinase_size, site_limit, num_network
     """
     log.info("Running pruning algorithm")
     pruner = Pruner(network, log, phospho_type, acc_col = acc_col, site_col = site_col, nonweight_cols = netcols_todrop)
+    pruner.checkParameters(kinase_size, site_limit)
     if use_compendia:
         log.info("Pruning using compendia ratios")
         pruner.build_multiple_compendia_networks(kinase_size, site_limit, num_networks, network_id, odir, PROCESSES = PROCESSES)
@@ -512,7 +595,6 @@ def save_run_information(results, use_compendia, pruner):
             compendia_sizes = pruner.calculate_compendia_sizes(results.kinase_size)
             for comp, size in compendia_sizes.items():
                 info_file.write(f"\tCompendia {comp}\t{size}\n")
-
 
 
 
