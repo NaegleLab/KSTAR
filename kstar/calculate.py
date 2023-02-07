@@ -12,7 +12,7 @@ from itertools import repeat
 import concurrent.futures
 
 from kstar import config, helpers
-from kstar.normalize import generate_random_experiments, calculate_fpr
+from kstar.random_experiments import generate_random_experiments, calculate_fpr
 
 class KinaseActivity:
     """
