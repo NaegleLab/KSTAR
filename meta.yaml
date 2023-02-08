@@ -1,5 +1,5 @@
 {% set name = "kstar" %}
-{% set version = "0.4.2" %}
+{% set version = "0.5.0" %}
 
 
 package:
@@ -8,7 +8,7 @@ package:
 
 source:
   url: https://pypi.io/packages/source/{{ name[0] }}/{{ name }}/kstar-{{ version }}.tar.gz
-  sha256: 1220c0ec093b4e30d3755ebf95c05dad596be521173d485a8f33519bb9b5ad31
+  sha256: c8eb8f2622f777f05f8b9e65cc7bd104d57bf65202aef92745744a5855302ffa
 
 build:
   number: 0
@@ -33,8 +33,8 @@ requirements:
 test:
   imports:
     - kstar
-    - kstar.normalize
-    - kstar.validate
+    - kstar.random_experiments
+    - kstar.analysis
   commands:
     - pip check
   requires:
