@@ -10,6 +10,8 @@ from datetime import datetime
 import itertools
 from itertools import repeat
 import concurrent.futures
+import seaborn as sns
+import matplotlib.pyplot as plt
 
 from kstar import config, helpers
 from kstar.random_experiments import generate_random_experiments, calculate_fpr
@@ -159,7 +161,43 @@ class KinaseActivity:
                     self.data_columns.append(col)  
         else:
             self.data_columns = data_columns
-        self.check_data_columns()    
+        self.check_data_columns()
+        
+    def test_threshold(self, threshold, agg = 'mean', greater = True, plot = False, return_evidence_sizes = False):
+        """
+        Given a threshold value, calculate the distribution of evidence sizes (i.e. number of sites used in prediction for each sample in the experiment).
+        
+        Parameters
+        ----------
+        threshold: float
+            cutoff for inclusion as evidence for prediction. If greater = True, sites with quantification greater than the threshold are used as evidence.
+        agg: str
+            how to combine sites with multiple instances in experiment
+        greater: bool
+            whether to use sites greater (True) or less (False) than the threshold
+        plot: bool
+            whether to plot a histogram of the evidence sizes used
+        return_site_nums: bool
+            indicates whether to return the evidence sizes for all samples or not
+            
+        Returns
+        -------
+        Outputs the minimum, maximum, and median evidence sizes across all samples. May return evidence sizes of all samples as pandas series
+        """
+        evidence_binary = self.create_binary_evidence(agg = agg, threshold = threshold, greater = greater)
+        num_sites = evidence_binary[self.data_columns].sum()
+        print('Number of Sites That Will Be Used As Evidence For Each Sample:')
+        print('Maximum =',num_sites.max())
+        print('Minimum =', num_sites.min())
+        print('Median =', num_sites.median())
+        
+        if plot:
+            plt_data = num_sites.reset_index()
+            sns.histplot(data = plt_data, x = 0)
+            plt.xlabel('Number of Sites Used As Evidence')
+            
+        if return_evidence_sizes:
+            return num_sites
 
     def calculate_random_activities(self, logger, num_random_experiments=150, PROCESSES = 1):
         """
@@ -265,7 +303,7 @@ class KinaseActivity:
     
 
 
-    def create_binary_evidence(self, agg = 'mean', threshold = 1.0,  greater = True):
+    def create_binary_evidence(self, agg = 'mean', threshold = 1.0,  evidence_size = None, greater = True):
         """
         Returns a binary evidence data frame according to the parameters passed in for method for aggregating
         duplicates and considering whether a site is included as evidence or not
@@ -273,7 +311,9 @@ class KinaseActivity:
         Parameters
         ----------
         threshold : float
-            threshold value used to filter rows 
+            threshold value used to filter rows
+        evidence_size: None or int
+            the number of sites to use for prediction for each sample. If a value is provided, this will override the threshold, and will instead obtain the N sites with the greatest abundance within each sample.
         agg : {'count', 'mean'}
             method to use when aggregating duplicate substrate-sites. 
             'count' combines multiple representations and adds if values are non-NaN
@@ -294,11 +334,31 @@ class KinaseActivity:
         
         #set the binary evidence for whether a site is included
         evidence_binary = evidence.copy()
-        for col in self.data_columns:
-            if greater:
-                evidence_binary[col] = (evidence_binary[col] >= threshold).astype(int)
-            else:
-                evidence_binary[col] = (evidence_binary[col] <= threshold).astype(int)
+        if evidence_size is None:
+            for col in self.data_columns:
+                if greater:
+                    evidence_binary[col] = (evidence_binary[col] >= threshold).astype(int)
+                else:
+                    evidence_binary[col] = (evidence_binary[col] <= threshold).astype(int)
+        else:
+            for col in self.data_columns:
+                #check how many non_nan sites there (if less than N, set n to be equal to number of sites available
+                num_sites_available = evidence_binary.dropna().shape[0]
+                if num_sites_available >= evidence_size:
+                    n = evidence_size
+                else:
+                    n = num_sites_available
+                    
+                if greater:
+                    max_indices = np.argsort(-evidence_binary[col].values)[0:n]
+                    evidence_binary[col] = 0
+                    col_loc = np.where(evidence_binary.columns == col)[0][0]
+                    evidence_binary.iloc[max_indices, col_loc] = 1
+                else:
+                    min_indices = np.argsort(evidence_binary[col].values)[0:n]
+                    evidence_binary[col] = 0
+                    col_loc = np.where(evidence_binary.columns == col)[0][0]
+                    evidence_binary.iloc[min_indices, col_loc] = 1
 
         #remove phosphorylation sites that were not selected in any experiment (useful for very large experiments where removing the need to copy data reduces time)
         evidence_binary.drop(evidence_binary[evidence_binary[self.data_columns].sum(axis=1) == 0].index, inplace = True) 
@@ -311,7 +371,7 @@ class KinaseActivity:
         return evidence_binary
 
 
-    def calculate_kinase_activities(self, agg = 'mean', threshold = 1.0,  greater = True, PROCESSES = 1):
+    def calculate_kinase_activities(self, agg = 'mean', threshold = 1.0,  evidence_size = None, greater = True, PROCESSES = 1):
         """
         Calculates combined activity of experiments based that uses a threshold value to determine if an experiment sees a site or not
         To use values use 'mean' as agg
@@ -347,11 +407,17 @@ class KinaseActivity:
 
         #for each phosphoType, check that the 
         self.aggregate = agg
-        self.threshold = threshold
+        if evidence_size is None:
+            self.threshold = threshold
+            self.evidence_size = None
+        else:
+            self.threshold = None
+            self.evidence_size = evidence_size
+        
         self.greater = greater
         #self.set_data_columns(data_columns)
 
-        self.evidence_binary = self.create_binary_evidence(agg = self.aggregate, threshold = self.threshold,  greater = self.greater)
+        self.evidence_binary = self.create_binary_evidence(agg = self.aggregate, threshold = self.threshold, evidence_size = self.evidence_size, greater = self.greater)
         
         # if no data columns are provided use all columns that start with data:
         # data columns that filtered have no evidence are removed
@@ -756,7 +822,7 @@ def calculate_MannWhitney_one_experiment_one_kinase(kinact_activities, rand_acti
 Methods for running KSTAR pipeline
 ****************************************
 """
-def enrichment_analysis(experiment, log, networks, phospho_types =['Y', 'ST'], data_columns = None, agg = 'mean', threshold = 1.0,  greater = True, PROCESSES = 1):
+def enrichment_analysis(experiment, log, networks, phospho_types =['Y', 'ST'], data_columns = None, agg = 'mean', threshold = 1.0, evidence_size = None, greater = True, PROCESSES = 1):
     """
     Function to establish a kstar KinaseActivity object from an experiment with an activity log
     add the networks, calculate, aggregate, and summarize the hypergeometric enrichment into a final activity object. Should be followed by 
@@ -819,7 +885,7 @@ def enrichment_analysis(experiment, log, networks, phospho_types =['Y', 'ST'], d
             return
         kinact = KinaseActivity(experiment_sub, log, data_columns = data_columns, phospho_type=phospho_type)
         kinact.add_networks_batch(networks[phospho_type])
-        kinact.calculate_kinase_activities(agg=agg, threshold=threshold, greater=greater, PROCESSES = PROCESSES)
+        kinact.calculate_kinase_activities(agg=agg, threshold=threshold, evidence_size = evidence_size, greater=greater, PROCESSES = PROCESSES)
         kinact.aggregate_activities()
         kinact.activities = kinact.summarize_activities()
         kinact_dict[phospho_type] = kinact
