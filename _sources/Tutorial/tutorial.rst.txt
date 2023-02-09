@@ -17,3 +17,19 @@ Activity Prediction
 	:maxdepth: 2
 	
 	Activity_Calculation.ipynb
+
+Plotting
+--------
+
+.. toctree::
+	:maxdepth: 2
+	
+	Plotting.ipynb
+
+Additional Analyses
+-------------------
+
+.. toctree::
+	:maxdepth: 2
+	
+	Additional_Analysis.ipynb

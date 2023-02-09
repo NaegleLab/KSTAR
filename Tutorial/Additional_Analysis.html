@@ -1,0 +1,696 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+    <title>Assessing KSTAR Networks and Activity Predictions &#8212; KSTAR 1 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/classic.css" />
+    
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/sphinx_highlight.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Analysis Examples" href="../Examples/Examples.html" />
+    <link rel="prev" title="Plotting" href="Plotting.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="../Examples/Examples.html" title="Analysis Examples"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="Plotting.html" title="Plotting"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">KSTAR 1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="tutorial.html" accesskey="U">Tutorial</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Assessing KSTAR Networks and Activity Predictions</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  
+<style>
+/* CSS for nbsphinx extension */
+
+/* remove conflicting styling from Sphinx themes */
+div.nbinput.container div.prompt *,
+div.nboutput.container div.prompt *,
+div.nbinput.container div.input_area pre,
+div.nboutput.container div.output_area pre,
+div.nbinput.container div.input_area .highlight,
+div.nboutput.container div.output_area .highlight {
+    border: none;
+    padding: 0;
+    margin: 0;
+    box-shadow: none;
+}
+
+div.nbinput.container > div[class*=highlight],
+div.nboutput.container > div[class*=highlight] {
+    margin: 0;
+}
+
+div.nbinput.container div.prompt *,
+div.nboutput.container div.prompt * {
+    background: none;
+}
+
+div.nboutput.container div.output_area .highlight,
+div.nboutput.container div.output_area pre {
+    background: unset;
+}
+
+div.nboutput.container div.output_area div.highlight {
+    color: unset;  /* override Pygments text color */
+}
+
+/* avoid gaps between output lines */
+div.nboutput.container div[class*=highlight] pre {
+    line-height: normal;
+}
+
+/* input/output containers */
+div.nbinput.container,
+div.nboutput.container {
+    display: -webkit-flex;
+    display: flex;
+    align-items: flex-start;
+    margin: 0;
+    width: 100%;
+}
+@media (max-width: 540px) {
+    div.nbinput.container,
+    div.nboutput.container {
+        flex-direction: column;
+    }
+}
+
+/* input container */
+div.nbinput.container {
+    padding-top: 5px;
+}
+
+/* last container */
+div.nblast.container {
+    padding-bottom: 5px;
+}
+
+/* input prompt */
+div.nbinput.container div.prompt pre {
+    color: #307FC1;
+}
+
+/* output prompt */
+div.nboutput.container div.prompt pre {
+    color: #BF5B3D;
+}
+
+/* all prompts */
+div.nbinput.container div.prompt,
+div.nboutput.container div.prompt {
+    width: 4.5ex;
+    padding-top: 5px;
+    position: relative;
+    user-select: none;
+}
+
+div.nbinput.container div.prompt > div,
+div.nboutput.container div.prompt > div {
+    position: absolute;
+    right: 0;
+    margin-right: 0.3ex;
+}
+
+@media (max-width: 540px) {
+    div.nbinput.container div.prompt,
+    div.nboutput.container div.prompt {
+        width: unset;
+        text-align: left;
+        padding: 0.4em;
+    }
+    div.nboutput.container div.prompt.empty {
+        padding: 0;
+    }
+
+    div.nbinput.container div.prompt > div,
+    div.nboutput.container div.prompt > div {
+        position: unset;
+    }
+}
+
+/* disable scrollbars on prompts */
+div.nbinput.container div.prompt pre,
+div.nboutput.container div.prompt pre {
+    overflow: hidden;
+}
+
+/* input/output area */
+div.nbinput.container div.input_area,
+div.nboutput.container div.output_area {
+    -webkit-flex: 1;
+    flex: 1;
+    overflow: auto;
+}
+@media (max-width: 540px) {
+    div.nbinput.container div.input_area,
+    div.nboutput.container div.output_area {
+        width: 100%;
+    }
+}
+
+/* input area */
+div.nbinput.container div.input_area {
+    border: 1px solid #e0e0e0;
+    border-radius: 2px;
+    /*background: #f5f5f5;*/
+}
+
+/* override MathJax center alignment in output cells */
+div.nboutput.container div[class*=MathJax] {
+    text-align: left !important;
+}
+
+/* override sphinx.ext.imgmath center alignment in output cells */
+div.nboutput.container div.math p {
+    text-align: left;
+}
+
+/* standard error */
+div.nboutput.container div.output_area.stderr {
+    background: #fdd;
+}
+
+/* ANSI colors */
+.ansi-black-fg { color: #3E424D; }
+.ansi-black-bg { background-color: #3E424D; }
+.ansi-black-intense-fg { color: #282C36; }
+.ansi-black-intense-bg { background-color: #282C36; }
+.ansi-red-fg { color: #E75C58; }
+.ansi-red-bg { background-color: #E75C58; }
+.ansi-red-intense-fg { color: #B22B31; }
+.ansi-red-intense-bg { background-color: #B22B31; }
+.ansi-green-fg { color: #00A250; }
+.ansi-green-bg { background-color: #00A250; }
+.ansi-green-intense-fg { color: #007427; }
+.ansi-green-intense-bg { background-color: #007427; }
+.ansi-yellow-fg { color: #DDB62B; }
+.ansi-yellow-bg { background-color: #DDB62B; }
+.ansi-yellow-intense-fg { color: #B27D12; }
+.ansi-yellow-intense-bg { background-color: #B27D12; }
+.ansi-blue-fg { color: #208FFB; }
+.ansi-blue-bg { background-color: #208FFB; }
+.ansi-blue-intense-fg { color: #0065CA; }
+.ansi-blue-intense-bg { background-color: #0065CA; }
+.ansi-magenta-fg { color: #D160C4; }
+.ansi-magenta-bg { background-color: #D160C4; }
+.ansi-magenta-intense-fg { color: #A03196; }
+.ansi-magenta-intense-bg { background-color: #A03196; }
+.ansi-cyan-fg { color: #60C6C8; }
+.ansi-cyan-bg { background-color: #60C6C8; }
+.ansi-cyan-intense-fg { color: #258F8F; }
+.ansi-cyan-intense-bg { background-color: #258F8F; }
+.ansi-white-fg { color: #C5C1B4; }
+.ansi-white-bg { background-color: #C5C1B4; }
+.ansi-white-intense-fg { color: #A1A6B2; }
+.ansi-white-intense-bg { background-color: #A1A6B2; }
+
+.ansi-default-inverse-fg { color: #FFFFFF; }
+.ansi-default-inverse-bg { background-color: #000000; }
+
+.ansi-bold { font-weight: bold; }
+.ansi-underline { text-decoration: underline; }
+
+
+div.nbinput.container div.input_area div[class*=highlight] > pre,
+div.nboutput.container div.output_area div[class*=highlight] > pre,
+div.nboutput.container div.output_area div[class*=highlight].math,
+div.nboutput.container div.output_area.rendered_html,
+div.nboutput.container div.output_area > div.output_javascript,
+div.nboutput.container div.output_area:not(.rendered_html) > img{
+    padding: 5px;
+    margin: 0;
+}
+
+/* fix copybtn overflow problem in chromium (needed for 'sphinx_copybutton') */
+div.nbinput.container div.input_area > div[class^='highlight'],
+div.nboutput.container div.output_area > div[class^='highlight']{
+    overflow-y: hidden;
+}
+
+/* hide copybtn icon on prompts (needed for 'sphinx_copybutton') */
+.prompt .copybtn {
+    display: none;
+}
+
+/* Some additional styling taken form the Jupyter notebook CSS */
+.jp-RenderedHTMLCommon table,
+div.rendered_html table {
+  border: none;
+  border-collapse: collapse;
+  border-spacing: 0;
+  color: black;
+  font-size: 12px;
+  table-layout: fixed;
+}
+.jp-RenderedHTMLCommon thead,
+div.rendered_html thead {
+  border-bottom: 1px solid black;
+  vertical-align: bottom;
+}
+.jp-RenderedHTMLCommon tr,
+.jp-RenderedHTMLCommon th,
+.jp-RenderedHTMLCommon td,
+div.rendered_html tr,
+div.rendered_html th,
+div.rendered_html td {
+  text-align: right;
+  vertical-align: middle;
+  padding: 0.5em 0.5em;
+  line-height: normal;
+  white-space: normal;
+  max-width: none;
+  border: none;
+}
+.jp-RenderedHTMLCommon th,
+div.rendered_html th {
+  font-weight: bold;
+}
+.jp-RenderedHTMLCommon tbody tr:nth-child(odd),
+div.rendered_html tbody tr:nth-child(odd) {
+  background: #f5f5f5;
+}
+.jp-RenderedHTMLCommon tbody tr:hover,
+div.rendered_html tbody tr:hover {
+  background: rgba(66, 165, 245, 0.2);
+}
+</style>
+<section id="Assessing-KSTAR-Networks-and-Activity-Predictions">
+<h1>Assessing KSTAR Networks and Activity Predictions<a class="headerlink" href="#Assessing-KSTAR-Networks-and-Activity-Predictions" title="Permalink to this heading">¶</a></h1>
+<p>In addition to the dotplot, we have provided a few additional functions for assessing your KSTAR results, as well as the underlying networks that gave rise to them. Here, still using the example of TCR activation, we have provided some examples on how to use these functions.</p>
+<p>If there are any functions/analysis that are not discussed here that you would like to see in the future, please add a feature request at <a class="reference external" href="https://github.com/NaegleLab/KSTAR">KSTAR’s github repository</a>.</p>
+<section id="Load-results-and-other-necessary-data-(networks,-binary-evidence,-etc.)">
+<h2>Load results and other necessary data (networks, binary evidence, etc.)<a class="headerlink" href="#Load-results-and-other-necessary-data-(networks,-binary-evidence,-etc.)" title="Permalink to this heading">¶</a></h2>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">#import necessary packages</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">from</span> <span class="nn">kstar</span> <span class="kn">import</span> <span class="n">helpers</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">calculate</span>
+<span class="kn">import</span> <span class="nn">pickle</span>
+
+<span class="n">odir</span> <span class="o">=</span> <span class="s1">&#39;./example&#39;</span>
+<span class="n">logName</span> <span class="o">=</span> <span class="s1">&#39;example_run&#39;</span>
+<span class="n">phosphomod</span> <span class="o">=</span> <span class="s1">&#39;Y&#39;</span>
+<span class="n">logName_new</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">logName</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">phosphomod</span><span class="si">}</span><span class="s2">&quot;</span>
+<span class="c1">#get activity log</span>
+<span class="n">activity_log</span> <span class="o">=</span> <span class="n">helpers</span><span class="o">.</span><span class="n">get_logger</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;activity_</span><span class="si">{</span><span class="n">logName</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">odir</span><span class="si">}</span><span class="s2">/RESULTS/activity_</span><span class="si">{</span><span class="n">logName</span><span class="si">}</span><span class="s2">.log&quot;</span><span class="p">)</span>
+
+<span class="c1">#Load kstar_slim save</span>
+<span class="n">kinact_dict</span> <span class="o">=</span> <span class="n">calculate</span><span class="o">.</span><span class="n">from_kstar_slim</span><span class="p">(</span><span class="n">logName</span><span class="p">,</span> <span class="n">odir</span><span class="p">,</span> <span class="n">activity_log</span><span class="p">)</span>
+
+<span class="c1">#load networks used for prediction</span>
+<span class="n">phospho_types</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Y&#39;</span><span class="p">]</span> <span class="c1">#running on this type of kinase/substrate network</span>
+
+<span class="c1">#Load the pickles containing the 50 pruned networks for tyrosine kinases</span>
+<span class="n">networks</span> <span class="o">=</span> <span class="n">pickle</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">NETWORK_Y_PICKLE</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span> <span class="p">)</span> <span class="p">)</span>
+
+<span class="c1">#load binarized experiment</span>
+<span class="n">binary_evidence</span> <span class="o">=</span> <span class="n">kinact_dict</span><span class="p">[</span><span class="s1">&#39;Y&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">evidence_binary</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Identify-relevant-phosphorylation-sites-for-a-kinase-of-interest">
+<h2>Identify relevant phosphorylation sites for a kinase of interest<a class="headerlink" href="#Identify-relevant-phosphorylation-sites-for-a-kinase-of-interest" title="Permalink to this heading">¶</a></h2>
+<p>In some cases, you may want to know what phosphorylation sites an active kinase is interacting with to get a clearer picture of the specific kinase-substrate interactions taking place. Using the analysis.interactions module, you can identify the phosphorylation sites that are contributing most to the activity prediction (based on the number of networks for which the observed site is connected to the kinase of interest). For our TCR activation example, we observed that LCK is highly activated
+upon activation. We would like to know what substrates LCK is mostly interacting with.</p>
+<p><em>Important note to keep in mind: KSTAR networks contain predictions and are not guaranteed to be true interactions. Just because it appears in one of the networks does not mean it is a true interaction</em></p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">kstar.analysis</span> <span class="kn">import</span> <span class="n">interactions</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">experiment_influence</span> <span class="o">=</span> <span class="n">interactions</span><span class="o">.</span><span class="n">getSubstrateInfluence_inExperiment</span><span class="p">(</span><span class="n">networks</span><span class="p">,</span> <span class="n">binary_evidence</span><span class="p">,</span> <span class="s1">&#39;LCK&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>The above function produces a dictionary with each data column/sample as a key. For each sample, a pandas series object is generated which indicates potential substrates of the kinase of interest that were identified as evidence for the given sample, as well as the number of different networks that kinase-substrate interaction is found in. The more networks an interaction is found, the higher likelihood of it being a true interaction and the stronger its influence on the final predictions. Only
+sites found in the given sample AND have at least one interaction across the 50 networks will appear in these results. Known substrates will be found across most, if not all, networks (to check if a site is a known substrate, we often go to <a class="reference external" href="https://www.phosphosite.org/homeAction.action">PhosphoSitePlus</a>)</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">experiment_influence</span><span class="p">[</span><span class="s1">&#39;data:time:15&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">10</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Q08881_Y240     50.0
+Q08881_Y273     50.0
+P43403_Y198     50.0
+P43403_Y204     50.0
+P43403_Y597     50.0
+P15498_Y791     50.0
+P09693_Y171     48.0
+P09693_Y160     46.0
+Q00610_Y1237    40.0
+Q8IZP0_Y484     39.0
+Name: Number of Networks connected to LCK, dtype: float64
+</pre></div></div>
+</div>
+<p>We can see that LCK is likely responsible for phosphorylating sites on ITK (Q08881), ZAP70 (P43403), and VAV (P15498), among others. This makes sense based on what is known about TCR signaling.</p>
+</section>
+<section id="Exploring-Network-and-Experiment-Coverage-of-Phosphorylation-Sites">
+<h2>Exploring Network and Experiment Coverage of Phosphorylation Sites<a class="headerlink" href="#Exploring-Network-and-Experiment-Coverage-of-Phosphorylation-Sites" title="Permalink to this heading">¶</a></h2>
+<p>In addition to digging deeper into the KSTAR results, you may want to better understand the networks that went into prediction (and how they might compare to other kinase-substrate networks). The below approaches are designed for such analysis.</p>
+<section id="Number-of-unique-phosphorylation-sites-in-network(s)">
+<h3>Number of unique phosphorylation sites in network(s)<a class="headerlink" href="#Number-of-unique-phosphorylation-sites-in-network(s)" title="Permalink to this heading">¶</a></h3>
+<p>You may be interested to know how many phosphorylation sites are actually contained within a network. To check, run the following function:</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">kstar.analysis</span> <span class="kn">import</span> <span class="n">coverage</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">coverage</span><span class="o">.</span><span class="n">numUniqueSubstrates</span><span class="p">(</span><span class="n">networks</span><span class="p">[</span><span class="s1">&#39;nkin0&#39;</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+34986
+</pre></div></div>
+</div>
+<p>The above value is for only a single pruned network. What about across all 50 pruned networks?</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">coverage</span><span class="o">.</span><span class="n">numUniqueSubstrates</span><span class="p">(</span><span class="n">networks</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+39268
+</pre></div></div>
+</div>
+<p>You’ll see that the overall coverage of the phosphoproteome is higher across all 50 networks than when using only a single network, just one of the advantages of the ensemble approach used in KSTAR. We can also ask the average number of sites covered within each individual network:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">coverage</span><span class="o">.</span><span class="n">averageUniqueSubstrates_KSTAR</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+{&#39;Y&#39;: 35040.46, &#39;ST&#39;: 151171.56}
+</pre></div></div>
+</div>
+</section>
+<section id="Distribution-of-Study-Bias-in-Phosphoproteome-and-in-Experiments">
+<h3>Distribution of Study Bias in Phosphoproteome and in Experiments<a class="headerlink" href="#Distribution-of-Study-Bias-in-Phosphoproteome-and-in-Experiments" title="Permalink to this heading">¶</a></h3>
+<p>One of the major challenges KSTAR was designed tackle is the prevalance of study bias towards certain phosphorylation sites within networks and experiments. You can see the distribution of study bias within your experiment, and compare it to the distribution seen across the entire phosphoproteome.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">kstar.analysis</span> <span class="kn">import</span> <span class="n">coverage</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span><span class="p">,</span> <span class="n">axes</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span> <span class="o">=</span> <span class="p">(</span><span class="mi">4</span><span class="p">,</span><span class="mi">4</span><span class="p">),</span><span class="n">nrows</span> <span class="o">=</span> <span class="mi">3</span><span class="p">,</span> <span class="n">sharex</span> <span class="o">=</span> <span class="s1">&#39;all&#39;</span><span class="p">)</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">subplots_adjust</span><span class="p">(</span><span class="n">hspace</span> <span class="o">=</span> <span class="mf">0.5</span><span class="p">)</span>
+<span class="n">coverage</span><span class="o">.</span><span class="n">getStudyBiasDistribution_InPhosphoproteome</span><span class="p">(</span><span class="n">ax</span> <span class="o">=</span> <span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+<span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">&#39;Phosphoproteome&#39;</span><span class="p">)</span>
+<span class="n">coverage</span><span class="o">.</span><span class="n">getStudyBiasDistribution_InExperiment</span><span class="p">(</span><span class="n">kinact_dict</span><span class="p">[</span><span class="s1">&#39;Y&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">evidence_binary</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+<span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">&#39;In Experiment (All Samples)&#39;</span><span class="p">)</span>
+<span class="n">coverage</span><span class="o">.</span><span class="n">getStudyBiasDistribution_InSample</span><span class="p">(</span><span class="n">kinact_dict</span><span class="p">[</span><span class="s1">&#39;Y&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">evidence_binary</span><span class="p">,</span> <span class="n">data_column</span> <span class="o">=</span> <span class="s1">&#39;data:time:30&#39;</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">axes</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+<span class="n">axes</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">&#39;In Single Sample&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Text(0.5, 1.0, &#39;In Single Sample&#39;)
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/Tutorial_Additional_Analysis_20_1.png" src="../_images/Tutorial_Additional_Analysis_20_1.png" />
+</div>
+</div>
+<p>As described in the KSTAR publication, we see that the phosphoproteomic experiment contains a much higher proportion of well-studied sites than the overall phosphoproteome.</p>
+</section>
+<section id="Coverage-of-Experiment-by-Kinase-Substrate-Network">
+<h3>Coverage of Experiment by Kinase-Substrate Network<a class="headerlink" href="#Coverage-of-Experiment-by-Kinase-Substrate-Network" title="Permalink to this heading">¶</a></h3>
+<p>Another challenge of many kinase activity prediction approaches, particularly those relying on PhosphoSitePlus annotations, is that only a small percentage of sites can actually be used for activity prediction due to unknown kinase interactions. To get an idea of how many phosphorylation sites observed in an experiment will actually be used in prediction, you can use the below functions, either for a single network (passing a pandas dataframe) or an ensemble of networks (passing a dictionary of
+pandas dataframes):</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">kstar.analysis</span> <span class="kn">import</span> <span class="n">coverage</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">coverage</span><span class="o">.</span><span class="n">experimentCoverage</span><span class="p">(</span><span class="n">kinact_dict</span><span class="p">[</span><span class="s1">&#39;Y&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">evidence_binary</span><span class="p">,</span> <span class="n">networks</span><span class="p">[</span><span class="s1">&#39;nkin0&#39;</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+0.8483965014577259
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">coverage</span><span class="o">.</span><span class="n">experimentCoverage</span><span class="p">(</span><span class="n">kinact_dict</span><span class="p">[</span><span class="s1">&#39;Y&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">evidence_binary</span><span class="p">,</span> <span class="n">networks</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+0.9883381924198251
+</pre></div></div>
+</div>
+<p>We have almost complete coverage of our phosphoproteomic dataset when using all 50 pruned networks, meaning that almost every observed phosphorylation site is contributing to prediction.</p>
+</section>
+<section id="Similarity-between-kinases-in-network">
+<h3>Similarity between kinases in network<a class="headerlink" href="#Similarity-between-kinases-in-network" title="Permalink to this heading">¶</a></h3>
+<p>Lastly, kinase-substrate prediction networks often suffer from a high degree of similarity between kinases from the same family. We can look at the mutual information shared between kinases within a network (or ensemble of networks), or the fraction of shared substrates. We can then plot this as heatmap:</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">kstar.analysis</span> <span class="kn">import</span> <span class="n">kinase_MI</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">num_shared_substrates</span><span class="p">,</span> <span class="n">mutual_info</span><span class="p">,</span> <span class="n">overlapping_substrates</span> <span class="o">=</span> <span class="n">kinase_MI</span><span class="o">.</span><span class="n">kinase_mutual_information</span><span class="p">(</span><span class="n">networks</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span> <span class="o">=</span> <span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="mi">10</span><span class="p">))</span>
+<span class="n">kinase_MI</span><span class="o">.</span><span class="n">plot_kinase_heatmap</span><span class="p">(</span><span class="n">mutual_info</span><span class="p">,</span> <span class="n">annotate</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/Tutorial_Additional_Analysis_32_0.png" src="../_images/Tutorial_Additional_Analysis_32_0.png" />
+</div>
+</div>
+</section>
+</section>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <div>
+    <h3><a href="../index.html">Table of Contents</a></h3>
+    <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../Overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Dependencies.html">Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../KSTAR.html">KSTAR</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Getting Started</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="tutorial.html">Tutorial</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="tutorial.html#network-generation">Network Generation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial.html#activity-prediction">Activity Prediction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial.html#plotting">Plotting</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="tutorial.html#additional-analyses">Additional Analyses</a><ul class="current">
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Assessing KSTAR Networks and Activity Predictions</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#Load-results-and-other-necessary-data-(networks,-binary-evidence,-etc.)">Load results and other necessary data (networks, binary evidence, etc.)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#Identify-relevant-phosphorylation-sites-for-a-kinase-of-interest">Identify relevant phosphorylation sites for a kinase of interest</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#Exploring-Network-and-Experiment-Coverage-of-Phosphorylation-Sites">Exploring Network and Experiment Coverage of Phosphorylation Sites</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="#Number-of-unique-phosphorylation-sites-in-network(s)">Number of unique phosphorylation sites in network(s)</a></li>
+<li class="toctree-l5"><a class="reference internal" href="#Distribution-of-Study-Bias-in-Phosphoproteome-and-in-Experiments">Distribution of Study Bias in Phosphoproteome and in Experiments</a></li>
+<li class="toctree-l5"><a class="reference internal" href="#Coverage-of-Experiment-by-Kinase-Substrate-Network">Coverage of Experiment by Kinase-Substrate Network</a></li>
+<li class="toctree-l5"><a class="reference internal" href="#Similarity-between-kinases-in-network">Similarity between kinases in network</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../Examples/Examples.html">Analysis Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Parallel/parallel.html">KSTAR in Parallel</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../faq.html">Frequently Asked Questions</a></li>
+</ul>
+
+  </div>
+  <div>
+    <h4>Previous topic</h4>
+    <p class="topless"><a href="Plotting.html"
+                          title="previous chapter">Plotting</a></p>
+  </div>
+  <div>
+    <h4>Next topic</h4>
+    <p class="topless"><a href="../Examples/Examples.html"
+                          title="next chapter">Analysis Examples</a></p>
+  </div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/Tutorial/Additional_Analysis.ipynb.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="../Examples/Examples.html" title="Analysis Examples"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="Plotting.html" title="Plotting"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">KSTAR 1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="tutorial.html" >Tutorial</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Assessing KSTAR Networks and Activity Predictions</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2020, Naegle Lab.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.3.0.
+    </div>
+  </body>
+</html>

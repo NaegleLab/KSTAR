@@ -18,6 +18,7 @@ KSTAR
 	Tutorial/tutorial
 	Examples/Examples
 	Parallel/parallel
+	faq
 
 
 

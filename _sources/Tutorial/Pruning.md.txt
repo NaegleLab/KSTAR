@@ -2,7 +2,7 @@
 
 ## Download pre-generated networks
 
-We have provided pre-pruned networks that can be downloaded [here](https://figshare.com/articles/dataset/NETWORKS/14944305). If choosing to use these networks, you can go straight to [activity calculation](Activity_Calculation.ipynb) and skip the remainder of this section
+We have provided pre-pruned networks that can be downloaded [here](https://figshare.com/articles/dataset/NETWORKS/14944305). If choosing to use these networks, you can go straight to [activity calculation](Activity_Calculation.ipynb) and skip the remainder of this section.
 
 ## Generate your own networks
 
@@ -24,8 +24,38 @@ Here is a small example of such a matrix:
 
 For an example of a weighted kinase-substrate network that can be used during pruning, see the [KinPred figshare](https://figshare.com/articles/dataset/Final_Data_-_Matrix_of_kinase_substrate_edge_weights_by_predictor/12749324). These networks are also available for use if you would like to use different pruning parameters from those used in the KSTAR publication.
 
+### Determining Pruning Parameters to Use
 
-### Run pruning within python
+Before generating pruned networks, you would need to define the properties of the pruned networks, namely the number of substrates each kinase will be connected to (kinase_size) and the maximum number of kinases a single substrate can provide evidence for (site_limit). Within the pruner class, we have provided a function, called getRecommendedKinaseSize(), designed to help guide this selection and avoid parameter values that will result in an impossible network configuration given your weighted network.
+
+For this function, you must provide a value for the site_limit parameter. Lower values will be more restrictive and lead to fewer shared substrates between kinases, but will also reduce the total number of substrates that a kinase can be connected to in the network. For NetworKIN weighted network used in the KSTAR publication, we used a 'site_limit' of 10 for tyrosine kinases and 20 for serine threonine kinases. 
+
+To check for recommended parameter values, first load necessary information and initialize pruner class:
+```
+#load necesary packages
+from kstar.prune import Pruner
+from kstar import config, helpers
+
+#load network and initialize logger
+network_file = f'{config.NETWORK_DIR}/network_file_name.csv'
+network = pd.read_csv(network_file)
+log = helpers.get_logger('kstar_log', "pruning.log")
+
+#intialize pruner
+pruner = prune.Pruner(network, logger, phospho_type = 'Y', acc_col = 'substrate_acc', site_col = 'site')
+```
+Then get recommendations for a particular 'site_limit' value:
+```
+pruner.getRecommendedKinaseSize(site_limit)
+```
+Once you have decided on the final parameters, you can also validate your choice:
+```
+pruner.checkParameters(kinase_size, site_limit)
+```
+
+### Run pruning
+
+#### Within python interpreter/IDE
 
 If wanting to run pruning in python, follow these steps:
 1. Import necessary packages
@@ -74,7 +104,7 @@ pruner.save_networks()
 pruner.save_run_information()
 ```
 
-### Run pruning from the command line
+#### Run pruning from the command line
 
 It is also possible to run the pruning procedure from start to finish, including saving the results and run info, from the command line. 
 A bash script like the one below can be used to run prune.py and input the necessary parameters. 

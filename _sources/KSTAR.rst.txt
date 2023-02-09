@@ -30,13 +30,13 @@ The "ExperimentMapper" class
 The "KinaseActivity" class
 --------------------------
 .. autoclass:: kstar.calculate.KinaseActivity
-	:members: calculate_Mann_Whitney_activities_sig, calculate_kinase_activities, check_data_columns, create_binary_evidence, find_pvalue_limits, set_data_columns, calculate_random_activities, get_run_date  
+	:members: calculate_Mann_Whitney_activities_sig, calculate_kinase_activities, check_data_columns, create_binary_evidence, test_threshold, set_data_columns, calculate_random_activities, get_run_date  
 
 
 The "DotPlot" class
 --------------------
 .. autoclass:: kstar.plot.DotPlot
-	:members: dotplot, cluster, context, drop_kinases, drop_kinases_with_no_significance
+	:members: dotplot, cluster, context, drop_kinases, drop_kinases_with_no_significance, evidence_count
 
 Supporting Functions
 --------------------

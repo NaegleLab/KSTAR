@@ -1,0 +1,51 @@
+# Frequently Asked Questions
+If you do not see your question here, feel free to ask your question with this [google form](https://forms.gle/xtgoFkGjHCJMqMV6A)
+
+## Data Preparation
+
+**Q: Should the input values to KSTAR contain missing values, or should imputation be performed?**
+
+A: KSTAR can operate on datasets with missing values. We do not recommend removing sites from the data or imputing data - we assume that if a site is not observed in a sample (i.e. the reason for imputation) then it shouldn't be used as evidence. 
+
+**Q: How should data be normalized prior to use with KSTAR?**
+
+A: While we have not done a comprehensive analysis of the impact of different normalization strategies, we have had success analyzing datasets with many different normalization strategies (median centering, normalizing to untreated condition, normalizing to pooled sample, unnormalized data, etc.). Your normalization strategy (and ultimate data threshold) should match your biological question and how you want data to be included. For example, if you are treating a cell line with drug, it may make the most sense to normalize to an untreated condition and apply a threshold that uses sites unaffected by treatment as evidence.
+
+## Choosing Parameter Values
+
+**Q: How should we determine the threshold to apply to our dataset?**
+
+A: Several factors can go into this decision:
+1. Is the data normalized to some condition, and if so how? The threshold should make sense for the quantification values in your dataset. A threshold value of 1 may make sense for a stimulation experiment where data has been normalized to the untreated condition
+2. Stringent threshold values may reduce the evidence size (number of observed phosphorylation sites) in a sample to be too low for a high confidence activity prediction. We usually recommend having at least 50 sites within a sample for best results. You can use the test_threshold() function in the KinaseActivity class to get an idea of the impact of your threshold decision on evidence size.
+3. Similarly to 2, you will want to make sure that the threshold is not too relaxed such that all samples have highly similar sites used as evidence (usually not an issue, but keep it in mind)
+
+
+**Q: What does the 'agg' parameter mean? How do we choose which is best for our data?**
+
+A: There are certain cases where the same phosphorylation site will appear across the dataset multiple times, most commonly when there are peptides with multiple different modifications. For example, if a double phosphotyrosine site exists, there are three possible peptides that could be observed: yY, Yy, YY. In this situation, the agg parameter dictates how to combine the quantification values for a single phosphorylation site. For those with experience with groupby pandas functionality, the chosen parameter goes directly into the pandas groupby (*data.groupby(['KSTAR_ACCESSION', 'KSTAR_SITE'].agg('mean')*). 'mean' will take the average, 'median' will take the median, 'max' will take the largest quantification value, etc.. 
+
+One small exception is if 'count' is selected. This will still go into the groupby function, but rather than aggregate the quantification values, it simply counts the number of times a site appears across the dataset. This should only be used when wanting to use all phosphorylation sites observed in a sample (threshold should be set to 1).
+
+**Q: What is the required number of random experiments and number of significant trials?**
+
+A: We settled on 150 random experiments and 100 significant trials, with the idea that it provided a good balance between statistical power and computational intensity. The total number of random experiments will change the statistical range/power of the Mann Whitney tests and the number of trials will set the lower bound on FPR calculation. So at 100 trials, you know that if you do not see more activity in any random experiments than you did for the real experiment, that your FPR is less than 1%. Whereas if you did 10 trials, you only know it's less than 10%. 
+
+It's important to note that the number of significant trials can not be greater than the number of random experiments.
+
+
+## Interpreting Results
+
+
+**Q: Are kinase activities comparable across samples?**
+
+A:  There is some evidence to suggest that they are, as long as the evidence size (number of phosphorylation sites used as evidence of kinase activity in a given sample) are similar. In our thresholding sensitivity analysis (Supplementary Figure 2/3 from our publication), we see that activity predictions are fairly stable as long as evidence size is within ~100-400 tyrosine sites or ~1000 serine/threonine sites. We also found that we were able to replicate tissue-specific kinase activities across multiple independent experiments, regardless of the similarity of the underlying mass spec data.
+
+**Q: How can we identify which sites are indicative of activity for a given kinase/identify what an active kinase is interacting with?**
+
+A: You can use the analysis.interactions module to get the sites that contribute most to a kinase's activity prediction, based on the number of different KSTAR networks an interaction between a kinase and observed substrate is predicted. The more networks an interaction is found in, the higher confidence there is in that interaction being specific to that kinase.
+
+
+**Q: How do we define an active kinase from KSTAR results?**
+
+A: In most cases, we use the false positive rate, which we typically set to 5%. In some cases where we want/need to capture more of the results, we have expanded this cutoff to 10%. However, we do sometimes see high false positive rates even when the activity score is high due to the distribution of study bias in the underlying experiment. In these instances, you may still consider these as activated, but the results should be treated with caution as it is possible to obtain the same activity score from a random experiment with the same distribution of study bias.

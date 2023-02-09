@@ -53,7 +53,7 @@
 <h1>Network Generation<a class="headerlink" href="#network-generation" title="Permalink to this heading">¶</a></h1>
 <section id="download-pre-generated-networks">
 <h2>Download pre-generated networks<a class="headerlink" href="#download-pre-generated-networks" title="Permalink to this heading">¶</a></h2>
-<p>We have provided pre-pruned networks that can be downloaded <a class="reference external" href="https://figshare.com/articles/dataset/NETWORKS/14944305">here</a>. If choosing to use these networks, you can go straight to <a class="reference internal" href="Activity_Calculation.html"><span class="doc std std-doc">activity calculation</span></a> and skip the remainder of this section</p>
+<p>We have provided pre-pruned networks that can be downloaded <a class="reference external" href="https://figshare.com/articles/dataset/NETWORKS/14944305">here</a>. If choosing to use these networks, you can go straight to <a class="reference internal" href="Activity_Calculation.html"><span class="doc std std-doc">activity calculation</span></a> and skip the remainder of this section.</p>
 </section>
 <section id="generate-your-own-networks">
 <h2>Generate your own networks<a class="headerlink" href="#generate-your-own-networks" title="Permalink to this heading">¶</a></h2>
@@ -99,8 +99,37 @@
 </table>
 <p>For an example of a weighted kinase-substrate network that can be used during pruning, see the <a class="reference external" href="https://figshare.com/articles/dataset/Final_Data_-_Matrix_of_kinase_substrate_edge_weights_by_predictor/12749324">KinPred figshare</a>. These networks are also available for use if you would like to use different pruning parameters from those used in the KSTAR publication.</p>
 </section>
-<section id="run-pruning-within-python">
-<h3>Run pruning within python<a class="headerlink" href="#run-pruning-within-python" title="Permalink to this heading">¶</a></h3>
+<section id="determining-pruning-parameters-to-use">
+<h3>Determining Pruning Parameters to Use<a class="headerlink" href="#determining-pruning-parameters-to-use" title="Permalink to this heading">¶</a></h3>
+<p>Before generating pruned networks, you would need to define the properties of the pruned networks, namely the number of substrates each kinase will be connected to (kinase_size) and the maximum number of kinases a single substrate can provide evidence for (site_limit). Within the pruner class, we have provided a function, called getRecommendedKinaseSize(), designed to help guide this selection and avoid parameter values that will result in an impossible network configuration given your weighted network.</p>
+<p>For this function, you must provide a value for the site_limit parameter. Lower values will be more restrictive and lead to fewer shared substrates between kinases, but will also reduce the total number of substrates that a kinase can be connected to in the network. For NetworKIN weighted network used in the KSTAR publication, we used a ‘site_limit’ of 10 for tyrosine kinases and 20 for serine threonine kinases.</p>
+<p>To check for recommended parameter values, first load necessary information and initialize pruner class:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1">#load necesary packages</span>
+<span class="kn">from</span> <span class="nn">kstar.prune</span> <span class="kn">import</span> <span class="n">Pruner</span>
+<span class="kn">from</span> <span class="nn">kstar</span> <span class="kn">import</span> <span class="n">config</span><span class="p">,</span> <span class="n">helpers</span>
+
+<span class="c1">#load network and initialize logger</span>
+<span class="n">network_file</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">config</span><span class="o">.</span><span class="n">NETWORK_DIR</span><span class="si">}</span><span class="s1">/network_file_name.csv&#39;</span>
+<span class="n">network</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">network_file</span><span class="p">)</span>
+<span class="n">log</span> <span class="o">=</span> <span class="n">helpers</span><span class="o">.</span><span class="n">get_logger</span><span class="p">(</span><span class="s1">&#39;kstar_log&#39;</span><span class="p">,</span> <span class="s2">&quot;pruning.log&quot;</span><span class="p">)</span>
+
+<span class="c1">#intialize pruner</span>
+<span class="n">pruner</span> <span class="o">=</span> <span class="n">prune</span><span class="o">.</span><span class="n">Pruner</span><span class="p">(</span><span class="n">network</span><span class="p">,</span> <span class="n">logger</span><span class="p">,</span> <span class="n">phospho_type</span> <span class="o">=</span> <span class="s1">&#39;Y&#39;</span><span class="p">,</span> <span class="n">acc_col</span> <span class="o">=</span> <span class="s1">&#39;substrate_acc&#39;</span><span class="p">,</span> <span class="n">site_col</span> <span class="o">=</span> <span class="s1">&#39;site&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Then get recommendations for a particular ‘site_limit’ value:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pruner</span><span class="o">.</span><span class="n">getRecommendedKinaseSize</span><span class="p">(</span><span class="n">site_limit</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Once you have decided on the final parameters, you can also validate your choice:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pruner</span><span class="o">.</span><span class="n">checkParameters</span><span class="p">(</span><span class="n">kinase_size</span><span class="p">,</span> <span class="n">site_limit</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="run-pruning">
+<h3>Run pruning<a class="headerlink" href="#run-pruning" title="Permalink to this heading">¶</a></h3>
+<section id="within-python-interpreter-ide">
+<h4>Within python interpreter/IDE<a class="headerlink" href="#within-python-interpreter-ide" title="Permalink to this heading">¶</a></h4>
 <p>If wanting to run pruning in python, follow these steps:</p>
 <ol class="arabic simple">
 <li><p>Import necessary packages</p></li>
@@ -150,7 +179,7 @@ snippet below.</p></li>
 </div>
 </section>
 <section id="run-pruning-from-the-command-line">
-<h3>Run pruning from the command line<a class="headerlink" href="#run-pruning-from-the-command-line" title="Permalink to this heading">¶</a></h3>
+<h4>Run pruning from the command line<a class="headerlink" href="#run-pruning-from-the-command-line" title="Permalink to this heading">¶</a></h4>
 <p>It is also possible to run the pruning procedure from start to finish, including saving the results and run info, from the command line.
 A bash script like the one below can be used to run prune.py and input the necessary parameters.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>export KSTAR_DIR = /repo_loc/KSTAR/
@@ -167,6 +196,7 @@ python /kstar/prune.py \
 --use_compendia yes 
 </pre></div>
 </div>
+</section>
 </section>
 </section>
 </section>
@@ -192,8 +222,12 @@ python /kstar/prune.py \
 <li class="toctree-l4"><a class="reference internal" href="#download-pre-generated-networks">Download pre-generated networks</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#generate-your-own-networks">Generate your own networks</a><ul>
 <li class="toctree-l5"><a class="reference internal" href="#required-format-of-weighted-kinase-substrate-network">Required format of weighted kinase-substrate network</a></li>
-<li class="toctree-l5"><a class="reference internal" href="#run-pruning-within-python">Run pruning within python</a></li>
-<li class="toctree-l5"><a class="reference internal" href="#run-pruning-from-the-command-line">Run pruning from the command line</a></li>
+<li class="toctree-l5"><a class="reference internal" href="#determining-pruning-parameters-to-use">Determining Pruning Parameters to Use</a></li>
+<li class="toctree-l5"><a class="reference internal" href="#run-pruning">Run pruning</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="#within-python-interpreter-ide">Within python interpreter/IDE</a></li>
+<li class="toctree-l6"><a class="reference internal" href="#run-pruning-from-the-command-line">Run pruning from the command line</a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -201,10 +235,13 @@ python /kstar/prune.py \
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="tutorial.html#activity-prediction">Activity Prediction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial.html#plotting">Plotting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial.html#additional-analyses">Additional Analyses</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../Examples/Examples.html">Analysis Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../Parallel/parallel.html">KSTAR in Parallel</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../faq.html">Frequently Asked Questions</a></li>
 </ul>
 
   </div>
