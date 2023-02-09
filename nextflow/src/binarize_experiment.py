@@ -37,7 +37,8 @@ def create_binary_evidence(evidence, data_columns, agg = 'count', threshold = 1.
             This is uniquified and rows that are never used are removed.
         
         """
-        evidence = evidence.groupby([config.KSTAR_ACCESSION, config.KSTAR_SITE]).agg(agg).reset_index()
+        compendia_info = evidence[[config.KSTAR_ACCESSION, config.KSTAR_SITE, 'KSTAR_NUM_COMPENDIA', 'KSTAR_NUM_COMPENDIA_CLASS']].drop_duplicates().copy()
+        evidence = evidence.groupby([config.KSTAR_ACCESSION, config.KSTAR_SITE])[data_columns].agg(agg).reset_index()
         
         #set the binary evidence for whether a site is included
         evidence_binary = evidence.copy()
@@ -51,6 +52,8 @@ def create_binary_evidence(evidence, data_columns, agg = 'count', threshold = 1.
 
         #remove phosphorylation sites that were not selected in any experiment (useful for very large experiments where removing the need to copy data reduces time)
         evidence_binary.drop(evidence_binary[evidence_binary[data_columns].sum(axis=1) == 0].index, inplace = True) 
+        #add compendia info back into evidence
+        evidence_binary = evidence_binary.merge(compendia_info, on = [config.KSTAR_ACCESSION, config.KSTAR_SITE], how = 'left')
         return evidence_binary
 
 
