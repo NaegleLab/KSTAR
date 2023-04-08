@@ -114,7 +114,7 @@ class KinaseActivity:
 
 
         self.aggregate = 'mean'
-        self.threshold = 1.0
+        self.threshold = None
         self.greater = True
 
         self.run_date = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
@@ -132,13 +132,19 @@ class KinaseActivity:
         evidence = self.evidence.groupby([config.KSTAR_ACCESSION, config.KSTAR_SITE]).agg(self.aggregate).reset_index()
         for col in self.data_columns:
             if col in self.evidence.columns:
-                if self.greater:
-                    if len(evidence[evidence[col] >= self.threshold]) > 0:
-                        new_data_columns.append(col)
+                if self.threshold is not None:
+                    if self.greater:
+                        if len(evidence[evidence[col] >= self.threshold]) > 0:
+                            new_data_columns.append(col)
+                        else:
+                            self.logger.warning(f"{col} does not have any evidence")
                     else:
-                        self.logger.warning(f"{col} does not have any evidence")
+                        if len(evidence[evidence[col] <= self.threshold]) > 0:
+                            new_data_columns.append(col)
+                        else:
+                            self.logger.warning(f"{col} does not have any evidence")
                 else:
-                    if len(evidence[evidence[col] <= self.threshold]) > 0:
+                    if ~evidence[col].isna().all():
                         new_data_columns.append(col)
                     else:
                         self.logger.warning(f"{col} does not have any evidence")
