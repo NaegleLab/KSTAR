@@ -18,7 +18,7 @@ def build_filtered_experiment(experiment, compendia, filtered_compendia, num_ran
     sizes = experiment.groupby(selection_type).size()
     for i in range(num_random_experiments):
         rand_experiment_list = []
-        for num, size in sizes.iteritems():
+        for num, size in sizes.items():
             filtered = filtered_compendia[int(num)]
             filtered_random = filtered.sample(size)
             filtered_random[f"{name}:{i}"] = 1
@@ -124,7 +124,7 @@ def build_single_filtered_experiment(compendia_sizes, filtered_compendia, name ,
 
     #sizes = experiment.groupby(selection_type).size()
     rand_experiment_list = []
-    for num, size in compendia_sizes.iteritems():
+    for num, size in compendia_sizes.items():
         filtered = filtered_compendia[int(num)]
         filtered_random = filtered.sample(size)
         filtered_random["Experiment"] = name

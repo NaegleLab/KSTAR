@@ -129,7 +129,7 @@ class KinaseActivity:
         has at least one point of evidence. Removes all columns that do not meet criteria
         """
         new_data_columns = []
-        evidence = self.evidence.groupby([config.KSTAR_ACCESSION, config.KSTAR_SITE]).agg(self.aggregate).reset_index()
+        evidence = self.evidence.groupby([config.KSTAR_ACCESSION, config.KSTAR_SITE])[self.data_columns].agg(self.aggregate).reset_index()
         for col in self.data_columns:
             if col in self.evidence.columns:
                 if self.threshold is not None:
@@ -334,7 +334,12 @@ class KinaseActivity:
             Matches the evidence dataframe of the kinact object, but with 0 or 1 if a site is included or not.
             This is uniquified and rows that are never used are removed.
         
+            
         """
+        self.threshold = threshold
+        self.greater = greater
+        self.check_data_columns()
+
         #collapse sites into single row based on agg parameter
         evidence = self.evidence.groupby([config.KSTAR_ACCESSION, config.KSTAR_SITE])[self.data_columns].agg(agg).reset_index()
         
