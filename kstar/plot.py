@@ -337,7 +337,7 @@ class DotPlot:
         result and significant dataframes are ordered according to clustering
         
         Parameters
-        ---------
+        ----------
         ax : matplotlib Axes instance
             Axes to plot dendogram to
         

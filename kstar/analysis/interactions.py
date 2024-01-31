@@ -35,7 +35,7 @@ def getSubstrateInfluence(networks, kinase, substrate_subset = None):
         for sub in net_trim['KSTAR_SUBSTRATE']:
             num_networks[sub] += 1
         
-    return pd.Series(num_networks, name = f'Number of Networks connected to {kinase}').sort_values(ascending = False)
+    return pd.Series(num_networks, dtype = float, name = f'Number of Networks connected to {kinase}').sort_values(ascending = False)
     
 def getSubstrateInfluence_inExperiment(networks, binary_evidence, kinase, data_cols = None):
     """
