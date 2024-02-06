@@ -241,10 +241,10 @@ class DotPlot:
     
         melt = self.values.melt(id_vars = 'row_index')
         self.values.drop(columns = ['row_index'], inplace = True)
-        melt['var'] = melt.apply(lambda row : columns.index(row[1]) * self.multiplier + self.offset, axis = 1)
+        melt['var'] = melt.apply(lambda row : columns.index(row.iloc[1]) * self.multiplier + self.offset, axis = 1)
         
         melt_color = self.colors.melt(id_vars = 'row_index')
-        melt_color['var'] = melt_color.apply(lambda row : columns.index(row[1]) * self.multiplier + self.offset, axis = 1)
+        melt_color['var'] = melt_color.apply(lambda row : columns.index(row.iloc[1]) * self.multiplier + self.offset, axis = 1)
         self.colors.drop(columns = ['row_index'], inplace = True)
 
         # Plot Data
@@ -259,7 +259,7 @@ class DotPlot:
             #get color for each datapoint based on significance
             melt_color['color'] = [self.colormap.get(l,'black') for l in melt_color.value]
         else:
-            cmap = LinearSegmentedColormap.from_list("sig_cmap", list(zip([0,1], [self.colormap[0], self.colormap[1]])))
+            cmap = LinearSegmentedColormap.from_list("sig_cmap", [self.colormap[0], self.colormap[1]])
             norm = Normalize(vmin=0, vmax=2, clip=True)
             mapper = cm.ScalarMappable(norm=norm, cmap=cmap)
             #replace 0 with 0.01 to avoid log10 errors, transform the fprs with a log transform
@@ -283,7 +283,6 @@ class DotPlot:
                                 markerfacecolor= self.colormap[color_key], markersize=self.markersize),
                     )     
                 legend1 = ax.legend(handles=color_legend, loc=f'upper {orientation}', bbox_to_anchor=(self.legend_distance,1), title = self.color_title)  
-                ax.add_artist(legend1) 
             else:
                 #choose which values to show in the legend
                 legend_vals = [1, 0.5, 0.05, 0.01]
@@ -294,7 +293,9 @@ class DotPlot:
                     color_legend.append(Line2D([0], [0], marker='o', color='w', label=str(legend_vals[i]),
                                 markerfacecolor= legend_color[i], markersize=self.markersize))
                 legend1 = ax.legend(handles=color_legend, loc=f'upper {orientation}', bbox_to_anchor=(self.legend_distance,1), title = 'FPR')  
-                ax.add_artist(legend1) 
+            legend1.set_clip_on(False)
+            ax.add_artist(legend1)
+            
 
 
         # Add Size Legend
@@ -311,6 +312,8 @@ class DotPlot:
                 kw = dict(prop="sizes", num=self.size_number, color=self.size_color, func=lambda s: s/self.dotsize) 
                 legend2 = ax.legend(*scatter.legend_elements(**kw),
                         loc=f'lower {orientation}', title=self.legend_title, bbox_to_anchor=(self.legend_distance,0)) 
+            #ax.add_artist(legend2)
+
         
         # Add Additional Plotting Information
         ax.tick_params(axis = 'x', rotation = 90)
@@ -475,7 +478,7 @@ class DotPlot:
         #weird issue with melt function here, where for one datset it provides the context column names in 0 column rather than 'variable'. Rename for now.
         if 0 in melted.columns:
             melted.rename(columns = {0: 'variable'}, inplace = True)
-        melted['var'] = melted.apply(lambda row : index.index(row[0]) * self.multiplier + self.offset, axis = 1)
+        melted['var'] = melted.apply(lambda row : index.index(row.iloc[0]) * self.multiplier + self.offset, axis = 1)
         color_labels = melted['value'].unique()
         rgb_values = sns.color_palette(color_palette, len(color_labels))
         color_map = dict(zip(color_labels, rgb_values))
@@ -515,7 +518,7 @@ class DotPlot:
                             bbox_to_anchor=(running_total/total, orientation_values[orientation]),
                             loc='lower left',
                             title=col)
-                        
+                leg.set_clip_on(False)
                 ax.add_artist(leg)
     
                 running_total += len(ids) + 1
