@@ -160,6 +160,11 @@ class KinaseActivity:
 
         Checks all set columns to make sure columns are vaild after filtering evidence
         """
+        #check if data_columns is numpy array, if it is convert to list
+        if isinstance(data_columns, np.ndarray):
+            data_columns = list(data_columns)
+
+        #check if data_columns are provided. If not, find columns with 'data:' in front and set as data_columns
         if data_columns is None or data_columns == []:
             self.data_columns = []
             for col in self.evidence.columns:
@@ -167,6 +172,7 @@ class KinaseActivity:
                     self.data_columns.append(col)  
         else:
             self.data_columns = data_columns
+        #check data columns to make sure they have data
         self.check_data_columns()
         
     def test_threshold(self, threshold, agg = 'mean', greater = True, plot = False, return_evidence_sizes = False):
