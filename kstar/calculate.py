@@ -435,6 +435,8 @@ class KinaseActivity:
         #self.set_data_columns(data_columns)
 
         self.evidence_binary = self.create_binary_evidence(agg = self.aggregate, threshold = self.threshold, evidence_size = self.evidence_size, greater = self.greater)
+        if self.evidence_binary.shape[0] == 0:
+            raise ValueError("No evidence found for activity calculation. Please adjust agg, threshold, and greater parameters to ensure that some sites are included as evidence. Consider testing different parameter values with the test_threshold method.")
         
         # if no data columns are provided use all columns that start with data:
         # data columns that filtered have no evidence are removed
