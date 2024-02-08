@@ -1,7 +1,7 @@
 import pandas as pd 
 import numpy as np
 from collections import defaultdict
-from kstar import config
+
 
 def getSubstrateInfluence(networks, kinase, substrate_subset = None):
     """

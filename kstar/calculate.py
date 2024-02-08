@@ -1,7 +1,6 @@
 import pandas as pd
 import numpy as np
 import scipy.stats as stats
-from statsmodels.stats import multitest
 import multiprocessing
 from collections import defaultdict
 import pickle

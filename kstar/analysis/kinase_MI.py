@@ -1,8 +1,6 @@
 import pandas as pd
 import numpy as np
-import copy
 import seaborn as sns
-import matplotlib.pyplot as plt
 
     
 def plot_kinase_heatmap(heatmap, use_mask = True, annotate = False):

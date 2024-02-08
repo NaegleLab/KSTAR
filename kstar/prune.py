@@ -11,7 +11,6 @@ import os
 from os import path
 from datetime import datetime
 from kstar import helpers, config
-import shutil
 import random
 import string
 import warnings
