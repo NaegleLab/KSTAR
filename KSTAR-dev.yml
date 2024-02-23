@@ -1,0 +1,15 @@
+name: KSTAR-dev
+dependencies:
+  - pip
+  - ipykernel
+  - jupyter
+  - nbconda
+  - statsmodels==0.12.*
+  - biopython==1.81.*
+  - matplotlib-base==3.8.*
+  - numpy==1.26.*
+  - pandas==2.1.*
+  - python>=3.10
+  - requests==2.31.*
+  - scipy==1.11.*
+  - seaborn==0.13.*
