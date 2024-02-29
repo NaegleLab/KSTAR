@@ -7,7 +7,7 @@ nextflow run main.nf -profile Y,singularity \
 --num_random_experiments 15 \
 --outdir ./results \
 --resource_directory ../RESOURCE_FILES \
---network_directoyr /NETWORKS/NetworKIN \
+--network_directory /NETWORKS/NetworKIN \
 --threshold 0.5 \
 --activity_aggregate mean \
 --fpr_alpha 0.05 \
