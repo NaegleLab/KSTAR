@@ -4,7 +4,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
     <title>Frequently Asked Questions &#8212; KSTAR 1 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
@@ -15,7 +15,6 @@
     <script src="_static/underscore.js"></script>
     <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="_static/doctools.js"></script>
-    <script src="_static/sphinx_highlight.js"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     
     <link rel="index" title="Index" href="genindex.html" />
@@ -45,17 +44,17 @@
           <div class="body" role="main">
             
   <section id="frequently-asked-questions">
-<h1>Frequently Asked Questions<a class="headerlink" href="#frequently-asked-questions" title="Permalink to this heading">¶</a></h1>
+<h1>Frequently Asked Questions<a class="headerlink" href="#frequently-asked-questions" title="Permalink to this heading"></a></h1>
 <p>If you do not see your question here, feel free to ask your question with this <a class="reference external" href="https://forms.gle/xtgoFkGjHCJMqMV6A">google form</a></p>
 <section id="data-preparation">
-<h2>Data Preparation<a class="headerlink" href="#data-preparation" title="Permalink to this heading">¶</a></h2>
+<h2>Data Preparation<a class="headerlink" href="#data-preparation" title="Permalink to this heading"></a></h2>
 <p><strong>Q: Should the input values to KSTAR contain missing values, or should imputation be performed?</strong></p>
 <p>A: KSTAR can operate on datasets with missing values. We do not recommend removing sites from the data or imputing data - we assume that if a site is not observed in a sample (i.e. the reason for imputation) then it shouldn’t be used as evidence.</p>
 <p><strong>Q: How should data be normalized prior to use with KSTAR?</strong></p>
 <p>A: While we have not done a comprehensive analysis of the impact of different normalization strategies, we have had success analyzing datasets with many different normalization strategies (median centering, normalizing to untreated condition, normalizing to pooled sample, unnormalized data, etc.). Your normalization strategy (and ultimate data threshold) should match your biological question and how you want data to be included. For example, if you are treating a cell line with drug, it may make the most sense to normalize to an untreated condition and apply a threshold that uses sites unaffected by treatment as evidence.</p>
 </section>
 <section id="choosing-parameter-values">
-<h2>Choosing Parameter Values<a class="headerlink" href="#choosing-parameter-values" title="Permalink to this heading">¶</a></h2>
+<h2>Choosing Parameter Values<a class="headerlink" href="#choosing-parameter-values" title="Permalink to this heading"></a></h2>
 <p><strong>Q: How should we determine the threshold to apply to our dataset?</strong></p>
 <p>A: Several factors can go into this decision:</p>
 <ol class="arabic simple">
@@ -71,7 +70,7 @@
 <p>It’s important to note that the number of significant trials can not be greater than the number of random experiments.</p>
 </section>
 <section id="interpreting-results">
-<h2>Interpreting Results<a class="headerlink" href="#interpreting-results" title="Permalink to this heading">¶</a></h2>
+<h2>Interpreting Results<a class="headerlink" href="#interpreting-results" title="Permalink to this heading"></a></h2>
 <p><strong>Q: Are kinase activities comparable across samples?</strong></p>
 <p>A:  There is some evidence to suggest that they are, as long as the evidence size (number of phosphorylation sites used as evidence of kinase activity in a given sample) are similar. In our thresholding sensitivity analysis (Supplementary Figure 2/3 from our publication), we see that activity predictions are fairly stable as long as evidence size is within ~100-400 tyrosine sites or ~1000 serine/threonine sites. We also found that we were able to replicate tissue-specific kinase activities across multiple independent experiments, regardless of the similarity of the underlying mass spec data.</p>
 <p><strong>Q: How can we identify which sites are indicative of activity for a given kinase/identify what an active kinase is interacting with?</strong></p>
@@ -152,7 +151,7 @@
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2020, Naegle Lab.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.3.0.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.0.2.
     </div>
   </body>
 </html>

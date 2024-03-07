@@ -4,7 +4,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
     <title>Plotting &#8212; KSTAR 1 documentation</title>
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
@@ -15,7 +15,6 @@
     <script src="../_static/underscore.js"></script>
     <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="../_static/doctools.js"></script>
-    <script src="../_static/sphinx_highlight.js"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     
     <link rel="index" title="Index" href="../genindex.html" />
@@ -306,7 +305,7 @@ div.rendered_html tbody tr:hover {
 }
 </style>
 <section id="Plotting">
-<h1>Plotting<a class="headerlink" href="#Plotting" title="Permalink to this heading">¶</a></h1>
+<h1>Plotting<a class="headerlink" href="#Plotting" title="Permalink to this heading"></a></h1>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
@@ -328,7 +327,7 @@ div.rendered_html tbody tr:hover {
 </div>
 </div>
 <section id="Load-KSTAR-Results">
-<h2>Load KSTAR Results<a class="headerlink" href="#Load-KSTAR-Results" title="Permalink to this heading">¶</a></h2>
+<h2>Load KSTAR Results<a class="headerlink" href="#Load-KSTAR-Results" title="Permalink to this heading"></a></h2>
 <p>To load a kstar_slim save, use the ‘from_kstar_slim’ function</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
@@ -360,10 +359,10 @@ div.rendered_html tbody tr:hover {
 </div>
 </section>
 <section id="Plot-Results">
-<h2>Plot Results<a class="headerlink" href="#Plot-Results" title="Permalink to this heading">¶</a></h2>
+<h2>Plot Results<a class="headerlink" href="#Plot-Results" title="Permalink to this heading"></a></h2>
 <p>Kinase activities predicted by KSTAR can be visualized using a specialized plot called a dotplot. In these plots, the size of each “dot” is dictated by the -log10(p-value) and the color is dicated by the false positive rate (significance).</p>
 <section id="Plot-the-base-dotplot">
-<h3>Plot the base dotplot<a class="headerlink" href="#Plot-the-base-dotplot" title="Permalink to this heading">¶</a></h3>
+<h3>Plot the base dotplot<a class="headerlink" href="#Plot-the-base-dotplot" title="Permalink to this heading"></a></h3>
 <p>In the most simple case, we can plot all kinases and samples with activity predictions, sorted in the same order as the provided activities/fpr dataframe. First, we need to extract the activity and false positive rate from the kinact_dict object.</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
@@ -412,7 +411,7 @@ div.rendered_html tbody tr:hover {
 </div>
 </section>
 <section id="Change-the-axis-labels-and-sort-kinases-based-on-activity">
-<h3>Change the axis labels and sort kinases based on activity<a class="headerlink" href="#Change-the-axis-labels-and-sort-kinases-based-on-activity" title="Permalink to this heading">¶</a></h3>
+<h3>Change the axis labels and sort kinases based on activity<a class="headerlink" href="#Change-the-axis-labels-and-sort-kinases-based-on-activity" title="Permalink to this heading"></a></h3>
 <p>In many cases, you may wish to plot different axis labels for each experiment or use different naming conventions then those that are defaults in NetworKIN. To adjust, you can manually update the results and fpr dataframe prior to creating the dotplot object. Or, you can pass in dictionaries to the dotplot object that will adjust the axis labels accordingly without changing the original activities/fpr dataframes.</p>
 <p>In this example, the x-axis labels are a bit wordy. Let’s simplify it to just include the numeric time value. In addition, we would like to change the kinase labels so that kinases like KDR (VEGFR2) are indicated by their more well known name.</p>
 <div class="nbinput docutils container">
@@ -492,7 +491,7 @@ div.rendered_html tbody tr:hover {
 </div>
 </section>
 <section id="Remove-kinases-that-never-show-significant-activity">
-<h3>Remove kinases that never show significant activity<a class="headerlink" href="#Remove-kinases-that-never-show-significant-activity" title="Permalink to this heading">¶</a></h3>
+<h3>Remove kinases that never show significant activity<a class="headerlink" href="#Remove-kinases-that-never-show-significant-activity" title="Permalink to this heading"></a></h3>
 <p>In many cases, there will be kinases that do not show significant activity in any of the experiments. It can be advantageous to remove these kinases in order to simplify the plot.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
@@ -538,7 +537,7 @@ div.rendered_html tbody tr:hover {
 </div>
 </section>
 <section id="Cluster-the-kinase-activities">
-<h3>Cluster the kinase activities<a class="headerlink" href="#Cluster-the-kinase-activities" title="Permalink to this heading">¶</a></h3>
+<h3>Cluster the kinase activities<a class="headerlink" href="#Cluster-the-kinase-activities" title="Permalink to this heading"></a></h3>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
 </pre></div>
@@ -574,7 +573,7 @@ div.rendered_html tbody tr:hover {
 <p>Notice that clustering the kinase activities resorted the y-axis, undoing the sorting from earlier.</p>
 </section>
 <section id="Add-context-to-dotplot">
-<h3>Add context to dotplot<a class="headerlink" href="#Add-context-to-dotplot" title="Permalink to this heading">¶</a></h3>
+<h3>Add context to dotplot<a class="headerlink" href="#Add-context-to-dotplot" title="Permalink to this heading"></a></h3>
 <p>In some cases you may want to add additional context to the dotplot that indicates significant characteristics about each sample. These could include things like pre vs. post-treatment, normal vs. tumor sample, subtype of cancer, etc.</p>
 <p>To do so, you need to create a new dataframe, which contains a row for each sample in the dotplot (with an id column indicating the sample), and columns for each layer of context you want to be added. In the below example, we will add “Context 1” to the plot, which is either true or false. “Context 2” has multiple different options indicated by a number.</p>
 <div class="nbinput docutils container">
@@ -686,7 +685,7 @@ is below:</p>
 </div>
 </section>
 <section id="Plot-dotplot-with-the-false-positive-rate-indicated-by-hue">
-<h3>Plot dotplot with the false positive rate indicated by hue<a class="headerlink" href="#Plot-dotplot-with-the-false-positive-rate-indicated-by-hue" title="Permalink to this heading">¶</a></h3>
+<h3>Plot dotplot with the false positive rate indicated by hue<a class="headerlink" href="#Plot-dotplot-with-the-false-positive-rate-indicated-by-hue" title="Permalink to this heading"></a></h3>
 <p>In some cases, the binary coloring of significance can make certain kinases appear less significant than they really are, with false positive rates hovering around 0.05. As such, it may be of interest to encode the false positive rate using a gradient hue instead. This is easy to accomplish in the dotplot class, as this is controlled by the binary_sig parameter.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
@@ -737,7 +736,7 @@ is below:</p>
 </div>
 </section>
 <section id="Indicate-evidence-size-for-sample">
-<h3>Indicate evidence size for sample<a class="headerlink" href="#Indicate-evidence-size-for-sample" title="Permalink to this heading">¶</a></h3>
+<h3>Indicate evidence size for sample<a class="headerlink" href="#Indicate-evidence-size-for-sample" title="Permalink to this heading"></a></h3>
 <p>It can sometimes be useful to understand how many phosphorylation sites were used as evidence for each sample, as samples with too few sites may produce unhelpful/unreliable predictions. We have provided functionality to indicate the number of sites used for each sample, as well as indicate when sample size may be too low for reliable predictions. There are two versions of this annotation to choose from: - Bars: bar plot indicating size, with recommended evidence sizes shown as horizontal lines,
 and samples with too few sites appearing as faint gray bars. - dots: dots with increasing size for increasing number of sites used, with the dot colored based on whether their is sufficient evidence for prediction.</p>
 <p>In order to add this layer of information, we need to know the binary evidence used, so load this in, either from kinact_dict or directly from file.</p>
@@ -908,7 +907,7 @@ and samples with too few sites appearing as faint gray bars. - dots: dots with i
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2020, Naegle Lab.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.3.0.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.0.2.
     </div>
   </body>
 </html>

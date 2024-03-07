@@ -14,7 +14,6 @@
     <script src="../../_static/underscore.js"></script>
     <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="../../_static/doctools.js"></script>
-    <script src="../../_static/sphinx_highlight.js"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     
     <link rel="index" title="Index" href="../../genindex.html" />
@@ -561,104 +560,8 @@
                         
                 <span class="n">ax</span><span class="o">.</span><span class="n">add_artist</span><span class="p">(</span><span class="n">leg</span><span class="p">)</span>
     
-                <span class="n">running_total</span> <span class="o">+=</span> <span class="nb">len</span><span class="p">(</span><span class="n">ids</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span></div>
-                
-<div class="viewcode-block" id="DotPlot.evidence_count"><a class="viewcode-back" href="../../KSTAR.html#kstar.plot.DotPlot.evidence_count">[docs]</a>    <span class="k">def</span> <span class="nf">evidence_count</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ax</span><span class="p">,</span> <span class="n">binary_evidence</span><span class="p">,</span> <span class="n">plot_type</span> <span class="o">=</span> <span class="s1">&#39;bars&#39;</span><span class="p">,</span> <span class="n">phospho_type</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">dot_size</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">include_recommendations</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-                      <span class="n">ideal_min</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">recommended_min</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">dot_colors</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">bar_line_colors</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Add bars to dotplot indicating the total number of sites used as evidence in activity calculation</span>
+                <span class="n">running_total</span> <span class="o">+=</span> <span class="nb">len</span><span class="p">(</span><span class="n">ids</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span></div></div>
 
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        ax: axes object</span>
-<span class="sd">            where to plot the bars</span>
-<span class="sd">        binary_evidence: pandas dataframe</span>
-<span class="sd">            binarized dataframe produced during activity calculation (threshold applied to original experiment)</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">palette</span> <span class="o">=</span> <span class="n">sns</span><span class="o">.</span><span class="n">color_palette</span><span class="p">(</span><span class="s1">&#39;colorblind&#39;</span><span class="p">)</span>
-        
-        <span class="c1">#make sure binary evidence contains unique sites</span>
-        <span class="n">binary_evidence</span> <span class="o">=</span> <span class="n">binary_evidence</span><span class="o">.</span><span class="n">drop_duplicates</span><span class="p">()</span>
-
-        <span class="c1">#get the number of sites used as evidence</span>
-        <span class="n">total_num_sites</span> <span class="o">=</span> <span class="n">binary_evidence</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-        <span class="n">num_sites_in_sample</span> <span class="o">=</span> <span class="n">binary_evidence</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">x_label_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">()]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
-
-        <span class="c1">#get correct order of samples</span>
-        <span class="n">order</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">columns</span>
-        <span class="n">xticks</span> <span class="o">=</span> <span class="p">[</span><span class="n">tick</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">multiplier</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">offset</span> <span class="k">for</span> <span class="n">tick</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">order</span><span class="p">))]</span>
-        <span class="n">num_sites_in_sample</span> <span class="o">=</span> <span class="n">num_sites_in_sample</span><span class="p">[</span><span class="n">order</span><span class="p">]</span>
-        
-        <span class="c1">#add recommended labels</span>
-        <span class="k">if</span> <span class="n">include_recommendations</span><span class="p">:</span>
-            <span class="c1">#if minimums not indicated, use our recommendations</span>
-            <span class="k">if</span> <span class="n">phospho_type</span> <span class="o">==</span> <span class="s1">&#39;Y&#39;</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">ideal_min</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                    <span class="n">ideal_min</span> <span class="o">=</span> <span class="mi">50</span>
-                <span class="k">if</span> <span class="n">recommended_min</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                    <span class="n">recommended_min</span> <span class="o">=</span> <span class="mi">25</span>
-            <span class="k">elif</span> <span class="n">phospho_type</span> <span class="o">==</span> <span class="s1">&#39;ST&#39;</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">ideal_min</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                    <span class="n">ideal_min</span> <span class="o">=</span> <span class="mi">1000</span>
-                <span class="k">if</span> <span class="n">recommended_min</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                    <span class="n">recommended_min</span> <span class="o">=</span> <span class="mi">250</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Please indicate which phospho_type this plot is for to get appropriate recommendations&#39;</span><span class="p">)</span>
-                
-            <span class="c1">#calculate bar colors (color any samples with)</span>
-            <span class="n">colors</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;gray&#39;</span> <span class="k">if</span> <span class="n">val</span> <span class="o">&gt;=</span> <span class="n">recommended_min</span> <span class="k">else</span> <span class="s1">&#39;lightgrey&#39;</span> <span class="k">for</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">num_sites_in_sample</span><span class="o">.</span><span class="n">values</span><span class="p">]</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">colors</span> <span class="o">=</span> <span class="s1">&#39;gray&#39;</span>
-            
-                
-        <span class="k">if</span> <span class="n">plot_type</span> <span class="o">==</span> <span class="s1">&#39;bars&#39;</span><span class="p">:</span>
-            <span class="c1">#plot a bar graph</span>
-            <span class="n">ax</span><span class="o">.</span><span class="n">bar</span><span class="p">(</span><span class="n">xticks</span><span class="p">,</span> <span class="n">num_sites_in_sample</span><span class="p">,</span> <span class="n">width</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">offset</span><span class="o">*</span><span class="mi">2</span><span class="p">,</span> <span class="n">color</span> <span class="o">=</span> <span class="n">colors</span><span class="p">)</span>
-            <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Evidence Size&#39;</span><span class="p">,</span> <span class="n">rotation</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">ha</span> <span class="o">=</span> <span class="s1">&#39;right&#39;</span><span class="p">,</span> <span class="n">va</span> <span class="o">=</span> <span class="s1">&#39;center&#39;</span><span class="p">)</span>
-            
-            <span class="c1">#add recommended labels</span>
-            <span class="k">if</span> <span class="n">include_recommendations</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">bar_line_colors</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                    <span class="n">bar_line_colors</span> <span class="o">=</span> <span class="p">[</span><span class="n">palette</span><span class="p">[</span><span class="mi">8</span><span class="p">],</span> <span class="n">palette</span><span class="p">[</span><span class="mi">3</span><span class="p">]]</span>
-                <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">bar_line_colors</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">:</span>
-                    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Must provide 2 colors in the following order: ideal min, recommended min. Using default colors&#39;</span><span class="p">)</span>
-                    <span class="n">bar_line_colors</span> <span class="o">=</span> <span class="p">[</span><span class="n">palette</span><span class="p">[</span><span class="mi">8</span><span class="p">],</span> <span class="n">palette</span><span class="p">[</span><span class="mi">3</span><span class="p">]]</span>
-                <span class="n">ax</span><span class="o">.</span><span class="n">axhline</span><span class="p">(</span><span class="n">ideal_min</span><span class="p">,</span> <span class="n">c</span> <span class="o">=</span> <span class="n">bar_line_colors</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">linestyle</span> <span class="o">=</span> <span class="s1">&#39;dashed&#39;</span><span class="p">,</span> <span class="n">linewidth</span> <span class="o">=</span> <span class="mf">0.8</span><span class="p">,</span> <span class="n">label</span> <span class="o">=</span><span class="sa">f</span><span class="s1">&#39;Ideal Minimum (n&gt;</span><span class="si">{</span><span class="n">ideal_min</span><span class="si">}</span><span class="s1">)&#39;</span><span class="p">)</span>
-                <span class="n">ax</span><span class="o">.</span><span class="n">axhline</span><span class="p">(</span><span class="n">recommended_min</span><span class="p">,</span> <span class="n">c</span> <span class="o">=</span> <span class="n">bar_line_colors</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">linewidth</span> <span class="o">=</span> <span class="mf">0.8</span><span class="p">,</span> <span class="n">label</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;Recommended Minimum (n&gt;</span><span class="si">{</span><span class="n">recommended_min</span><span class="si">}</span><span class="s1">)&#39;</span><span class="p">)</span>
-                <span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">bbox_to_anchor</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
-                    
-        <span class="k">elif</span> <span class="n">plot_type</span> <span class="o">==</span> <span class="s1">&#39;dots&#39;</span><span class="p">:</span>
-            <span class="n">colors</span> <span class="o">=</span> <span class="p">[]</span>
-            <span class="k">if</span> <span class="n">include_recommendations</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">dot_colors</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                    <span class="n">dot_colors</span> <span class="o">=</span> <span class="p">[</span><span class="n">palette</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span><span class="n">palette</span><span class="p">[</span><span class="mi">8</span><span class="p">],</span><span class="n">palette</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
-                <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">dot_colors</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">3</span><span class="p">:</span>
-                    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Must provide 3 colors in the following order: ideal, sufficient, low. Using default colors&#39;</span><span class="p">)</span>
-                    <span class="n">palette</span> <span class="o">=</span> <span class="n">sns</span><span class="o">.</span><span class="n">color_palette</span><span class="p">(</span><span class="s1">&#39;colorblind&#39;</span><span class="p">)</span>
-                    <span class="n">dot_colors</span> <span class="o">=</span> <span class="p">[</span><span class="n">palette</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span><span class="n">palette</span><span class="p">[</span><span class="mi">8</span><span class="p">],</span><span class="n">palette</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
-                <span class="k">for</span> <span class="n">size</span> <span class="ow">in</span> <span class="n">num_sites_in_sample</span><span class="p">:</span>
-                    <span class="k">if</span> <span class="n">size</span> <span class="o">&gt;</span> <span class="n">ideal_min</span><span class="p">:</span>
-                        <span class="n">colors</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dot_colors</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
-                    <span class="k">elif</span> <span class="n">size</span> <span class="o">&gt;</span> <span class="n">recommended_min</span><span class="p">:</span>
-                        <span class="n">colors</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dot_colors</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
-                    <span class="k">else</span><span class="p">:</span>
-                        <span class="n">colors</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dot_colors</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
-                        
-                <span class="c1">#create legend</span>
-                <span class="n">legend_elements</span> <span class="o">=</span> <span class="p">[</span><span class="n">Line2D</span><span class="p">([</span><span class="mi">0</span><span class="p">],[</span><span class="mi">0</span><span class="p">],</span> <span class="n">color</span> <span class="o">=</span> <span class="s1">&#39;white&#39;</span><span class="p">,</span><span class="n">markerfacecolor</span> <span class="o">=</span> <span class="n">dot_colors</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> 
-                                          <span class="n">label</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;Ideal Evidence Size (n&gt;</span><span class="si">{</span><span class="n">ideal_min</span><span class="si">}</span><span class="s1">)&#39;</span><span class="p">,</span> <span class="n">marker</span> <span class="o">=</span> <span class="s1">&#39;o&#39;</span><span class="p">,</span> <span class="n">markersize</span> <span class="o">=</span> <span class="mi">10</span><span class="p">),</span>
-                                  <span class="n">Line2D</span><span class="p">([</span><span class="mi">0</span><span class="p">],[</span><span class="mi">0</span><span class="p">],</span> <span class="n">color</span> <span class="o">=</span> <span class="s1">&#39;white&#39;</span><span class="p">,</span><span class="n">markerfacecolor</span> <span class="o">=</span> <span class="n">dot_colors</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> 
-                                         <span class="n">label</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;Sufficient Evidence Size (n&gt;</span><span class="si">{</span><span class="n">recommended_min</span><span class="si">}</span><span class="s1">)&#39;</span><span class="p">,</span> <span class="n">marker</span> <span class="o">=</span> <span class="s1">&#39;o&#39;</span><span class="p">,</span> <span class="n">markersize</span> <span class="o">=</span> <span class="mi">10</span><span class="p">),</span>
-                                  <span class="n">Line2D</span><span class="p">([</span><span class="mi">0</span><span class="p">],[</span><span class="mi">0</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;white&#39;</span><span class="p">,</span><span class="n">markerfacecolor</span> <span class="o">=</span> <span class="n">dot_colors</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> 
-                                         <span class="n">label</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;Low Evidence Size (n&lt;</span><span class="si">{</span><span class="n">recommended_min</span><span class="si">}</span><span class="s1">)&#39;</span><span class="p">,</span> <span class="n">marker</span> <span class="o">=</span> <span class="s1">&#39;o&#39;</span><span class="p">,</span> <span class="n">markersize</span> <span class="o">=</span> <span class="mi">10</span><span class="p">)]</span>
-                <span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">handles</span> <span class="o">=</span> <span class="n">legend_elements</span><span class="p">,</span> <span class="n">bbox_to_anchor</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">))</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">colors</span> <span class="o">=</span> <span class="s1">&#39;gray&#39;</span>
-            <span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">xticks</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">num_sites_in_sample</span><span class="p">)),</span><span class="n">s</span> <span class="o">=</span> <span class="n">num_sites_in_sample</span><span class="o">*</span><span class="n">dot_size</span><span class="p">,</span> <span class="n">c</span> <span class="o">=</span> <span class="n">colors</span><span class="p">)</span>
-            <span class="n">ax</span><span class="o">.</span><span class="n">axes</span><span class="o">.</span><span class="n">get_yaxis</span><span class="p">()</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span></div></div>
-        
-        
-        
       
         
 </pre></div>
@@ -714,7 +617,7 @@
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2020, Naegle Lab.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.3.0.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.0.2.
     </div>
   </body>
 </html>

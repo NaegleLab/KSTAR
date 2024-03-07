@@ -84,7 +84,7 @@ The python code used should look similar to below:
 from kstar import config
 
 #update network directory: If KSTAR does not find this directory + necessary files, it will notify you
-config.NETWORK_DIR = config.update_network_directory('./NETWORKS/NetworKIN')
+config.NETWORK_DIR, config.NETWORK_Y_PICKLES, config.NETWORK_ST_PICKLES = config.update_network_directory('./NETWORKS/NetworKIN')
 
 #create network pickles. Only need to run this function if network pickles were not already generated.
 config.create_network_pickles()

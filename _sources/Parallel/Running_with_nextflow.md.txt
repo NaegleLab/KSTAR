@@ -65,7 +65,7 @@ nextflow run main.nf -profile Y \
 --experiment_file data/example_data_mapped.tsv \
 --outdir ./results \
 --resource_directory ../RESOURCE_FILES \
---network_directoyr /NETWORKS/NetworKIN \
+--network_directory /NETWORKS/NetworKIN \
 --data_columns data:Column1,data:Column2,data:Column3,data:Column4 \
 --num_random_experiments 150 \
 --threshold 0.5 \

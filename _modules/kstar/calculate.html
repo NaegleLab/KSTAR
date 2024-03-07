@@ -14,7 +14,6 @@
     <script src="../../_static/underscore.js"></script>
     <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="../../_static/doctools.js"></script>
-    <script src="../../_static/sphinx_highlight.js"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     
     <link rel="index" title="Index" href="../../genindex.html" />
@@ -53,11 +52,9 @@
 <span class="kn">import</span> <span class="nn">itertools</span>
 <span class="kn">from</span> <span class="nn">itertools</span> <span class="kn">import</span> <span class="n">repeat</span>
 <span class="kn">import</span> <span class="nn">concurrent.futures</span>
-<span class="kn">import</span> <span class="nn">seaborn</span> <span class="k">as</span> <span class="nn">sns</span>
-<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
 
 <span class="kn">from</span> <span class="nn">kstar</span> <span class="kn">import</span> <span class="n">config</span><span class="p">,</span> <span class="n">helpers</span>
-<span class="kn">from</span> <span class="nn">kstar.random_experiments</span> <span class="kn">import</span> <span class="n">generate_random_experiments</span><span class="p">,</span> <span class="n">calculate_fpr</span>
+<span class="kn">from</span> <span class="nn">kstar.normalize</span> <span class="kn">import</span> <span class="n">generate_random_experiments</span><span class="p">,</span> <span class="n">calculate_fpr</span>
 
 <div class="viewcode-block" id="KinaseActivity"><a class="viewcode-back" href="../../KSTAR.html#kstar.calculate.KinaseActivity">[docs]</a><span class="k">class</span> <span class="nc">KinaseActivity</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
@@ -149,6 +146,14 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">agg_activities</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">activities</span> <span class="o">=</span> <span class="kc">None</span>
 
+
+        <span class="c1">#Properties for normalized information</span>
+        <span class="c1">#self.normalizers = defaultdict()</span>
+        <span class="c1">#self.normalized = False</span>
+        <span class="c1">#self.normalized_activities_list = None</span>
+        <span class="c1">#self.normalized_agg_activities = None</span>
+        <span class="c1">#self.activities_normalized = None</span>
+        <span class="c1">#self.fpr_activity = None</span>
         
         <span class="c1">#Location of random experiments</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">randomized</span> <span class="o">=</span> <span class="kc">False</span>
@@ -204,43 +209,7 @@
                     <span class="bp">self</span><span class="o">.</span><span class="n">data_columns</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">col</span><span class="p">)</span>  
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">data_columns</span> <span class="o">=</span> <span class="n">data_columns</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">check_data_columns</span><span class="p">()</span></div>
-        
-<div class="viewcode-block" id="KinaseActivity.test_threshold"><a class="viewcode-back" href="../../KSTAR.html#kstar.calculate.KinaseActivity.test_threshold">[docs]</a>    <span class="k">def</span> <span class="nf">test_threshold</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">threshold</span><span class="p">,</span> <span class="n">agg</span> <span class="o">=</span> <span class="s1">&#39;mean&#39;</span><span class="p">,</span> <span class="n">greater</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">plot</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">return_evidence_sizes</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Given a threshold value, calculate the distribution of evidence sizes (i.e. number of sites used in prediction for each sample in the experiment).</span>
-<span class="sd">        </span>
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        threshold: float</span>
-<span class="sd">            cutoff for inclusion as evidence for prediction. If greater = True, sites with quantification greater than the threshold are used as evidence.</span>
-<span class="sd">        agg: str</span>
-<span class="sd">            how to combine sites with multiple instances in experiment</span>
-<span class="sd">        greater: bool</span>
-<span class="sd">            whether to use sites greater (True) or less (False) than the threshold</span>
-<span class="sd">        plot: bool</span>
-<span class="sd">            whether to plot a histogram of the evidence sizes used</span>
-<span class="sd">        return_site_nums: bool</span>
-<span class="sd">            indicates whether to return the evidence sizes for all samples or not</span>
-<span class="sd">            </span>
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        Outputs the minimum, maximum, and median evidence sizes across all samples. May return evidence sizes of all samples as pandas series</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">evidence_binary</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_binary_evidence</span><span class="p">(</span><span class="n">agg</span> <span class="o">=</span> <span class="n">agg</span><span class="p">,</span> <span class="n">threshold</span> <span class="o">=</span> <span class="n">threshold</span><span class="p">,</span> <span class="n">greater</span> <span class="o">=</span> <span class="n">greater</span><span class="p">)</span>
-        <span class="n">num_sites</span> <span class="o">=</span> <span class="n">evidence_binary</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">data_columns</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Number of Sites That Will Be Used As Evidence For Each Sample:&#39;</span><span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Maximum =&#39;</span><span class="p">,</span><span class="n">num_sites</span><span class="o">.</span><span class="n">max</span><span class="p">())</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Minimum =&#39;</span><span class="p">,</span> <span class="n">num_sites</span><span class="o">.</span><span class="n">min</span><span class="p">())</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Median =&#39;</span><span class="p">,</span> <span class="n">num_sites</span><span class="o">.</span><span class="n">median</span><span class="p">())</span>
-        
-        <span class="k">if</span> <span class="n">plot</span><span class="p">:</span>
-            <span class="n">plt_data</span> <span class="o">=</span> <span class="n">num_sites</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
-            <span class="n">sns</span><span class="o">.</span><span class="n">histplot</span><span class="p">(</span><span class="n">data</span> <span class="o">=</span> <span class="n">plt_data</span><span class="p">,</span> <span class="n">x</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span>
-            <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;Number of Sites Used As Evidence&#39;</span><span class="p">)</span>
-            
-        <span class="k">if</span> <span class="n">return_evidence_sizes</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">num_sites</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">check_data_columns</span><span class="p">()</span>    </div>
 
 <div class="viewcode-block" id="KinaseActivity.calculate_random_activities"><a class="viewcode-back" href="../../KSTAR.html#kstar.calculate.KinaseActivity.calculate_random_activities">[docs]</a>    <span class="k">def</span> <span class="nf">calculate_random_activities</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">logger</span><span class="p">,</span> <span class="n">num_random_experiments</span><span class="o">=</span><span class="mi">150</span><span class="p">,</span> <span class="n">PROCESSES</span> <span class="o">=</span> <span class="mi">1</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -256,44 +225,69 @@
             <span class="n">num_random_experiments</span><span class="p">,</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">phospho_type</span><span class="p">,</span> 
             <span class="bp">self</span><span class="o">.</span><span class="n">data_columns</span><span class="p">,</span>
+            <span class="n">pool</span><span class="p">,</span>
             <span class="n">PROCESSES</span> <span class="o">=</span> <span class="n">PROCESSES</span><span class="p">)</span>
         
         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Calculating random kinase activities&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">random_kinact</span> <span class="o">=</span> <span class="n">KinaseActivity</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">random_experiments</span><span class="p">,</span> <span class="n">logger</span><span class="p">,</span> <span class="n">phospho_type</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">phospho_type</span><span class="p">)</span>
-        <span class="c1">#self.random_kinact.add_networks_batch(self.networks)</span>
-
-        <span class="c1"># if no data columns are provided use all columns that start with data:</span>
-        <span class="c1"># data columns that filtered have no evidence are removed</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Predicting Activity for Random Experiments&quot;</span><span class="p">)</span>
-        
-
-        <span class="c1"># MULTIPROCESSING</span>
-        <span class="k">if</span> <span class="n">PROCESSES</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
-            <span class="n">pool</span> <span class="o">=</span> <span class="n">multiprocessing</span><span class="o">.</span><span class="n">Pool</span><span class="p">(</span><span class="n">processes</span> <span class="o">=</span> <span class="n">PROCESSES</span><span class="p">)</span>
-            
-            <span class="n">filtered_evidence_list</span>  <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">random_kinact</span><span class="o">.</span><span class="n">evidence</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">random_kinact</span><span class="o">.</span><span class="n">evidence</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="o">==</span><span class="mi">1</span> <span class="p">]</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">random_kinact</span><span class="o">.</span><span class="n">data_columns</span><span class="p">]</span> 
-            <span class="n">networks</span> <span class="o">=</span> <span class="n">itertools</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">networks</span><span class="p">)</span>  
-            <span class="n">network_sizes</span> <span class="o">=</span> <span class="n">itertools</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">network_sizes</span><span class="p">)</span>
-            <span class="n">iterable</span> <span class="o">=</span> <span class="nb">zip</span><span class="p">(</span><span class="n">filtered_evidence_list</span><span class="p">,</span> <span class="n">networks</span><span class="p">,</span> <span class="n">network_sizes</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">random_kinact</span><span class="o">.</span><span class="n">data_columns</span><span class="p">)</span>
-            <span class="n">activities_list</span> <span class="o">=</span> <span class="n">pool</span><span class="o">.</span><span class="n">starmap</span><span class="p">(</span><span class="n">calculate_hypergeometric_activities</span><span class="p">,</span> <span class="n">iterable</span><span class="p">)</span>
-        
-        <span class="c1"># SINGLE CORE PROCESSING</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">activities_list</span> <span class="o">=</span><span class="p">[]</span>
-            <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">random_kinact</span><span class="o">.</span><span class="n">data_columns</span><span class="p">:</span>
-                <span class="n">filtered_evidence</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">random_kinact</span><span class="o">.</span><span class="n">evidence</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">random_kinact</span><span class="o">.</span><span class="n">evidence</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">]</span>
-                <span class="n">act</span> <span class="o">=</span> <span class="n">calculate_hypergeometric_activities</span><span class="p">(</span><span class="n">filtered_evidence</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">networks</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">network_sizes</span><span class="p">,</span> <span class="n">col</span><span class="p">)</span>
-                <span class="n">act</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">col</span>
-                <span class="n">activities_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">act</span><span class="p">)</span>
-        <span class="c1">#self.num_networks = len(self.network_sizes)</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">random_kinact</span><span class="o">.</span><span class="n">activities_list</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">activities_list</span><span class="p">)</span>
-        
-        <span class="c1">#self.random_kinact.calculate_kinase_activities( agg=&#39;count&#39;, threshold=1.0, greater=True, PROCESSES = PROCESSES )</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">random_kinact</span><span class="o">.</span><span class="n">add_networks_batch</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">networks</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">random_kinact</span><span class="o">.</span><span class="n">calculate_kinase_activities</span><span class="p">(</span> <span class="n">agg</span><span class="o">=</span><span class="s1">&#39;count&#39;</span><span class="p">,</span> <span class="n">threshold</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">greater</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">PROCESSES</span> <span class="o">=</span> <span class="n">PROCESSES</span> <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">random_kinact</span><span class="o">.</span><span class="n">agg_activities</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">random_kinact</span><span class="o">.</span><span class="n">aggregate_activities</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">random_kinact</span><span class="o">.</span><span class="n">activities</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">random_kinact</span><span class="o">.</span><span class="n">summarize_activities</span><span class="p">()</span></div>
 
-   
+    
+    <span class="c1">#def run_normalization(self, logger, num_random_experiments=150, target_alpha=0.05, PROCESSES = 1):</span>
+    <span class="c1">#    &quot;&quot;&quot;</span>
+    <span class="c1">#    Run entire normaliation pipeline (Generate random experiments, calculate kinase activities for random experiments, and normalize p-values based on provided target_alpha)</span>
+    <span class="c1">#    &quot;&quot;&quot;</span>
+    <span class="c1">#    self.logger.info(&quot;Running Normalization Pipeline&quot;)</span>
+    <span class="c1">#    pool = multiprocessing.Pool(processes = PROCESSES)</span>
+    <span class="c1">#    self.normalized = True</span>
+    <span class="c1">#    self.num_random_experiments = num_random_experiments</span>
+    <span class="c1">#    self.logger.info(&quot;Generating random experiments&quot;)</span>
+    <span class="c1">#    self.random_experiments = generate_random_experiments.build_random_experiments(</span>
+    <span class="c1">#        self.evidence_binary, </span>
+    <span class="c1">#        config.HUMAN_REF_COMPENDIA, </span>
+    <span class="c1">#        num_random_experiments,</span>
+    <span class="c1">#        self.phospho_type, </span>
+    <span class="c1">#        self.data_columns,</span>
+    <span class="c1">#        pool,</span>
+    <span class="c1">#        PROCESSES = PROCESSES)</span>
+
+        
+    <span class="c1">#    self.logger.info(&quot;Calculating random kinase activities&quot;)</span>
+    <span class="c1">#    self.random_kinact = KinaseActivity(self.random_experiments, logger, phospho_type=self.phospho_type)</span>
+    <span class="c1">#    self.random_kinact.add_networks_batch(self.networks)</span>
+    <span class="c1">#    self.random_kinact.calculate_kinase_activities( agg=&#39;count&#39;, threshold=1.0, greater=True, PROCESSES = PROCESSES )</span>
+        
+    <span class="c1">#    self.logger.info(&quot;Normalizing Activities&quot;)</span>
+    <span class="c1">#    self.normalize(target_alpha=target_alpha)</span>
+
+
+
+    <span class="c1">#def normalize(self, target_alpha=0.05):</span>
+    <span class="c1">#    &quot;&quot;&quot;</span>
+    <span class="c1">#    Given random_kinace.activities, summarize, calculate FPR, and normalize. Called in the run_normalization pipelin</span>
+    <span class="c1">#    and useful for changing the target_alpha value, without requiring generation and calculation of random datasets</span>
+    <span class="c1">#    such as in reading a project from slim format.</span>
+    <span class="c1">#</span>
+    <span class="c1">#    Parameters</span>
+    <span class="c1">#    ----------</span>
+    <span class="c1">#    target_alpha: float</span>
+    <span class="c1">#        FPR target value between 0 and 1</span>
+    <span class="c1">#</span>
+    <span class="c1">#</span>
+    <span class="c1">#    &quot;&quot;&quot;</span>
+    <span class="c1">#    if target_alpha &gt; 1 or target_alpha &lt; 0:</span>
+    <span class="c1">#        self.logger.info(&quot;ERROR: Target alpha should be between 0 an 1, setting to default of 0.05&quot;)</span>
+    <span class="c1">#        target_alpha = 0.05</span>
+    <span class="c1">#    self.random_kinact.aggregate_activities()</span>
+    <span class="c1">#    self.random_kinact.activities = self.random_kinact.summarize_activities()</span>
+
+    <span class="c1">#    self.normalizers, self.fpr_activity = calculate_fpr.generate_fpr_values(self.activities, self.random_kinact.activities, target_alpha)</span>
+
+    <span class="c1">#    self.normalize_activities(default_normalization=target_alpha)</span>
+    <span class="c1">#    self.activities_normalized = self.summarize_activities(self.normalized_agg_activities,&#39;median_normalized_activity&#39;,normalized=True)</span>
         
 
     <span class="k">def</span> <span class="nf">add_networks_batch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">networks</span><span class="p">):</span>
@@ -316,7 +310,7 @@
         <span class="k">if</span> <span class="n">network_size</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">network_size</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">network_sizes</span><span class="p">[</span><span class="n">network_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">network_size</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">network_sizes</span><span class="p">[</span><span class="n">network_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">network</span><span class="o">.</span><span class="n">drop_duplicates</span><span class="p">(</span><span class="n">subset</span> <span class="o">=</span> <span class="p">[</span><span class="n">config</span><span class="o">.</span><span class="n">KSTAR_ACCESSION</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">KSTAR_SITE</span><span class="p">])</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">network_sizes</span><span class="p">[</span><span class="n">network_id</span><span class="p">]</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">network</span><span class="o">.</span><span class="n">groupby</span><span class="p">([</span><span class="n">config</span><span class="o">.</span><span class="n">KSTAR_ACCESSION</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">KSTAR_SITE</span><span class="p">])</span><span class="o">.</span><span class="n">size</span><span class="p">())</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;ADD NETWORK : Number of Accession Sites : </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">network_sizes</span><span class="p">[</span><span class="n">network_id</span><span class="p">]</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
     
 <div class="viewcode-block" id="KinaseActivity.get_run_date"><a class="viewcode-back" href="../../KSTAR.html#kstar.calculate.KinaseActivity.get_run_date">[docs]</a>    <span class="k">def</span> <span class="nf">get_run_date</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -344,9 +338,110 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Evidence not set. Evidence columns must include &#39;</span><span class="si">{</span><span class="n">config</span><span class="o">.</span><span class="n">KSTAR_ACCESSION</span><span class="si">}</span><span class="s2">&#39; and &#39;</span><span class="si">{</span><span class="n">config</span><span class="o">.</span><span class="n">KSTAR_SITE</span><span class="si">}</span><span class="s2">&#39; keys&quot;</span><span class="p">)</span>
     
+    <span class="c1">#def set_normalizers(self, normalizers):</span>
+    <span class="c1">#    &quot;&quot;&quot;</span>
+    <span class="c1">#    Sets the Kinase normalization values to be used in calculating the updated p-values</span>
+    <span class="c1">#    Updated p-values normalized via original p-value / normalization-factor * normalization_factor</span>
 
+    <span class="c1">#    Parameters</span>
+    <span class="c1">#    ----------</span>
+    <span class="c1">#    normalizers : dict or pandas df</span>
+    <span class="c1">#        Kinase Activity Normalizers</span>
+    <span class="c1">#        index : kinase</span>
+    <span class="c1">#        columns : data_column normalization values</span>
+    <span class="c1">#    &quot;&quot;&quot;</span>
+    <span class="c1">#    self.normalizers = normalizers</span>
 
-<div class="viewcode-block" id="KinaseActivity.create_binary_evidence"><a class="viewcode-back" href="../../KSTAR.html#kstar.calculate.KinaseActivity.create_binary_evidence">[docs]</a>    <span class="k">def</span> <span class="nf">create_binary_evidence</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">agg</span> <span class="o">=</span> <span class="s1">&#39;mean&#39;</span><span class="p">,</span> <span class="n">threshold</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span>  <span class="n">evidence_size</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">greater</span> <span class="o">=</span> <span class="kc">True</span><span class="p">):</span>
+    <span class="c1"># def calculate_hypergeometric_single_network(self, evidence, network_id):</span>
+    <span class="c1">#     &quot;&quot;&quot;</span>
+    <span class="c1">#     Hypergeometric Cumulative Distribution Function calculated for each kinase given evidence</span>
+    <span class="c1">#         k : number of times kinase seen in evidence</span>
+    <span class="c1">#         M : number of unique sites in network</span>
+    <span class="c1">#         n : number of times kinase seen in network</span>
+    <span class="c1">#         N : size of evidence</span>
+        
+    <span class="c1">#     Parameters</span>
+    <span class="c1">#     ----------</span>
+    <span class="c1">#     evidence : pandas df</span>
+    <span class="c1">#         subset of kstar evidence that has been filtered to only include evidence associated with experimetn</span>
+    <span class="c1">#     network_id : str</span>
+    <span class="c1">#         network to use for analysis</span>
+        
+    <span class="c1">#     Returns</span>
+    <span class="c1">#     -------</span>
+    <span class="c1">#     results : pandas df</span>
+    <span class="c1">#         Hypergeometric results of evidence for given network</span>
+    <span class="c1">#         index : kinase_id</span>
+    <span class="c1">#         columns</span>
+    <span class="c1">#             frequency : number of times kinase seen in network</span>
+    <span class="c1">#             kinase_activity : activity derived from hypergometric cdf </span>
+    <span class="c1">#     &quot;&quot;&quot;</span>
+        
+    <span class="c1">#     network = self.networks[network_id]</span>
+    <span class="c1">#     intersect = pd.merge(network, evidence, how=&#39;inner&#39;,</span>
+    <span class="c1">#         on=[config.KSTAR_ACCESSION, config.KSTAR_SITE])</span>
+    <span class="c1">#     counts = intersect.groupby(config.KSTAR_KINASE).size()</span>
+    <span class="c1">#     N = len(intersect.groupby([config.KSTAR_ACCESSION, config.KSTAR_SITE]).size())</span>
+    <span class="c1">#     results = pd.DataFrame(counts, columns = [&#39;frequency&#39;])</span>
+    <span class="c1">#     results[&#39;kinase_activity&#39;] = 1.0</span>
+
+    <span class="c1">#     K = network.groupby(config.KSTAR_KINASE).size()</span>
+        
+    <span class="c1">#     kinases = counts.index</span>
+    <span class="c1">#     for kin in kinases:</span>
+    <span class="c1">#         k = 0</span>
+    <span class="c1">#         if counts.loc[kin] &gt; 0:</span>
+    <span class="c1">#             k = counts.loc[kin] - 1</span>
+    <span class="c1">#         prb = stats.hypergeom.sf(</span>
+    <span class="c1">#             k = int(k), </span>
+    <span class="c1">#             M = int(self.network_sizes[network_id]), </span>
+    <span class="c1">#             n = int(K.loc[kin]), </span>
+    <span class="c1">#             N = int(N)</span>
+    <span class="c1">#             )</span>
+    <span class="c1">#         results.at[kin, &#39;kinase_activity&#39;] = prb</span>
+    <span class="c1">#     results[&#39;network&#39;] = network_id</span>
+    <span class="c1">#     return results</span>
+        
+    <span class="c1"># def calculate_hypergeometric_activities(self, evidence, name):</span>
+    <span class="c1">#     &quot;&quot;&quot;</span>
+    <span class="c1">#     Perform hypergeometric kinase activity analysis given evidence on all networks</span>
+        
+    <span class="c1">#     Parameters</span>
+    <span class="c1">#     ----------</span>
+    <span class="c1">#     evidence : pandas df</span>
+    <span class="c1">#         subset of class evidence variable where data is filtered based on experiment</span>
+    <span class="c1">#     name : str</span>
+    <span class="c1">#         name of experiment being performed</span>
+            
+    <span class="c1">#     Returns</span>
+    <span class="c1">#     ---------</span>
+    <span class="c1">#     fdr_act : pd DataFrame</span>
+    <span class="c1">#         network : network name, from networks key</span>
+    <span class="c1">#         frequency : number of times kinase was seen in subgraph of evidence and network</span>
+    <span class="c1">#         kinase_activity : hypergeometric kinase activity</span>
+    <span class="c1">#         fdr_corrected_kinase_activity : kinase activity after fdr correction</span>
+    <span class="c1">#         significant : whether kinase activity is significant based on fdr alpha</span>
+    <span class="c1">#     combined : pd DataFrame</span>
+    <span class="c1">#         significant : number of networks where kinase was found to be significant</span>
+    <span class="c1">#         fraction_significant : fraction of networks kinase was found to be significant through FDR correction</span>
+    <span class="c1">#         avg_p_value : combined p-values of kinase using mean</span>
+    <span class="c1">#         median_p_value : combined p-values of kinase using median</span>
+    <span class="c1">#     &quot;&quot;&quot;</span>
+        
+    <span class="c1">#     self.logger.info(f&quot;Running hypergeometric analysis on {name}&quot;)</span>
+        
+    <span class="c1">#     results = []</span>
+    <span class="c1">#     for network_id in self.networks.keys(): # calculate kinase activity within each network </span>
+    <span class="c1">#         result = self.calculate_hypergeometric_single_network(evidence, network_id) </span>
+    <span class="c1">#         results.append(result)</span>
+
+    <span class="c1">#     # combine results into single dataframe</span>
+    <span class="c1">#     hyp_act = pd.concat(results)</span>
+    <span class="c1">#     hyp_act = hyp_act.reset_index()</span>
+    <span class="c1">#     hyp_act[&#39;data&#39;] = name</span>
+    <span class="c1">#     return hyp_act</span>
+
+<div class="viewcode-block" id="KinaseActivity.create_binary_evidence"><a class="viewcode-back" href="../../KSTAR.html#kstar.calculate.KinaseActivity.create_binary_evidence">[docs]</a>    <span class="k">def</span> <span class="nf">create_binary_evidence</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">agg</span> <span class="o">=</span> <span class="s1">&#39;mean&#39;</span><span class="p">,</span> <span class="n">threshold</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span>  <span class="n">greater</span> <span class="o">=</span> <span class="kc">True</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns a binary evidence data frame according to the parameters passed in for method for aggregating</span>
 <span class="sd">        duplicates and considering whether a site is included as evidence or not</span>
@@ -354,9 +449,7 @@
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        threshold : float</span>
-<span class="sd">            threshold value used to filter rows</span>
-<span class="sd">        evidence_size: None or int</span>
-<span class="sd">            the number of sites to use for prediction for each sample. If a value is provided, this will override the threshold, and will instead obtain the N sites with the greatest abundance within each sample.</span>
+<span class="sd">            threshold value used to filter rows </span>
 <span class="sd">        agg : {&#39;count&#39;, &#39;mean&#39;}</span>
 <span class="sd">            method to use when aggregating duplicate substrate-sites. </span>
 <span class="sd">            &#39;count&#39; combines multiple representations and adds if values are non-NaN</span>
@@ -372,49 +465,25 @@
 <span class="sd">            This is uniquified and rows that are never used are removed.</span>
 <span class="sd">        </span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c1">#collapse sites into single row based on agg parameter</span>
-        <span class="n">evidence</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">evidence</span><span class="o">.</span><span class="n">groupby</span><span class="p">([</span><span class="n">config</span><span class="o">.</span><span class="n">KSTAR_ACCESSION</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">KSTAR_SITE</span><span class="p">])[</span><span class="bp">self</span><span class="o">.</span><span class="n">data_columns</span><span class="p">]</span><span class="o">.</span><span class="n">agg</span><span class="p">(</span><span class="n">agg</span><span class="p">)</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
+
+        <span class="n">evidence</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">evidence</span><span class="o">.</span><span class="n">groupby</span><span class="p">([</span><span class="n">config</span><span class="o">.</span><span class="n">KSTAR_ACCESSION</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">KSTAR_SITE</span><span class="p">])</span><span class="o">.</span><span class="n">agg</span><span class="p">(</span><span class="n">agg</span><span class="p">)</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
         
         <span class="c1">#set the binary evidence for whether a site is included</span>
         <span class="n">evidence_binary</span> <span class="o">=</span> <span class="n">evidence</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-        <span class="k">if</span> <span class="n">evidence_size</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_columns</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">greater</span><span class="p">:</span>
-                    <span class="n">evidence_binary</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">evidence_binary</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">threshold</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="n">evidence_binary</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">evidence_binary</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">threshold</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_columns</span><span class="p">:</span>
-                <span class="c1">#check how many non_nan sites there (if less than N, set n to be equal to number of sites available</span>
-                <span class="n">num_sites_available</span> <span class="o">=</span> <span class="n">evidence_binary</span><span class="o">.</span><span class="n">dropna</span><span class="p">()</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-                <span class="k">if</span> <span class="n">num_sites_available</span> <span class="o">&gt;=</span> <span class="n">evidence_size</span><span class="p">:</span>
-                    <span class="n">n</span> <span class="o">=</span> <span class="n">evidence_size</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="n">n</span> <span class="o">=</span> <span class="n">num_sites_available</span>
-                    
-                <span class="k">if</span> <span class="n">greater</span><span class="p">:</span>
-                    <span class="n">max_indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="o">-</span><span class="n">evidence_binary</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">)[</span><span class="mi">0</span><span class="p">:</span><span class="n">n</span><span class="p">]</span>
-                    <span class="n">evidence_binary</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
-                    <span class="n">col_loc</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">evidence_binary</span><span class="o">.</span><span class="n">columns</span> <span class="o">==</span> <span class="n">col</span><span class="p">)[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
-                    <span class="n">evidence_binary</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">max_indices</span><span class="p">,</span> <span class="n">col_loc</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="n">min_indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="n">evidence_binary</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">)[</span><span class="mi">0</span><span class="p">:</span><span class="n">n</span><span class="p">]</span>
-                    <span class="n">evidence_binary</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
-                    <span class="n">col_loc</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">evidence_binary</span><span class="o">.</span><span class="n">columns</span> <span class="o">==</span> <span class="n">col</span><span class="p">)[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
-                    <span class="n">evidence_binary</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">min_indices</span><span class="p">,</span> <span class="n">col_loc</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_columns</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">greater</span><span class="p">:</span>
+                <span class="n">evidence_binary</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">mask</span><span class="p">(</span><span class="n">evidence</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">threshold</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                <span class="n">evidence_binary</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">mask</span><span class="p">(</span><span class="n">evidence</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">threshold</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">evidence_binary</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">mask</span><span class="p">(</span><span class="n">evidence</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">threshold</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                <span class="n">evidence_binary</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">mask</span><span class="p">(</span><span class="n">evidence</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">threshold</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
         <span class="c1">#remove phosphorylation sites that were not selected in any experiment (useful for very large experiments where removing the need to copy data reduces time)</span>
         <span class="n">evidence_binary</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">evidence_binary</span><span class="p">[</span><span class="n">evidence_binary</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">data_columns</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">inplace</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> 
- 
-        <span class="c1">#add back compendia/study bias information to binary evidence</span>
-        <span class="n">compendia</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">HUMAN_REF_COMPENDIA</span><span class="p">[[</span><span class="s1">&#39;KSTAR_ACCESSION&#39;</span><span class="p">,</span><span class="s1">&#39;KSTAR_SITE&#39;</span><span class="p">,</span><span class="s1">&#39;KSTAR_NUM_COMPENDIA&#39;</span><span class="p">,</span><span class="s1">&#39;KSTAR_NUM_COMPENDIA_CLASS&#39;</span><span class="p">]]</span>
-        <span class="n">evidence_binary</span> <span class="o">=</span> <span class="n">evidence_binary</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">compendia</span><span class="p">,</span> <span class="n">on</span> <span class="o">=</span> <span class="p">[</span><span class="n">config</span><span class="o">.</span><span class="n">KSTAR_ACCESSION</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">KSTAR_SITE</span><span class="p">],</span> <span class="n">how</span> <span class="o">=</span> <span class="s1">&#39;left&#39;</span><span class="p">)</span>
-            
-            
         <span class="k">return</span> <span class="n">evidence_binary</span></div>
 
 
-<div class="viewcode-block" id="KinaseActivity.calculate_kinase_activities"><a class="viewcode-back" href="../../KSTAR.html#kstar.calculate.KinaseActivity.calculate_kinase_activities">[docs]</a>    <span class="k">def</span> <span class="nf">calculate_kinase_activities</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">agg</span> <span class="o">=</span> <span class="s1">&#39;mean&#39;</span><span class="p">,</span> <span class="n">threshold</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span>  <span class="n">evidence_size</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">greater</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">PROCESSES</span> <span class="o">=</span> <span class="mi">1</span><span class="p">):</span>
+<div class="viewcode-block" id="KinaseActivity.calculate_kinase_activities"><a class="viewcode-back" href="../../KSTAR.html#kstar.calculate.KinaseActivity.calculate_kinase_activities">[docs]</a>    <span class="k">def</span> <span class="nf">calculate_kinase_activities</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">agg</span> <span class="o">=</span> <span class="s1">&#39;mean&#39;</span><span class="p">,</span> <span class="n">threshold</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span>  <span class="n">greater</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">PROCESSES</span> <span class="o">=</span> <span class="mi">1</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Calculates combined activity of experiments based that uses a threshold value to determine if an experiment sees a site or not</span>
 <span class="sd">        To use values use &#39;mean&#39; as agg</span>
@@ -450,17 +519,11 @@
 
         <span class="c1">#for each phosphoType, check that the </span>
         <span class="bp">self</span><span class="o">.</span><span class="n">aggregate</span> <span class="o">=</span> <span class="n">agg</span>
-        <span class="k">if</span> <span class="n">evidence_size</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">threshold</span> <span class="o">=</span> <span class="n">threshold</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">evidence_size</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">threshold</span> <span class="o">=</span> <span class="kc">None</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">evidence_size</span> <span class="o">=</span> <span class="n">evidence_size</span>
-        
+        <span class="bp">self</span><span class="o">.</span><span class="n">threshold</span> <span class="o">=</span> <span class="n">threshold</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">greater</span> <span class="o">=</span> <span class="n">greater</span>
         <span class="c1">#self.set_data_columns(data_columns)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">evidence_binary</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_binary_evidence</span><span class="p">(</span><span class="n">agg</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">aggregate</span><span class="p">,</span> <span class="n">threshold</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">threshold</span><span class="p">,</span> <span class="n">evidence_size</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">evidence_size</span><span class="p">,</span> <span class="n">greater</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">greater</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">evidence_binary</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_binary_evidence</span><span class="p">(</span><span class="n">agg</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">aggregate</span><span class="p">,</span> <span class="n">threshold</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">threshold</span><span class="p">,</span>  <span class="n">greater</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">greater</span><span class="p">)</span>
         
         <span class="c1"># if no data columns are provided use all columns that start with data:</span>
         <span class="c1"># data columns that filtered have no evidence are removed</span>
@@ -545,6 +608,112 @@
         <span class="p">)</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">agg_activities</span>
     
+    <span class="c1">#def normalize_activities(self, activities = None, default_normalization = 0.05, normalization_multiplier = 0.05):</span>
+    <span class="c1">#    &quot;&quot;&quot;</span>
+    <span class="c1">#    Generates the normalized activities and corresponding summary statistics</span>
+
+    <span class="c1">#    Parameters</span>
+    <span class="c1">#    ----------</span>
+    <span class="c1">#    activities : dict</span>
+    <span class="c1">#        hypergeometric activities generated by KSTAR algorithm</span>
+    <span class="c1">#        key : experiment</span>
+    <span class="c1">#        value : hypergeometric result</span>
+    <span class="c1">#    default_normalization: float</span>
+    <span class="c1">#        value to normalize to, if no normalizers are set.</span>
+        
+    <span class="c1">#    Returns</span>
+    <span class="c1">#    --------</span>
+    <span class="c1">#    normalized_activities : dict</span>
+    <span class="c1">#        normalized Kinase Activity results</span>
+    <span class="c1">#        key : experiment</span>
+    <span class="c1">#        value : normalized results</span>
+    <span class="c1">#    summarized_activities : dict</span>
+    <span class="c1">#        summary statistics of normalized kinase activity</span>
+    <span class="c1">#        key : experiment</span>
+    <span class="c1">#        value : summary statistics</span>
+    <span class="c1">#    &quot;&quot;&quot;</span>
+    <span class="c1">#    self.normalized = True</span>
+    <span class="c1">#    </span>
+    <span class="c1">#    if activities is None:</span>
+    <span class="c1">#        activities = self.activities_list</span>
+    <span class="c1">#    normalized_activities = []</span>
+    <span class="c1">#    for data in self.data_columns:</span>
+    <span class="c1">#        if type(self.normalizers) is dict:</span>
+    <span class="c1">#            normalizers = self.normalizers</span>
+    <span class="c1">#        elif type(self.normalizers) is pd.DataFrame and data #in self.normalizers.columns:</span>
+    <span class="c1">#            #print(&quot;setting normalizers&quot;)</span>
+    <span class="c1">#            normalizers = self.normalizers[data].to_dict()</span>
+    <span class="c1">#        else:</span>
+    <span class="c1">#            normalizers = {}</span>
+    <span class="c1">#        activity = activities[activities[&#39;data&#39;] == data]</span>
+    <span class="c1">#        normalized_activities.append(</span>
+    <span class="c1">#            self.calculate_normalized_activity(</span>
+    <span class="c1">#                activity, </span>
+    <span class="c1">#                normalizers, </span>
+    <span class="c1">#                default_normalization, </span>
+    <span class="c1">#                normalization_multiplier))</span>
+    <span class="c1">#    self.normalized_activities_list = pd.concat(normalized_activities)</span>
+    <span class="c1">#    self.aggregate_normalized_activities(self.normalized_activities_list)</span>
+        
+    <span class="c1">#    return self.normalized_activities_list, self.normalized_agg_activities</span>
+    
+    
+    <span class="c1">#def calculate_normalized_activity(self, kinase_activity, normalizers, default_normalization = 0.05, normalization_multiplier = 0.05):</span>
+    <span class="c1">#    &quot;&quot;&quot;</span>
+    <span class="c1">#    Activity is normalized based on kinase normalization factors. </span>
+    <span class="c1">#    Added Columns : </span>
+    <span class="c1">#        Normalization Factor : normalization factor for given Kinase</span>
+    <span class="c1">#        Significant : 1 if Kinase Activity &lt;= Normalization Factor</span>
+    <span class="c1">#        Normalized Activity : ( Kinase Activity ) / ( Normalization Factor ) * Normalization Multiplier</span>
+
+    <span class="c1">#    Parameters</span>
+    <span class="c1">#    ----------</span>
+    <span class="c1">#    kinase_activity : pandas df</span>
+    <span class="c1">#        hypergeometric activity calculated through KSTAR algorithm</span>
+    <span class="c1">#    default_normalization : float</span>
+    <span class="c1">#        Normalization factor to use if one not provided</span>
+    <span class="c1">#    normalization_multiplier : float</span>
+    <span class="c1">#        normalization multiplier to use for calculated #normalized kinase activity</span>
+    <span class="c1">#    &quot;&quot;&quot;</span>
+
+    <span class="c1">#    normalized_activity = kinase_activity.copy()</span>
+    <span class="c1">#    normalized_activity[&#39;Normalization Factor&#39;] = normalized_activity[config.KSTAR_KINASE].apply(lambda name: normalizers[name] if name in normalizers.keys() else default_normalization)</span>
+    <span class="c1">#    if len(self.networks) &gt; 0:</span>
+    <span class="c1">#        normalized_activity[&#39;Significant&#39;] = normalized_activity.apply(lambda row: (row[&#39;kinase_activity&#39;] &lt;= row[&#39;Normalization Factor&#39;] / len( self.networks ) ) * 1, axis = 1)</span>
+    <span class="c1">#    else:</span>
+    <span class="c1">#        normalized_activity[&#39;Significant&#39;] = normalized_activity.apply(lambda row: (row[&#39;kinase_activity&#39;] &lt;= row[&#39;Normalization Factor&#39;]) * 1, axis = 1)</span>
+    <span class="c1">#    normalized_activity[&#39;Normalized Activity&#39;] = normalized_activity.apply(lambda row: np.clip( row[&#39;kinase_activity&#39;] / row[&#39;Normalization Factor&#39;] * normalization_multiplier, 0.0, 1.0 ), axis = 1)</span>
+    <span class="c1">#    return normalized_activity</span>
+    
+    
+    <span class="c1">#def aggregate_normalized_activities(self, normalized_activities):</span>
+    <span class="c1">#    &quot;&quot;&quot;</span>
+    <span class="c1">#    Summarizes normalized kinase activity results of all networks by kinase</span>
+    <span class="c1">#    Summaries provided : </span>
+    <span class="c1">#        median original activity</span>
+    <span class="c1">#        average original activity</span>
+    <span class="c1">#        median normalized activity</span>
+    <span class="c1">#        average normalized activity</span>
+    <span class="c1">#        count significant</span>
+    <span class="c1">#        fraction significant</span>
+        
+    <span class="c1">#    Parameters</span>
+    <span class="c1">#    ----------</span>
+    <span class="c1">#    normalized_activity : pandas df</span>
+    <span class="c1">#        Normalized kinase activty</span>
+        
+    <span class="c1">#    Returns</span>
+    <span class="c1">#    --------</span>
+    <span class="c1">#    summary : pandas df</span>
+    <span class="c1">#        summarized data of all networks by kinase</span>
+    <span class="c1">#    &quot;&quot;&quot;</span>
+    <span class="c1">#    self.normalized_agg_activities = normalized_activities.groupby([&#39;data&#39;,config.KSTAR_KINASE]).agg(</span>
+    <span class="c1">#        median_original_activity = (&#39;kinase_activity&#39;, &#39;median&#39;),</span>
+    <span class="c1">#        median_normalized_activity = (&#39;Normalized Activity&#39;, &#39;median&#39;),</span>
+    <span class="c1">#        count_significant = (&#39;Significant&#39;, &#39;sum&#39;),</span>
+    <span class="c1">#        fraction_significant = (&#39;Significant&#39;, &#39;mean&#39;)</span>
+    <span class="c1">#    ).reset_index()</span>
+    <span class="c1">#    return self.normalized_agg_activities</span>
 
     <span class="k">def</span>  <span class="nf">find_pvalue_limits</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_columns</span><span class="p">,</span> <span class="n">agg</span> <span class="o">=</span> <span class="s1">&#39;count&#39;</span><span class="p">,</span> <span class="n">threshold</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -865,7 +1034,7 @@
 <span class="sd">Methods for running KSTAR pipeline</span>
 <span class="sd">****************************************</span>
 <span class="sd">&quot;&quot;&quot;</span>
-<div class="viewcode-block" id="enrichment_analysis"><a class="viewcode-back" href="../../KSTAR.html#kstar.calculate.enrichment_analysis">[docs]</a><span class="k">def</span> <span class="nf">enrichment_analysis</span><span class="p">(</span><span class="n">experiment</span><span class="p">,</span> <span class="n">log</span><span class="p">,</span> <span class="n">networks</span><span class="p">,</span> <span class="n">phospho_types</span> <span class="o">=</span><span class="p">[</span><span class="s1">&#39;Y&#39;</span><span class="p">,</span> <span class="s1">&#39;ST&#39;</span><span class="p">],</span> <span class="n">data_columns</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">agg</span> <span class="o">=</span> <span class="s1">&#39;mean&#39;</span><span class="p">,</span> <span class="n">threshold</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span> <span class="n">evidence_size</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">greater</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">PROCESSES</span> <span class="o">=</span> <span class="mi">1</span><span class="p">):</span>
+<div class="viewcode-block" id="enrichment_analysis"><a class="viewcode-back" href="../../KSTAR.html#kstar.calculate.enrichment_analysis">[docs]</a><span class="k">def</span> <span class="nf">enrichment_analysis</span><span class="p">(</span><span class="n">experiment</span><span class="p">,</span> <span class="n">log</span><span class="p">,</span> <span class="n">networks</span><span class="p">,</span> <span class="n">phospho_types</span> <span class="o">=</span><span class="p">[</span><span class="s1">&#39;Y&#39;</span><span class="p">,</span> <span class="s1">&#39;ST&#39;</span><span class="p">],</span> <span class="n">data_columns</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">agg</span> <span class="o">=</span> <span class="s1">&#39;mean&#39;</span><span class="p">,</span> <span class="n">threshold</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span>  <span class="n">greater</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">PROCESSES</span> <span class="o">=</span> <span class="mi">1</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Function to establish a kstar KinaseActivity object from an experiment with an activity log</span>
 <span class="sd">    add the networks, calculate, aggregate, and summarize the hypergeometric enrichment into a final activity object. Should be followed by </span>
@@ -928,12 +1097,39 @@
             <span class="k">return</span>
         <span class="n">kinact</span> <span class="o">=</span> <span class="n">KinaseActivity</span><span class="p">(</span><span class="n">experiment_sub</span><span class="p">,</span> <span class="n">log</span><span class="p">,</span> <span class="n">data_columns</span> <span class="o">=</span> <span class="n">data_columns</span><span class="p">,</span> <span class="n">phospho_type</span><span class="o">=</span><span class="n">phospho_type</span><span class="p">)</span>
         <span class="n">kinact</span><span class="o">.</span><span class="n">add_networks_batch</span><span class="p">(</span><span class="n">networks</span><span class="p">[</span><span class="n">phospho_type</span><span class="p">])</span>
-        <span class="n">kinact</span><span class="o">.</span><span class="n">calculate_kinase_activities</span><span class="p">(</span><span class="n">agg</span><span class="o">=</span><span class="n">agg</span><span class="p">,</span> <span class="n">threshold</span><span class="o">=</span><span class="n">threshold</span><span class="p">,</span> <span class="n">evidence_size</span> <span class="o">=</span> <span class="n">evidence_size</span><span class="p">,</span> <span class="n">greater</span><span class="o">=</span><span class="n">greater</span><span class="p">,</span> <span class="n">PROCESSES</span> <span class="o">=</span> <span class="n">PROCESSES</span><span class="p">)</span>
+        <span class="n">kinact</span><span class="o">.</span><span class="n">calculate_kinase_activities</span><span class="p">(</span><span class="n">agg</span><span class="o">=</span><span class="n">agg</span><span class="p">,</span> <span class="n">threshold</span><span class="o">=</span><span class="n">threshold</span><span class="p">,</span> <span class="n">greater</span><span class="o">=</span><span class="n">greater</span><span class="p">,</span> <span class="n">PROCESSES</span> <span class="o">=</span> <span class="n">PROCESSES</span><span class="p">)</span>
         <span class="n">kinact</span><span class="o">.</span><span class="n">aggregate_activities</span><span class="p">()</span>
         <span class="n">kinact</span><span class="o">.</span><span class="n">activities</span> <span class="o">=</span> <span class="n">kinact</span><span class="o">.</span><span class="n">summarize_activities</span><span class="p">()</span>
         <span class="n">kinact_dict</span><span class="p">[</span><span class="n">phospho_type</span><span class="p">]</span> <span class="o">=</span> <span class="n">kinact</span>
     <span class="k">return</span> <span class="n">kinact_dict</span></div>
 
+<span class="c1">#def normalize_analysis(kinact_dict, log, num_random_experiments=150, target_alpha = 0.05, PROCESSES = 1):</span>
+<span class="c1">#    &quot;&quot;&quot;</span>
+<span class="c1">#    Creates random experiments, drawn from the human phosphoproteome, according to the distribution of the number of compendia</span>
+<span class="c1">#    that each data column in the experiment has for num_random_experiments. Kinase activity calculation is then run on every random experiment</span>
+<span class="c1">#    and then assembled for each data column to calculate the pvalue at which a kinase hits the target_alpha value of false positives. </span>
+<span class="c1">#    Finally, it takes these empirically defined pvalue corrections and normalizes the kinase activities according to these, such that</span>
+<span class="c1">#    the real experimental data also has the target_alpha value. </span>
+<span class="c1">#</span>
+<span class="c1">#    Parameters</span>
+<span class="c1">#    ----------</span>
+<span class="c1">#    kinact_dict: KinaseActivities dictionary</span>
+<span class="c1">#        Has keys [&#39;Y&#39;] and/or [&#39;ST&#39;] and values that are KinaseActivity objects. These objects are modified to add normalization</span>
+<span class="c1">#    log: logger </span>
+<span class="c1">#        Logger for logging activity messages</span>
+<span class="c1">#    num_random_experiments: int</span>
+<span class="c1">#        Number of random experiments, for each data column, to create and run activity from</span>
+<span class="c1">#    target_alpha: float </span>
+<span class="c1">#        Value between 0 and 1 that is the target false positive rate. </span>
+<span class="c1">#</span>
+<span class="c1">#</span>
+<span class="c1">#    &quot;&quot;&quot;</span>
+<span class="c1">#</span>
+<span class="c1">#    if target_alpha &gt; 1 or target_alpha &lt; 0: </span>
+<span class="c1">#        raise ValueError(&#39;ERROR: target_alpha must be value between 0 and 1&#39;)</span>
+<span class="c1">#</span>
+<span class="c1">#    for phospho_type, kinact in kinact_dict.items():</span>
+<span class="c1">#        kinact.run_normalization(log, num_random_experiments, target_alpha, PROCESSES = PROCESSES)</span>
         
 <div class="viewcode-block" id="randomized_analysis"><a class="viewcode-back" href="../../KSTAR.html#kstar.calculate.randomized_analysis">[docs]</a><span class="k">def</span> <span class="nf">randomized_analysis</span><span class="p">(</span><span class="n">kinact_dict</span><span class="p">,</span> <span class="n">log</span><span class="p">,</span> <span class="n">num_random_experiments</span><span class="o">=</span><span class="mi">150</span><span class="p">,</span> <span class="n">PROCESSES</span> <span class="o">=</span> <span class="mi">1</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
@@ -1020,6 +1216,12 @@
                 <span class="n">kinact</span><span class="o">.</span><span class="n">random_experiments</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">odir</span><span class="si">}</span><span class="s2">/RESULTS/</span><span class="si">{</span><span class="n">name_out</span><span class="si">}</span><span class="s2">_random_experiments.tsv&quot;</span><span class="p">,</span> <span class="n">sep</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\t</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">index</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span>
                 <span class="n">kinact</span><span class="o">.</span><span class="n">random_kinact</span><span class="o">.</span><span class="n">evidence</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">odir</span><span class="si">}</span><span class="s2">/RESULTS/</span><span class="si">{</span><span class="n">name_out</span><span class="si">}</span><span class="s2">_random_experiments.tsv&quot;</span><span class="p">,</span> <span class="n">sep</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\t</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">index</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span>
                 
+            <span class="c1">#if kinact.normalized:</span>
+
+            <span class="c1">#    kinact.normalized_activities_list.to_csv(f&quot;{odir}/RESULTS/{name_out}_normalized_activities_list.tsv&quot;, sep = &#39;\t&#39;, index = True)</span>
+            <span class="c1">#    kinact.normalized_agg_activities.to_csv(f&quot;{odir}/RESULTS/{name_out}_normalized_aggregated_activities.tsv&quot;, sep = &#39;\t&#39;, index = True)</span>
+            <span class="c1">#    kinact.activities_normalized.to_csv(f&quot;{odir}/RESULTS/{name_out}_activities_normalized.tsv&quot;, sep = &#39;\t&#39;, index = True)</span>
+            <span class="c1">#    kinact.fpr_activity.to_csv(f&quot;{odir}/RESULTS/{name_out}_activities_fpr.tsv&quot;, sep=&#39;\t&#39;, index=True)</span>
 
 
             <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">kinact</span><span class="p">,</span> <span class="s1">&#39;activities_mann_whitney&#39;</span><span class="p">):</span>
@@ -1082,6 +1284,10 @@
         <span class="n">kinact</span><span class="o">.</span><span class="n">activities</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">odir</span><span class="si">}</span><span class="s2">/RESULTS/</span><span class="si">{</span><span class="n">name_out</span><span class="si">}</span><span class="s2">_activities.tsv&quot;</span><span class="p">,</span> <span class="n">sep</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\t</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">index</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span>
         <span class="n">kinact</span><span class="o">.</span><span class="n">evidence_binary</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">odir</span><span class="si">}</span><span class="s2">/RESULTS/</span><span class="si">{</span><span class="n">name_out</span><span class="si">}</span><span class="s2">_binarized_experiment.tsv&quot;</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s1">&#39;</span><span class="se">\t</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
+        <span class="c1">#if kinact.normalized:</span>
+        <span class="c1">#    param_temp[&#39;normalized&#39;] = True</span>
+        <span class="c1">#    kinact.activities_normalized.to_csv(f&quot;{odir}/RESULTS/{name_out}_activities_normalized.tsv&quot;, sep = &#39;\t&#39;, index = True)</span>
+        <span class="c1">#    kinact.fpr_activity.to_csv(f&quot;{odir}/RESULTS/{name_out}_activities_fpr.tsv&quot;, sep=&#39;\t&#39;, index=True)</span>
             
         <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">kinact</span><span class="p">,</span> <span class="s1">&#39;random_kinact&#39;</span><span class="p">):</span>
             <span class="n">param_temp</span><span class="p">[</span><span class="s1">&#39;randomized&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
@@ -1138,14 +1344,17 @@
         <span class="n">kinact</span><span class="o">.</span><span class="n">activities</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">odir</span><span class="si">}</span><span class="s2">/RESULTS/</span><span class="si">{</span><span class="n">name_out</span><span class="si">}</span><span class="s2">_activities.tsv&quot;</span><span class="p">,</span> <span class="n">sep</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\t</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">index_col</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">KSTAR_KINASE</span><span class="p">)</span>
         <span class="n">kinact</span><span class="o">.</span><span class="n">evidence_binary</span> <span class="o">=</span> <span class="n">evidence_binary</span>
 
-        <span class="k">if</span> <span class="s1">&#39;mann_whitney&#39;</span> <span class="ow">in</span> <span class="n">params</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">params</span><span class="p">[</span><span class="s1">&#39;mann_whitney&#39;</span><span class="p">]:</span>
             <span class="c1">#read mann_whitney and load</span>
             <span class="n">kinact</span><span class="o">.</span><span class="n">activities_mann_whitney</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">odir</span><span class="si">}</span><span class="s2">/RESULTS/</span><span class="si">{</span><span class="n">name_out</span><span class="si">}</span><span class="s2">_mann_whitney_activities.tsv&quot;</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s1">&#39;</span><span class="se">\t</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">index_col</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">KSTAR_KINASE</span><span class="p">)</span> 
             <span class="n">kinact</span><span class="o">.</span><span class="n">fpr_mann_whitney</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">odir</span><span class="si">}</span><span class="s2">/RESULTS/</span><span class="si">{</span><span class="n">name_out</span><span class="si">}</span><span class="s2">_mann_whitney_fpr.tsv&quot;</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s1">&#39;</span><span class="se">\t</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">index_col</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">KSTAR_KINASE</span><span class="p">)</span> 
             <span class="n">params</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;mann_whitney&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
             
+        <span class="c1">#if params[&#39;normalized&#39;]:</span>
+        <span class="c1">#    kinact.activities_normalized= pd.read_csv(f&quot;{odir}/RESULTS/{name_out}_activities_normalized.tsv&quot;, sep = &#39;\t&#39;, index_col = config.KSTAR_KINASE)</span>
+        <span class="c1">#    kinact.fpr_activity = pd.read_csv(f&quot;{odir}/RESULTS/{name_out}_activities_fpr.tsv&quot;, sep=&#39;\t&#39;, index_col=config.KSTAR_KINASE)</span>
         
-        <span class="k">if</span> <span class="s1">&#39;randomized&#39;</span> <span class="ow">in</span> <span class="n">params</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">params</span><span class="p">[</span><span class="s1">&#39;randomized&#39;</span><span class="p">]:</span>
             <span class="n">rand_experiments</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">odir</span><span class="si">}</span><span class="s2">/RESULTS/</span><span class="si">{</span><span class="n">name_out</span><span class="si">}</span><span class="s2">_random_experiments.tsv&quot;</span><span class="p">,</span> <span class="n">sep</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\t</span><span class="s1">&#39;</span><span class="p">)</span>
 
             <span class="n">kinact</span><span class="o">.</span><span class="n">random_kinact</span> <span class="o">=</span> <span class="n">KinaseActivity</span><span class="p">(</span><span class="n">rand_experiments</span><span class="p">,</span> <span class="n">log</span><span class="p">,</span> <span class="n">phospho_type</span><span class="o">=</span><span class="n">phospho_type</span><span class="p">)</span>
@@ -1195,7 +1404,12 @@
             <span class="c1">#read mann_whitney and load</span>
             <span class="n">kinact</span><span class="o">.</span><span class="n">activities_mann_whitney</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">odir</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">phospho_type</span><span class="si">}</span><span class="s2">/mann_whitney/</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">_mann_whitney_activities.tsv&quot;</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s1">&#39;</span><span class="se">\t</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">index_col</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">KSTAR_KINASE</span><span class="p">)</span> 
             <span class="n">kinact</span><span class="o">.</span><span class="n">fpr_mann_whitney</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">odir</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">phospho_type</span><span class="si">}</span><span class="s2">/mann_whitney/</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">_mann_whitney_fpr.tsv&quot;</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s1">&#39;</span><span class="se">\t</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">index_col</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">KSTAR_KINASE</span><span class="p">)</span> 
-
+            <span class="c1">#rand_experiments = pd.read_csv(f&quot;{odir}/{phospho_type}/{name_out}_random_experiments.tsv&quot;, sep = &#39;\t&#39;)</span>
+            <span class="c1">#kinact.random_kinact = KinaseActivity(rand_experiments, log, phospho_type=phospho_type)</span>
+            <span class="c1">#kinact.random_kinact.activities_list = pd.read_csv(f&quot;{odir}/{phospho_type}/{name}_random_activities_list.tsv&quot;, sep = &#39;\t&#39;, index_col=0)</span>
+            <span class="c1">#kinact.random_kinact.evidence = pd.read_csv(f&quot;{odir}/{phospho_type}/{name_out}_random_experiments.tsv&quot;, sep = &#39;\t&#39;)</span>
+            <span class="c1">#set data columns according to file</span>
+            <span class="c1">#kinact.random_kinact.set_data_columns(data_columns=None)</span>
 
             <span class="n">kinact_dict</span><span class="p">[</span><span class="n">phospho_type</span><span class="p">]</span> <span class="o">=</span> <span class="n">kinact</span>
             
@@ -1271,7 +1485,7 @@
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2020, Naegle Lab.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.3.0.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.0.2.
     </div>
   </body>
 </html>

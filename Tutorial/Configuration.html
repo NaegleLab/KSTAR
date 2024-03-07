@@ -4,7 +4,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
     <title>&lt;no title&gt; &#8212; KSTAR 1 documentation</title>
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
@@ -15,7 +15,6 @@
     <script src="../_static/underscore.js"></script>
     <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="../_static/doctools.js"></script>
-    <script src="../_static/sphinx_highlight.js"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     
     <link rel="index" title="Index" href="../genindex.html" />
@@ -309,27 +308,12 @@ div.rendered_html tbody tr:hover {
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Could not find network directory. Please update using config.update_network_directory().
+Could not find reference proteome. Please install the resource directory using config.install_resource_files()
+Could not find reference proteome. Please install the resource directory using config.install_resource_files()
 </pre></div></div>
 </div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">config</span><span class="o">.</span><span class="n">check_configuration</span><span class="p">()</span>
-</pre></div>
-</div>
-</div>
-<div class="nboutput nblast docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-Could not find any network pickles. Please create network pickles using config.create_network_pickles() or change network directory to where pickles are located with config.update_network_directory().
-</pre></div></div>
-</div>
-<div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">config</span><span class="o">.</span><span class="n">NETWORK_DIR</span>
@@ -337,16 +321,16 @@ Could not find any network pickles. Please create network pickles using config.c
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
 </pre></div>
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-&#39;C:/Users/Sam/OneDrive/Documents/GradSchool/NETWORKS/NetworKIN&#39;
+&#39;C:/Users/Sam/OneDrive/Documents/GradSchool/NETWORKS/NetworKIN/&#39;
 </pre></div></div>
 </div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">config</span><span class="o">.</span><span class="n">install_resource_files</span><span class="p">()</span>
@@ -359,14 +343,14 @@ Could not find any network pickles. Please create network pickles using config.c
 <div class="output_area docutils container">
 <div class="highlight"><pre>
 Requesting file
-Extracting C:\Users\Sam\Documents\Grad\KinaseActivity\KSTAR/RESOURCE_FILES.tar.gz
+Extracting c:\Users\Sam\miniconda3\envs\kstar-test\Lib\site-packages/RESOURCE_FILES.tar.gz
 </pre></div></div>
 </div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">config</span><span class="o">.</span><span class="n">NETWORK_DIR</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">update_network_directory</span><span class="p">(</span><span class="s1">&#39;C:/Users/Sam/OneDrive/Documents/GradSchool/NETWORKS/NetworKIN&#39;</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">config</span><span class="o">.</span><span class="n">NETWORK_DIR</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">NETWORK_Y_PICKLE</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">NETWORK_ST_PICKLE</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">update_network_directory</span><span class="p">(</span><span class="s1">&#39;C:/Users/Sam/OneDrive/Documents/GradSchool/NETWORKS/NetworKIN&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -388,7 +372,7 @@ Network pickles already generated
 </div>
 </div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">config</span><span class="o">.</span><span class="n">create_network_pickles</span><span class="p">()</span>
@@ -400,14 +384,12 @@ Network pickles already generated
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Loaded 50 number of networks for phosphoType Y
-Saved pickle file at C:/Users/Sam/OneDrive/Documents/GradSchool/NETWORKS/NetworKIN//network_Y.p
-Loaded 50 number of networks for phosphoType ST
-Saved pickle file at C:/Users/Sam/OneDrive/Documents/GradSchool/NETWORKS/NetworKIN//network_ST.p
+Y network pickle already generated
+ST network pickle already generated
 </pre></div></div>
 </div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">config</span><span class="o">.</span><span class="n">check_configuration</span><span class="p">()</span>
@@ -421,14 +403,6 @@ Saved pickle file at C:/Users/Sam/OneDrive/Documents/GradSchool/NETWORKS/NetworK
 <div class="highlight"><pre>
 You are ready to begin! You can generate predictions for both Y and ST networks.
 </pre></div></div>
-</div>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>
-</pre></div>
-</div>
 </div>
 
 
@@ -489,7 +463,7 @@ You are ready to begin! You can generate predictions for both Y and ST networks.
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2020, Naegle Lab.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.3.0.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.0.2.
     </div>
   </body>
 </html>

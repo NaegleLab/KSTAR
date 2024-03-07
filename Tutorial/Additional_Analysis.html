@@ -4,7 +4,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
     <title>Assessing KSTAR Networks and Activity Predictions &#8212; KSTAR 1 documentation</title>
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
@@ -15,7 +15,6 @@
     <script src="../_static/underscore.js"></script>
     <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="../_static/doctools.js"></script>
-    <script src="../_static/sphinx_highlight.js"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     
     <link rel="index" title="Index" href="../genindex.html" />
@@ -306,11 +305,11 @@ div.rendered_html tbody tr:hover {
 }
 </style>
 <section id="Assessing-KSTAR-Networks-and-Activity-Predictions">
-<h1>Assessing KSTAR Networks and Activity Predictions<a class="headerlink" href="#Assessing-KSTAR-Networks-and-Activity-Predictions" title="Permalink to this heading">¶</a></h1>
+<h1>Assessing KSTAR Networks and Activity Predictions<a class="headerlink" href="#Assessing-KSTAR-Networks-and-Activity-Predictions" title="Permalink to this heading"></a></h1>
 <p>In addition to the dotplot, we have provided a few additional functions for assessing your KSTAR results, as well as the underlying networks that gave rise to them. Here, still using the example of TCR activation, we have provided some examples on how to use these functions.</p>
 <p>If there are any functions/analysis that are not discussed here that you would like to see in the future, please add a feature request at <a class="reference external" href="https://github.com/NaegleLab/KSTAR">KSTAR’s github repository</a>.</p>
 <section id="Load-results-and-other-necessary-data-(networks,-binary-evidence,-etc.)">
-<h2>Load results and other necessary data (networks, binary evidence, etc.)<a class="headerlink" href="#Load-results-and-other-necessary-data-(networks,-binary-evidence,-etc.)" title="Permalink to this heading">¶</a></h2>
+<h2>Load results and other necessary data (networks, binary evidence, etc.)<a class="headerlink" href="#Load-results-and-other-necessary-data-(networks,-binary-evidence,-etc.)" title="Permalink to this heading"></a></h2>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
@@ -345,7 +344,7 @@ div.rendered_html tbody tr:hover {
 </div>
 </section>
 <section id="Identify-relevant-phosphorylation-sites-for-a-kinase-of-interest">
-<h2>Identify relevant phosphorylation sites for a kinase of interest<a class="headerlink" href="#Identify-relevant-phosphorylation-sites-for-a-kinase-of-interest" title="Permalink to this heading">¶</a></h2>
+<h2>Identify relevant phosphorylation sites for a kinase of interest<a class="headerlink" href="#Identify-relevant-phosphorylation-sites-for-a-kinase-of-interest" title="Permalink to this heading"></a></h2>
 <p>In some cases, you may want to know what phosphorylation sites an active kinase is interacting with to get a clearer picture of the specific kinase-substrate interactions taking place. Using the analysis.interactions module, you can identify the phosphorylation sites that are contributing most to the activity prediction (based on the number of networks for which the observed site is connected to the kinase of interest). For our TCR activation example, we observed that LCK is highly activated
 upon activation. We would like to know what substrates LCK is mostly interacting with.</p>
 <p><em>Important note to keep in mind: KSTAR networks contain predictions and are not guaranteed to be true interactions. Just because it appears in one of the networks does not mean it is a true interaction</em></p>
@@ -397,10 +396,10 @@ Name: Number of Networks connected to LCK, dtype: float64
 <p>We can see that LCK is likely responsible for phosphorylating sites on ITK (Q08881), ZAP70 (P43403), and VAV (P15498), among others. This makes sense based on what is known about TCR signaling.</p>
 </section>
 <section id="Exploring-Network-and-Experiment-Coverage-of-Phosphorylation-Sites">
-<h2>Exploring Network and Experiment Coverage of Phosphorylation Sites<a class="headerlink" href="#Exploring-Network-and-Experiment-Coverage-of-Phosphorylation-Sites" title="Permalink to this heading">¶</a></h2>
+<h2>Exploring Network and Experiment Coverage of Phosphorylation Sites<a class="headerlink" href="#Exploring-Network-and-Experiment-Coverage-of-Phosphorylation-Sites" title="Permalink to this heading"></a></h2>
 <p>In addition to digging deeper into the KSTAR results, you may want to better understand the networks that went into prediction (and how they might compare to other kinase-substrate networks). The below approaches are designed for such analysis.</p>
 <section id="Number-of-unique-phosphorylation-sites-in-network(s)">
-<h3>Number of unique phosphorylation sites in network(s)<a class="headerlink" href="#Number-of-unique-phosphorylation-sites-in-network(s)" title="Permalink to this heading">¶</a></h3>
+<h3>Number of unique phosphorylation sites in network(s)<a class="headerlink" href="#Number-of-unique-phosphorylation-sites-in-network(s)" title="Permalink to this heading"></a></h3>
 <p>You may be interested to know how many phosphorylation sites are actually contained within a network. To check, run the following function:</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
@@ -465,7 +464,7 @@ Name: Number of Networks connected to LCK, dtype: float64
 </div>
 </section>
 <section id="Distribution-of-Study-Bias-in-Phosphoproteome-and-in-Experiments">
-<h3>Distribution of Study Bias in Phosphoproteome and in Experiments<a class="headerlink" href="#Distribution-of-Study-Bias-in-Phosphoproteome-and-in-Experiments" title="Permalink to this heading">¶</a></h3>
+<h3>Distribution of Study Bias in Phosphoproteome and in Experiments<a class="headerlink" href="#Distribution-of-Study-Bias-in-Phosphoproteome-and-in-Experiments" title="Permalink to this heading"></a></h3>
 <p>One of the major challenges KSTAR was designed tackle is the prevalance of study bias towards certain phosphorylation sites within networks and experiments. You can see the distribution of study bias within your experiment, and compare it to the distribution seen across the entire phosphoproteome.</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
@@ -509,7 +508,7 @@ Text(0.5, 1.0, &#39;In Single Sample&#39;)
 <p>As described in the KSTAR publication, we see that the phosphoproteomic experiment contains a much higher proportion of well-studied sites than the overall phosphoproteome.</p>
 </section>
 <section id="Coverage-of-Experiment-by-Kinase-Substrate-Network">
-<h3>Coverage of Experiment by Kinase-Substrate Network<a class="headerlink" href="#Coverage-of-Experiment-by-Kinase-Substrate-Network" title="Permalink to this heading">¶</a></h3>
+<h3>Coverage of Experiment by Kinase-Substrate Network<a class="headerlink" href="#Coverage-of-Experiment-by-Kinase-Substrate-Network" title="Permalink to this heading"></a></h3>
 <p>Another challenge of many kinase activity prediction approaches, particularly those relying on PhosphoSitePlus annotations, is that only a small percentage of sites can actually be used for activity prediction due to unknown kinase interactions. To get an idea of how many phosphorylation sites observed in an experiment will actually be used in prediction, you can use the below functions, either for a single network (passing a pandas dataframe) or an ensemble of networks (passing a dictionary of
 pandas dataframes):</p>
 <div class="nbinput nblast docutils container">
@@ -557,7 +556,7 @@ pandas dataframes):</p>
 <p>We have almost complete coverage of our phosphoproteomic dataset when using all 50 pruned networks, meaning that almost every observed phosphorylation site is contributing to prediction.</p>
 </section>
 <section id="Similarity-between-kinases-in-network">
-<h3>Similarity between kinases in network<a class="headerlink" href="#Similarity-between-kinases-in-network" title="Permalink to this heading">¶</a></h3>
+<h3>Similarity between kinases in network<a class="headerlink" href="#Similarity-between-kinases-in-network" title="Permalink to this heading"></a></h3>
 <p>Lastly, kinase-substrate prediction networks often suffer from a high degree of similarity between kinases from the same family. We can look at the mutual information shared between kinases within a network (or ensemble of networks), or the fraction of shared substrates. We can then plot this as heatmap:</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
@@ -690,7 +689,7 @@ pandas dataframes):</p>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2020, Naegle Lab.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.3.0.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.0.2.
     </div>
   </body>
 </html>

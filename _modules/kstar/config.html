@@ -14,7 +14,6 @@
     <script src="../../_static/underscore.js"></script>
     <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="../../_static/doctools.js"></script>
-    <script src="../../_static/sphinx_highlight.js"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     
     <link rel="index" title="Index" href="../../genindex.html" />
@@ -150,15 +149,12 @@
     <span class="c1">#check that directory exists</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">directory</span><span class="p">):</span>
         <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Directory not found, so directories.txt was not updated and no pickles were generated. Please verify that directory is correct&#39;</span><span class="p">)</span>
-        <span class="k">return</span>
+        <span class="k">return</span> <span class="n">NETWORK_DIR</span>
     
-    <span class="c1">#update network directory in config (temporary change)</span>
-    <span class="n">NETWORK_DIR</span> <span class="o">=</span> <span class="n">directory</span>
     <span class="c1">#update network directory in directories.txt (permanent change)</span>
     <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">KSTAR_DIR</span><span class="si">}</span><span class="s1">/kstar/directories.txt&#39;</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">d</span><span class="p">:</span>
         <span class="n">d</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">directory</span><span class="p">)</span>
     <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Network directory updated.&#39;</span><span class="p">)</span>
-    
     
     <span class="c1">#If create_pickles is true, look for individual networks and create pickles</span>
     <span class="k">if</span> <span class="n">create_pickles</span><span class="p">:</span>
@@ -186,11 +182,8 @@
                 <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Could not find individual networks for ST. Make sure networks are deposited in &quot;</span><span class="si">{NETWORK_DIR}</span><span class="s1">/ST/INDIVIDUAL_NETWORKS/&quot;, , then rerun create_network_pickles()&#39;</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Network pickles already generated&#39;</span><span class="p">)</span>
-            
-    <span class="c1">#update location of network pickles</span>
-    <span class="n">NETWORK_Y_PICKLE</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">NETWORK_DIR</span><span class="si">}</span><span class="s2">/network_Y.p&quot;</span> <span class="c1"># created by create_networkin_pickles()</span>
-    <span class="n">NETWORK_ST_PICKLE</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">NETWORK_DIR</span><span class="si">}</span><span class="s2">/network_ST.p&quot;</span> <span class="c1">#created by create_networkin_pickles()</span>
-    <span class="k">return</span> <span class="n">NETWORK_DIR</span><span class="p">,</span> <span class="n">NETWORK_Y_PICKLE</span><span class="p">,</span> <span class="n">NETWORK_ST_PICKLE</span></div>
+    
+    <span class="k">return</span> <span class="n">directory</span></div>
 
 <span class="c1">#def create_network_pickles(phosphoType = [&#39;Y&#39;,&#39;ST&#39;], *kwargs)</span>
 <div class="viewcode-block" id="create_network_pickles"><a class="viewcode-back" href="../../KSTAR.html#kstar.config.create_network_pickles">[docs]</a><span class="k">def</span> <span class="nf">create_network_pickles</span><span class="p">(</span><span class="n">phosphoTypes</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Y&#39;</span><span class="p">,</span><span class="s1">&#39;ST&#39;</span><span class="p">],</span> <span class="n">network_directory</span> <span class="o">=</span> <span class="n">NETWORK_DIR</span><span class="p">):</span>
@@ -308,7 +301,7 @@
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2020, Naegle Lab.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.3.0.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.0.2.
     </div>
   </body>
 </html>

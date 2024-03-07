@@ -14,7 +14,6 @@
     <script src="../../_static/underscore.js"></script>
     <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="../../_static/doctools.js"></script>
-    <script src="../../_static/sphinx_highlight.js"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     
     <link rel="index" title="Index" href="../../genindex.html" />
@@ -57,8 +56,6 @@
 <span class="kn">import</span> <span class="nn">shutil</span>
 <span class="kn">import</span> <span class="nn">random</span>
 <span class="kn">import</span> <span class="nn">string</span>
-<span class="kn">import</span> <span class="nn">warnings</span>
-<span class="kn">import</span> <span class="nn">math</span>
 
 <span class="c1">#%%</span>
 <span class="c1">#%%</span>
@@ -70,69 +67,36 @@
 <span class="sd">    Parameters</span>
 <span class="sd">    -----------</span>
 <span class="sd">    network : pandas df</span>
-<span class="sd">        weighted kinase-site prediction network where there is an accession, site, kinase, and score column</span>
+<span class="sd">        kinase-site prediction network where there is an accession, site, kinase, and score column</span>
 <span class="sd">    logger : </span>
 <span class="sd">        logger used for pruning</span>
 <span class="sd">    phospho_type : str</span>
 <span class="sd">        phospho_type(s) to use when building pruned networks</span>
-<span class="sd">    acc_col : str</span>
-<span class="sd">        the name of the column containing Uniprot Accession IDs for each substrate in the weighted network</span>
-<span class="sd">    site_col : str</span>
-<span class="sd">        the name of the column containing the residue type and location of each substrate in the weighted network (Y1268, S44, etc.)</span>
-<span class="sd">    nonweight_cols : list</span>
-<span class="sd">        indicates the non-weight containing columns in the network (these will be removed in the final processed network, as they are not needed). If None, will automatically look</span>
-<span class="sd">            for any non-numeric columns and removes them.</span>
+<span class="sd">    columns : dict</span>
+<span class="sd">        relevant columns in network</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">network</span><span class="p">,</span> <span class="n">logger</span><span class="p">,</span> <span class="n">phospho_type</span> <span class="o">=</span> <span class="s1">&#39;Y&#39;</span><span class="p">,</span><span class="n">acc_col</span> <span class="o">=</span> <span class="s1">&#39;substrate_acc&#39;</span><span class="p">,</span> <span class="n">site_col</span> <span class="o">=</span> <span class="s1">&#39;site&#39;</span><span class="p">,</span> <span class="n">nonweight_cols</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;substrate_acc&#39;</span><span class="p">,</span><span class="s1">&#39;site&#39;</span><span class="p">,</span><span class="s1">&#39;substrate_id&#39;</span><span class="p">,</span> <span class="s1">&#39;substrate_name&#39;</span><span class="p">,</span> <span class="s1">&#39;pep&#39;</span><span class="p">]):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">network</span><span class="p">,</span> <span class="n">logger</span><span class="p">,</span> <span class="n">phospho_type</span> <span class="o">=</span> <span class="s1">&#39;Y&#39;</span><span class="p">,):</span>
         
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">phospho_type</span> <span class="o">=</span> <span class="n">phospho_type</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">phospho_type</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">phospho_type</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span> <span class="o">=</span> <span class="n">logger</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">network</span> <span class="o">=</span> <span class="n">network</span><span class="p">[</span><span class="n">network</span><span class="p">[</span><span class="n">site_col</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="nb">tuple</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">phospho_type</span><span class="p">))]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">network</span> <span class="o">=</span> <span class="n">network</span><span class="p">[</span><span class="n">network</span><span class="p">[</span><span class="s1">&#39;site&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">phospho_type</span><span class="p">)]</span>
         
-        <span class="c1">#load human reference phosphoproteome, obtain the correct phosphosites (Y or ST), and combine duplicate entries</span>
+
         <span class="bp">self</span><span class="o">.</span><span class="n">compendia</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">HUMAN_REF_COMPENDIA</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">compendia</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">compendia</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">compendia</span><span class="p">[</span><span class="n">config</span><span class="o">.</span><span class="n">KSTAR_SITE</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="nb">tuple</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">phospho_type</span><span class="p">))]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">compendia</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">compendia</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">compendia</span><span class="p">[</span><span class="n">config</span><span class="o">.</span><span class="n">KSTAR_SITE</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">phospho_type</span><span class="p">)]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">compendia</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">compendia</span><span class="p">[[</span><span class="n">config</span><span class="o">.</span><span class="n">KSTAR_ACCESSION</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">KSTAR_SITE</span><span class="p">,</span> <span class="s1">&#39;KSTAR_NUM_COMPENDIA&#39;</span><span class="p">]]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">compendia</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">compendia</span><span class="o">.</span><span class="n">groupby</span><span class="p">([</span><span class="n">config</span><span class="o">.</span><span class="n">KSTAR_ACCESSION</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">KSTAR_SITE</span><span class="p">])</span><span class="o">.</span><span class="n">max</span><span class="p">()</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
-        <span class="c1">#merge the human phosphoproteome compendia, which contains study bias information for all phosphosites, with the network</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">network</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">network</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">compendia</span><span class="p">,</span> <span class="n">how</span> <span class="o">=</span> <span class="s1">&#39;inner&#39;</span><span class="p">,</span> <span class="n">left_on</span> <span class="o">=</span> <span class="p">[</span><span class="n">acc_col</span><span class="p">,</span> <span class="n">site_col</span><span class="p">],</span> <span class="n">right_on</span><span class="o">=</span><span class="p">[</span><span class="n">config</span><span class="o">.</span><span class="n">KSTAR_ACCESSION</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">KSTAR_SITE</span><span class="p">]</span> <span class="p">)</span>
-        
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;There are </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">network</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s1"> unique substrates found in the weighted network that mapped to KinPred reference phosphoproteome</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
-        
-        
-        <span class="c1">#update index to indicate site associated with each row</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">network</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">network</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">compendia</span><span class="p">,</span> <span class="n">how</span> <span class="o">=</span> <span class="s1">&#39;inner&#39;</span><span class="p">,</span> <span class="n">left_on</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;substrate_acc&#39;</span><span class="p">,</span> <span class="s1">&#39;site&#39;</span><span class="p">],</span> <span class="n">right_on</span><span class="o">=</span><span class="p">[</span><span class="n">config</span><span class="o">.</span><span class="n">KSTAR_ACCESSION</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">KSTAR_SITE</span><span class="p">]</span> <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">network</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">network</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;substrate_acc&#39;</span><span class="p">,</span><span class="s1">&#39;site&#39;</span><span class="p">,</span><span class="s1">&#39;substrate_id&#39;</span><span class="p">,</span> <span class="s1">&#39;substrate_name&#39;</span><span class="p">,</span> <span class="s1">&#39;pep&#39;</span><span class="p">])</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">network</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">network</span><span class="o">.</span><span class="n">set_index</span><span class="p">([</span><span class="n">config</span><span class="o">.</span><span class="n">KSTAR_ACCESSION</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">KSTAR_SITE</span><span class="p">])</span>
-        <span class="c1">#drop unneeded columns (or maybe drop any non number columns)</span>
-        <span class="k">if</span> <span class="n">nonweight_cols</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">nonweight_cols</span> <span class="o">=</span> <span class="p">[</span><span class="n">col</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">nonweight_cols</span> <span class="k">if</span> <span class="n">col</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">network</span><span class="o">.</span><span class="n">columns</span><span class="p">]</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">network</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">network</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="n">nonweight_cols</span><span class="p">)</span>
-            
-        <span class="c1">#check to make sure all remaining columns contain only numeric values</span>
-        <span class="n">non_numeric_cols</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">network</span><span class="o">.</span><span class="n">select_dtypes</span><span class="p">(</span><span class="n">exclude</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">number</span><span class="p">)</span><span class="o">.</span><span class="n">columns</span>
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">non_numeric_cols</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;The following non-numeric columns were identified and removed:&#39;</span><span class="p">,</span> <span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">non_numeric_cols</span><span class="p">))</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;It is assumed that these columns do not contain kinase-substrate weights. If this is incorrect, please make sure weight containing columns only contain numeric values or indicate non-weight containing columns via &quot;nonweight_cols&quot; parameter</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">network</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">network</span><span class="o">.</span><span class="n">select_dtypes</span><span class="p">(</span><span class="n">include</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">number</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">network</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">network</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;-&#39;</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">network</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">network</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s1">&#39;columns&#39;</span><span class="p">,</span> <span class="n">how</span> <span class="o">=</span><span class="s1">&#39;all&#39;</span><span class="p">)</span>
-        
-        <span class="c1">#check for duplicate entries/indices</span>
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">network</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">duplicated</span><span class="p">())</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="n">tmp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">network</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">network</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">duplicated</span><span class="p">(</span><span class="n">keep</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)]</span>
-            <span class="c1">#check to see if duplicate entries contain different information. If they do not, drop one row. If they do, return error.</span>
-            <span class="k">if</span> <span class="nb">any</span><span class="p">([</span><span class="n">i</span> <span class="ow">and</span> <span class="n">v</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">v</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">network</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">duplicated</span><span class="p">(</span><span class="n">keep</span> <span class="o">=</span> <span class="kc">False</span><span class="p">),</span> <span class="o">~</span><span class="bp">self</span><span class="o">.</span><span class="n">network</span><span class="o">.</span><span class="n">duplicated</span><span class="p">(</span><span class="n">keep</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">values</span><span class="p">)]):</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Duplicate entries found in network that contain conflicting weights, please fix before running pruning&#39;</span><span class="p">)</span>
-
-            <span class="k">else</span><span class="p">:</span>
-                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Duplicate entries found in network, removing repeat rows</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">network</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">network</span><span class="p">[</span><span class="o">~</span><span class="bp">self</span><span class="o">.</span><span class="n">network</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">duplicated</span><span class="p">()]</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">kinases</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">network</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">kinases</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="s1">&#39;KSTAR_NUM_COMPENDIA&#39;</span><span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;There are </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">kinases</span><span class="p">)</span><span class="si">}</span><span class="s1"> </span><span class="si">{</span><span class="n">phospho_type</span><span class="si">}</span><span class="s1"> kinases found in the weighted network&#39;</span><span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;There are </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">network</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s1"> unique substrates found in the weighted network that mapped to KinPred reference phosphoproteome</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Pruning initialization complete&quot;</span><span class="p">)</span>
     
@@ -160,24 +124,18 @@
         <span class="n">site_sizes</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">()</span>
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">network</span><span class="o">.</span><span class="n">index</span><span class="p">:</span>
             <span class="n">site_sizes</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
-        <span class="n">num_edges</span> <span class="o">=</span> <span class="p">{}</span>
+
         <span class="n">pruned_network</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">index</span> <span class="o">=</span> <span class="n">network</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">columns</span> <span class="o">=</span> <span class="n">network</span><span class="o">.</span><span class="n">columns</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">kinase_size</span><span class="p">):</span>
             <span class="n">random</span><span class="o">.</span><span class="n">shuffle</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">kinases</span><span class="p">)</span>
             <span class="k">for</span> <span class="n">kinase</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">kinases</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">network</span><span class="p">[</span><span class="n">kinase</span><span class="p">]</span><span class="o">.</span><span class="n">isna</span><span class="p">()</span><span class="o">.</span><span class="n">all</span><span class="p">():</span>
-                    <span class="k">if</span> <span class="n">kinase</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">num_edges</span><span class="p">:</span>
-                        <span class="n">num_edges</span><span class="p">[</span><span class="n">kinase</span><span class="p">]</span> <span class="o">=</span> <span class="n">i</span><span class="o">+</span><span class="mi">1</span>
-                        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">kinase</span><span class="si">}</span><span class="s1"> has no more available edges. Total edge count for this network = </span><span class="si">{</span><span class="n">num_edges</span><span class="p">[</span><span class="n">kinase</span><span class="p">]</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="n">sample</span> <span class="o">=</span> <span class="n">network</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">weights</span><span class="o">=</span><span class="n">kinase</span><span class="p">)</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-                    <span class="n">network</span><span class="o">.</span><span class="n">at</span><span class="p">[</span><span class="n">sample</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">kinase</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
-                    <span class="n">pruned_network</span><span class="o">.</span><span class="n">at</span><span class="p">[</span><span class="n">sample</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">kinase</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
-                    <span class="n">site_sizes</span><span class="p">[</span><span class="n">sample</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">site_sizes</span><span class="p">[</span><span class="n">sample</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span>
-                    <span class="k">if</span> <span class="n">site_sizes</span><span class="p">[</span><span class="n">sample</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">site_limit</span><span class="p">:</span>
-                        <span class="n">network</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">sample</span><span class="o">.</span><span class="n">name</span><span class="p">,:]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span> 
-
-
+                <span class="n">sample</span> <span class="o">=</span> <span class="n">network</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">weights</span><span class="o">=</span><span class="n">kinase</span><span class="p">)</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="c1"># return sample</span>
+                <span class="n">network</span><span class="o">.</span><span class="n">at</span><span class="p">[</span><span class="n">sample</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">kinase</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+                <span class="n">pruned_network</span><span class="o">.</span><span class="n">at</span><span class="p">[</span><span class="n">sample</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">kinase</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+                <span class="n">site_sizes</span><span class="p">[</span><span class="n">sample</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">site_sizes</span><span class="p">[</span><span class="n">sample</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span>
+                <span class="k">if</span> <span class="n">site_sizes</span><span class="p">[</span><span class="n">sample</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">site_limit</span><span class="p">:</span>
+                    <span class="n">network</span><span class="o">.</span><span class="n">at</span><span class="p">[</span><span class="n">sample</span><span class="o">.</span><span class="n">name</span><span class="p">,:]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span> 
         
         <span class="n">pruned_network</span> <span class="o">=</span> <span class="n">pruned_network</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span><span class="o">.</span><span class="n">melt</span><span class="p">(</span><span class="n">id_vars</span><span class="o">=</span><span class="p">[</span><span class="n">config</span><span class="o">.</span><span class="n">KSTAR_ACCESSION</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">KSTAR_SITE</span><span class="p">])</span><span class="o">.</span><span class="n">dropna</span><span class="p">()</span>
         <span class="n">pruned_network</span> <span class="o">=</span> <span class="n">pruned_network</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;variable&#39;</span><span class="p">:</span><span class="n">config</span><span class="o">.</span><span class="n">KSTAR_KINASE</span><span class="p">})</span>
@@ -211,7 +169,7 @@
         <span class="n">pruned_network</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">pruned_network</span><span class="p">)</span>
 
         <span class="n">pruned_network</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">.tsv&quot;</span><span class="p">,</span> <span class="n">sep</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></div>
-
+        <span class="c1"># return pruned_network</span>
         
 <div class="viewcode-block" id="Pruner.calculate_compendia_sizes"><a class="viewcode-back" href="../../KSTAR.html#kstar.prune.Pruner.calculate_compendia_sizes">[docs]</a>    <span class="k">def</span> <span class="nf">calculate_compendia_sizes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">kinase_size</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -263,12 +221,6 @@
 <span class="sd">            key : &lt;network_id&gt;_&lt;i&gt;</span>
 <span class="sd">            value : pruned network</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">kinase_size</span> <span class="o">=</span> <span class="n">kinase_size</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">site_limit</span> <span class="o">=</span> <span class="n">site_limit</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">num_networks</span> <span class="o">=</span> <span class="n">num_networks</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">network_id</span> <span class="o">=</span> <span class="n">network_id</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">network_dir</span> <span class="o">=</span> <span class="n">odir</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">use_compendia</span> <span class="o">=</span> <span class="kc">True</span>
         
         <span class="n">compendia_sizes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">calculate_compendia_sizes</span><span class="p">(</span><span class="n">kinase_size</span><span class="p">)</span>
         
@@ -284,6 +236,7 @@
             <span class="n">pool</span> <span class="o">=</span> <span class="n">multiprocessing</span><span class="o">.</span><span class="n">Pool</span><span class="p">(</span><span class="n">processes</span> <span class="o">=</span> <span class="n">PROCESSES</span><span class="p">)</span>
             <span class="n">comp_sizes</span> <span class="o">=</span> <span class="n">itertools</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="n">compendia_sizes</span><span class="p">,</span> <span class="n">num_networks</span><span class="p">)</span>
             <span class="n">limits</span> <span class="o">=</span> <span class="n">itertools</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="n">site_limit</span><span class="p">,</span> <span class="n">num_networks</span><span class="p">)</span>
+            <span class="c1"># names = [os.path.join(odir,f&quot;{network_id}_{i}&quot;) for i in range(num_networks)] </span>
             <span class="n">odirs</span> <span class="o">=</span> <span class="n">itertools</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="n">odir</span><span class="p">,</span> <span class="n">num_networks</span><span class="p">)</span>
             <span class="n">iterable</span> <span class="o">=</span> <span class="nb">zip</span><span class="p">(</span><span class="n">comp_sizes</span><span class="p">,</span> <span class="n">limits</span><span class="p">,</span> <span class="n">odirs</span><span class="p">)</span>
 
@@ -293,163 +246,42 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="n">pruned_networks</span> <span class="o">=</span> <span class="p">[]</span>
             <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_networks</span><span class="p">):</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">compendia_pruned_network</span><span class="p">(</span><span class="n">compendia_sizes</span><span class="p">,</span> <span class="n">site_limit</span><span class="p">,</span> <span class="n">odir</span> <span class="p">)</span></div>
-        
-  
-
-<div class="viewcode-block" id="Pruner.build_multiple_networks"><a class="viewcode-back" href="../../KSTAR.html#kstar.prune.Pruner.build_multiple_networks">[docs]</a>    <span class="k">def</span> <span class="nf">build_multiple_networks</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">kinase_size</span><span class="p">,</span> <span class="n">site_limit</span><span class="p">,</span> <span class="n">num_networks</span><span class="p">,</span> <span class="n">network_id</span><span class="p">,</span> <span class="n">odir</span><span class="p">,</span> <span class="n">PROCESSES</span> <span class="o">=</span> <span class="mi">1</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Basic Network Generation - only takes into account score when determining sites a kinase </span>
-<span class="sd">        connects to</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">kinase_size</span> <span class="o">=</span> <span class="n">kinase_size</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">site_limit</span> <span class="o">=</span> <span class="n">site_limit</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">num_networks</span> <span class="o">=</span> <span class="n">num_networks</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">network_id</span> <span class="o">=</span> <span class="n">network_id</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">network_dir</span> <span class="o">=</span> <span class="n">odir</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">use_compendia</span> <span class="o">=</span> <span class="kc">False</span>
-        
-        <span class="n">odir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">odir</span><span class="p">,</span> <span class="s2">&quot;work&quot;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">odir</span><span class="p">):</span>
-            <span class="n">os</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">odir</span><span class="p">)</span>
-        <span class="c1"># MULTIPROCESSING</span>
-        <span class="k">if</span> <span class="n">PROCESSES</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
-            <span class="n">pool</span> <span class="o">=</span> <span class="n">multiprocessing</span><span class="o">.</span><span class="n">Pool</span><span class="p">(</span><span class="n">processes</span> <span class="o">=</span> <span class="n">PROCESSES</span><span class="p">)</span>
-            <span class="n">network_iter</span> <span class="o">=</span> <span class="n">itertools</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">network</span><span class="p">,</span> <span class="n">num_networks</span><span class="p">)</span>
-            <span class="n">size_iter</span> <span class="o">=</span> <span class="n">itertools</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="n">kinase_size</span><span class="p">,</span> <span class="n">num_networks</span><span class="p">)</span>
-            <span class="n">limit_iter</span> <span class="o">=</span> <span class="n">itertools</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="n">site_limit</span><span class="p">,</span> <span class="n">num_networks</span><span class="p">)</span>
-            <span class="n">iterable</span> <span class="o">=</span> <span class="nb">zip</span><span class="p">(</span><span class="n">network_iter</span><span class="p">,</span> <span class="n">size_iter</span><span class="p">,</span> <span class="n">limit_iter</span><span class="p">)</span>
-            <span class="n">pruned_networks</span> <span class="o">=</span> <span class="n">pool</span><span class="o">.</span><span class="n">starmap</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">build_pruned_network</span><span class="p">,</span> <span class="n">iterable</span><span class="p">)</span>
-            <span class="c1">#save each network</span>
-            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">pruned_networks</span><span class="p">)):</span>
-                <span class="n">net</span> <span class="o">=</span> <span class="n">pruned_networks</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
-                <span class="n">name</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">odir</span><span class="p">,</span><span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">random</span><span class="o">.</span><span class="n">choices</span><span class="p">(</span><span class="n">string</span><span class="o">.</span><span class="n">ascii_uppercase</span> <span class="o">+</span> <span class="n">string</span><span class="o">.</span><span class="n">digits</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="mi">10</span><span class="p">)))</span>
-                <span class="n">net</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">.tsv&quot;</span><span class="p">,</span> <span class="n">sep</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> 
-        <span class="c1"># SINGLE CORE PROCESSING</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">pruned_networks</span> <span class="o">=</span> <span class="p">[]</span>
-            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_networks</span><span class="p">):</span>
-                <span class="n">name</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">odir</span><span class="p">,</span><span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">random</span><span class="o">.</span><span class="n">choices</span><span class="p">(</span><span class="n">string</span><span class="o">.</span><span class="n">ascii_uppercase</span> <span class="o">+</span> <span class="n">string</span><span class="o">.</span><span class="n">digits</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="mi">10</span><span class="p">)))</span>
-                <span class="n">net</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">build_pruned_network</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">network</span><span class="p">,</span> <span class="n">kinase_size</span><span class="p">,</span> <span class="n">site_limit</span><span class="p">)</span>
-                <span class="n">net</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">.tsv&quot;</span><span class="p">,</span> <span class="n">sep</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></div>
+                <span class="bp">self</span><span class="o">.</span><span class="n">compendia_pruned_network</span><span class="p">(</span><span class="n">compendia_sizes</span><span class="p">,</span> <span class="n">site_limit</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">odir</span><span class="p">,</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">network_id</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span> <span class="p">)</span></div></div>
                 
-                
-<div class="viewcode-block" id="Pruner.getMaximumKinaseSize"><a class="viewcode-back" href="../../KSTAR.html#kstar.prune.Pruner.getMaximumKinaseSize">[docs]</a>    <span class="k">def</span> <span class="nf">getMaximumKinaseSize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">site_limit</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Given a network and site_limit (maximum number of kinases a phosphorylation site can provide evidence to), will calculate the theoretical maximum number of connections each kinase can have (kinase_size parameter)</span>
-<span class="sd">        </span>
-<span class="sd">        Theoretical maximum exists when each substrate hits the maximum site_limit</span>
-<span class="sd">        </span>
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        site_limit: int</span>
-<span class="sd">            Parameter used in pruning: indicates the maximum number of kinases a phosphorylation site can be connected to in the final pruned network</span>
-<span class="sd">        </span>
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        theoretical_max_ksize: int</span>
-<span class="sd">            largest possible value that &#39;kinase_size&#39; parameter can have without throwing any errors</span>
-<span class="sd">        &quot;&quot;&quot;</span>
         
-        <span class="n">num_substrates</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">network</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-        
-        <span class="n">theoretical_max_ksize</span> <span class="o">=</span> <span class="p">(</span><span class="n">num_substrates</span><span class="o">*</span><span class="n">site_limit</span><span class="p">)</span><span class="o">/</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">kinases</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">theoretical_max_ksize</span></div>
-        
-        
-<div class="viewcode-block" id="Pruner.getRecommendedKinaseSize"><a class="viewcode-back" href="../../KSTAR.html#kstar.prune.Pruner.getRecommendedKinaseSize">[docs]</a>    <span class="k">def</span> <span class="nf">getRecommendedKinaseSize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">site_limit</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Given a network and site_limit (maximum number of kinases a phosphorylation site can provide evidence to), will calculate the theoretical maximum number of connections each kinase can have (kinase_size parameter) and recommend a range of values for kinase_size</span>
-<span class="sd">        </span>
-<span class="sd">        Theoretical maximum exists when each substrate hits the maximum site_limit</span>
-<span class="sd">        </span>
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        site_limit: int</span>
-<span class="sd">            Parameter used in pruning: indicates the maximum number of kinases a phosphorylation site can be connected to in the final pruned network</span>
-<span class="sd">        </span>
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        Nothing, prints theoretical maximum of kinase size and the recommened values for the parameter given the site_limit</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c1">#get the total number of substrates in the network</span>
-        <span class="n">theoretical_max_ksize</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getMaximumKinaseSize</span><span class="p">(</span><span class="n">site_limit</span><span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Theoretical maximum value of kinase_size parameter is </span><span class="si">{</span><span class="n">theoretical_max_ksize</span><span class="si">}</span><span class="s1">, given site_limit of </span><span class="si">{</span><span class="n">site_limit</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Recommended value of kinase size parameter is between 20-40% of theoretical maximum: </span><span class="si">{</span><span class="n">theoretical_max_ksize</span><span class="o">*</span><span class="mf">0.2</span><span class="si">}</span><span class="s1"> - </span><span class="si">{</span><span class="n">theoretical_max_ksize</span><span class="o">*</span><span class="mf">0.4</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span></div>
-        
-<div class="viewcode-block" id="Pruner.checkParameters"><a class="viewcode-back" href="../../KSTAR.html#kstar.prune.Pruner.checkParameters">[docs]</a>    <span class="k">def</span> <span class="nf">checkParameters</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">kinase_size</span><span class="p">,</span> <span class="n">site_limit</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Given the site_limit and kinase_size parameters to be used during pruning, raise errors if not feasible, and raise warnings if value is higher than we would recommend (&gt;40% of the maximum kinase_size value)</span>
-<span class="sd">        </span>
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        kinase_size: int</span>
-<span class="sd">            Parameter used in pruning: indicates the number of substrates each kinase will be connected to</span>
-<span class="sd">        site_limit: int</span>
-<span class="sd">            Parameter used in pruning: indicates the maximum number of kinases a phosphorylation site can be connected to in the final pruned network</span>
-<span class="sd">            </span>
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        Nothing, will only raise errors/warnings if parameters are not feasible</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        
-        <span class="n">theoretical_max_ksize</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getMaximumKinaseSize</span><span class="p">(</span><span class="n">site_limit</span><span class="p">)</span>
-        
-        <span class="k">if</span> <span class="n">kinase_size</span> <span class="o">&gt;</span> <span class="n">theoretical_max_ksize</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Value of &#39;kinase_size&#39; is not feasible. Please decrease &#39;kinase_size&#39; to </span><span class="si">{</span><span class="n">math</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">theoretical_max_ksize</span><span class="p">)</span><span class="si">}</span><span class="s2"> or increase the value of site_limit&quot;</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="n">kinase_size</span> <span class="o">&gt;</span> <span class="n">theoretical_max_ksize</span><span class="o">*</span><span class="mf">0.4</span><span class="p">:</span>
-            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;Value of &#39;kinase_size&#39; may be higher than desired. Check the log file for potential errors after completion&quot;</span><span class="p">)</span></div>
-            
-        
-                
-<div class="viewcode-block" id="Pruner.save_networks"><a class="viewcode-back" href="../../KSTAR.html#kstar.prune.Pruner.save_networks">[docs]</a>    <span class="k">def</span> <span class="nf">save_networks</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Save the pruned networks generated by the &#39;build_multiple_networks&#39; or &#39;build_multiple_compendia_networks&#39; as a pickle to be loaded by KSTAR</span>
-<span class="sd">        </span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Saving pruning results&quot;</span><span class="p">)</span>
-
-        
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_compendia</span><span class="p">:</span>
-            <span class="n">suffix</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">phospho_type</span><span class="si">}</span><span class="s2">_compendia_</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">kinase_size</span><span class="si">}</span><span class="s2">_limit_</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">site_limit</span><span class="si">}</span><span class="s2">&quot;</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">suffix</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">phospho_type</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">kinase_size</span><span class="si">}</span><span class="s2">_limit_</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">site_limit</span><span class="si">}</span><span class="s2">&quot;</span>
-
-        <span class="c1"># TODO: rename work directory and rename files</span>
-        <span class="n">os</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">network_dir</span><span class="p">,</span> <span class="s2">&quot;work&quot;</span><span class="p">),</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">network_dir</span><span class="p">,</span> <span class="s2">&quot;INDIVIDUAL_NETWORKS&quot;</span><span class="p">))</span>
-        <span class="n">odir_ind</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">network_dir</span><span class="p">,</span> <span class="s2">&quot;INDIVIDUAL_NETWORKS&quot;</span><span class="p">)</span>
-        <span class="c1"># rename files and make network map</span>
-        <span class="n">temp_filenames</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">odir_ind</span><span class="p">)</span>
-        <span class="n">network_map</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">temp_filenames</span><span class="p">)):</span>
-            <span class="n">network_map</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">network_id</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_table</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">odir_ind</span><span class="p">,</span><span class="n">temp_filenames</span><span class="p">[</span><span class="n">i</span><span class="p">]))</span>
-            <span class="n">os</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">odir_ind</span><span class="p">,</span> <span class="n">temp_filenames</span><span class="p">[</span><span class="n">i</span><span class="p">]),</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">odir_ind</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">network_id</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">suffix</span><span class="si">}</span><span class="s2">.tsv&quot;</span><span class="p">))</span>
-
-        <span class="n">pickle</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span> <span class="n">network_map</span><span class="p">,</span> <span class="nb">open</span><span class="p">(</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">network_dir</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">network_id</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">suffix</span><span class="si">}</span><span class="s2">.p&quot;</span><span class="p">,</span> <span class="s2">&quot;wb&quot;</span> <span class="p">)</span> <span class="p">)</span></div>
-        
+        <span class="c1"># pruned_dict = {}</span>
+        <span class="c1"># for i in range(num_networks):</span>
+        <span class="c1">#     name = os.path.join(odir,f&quot;{network_id}_{i}&quot;)</span>
+        <span class="c1">#     pruned_dict[f&quot;{network_id}_{i}&quot;] = pd.read_table(f&quot;{name}.tsv&quot;)</span>
         
 
+        <span class="c1"># return pruned_dict</span>
+
+    <span class="c1"># def build_multiple_networks(self, kinase_size, site_limit, num_networks, network_id):</span>
+    <span class="c1">#     &quot;&quot;&quot;</span>
+    <span class="c1">#     Basic Network Generation - only takes into account score when determining sites a kinase </span>
+    <span class="c1">#     connects to</span>
+    <span class="c1">#     &quot;&quot;&quot;</span>
+    <span class="c1">#     # MULTIPROCESSING</span>
+    <span class="c1">#     if config.PROCESSES &gt; 1:</span>
+    <span class="c1">#         pool = multiprocessing.Pool(processes = config.PROCESSES)</span>
+    <span class="c1">#         network_iter = itertools.repeat(self.network, num_networks)</span>
+    <span class="c1">#         size_iter = itertools.repeat(kinase_size, num_networks)</span>
+    <span class="c1">#         limit_iter = itertools.repeat(site_limit, num_networks)</span>
+    <span class="c1">#         iterable = zip(network_iter, size_iter, limit_iter)</span>
+    <span class="c1">#         pruned_networks = pool.starmap(self.build_pruned_network, iterable)</span>
         
-<div class="viewcode-block" id="Pruner.save_run_information"><a class="viewcode-back" href="../../KSTAR.html#kstar.prune.Pruner.save_run_information">[docs]</a>    <span class="k">def</span> <span class="nf">save_run_information</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Save information about the generation of networks during run_pruning, </span>
-<span class="sd">        including the parameters used for generation. Primarily used when running bash script.</span>
-<span class="sd">        </span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">network_dir</span><span class="si">}</span><span class="s2">/RUN_INFORMATION.txt&quot;</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">info_file</span><span class="p">:</span>
-            <span class="n">info_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;*************************************************</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
-            <span class="n">info_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Pruning Information for </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">network_id</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
-            <span class="n">info_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;*************************************************</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
-            <span class="n">info_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Date Run</span><span class="se">\t\t</span><span class="si">{</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
-            <span class="n">info_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Phospho Type</span><span class="se">\t</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">phospho_type</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
-            <span class="n">info_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Kinase Size</span><span class="se">\t\t</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">kinase_size</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
-            <span class="n">info_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Site Limit</span><span class="se">\t\t</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">site_limit</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
-            <span class="n">info_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;# of Networks</span><span class="se">\t</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">num_networks</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
-            <span class="n">info_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Use Compendia</span><span class="se">\t</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">use_compendia</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_compendia</span><span class="p">:</span>
-                <span class="n">compendia_sizes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">calculate_compendia_sizes</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">kinase_size</span><span class="p">)</span>
-                <span class="k">for</span> <span class="n">comp</span><span class="p">,</span> <span class="n">size</span> <span class="ow">in</span> <span class="n">compendia_sizes</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-                    <span class="n">info_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">Compendia </span><span class="si">{</span><span class="n">comp</span><span class="si">}</span><span class="se">\t</span><span class="si">{</span><span class="n">size</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span></div></div>
+    <span class="c1">#     # SINGLE CORE PROCESSING</span>
+    <span class="c1">#     else:</span>
+    <span class="c1">#         pruned_networks = []</span>
+    <span class="c1">#         for i in range(num_networks):</span>
+    <span class="c1">#             net = self.build_pruned_network(self.network, kinase_size, site_limit)</span>
+    <span class="c1">#             pruned_networks.append(net)</span>
+
+    <span class="c1">#     pruned_dict = {}</span>
+    <span class="c1">#     for i in range(len(pruned_networks)):</span>
+    <span class="c1">#         pruned_dict[f&quot;{network_id}_{i}&quot;] = pruned_networks[i]</span>
+    <span class="c1">#     return pruned_dict</span>
 
 
 <span class="sd">&quot;&quot;&quot;</span>
@@ -514,8 +346,7 @@
     <span class="k">return</span> <span class="n">network</span><span class="p">,</span> <span class="n">log</span><span class="p">,</span> <span class="n">use_compendia</span>
 
 
-<div class="viewcode-block" id="run_pruning"><a class="viewcode-back" href="../../KSTAR.html#kstar.prune.run_pruning">[docs]</a><span class="k">def</span> <span class="nf">run_pruning</span><span class="p">(</span><span class="n">network</span><span class="p">,</span> <span class="n">log</span><span class="p">,</span> <span class="n">phospho_type</span><span class="p">,</span> <span class="n">kinase_size</span><span class="p">,</span> <span class="n">site_limit</span><span class="p">,</span> <span class="n">num_networks</span><span class="p">,</span> <span class="n">network_id</span><span class="p">,</span> <span class="n">odir</span><span class="p">,</span> <span class="n">use_compendia</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-                <span class="n">acc_col</span> <span class="o">=</span> <span class="s1">&#39;substrate_acc&#39;</span><span class="p">,</span> <span class="n">site_col</span> <span class="o">=</span> <span class="s1">&#39;site&#39;</span><span class="p">,</span> <span class="n">netcols_todrop</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;substrate_acc&#39;</span><span class="p">,</span><span class="s1">&#39;site&#39;</span><span class="p">,</span><span class="s1">&#39;substrate_id&#39;</span><span class="p">,</span> <span class="s1">&#39;substrate_name&#39;</span><span class="p">,</span> <span class="s1">&#39;pep&#39;</span><span class="p">],</span> <span class="n">PROCESSES</span> <span class="o">=</span> <span class="mi">1</span><span class="p">):</span>
+<div class="viewcode-block" id="run_pruning"><a class="viewcode-back" href="../../KSTAR.html#kstar.prune.run_pruning">[docs]</a><span class="k">def</span> <span class="nf">run_pruning</span><span class="p">(</span><span class="n">network</span><span class="p">,</span> <span class="n">log</span><span class="p">,</span> <span class="n">use_compendia</span><span class="p">,</span> <span class="n">phospho_type</span><span class="p">,</span> <span class="n">kinase_size</span><span class="p">,</span> <span class="n">site_limit</span><span class="p">,</span> <span class="n">num_networks</span><span class="p">,</span> <span class="n">network_id</span><span class="p">,</span> <span class="n">odir</span><span class="p">,</span> <span class="n">PROCESSES</span> <span class="o">=</span> <span class="mi">1</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Generate pruned networks from a weighted kinase-substrate graph and log run information</span>
 <span class="sd">    </span>
@@ -546,14 +377,13 @@
 <span class="sd">        prune object that contains the number of pruned networks indicated by the num_networks paramater</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Running pruning algorithm&quot;</span><span class="p">)</span>
-    <span class="n">pruner</span> <span class="o">=</span> <span class="n">Pruner</span><span class="p">(</span><span class="n">network</span><span class="p">,</span> <span class="n">log</span><span class="p">,</span> <span class="n">phospho_type</span><span class="p">,</span> <span class="n">acc_col</span> <span class="o">=</span> <span class="n">acc_col</span><span class="p">,</span> <span class="n">site_col</span> <span class="o">=</span> <span class="n">site_col</span><span class="p">,</span> <span class="n">nonweight_cols</span> <span class="o">=</span> <span class="n">netcols_todrop</span><span class="p">)</span>
-    <span class="n">pruner</span><span class="o">.</span><span class="n">checkParameters</span><span class="p">(</span><span class="n">kinase_size</span><span class="p">,</span> <span class="n">site_limit</span><span class="p">)</span>
+    <span class="n">pruner</span> <span class="o">=</span> <span class="n">Pruner</span><span class="p">(</span><span class="n">network</span><span class="p">,</span> <span class="n">log</span><span class="p">,</span> <span class="n">phospho_type</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">use_compendia</span><span class="p">:</span>
         <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Pruning using compendia ratios&quot;</span><span class="p">)</span>
         <span class="n">pruner</span><span class="o">.</span><span class="n">build_multiple_compendia_networks</span><span class="p">(</span><span class="n">kinase_size</span><span class="p">,</span> <span class="n">site_limit</span><span class="p">,</span> <span class="n">num_networks</span><span class="p">,</span> <span class="n">network_id</span><span class="p">,</span> <span class="n">odir</span><span class="p">,</span> <span class="n">PROCESSES</span> <span class="o">=</span> <span class="n">PROCESSES</span><span class="p">)</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Pruning without using compendia&quot;</span><span class="p">)</span>
-        <span class="n">pruned_networks</span> <span class="o">=</span> <span class="n">pruner</span><span class="o">.</span><span class="n">build_multiple_networks</span><span class="p">(</span><span class="n">kinase_size</span><span class="p">,</span> <span class="n">site_limit</span><span class="p">,</span> <span class="n">num_networks</span><span class="p">,</span> <span class="n">network_id</span><span class="p">,</span> <span class="n">odir</span><span class="p">,</span> <span class="n">PROCESSES</span> <span class="o">=</span> <span class="n">PROCESSES</span><span class="p">)</span>
+    <span class="c1"># else:</span>
+    <span class="c1">#     log.info(&quot;Pruning without using compendia&quot;)</span>
+    <span class="c1">#     pruned_networks = pruner.build_multiple_networks(kinase_size, site_limit, num_networks, network_id)</span>
     <span class="k">return</span> <span class="n">pruner</span></div>
 
 <div class="viewcode-block" id="save_pruning"><a class="viewcode-back" href="../../KSTAR.html#kstar.prune.save_pruning">[docs]</a><span class="k">def</span> <span class="nf">save_pruning</span><span class="p">(</span><span class="n">phospho_type</span><span class="p">,</span> <span class="n">network_id</span><span class="p">,</span> <span class="n">kinase_size</span><span class="p">,</span> <span class="n">site_limit</span><span class="p">,</span> <span class="n">use_compendia</span><span class="p">,</span> <span class="n">odir</span><span class="p">,</span> <span class="n">log</span><span class="p">):</span>
@@ -641,6 +471,7 @@
 
 
 
+
 <span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
     <span class="n">results</span> <span class="o">=</span> <span class="n">parse_args</span><span class="p">()</span>
     <span class="n">network</span><span class="p">,</span> <span class="n">log</span><span class="p">,</span> <span class="n">use_compendia</span> <span class="o">=</span> <span class="n">process_args</span><span class="p">(</span><span class="n">results</span><span class="p">)</span>
@@ -719,7 +550,7 @@
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2020, Naegle Lab.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.3.0.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.0.2.
     </div>
   </body>
 </html>
