@@ -98,8 +98,14 @@ conda install -c bioconda nextflow
 </pre></div>
 </div>
 </section>
+<section id="setting-up-kstar-for-nextflow">
+<h3>Setting up KSTAR for Nextflow<a class="headerlink" href="#setting-up-kstar-for-nextflow" title="Permalink to this heading"></a></h3>
+<section id="download-resource-files">
+<h4>Download Resource Files<a class="headerlink" href="#download-resource-files" title="Permalink to this heading"></a></h4>
+<p>As with the standard implementation, the nextflow implementation of KSTAR requires a reference proteome and phosphoproteome. These can be downloaded using the config.install_resource_files() function within the python interpreter (from the main KSTAR directory). It will install the necessary files to the default location, which is the RESOURCE_FILES directory in the repository.</p>
+</section>
 <section id="downloading-or-generating-networks-used-in-kstar">
-<h3>Downloading or Generating Networks used in KSTAR<a class="headerlink" href="#downloading-or-generating-networks-used-in-kstar" title="Permalink to this heading"></a></h3>
+<h4>Downloading or Generating Networks used in KSTAR<a class="headerlink" href="#downloading-or-generating-networks-used-in-kstar" title="Permalink to this heading"></a></h4>
 <p>As with the standard implementation of KSTAR, you will need to obtain KSTAR pruned networks that will be used in activity calculation. You can
 download KSTAR networks from the <a class="reference external" href="https://figshare.com/articles/dataset/NETWORKS/14944305">Network FigShare</a>. Unlike the standard implementation,
 network pickles do not need to be generated, as nextflow will operate on the individual network files.</p>
@@ -107,11 +113,13 @@ network pickles do not need to be generated, as nextflow will operate on the ind
 need to make sure the directory structure where these networks are located is correct:
 ‘{resource_directory}/{network_directory}/{phospho_event}/INDIVIDUAL_NETWORKS’, where elements in brackets are given as parameters during a nextflow
 run. Each individual pruned network should be a .tsv file located in the above directory.</p>
+<p>In either case, make sure to place the networks in the same directory as the resource files (RESOURCE_FILES folder creating when running config.install_resource_files()).</p>
 </section>
 <section id="mapping-datasets">
-<h3>Mapping datasets<a class="headerlink" href="#mapping-datasets" title="Permalink to this heading"></a></h3>
+<h4>Mapping datasets<a class="headerlink" href="#mapping-datasets" title="Permalink to this heading"></a></h4>
 <p>Datasets must be mapped prior to running KSTAR with nextflow. The nextflow implementation is strictly for activity prediction. The mapped data
 should be a .tsv file that contains at least data columns, KSTAR_ACCESSION, KSTAR_PEPTIDE, AND KSTAR_SITE.</p>
+</section>
 </section>
 <section id="running-nextflow">
 <h3>Running nextflow<a class="headerlink" href="#running-nextflow" title="Permalink to this heading"></a></h3>
@@ -232,9 +240,8 @@ below for a description of the accepted parameters by nextflow:</p>
 </tr>
 </tbody>
 </table>
-</section>
 <section id="output-of-a-nextflow-run">
-<h3>Output of a nextflow run<a class="headerlink" href="#output-of-a-nextflow-run" title="Permalink to this heading"></a></h3>
+<h4>Output of a nextflow run<a class="headerlink" href="#output-of-a-nextflow-run" title="Permalink to this heading"></a></h4>
 <p>Each run with nextflow will deposit all results from a run in the folder indicated by the outdir parameter. There will be seperate folders for tyrosine
 and serine/threonine results if both types of runs are performed. Within the out directory, there will be the following subfolders, most of which mirror
 what is saved in the pickle object in the base KSTAR algorithm:</p>
@@ -284,7 +291,7 @@ what is saved in the pickle object in the base KSTAR algorithm:</p>
 </table>
 </section>
 <section id="running-nextflow-on-singularity">
-<h3>Running nextflow on Singularity<a class="headerlink" href="#running-nextflow-on-singularity" title="Permalink to this heading"></a></h3>
+<h4>Running nextflow on Singularity<a class="headerlink" href="#running-nextflow-on-singularity" title="Permalink to this heading"></a></h4>
 <p>It is also possible to implement the above using singularity containers instead of docker containers. If singularity is already installed, only a small
 addition at the bottom of the bash script is needed to use singularity instead of docker.</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">export</span> <span class="nv">KSTAR_DIR</span> <span class="o">=</span> /repo_loc/KSTAR/nextflow
@@ -311,6 +318,7 @@ nextflow run main.nf -profile Y <span class="se">\</span>
 </section>
 </section>
 </section>
+</section>
 
 
             <div class="clearer"></div>
@@ -334,11 +342,17 @@ nextflow run main.nf -profile Y <span class="se">\</span>
 <li class="toctree-l2"><a class="reference internal" href="#option-2-running-large-datasets-with-nextflow">Option 2: Running Large Datasets with Nextflow</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#requirements">Requirements</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#installation">Installation</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#downloading-or-generating-networks-used-in-kstar">Downloading or Generating Networks used in KSTAR</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#mapping-datasets">Mapping datasets</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#running-nextflow">Running nextflow</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#output-of-a-nextflow-run">Output of a nextflow run</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#running-nextflow-on-singularity">Running nextflow on Singularity</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#setting-up-kstar-for-nextflow">Setting up KSTAR for Nextflow</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#download-resource-files">Download Resource Files</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#downloading-or-generating-networks-used-in-kstar">Downloading or Generating Networks used in KSTAR</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#mapping-datasets">Mapping datasets</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#running-nextflow">Running nextflow</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#output-of-a-nextflow-run">Output of a nextflow run</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#running-nextflow-on-singularity">Running nextflow on Singularity</a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>

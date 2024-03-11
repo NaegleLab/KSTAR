@@ -61,15 +61,21 @@ KSTAR algorithm. For details on how to install Docker, visit <a class="reference
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">clone</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">NaegleLab</span><span class="o">/</span><span class="n">KSTAR</span><span class="o">.</span><span class="n">git</span>
 </pre></div>
 </div>
-<p>Next, set up a conda virtual environment and install nextflow:</p>
+<p>Next, set up a conda virtual environment and install nextflow (can also use other package managers):</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">conda</span> <span class="n">create</span> <span class="o">-</span><span class="n">n</span> <span class="n">kstar</span>
 <span class="n">conda</span> <span class="n">activate</span> <span class="n">kstar</span>
 <span class="n">conda</span> <span class="n">install</span> <span class="o">-</span><span class="n">c</span> <span class="n">bioconda</span> <span class="n">nextflow</span>
 </pre></div>
 </div>
 </section>
+<section id="prepping-the-kstar-nextflow-environment">
+<h2>Prepping the KSTAR/nextflow environment<a class="headerlink" href="#prepping-the-kstar-nextflow-environment" title="Permalink to this heading"></a></h2>
+<section id="installing-resource-files">
+<h3>Installing resource files<a class="headerlink" href="#installing-resource-files" title="Permalink to this heading"></a></h3>
+<p>As with the standard implementation, the nextflow implementation of KSTAR requires a reference proteome and phosphoproteome. These can be downloaded from using the config.install_resource_files() function within the python interpreter (from the main KSTAR directory). It will install the necessary files to the default location, which is the RESOURCE_FILES directory in the repository.</p>
+</section>
 <section id="downloading-or-generating-networks-used-in-kstar">
-<h2>Downloading or Generating Networks used in KSTAR<a class="headerlink" href="#downloading-or-generating-networks-used-in-kstar" title="Permalink to this heading"></a></h2>
+<h3>Downloading or Generating Networks used in KSTAR<a class="headerlink" href="#downloading-or-generating-networks-used-in-kstar" title="Permalink to this heading"></a></h3>
 <p>As with the standard implementation of KSTAR, you will need to obtain KSTAR pruned networks that will be used in activity calculation. You can
 download KSTAR networks from the <a class="reference external" href="https://figshare.com/articles/dataset/NETWORKS/14944305">Network FigShare</a>. Unlike the standard implementation,
 network pickles do not need to be generated, as nextflow will operate on the individual network files.</p>
@@ -77,11 +83,13 @@ network pickles do not need to be generated, as nextflow will operate on the ind
 need to make sure the directory structure where these networks are located is correct:
 ‘{resource_directory}/{network_directory}/{phospho_event}/INDIVIDUAL_NETWORKS’, where elements in brackets are given as parameters during a nextflow
 run. Each individual pruned network should be a .tsv file located in the above directory.</p>
+<p>In both cases, make sure to place the networks in the same directory as the resource files (RESOURCE_FILES folder creating when running config.install_resource_files()).</p>
 </section>
 <section id="mapping-datasets">
-<h2>Mapping datasets<a class="headerlink" href="#mapping-datasets" title="Permalink to this heading"></a></h2>
+<h3>Mapping datasets<a class="headerlink" href="#mapping-datasets" title="Permalink to this heading"></a></h3>
 <p>Datasets must be mapped prior to running KSTAR with nextflow. The nextflow implementation is strictly for activity prediction. The mapped data
 should be a .tsv file that contains at least data columns, KSTAR_ACCESSION, KSTAR_PEPTIDE, AND KSTAR_SITE.</p>
+</section>
 </section>
 <section id="running-nextflow">
 <h2>Running nextflow<a class="headerlink" href="#running-nextflow" title="Permalink to this heading"></a></h2>
