@@ -71,7 +71,7 @@ def build_random_experiments_from_scratch(num_sites, compendia_sizes, name = 'ex
             #grab a random sample of sites from the compendia class, matching desired dataset size
             filtered_random = filtered_compendia.sample(num_sites_from_compendia_class)
             #name the random experiment by number then add to list
-            filtered_random[f"{name}:{i}"] = 1
+            filtered_random[f"data:{name}:{i}"] = 1
             rand_experiment_list.append(filtered_random)
 
         #combine random experiments into a single dataframe

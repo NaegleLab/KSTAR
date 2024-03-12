@@ -261,6 +261,8 @@ class KinaseActivity:
         self.random_kinact.agg_activities = self.random_kinact.aggregate_activities()
         self.random_kinact.activities = self.random_kinact.summarize_activities()
 
+
+
    
         
 
@@ -652,6 +654,52 @@ class KinaseActivity:
             self.activities_mann_whitney[exp] = pval_arr
             self.fpr_mann_whitney[exp] = fpr_arr
     
+
+def calculate_random_activities_from_scratch(num_sites, compendia_sizes, networks, logger, name = 'experiment', num_random_experiments = 150, phosphotype = 'Y', PROCESSES = 1):
+    """
+    Generate random experiments and activity without a specific experiment, instead specifying dataset size and compendia distribution
+    """
+    pool = multiprocessing.Pool(processes = PROCESSES)
+    logger.info(f"Generating Random Experiments")
+    #generate random experiments from scratch based on provided parameters
+    random_experiments = generate_random_experiments.build_random_experiments_from_scratch(
+        num_sites, 
+        compendia_sizes, 
+        name = name,
+        phosphorylation_event = phosphotype,
+        num_random_experiments = num_random_experiments)    
+
+    random_kinact = KinaseActivity(random_experiments, logger, phospho_type=phosphotype)
+    random_kinact.add_networks_batch(networks[phosphotype])
+    #self.random_kinact.add_networks_batch(self.networks)
+
+    # if no data columns are provided use all columns that start with data:
+    # data columns that filtered have no evidence are removed
+    logger.info(f"Predicting Activity for Random Experiments")
+    
+
+    # MULTIPROCESSING
+    if PROCESSES > 1:
+        pool = multiprocessing.Pool(processes = PROCESSES)
+        
+        filtered_evidence_list  = [random_kinact.evidence[random_kinact.evidence[col] ==1 ] for col in random_kinact.data_columns] 
+        networks = itertools.repeat(networks)  
+        network_sizes = itertools.repeat(network_sizes)
+        iterable = zip(filtered_evidence_list, networks, network_sizes, random_kinact.data_columns)
+        activities_list = pool.starmap(calculate_hypergeometric_activities, iterable)
+    
+    # SINGLE CORE PROCESSING
+    else:
+        activities_list =[]
+        for col in random_kinact.data_columns:
+            filtered_evidence = random_kinact.evidence[random_kinact.evidence[col] == 1]
+            act = calculate_hypergeometric_activities(filtered_evidence, random_kinact.networks, random_kinact.network_sizes, col)
+            act['data'] = col
+            activities_list.append(act)
+    #self.num_networks = len(self.network_sizes)
+
+    activities_list = pd.concat(activities_list)
+    return random_experiments, random_kinact, activities_list
 
 
 
