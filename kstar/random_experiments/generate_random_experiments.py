@@ -28,6 +28,59 @@ def build_filtered_experiment(experiment, compendia, filtered_compendia, num_ran
     #rand_experiments.to_csv( f"{name}_random_experiments.tsv", index=False, sep='\t')
     return rand_experiments
 
+def build_random_experiments_from_scratch(num_sites, compendia_sizes, name = 'experiment', phosphorylation_event = 'Y', num_random_experiments = 150):
+    """
+    Instead of building a random experiment from a specific experiment, this function will build a random experiment from the provided parameters (dataset size and compendia distribution)
+
+    Parameters
+    ----------
+    num_sites: int
+        Number of sites to include in each random experiment
+    compendia_sizes: dict
+        The fraction or number of sites to draw from each compendia class (which defines study bias). The keys are the compendia class (0 = low study bias(0), 1 = medium study bias [1-3], 2 = high study bias [4-5]) and the values are the number or proportion of the dataset that should be made up of sites from that compendia size. If number is provided, it will be normalized to sum to 1 to account for errors in the input.
+    name: str
+        Name of the experiments
+    phosphorylation_event: str
+        Which residue to generate random experiments for. 'Y' for tyrosine, 'ST' for serine and threonine
+    num_random_experiments: int
+        Number of random experiments to generate
+    """
+    #grab reference phosphoproteome, filter by phospho event and make sure there are no duplicates
+    compendia = config.HUMAN_REF_COMPENDIA.copy()
+    if phosphorylation_event == 'ST':
+        compendia = compendia[(compendia.KSTAR_SITE.str.contains('S')) | (compendia.KSTAR_SITE.str.contains('T'))]
+    elif phosphorylation_event == 'Y':
+        compendia = compendia[(compendia.KSTAR_SITE.str.contains('Y'))]
+    else:
+        raise ValueError('phosphorylation_event must be Y or ST')
+    
+    compendia = compendia[[config.KSTAR_ACCESSION, config.KSTAR_SITE, "KSTAR_NUM_COMPENDIA_CLASS"]]
+    compendia = compendia.groupby([config.KSTAR_ACCESSION, config.KSTAR_SITE]).max().reset_index() #uniquify the compendia by KSTAR_ACCESSION and KSTAR_SITE
+    
+
+    #normalize compendia sizes so that they sum to 1
+    compendia_sizes = {k: v/sum(compendia_sizes.values()) for k,v in compendia_sizes.items()}
+    #initialize random experiments variable, then create each random experiment
+    all_rand_experiments = None
+    for i in range(num_random_experiments):
+        rand_experiment_list = []
+        for size in compendia_sizes:
+            num_sites_from_compendia_class = int(compendia_sizes[size] * num_sites)
+            #grab all sites in proteome associated with compendia class
+            filtered_compendia = compendia.loc[compendia["KSTAR_NUM_COMPENDIA_CLASS"] == size,[config.KSTAR_ACCESSION,config.KSTAR_SITE] ]
+            #grab a random sample of sites from the compendia class, matching desired dataset size
+            filtered_random = filtered_compendia.sample(num_sites_from_compendia_class)
+            #name the random experiment by number then add to list
+            filtered_random[f"{name}:{i}"] = 1
+            rand_experiment_list.append(filtered_random)
+
+        #combine random experiments into a single dataframe
+        if all_rand_experiments is None:
+            all_rand_experiments = pd.concat(rand_experiment_list)
+        else:
+            all_rand_experiments = pd.merge(all_rand_experiments, pd.concat(rand_experiment_list), how = 'outer', on = [config.KSTAR_ACCESSION, config.KSTAR_SITE])
+    #rand_experiments.to_csv( f"{name}_random_experiments.tsv", index=False, sep='\t')
+    return all_rand_experiments
 
 def build_random_experiments(binary_evidence, compendia, num_random_experiments, phosphorylation_event, data_columns, selection_type='KSTAR_NUM_COMPENDIA_CLASS', PROCESSES = 1):
     """
