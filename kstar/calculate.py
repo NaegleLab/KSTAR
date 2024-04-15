@@ -16,6 +16,9 @@ import matplotlib.pyplot as plt
 from kstar import config, helpers
 from kstar.random_experiments import generate_random_experiments, calculate_fpr
 
+# currently testing to see if this will fix the issue with multiprocessing on some MACs
+multiprocessing.set.start_method('spawn')
+
 class KinaseActivity:
     """
     Kinase Activity calculates the estimated activity of kinases given an experiment using hypergeometric distribution.
@@ -636,6 +639,10 @@ class KinaseActivity:
         self.fpr_mann_whitney = pd.DataFrame(index=self.activities.index, columns=self.activities.columns)
         #for every kinase and every dataset, calculate and assemble dataframes of activities and significance values
 
+        #check the given processes and make sure it is not higher than the number of available processors
+        if PROCESSES > multiprocessing.cpu_count() - 1:
+            PROCESSES = multiprocessing.cpu_count() - 1
+
         for exp in self.data_columns:
             log.info("MW Working on %s: "%(exp))
 
@@ -645,10 +652,19 @@ class KinaseActivity:
 
             pval_arr = []
             fpr_arr = []
-            with concurrent.futures.ProcessPoolExecutor(max_workers=PROCESSES) as executor:
-                for pval, fpr in executor.map(calculate_MannWhitney_one_experiment_one_kinase, repeat(activities_sub), repeat(rand_activities_sub), repeat(self.num_networks), self.activities.index, repeat(exp), repeat(number_sig_trials)):
+            if PROCESSES == 1:
+                for kinase in self.activities.index:
+                    pval, fpr = calculate_MannWhitney_one_experiment_one_kinase(activities_sub, rand_activities_sub, self.num_networks, kinase, exp, number_sig_trials)
                     pval_arr.append(pval)
                     fpr_arr.append(fpr)
+
+            elif PROCESSES > 1:
+                with concurrent.futures.ProcessPoolExecutor(max_workers=PROCESSES) as executor:
+                    for pval, fpr in executor.map(calculate_MannWhitney_one_experiment_one_kinase, repeat(activities_sub), repeat(rand_activities_sub), repeat(self.num_networks), self.activities.index, repeat(exp), repeat(number_sig_trials)):
+                        pval_arr.append(pval)
+                        fpr_arr.append(fpr)
+            else:
+                raise ValueError('PROCESSES must be an integer greater than 1')
 
             self.activities_mann_whitney[exp] = pval_arr
             self.fpr_mann_whitney[exp] = fpr_arr
@@ -791,6 +807,8 @@ def calculate_fpr_Mann_Whitney(random_kinase_activity_array, number_sig_trials):
         bgnd = np.delete(random_kinase_activity_array, i, 0) #remove the sample before testing
         [stat, random_stats[i]] = stats.mannwhitneyu(-np.log10(sample), -np.log10(bgnd.reshape(bgnd.size)), alternative='greater')
     return random_stats
+
+
 
 def calculate_MannWhitney_one_experiment_one_kinase(kinact_activities, rand_activities, number_networks, kinase, experiment, number_sig_trials):
     """
