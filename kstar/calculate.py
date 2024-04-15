@@ -17,7 +17,7 @@ from kstar import config, helpers
 from kstar.random_experiments import generate_random_experiments, calculate_fpr
 
 # currently testing to see if this will fix the issue with multiprocessing on some MACs
-multiprocessing.set.start_method('spawn')
+multiprocessing.set_start_method('spawn')
 
 class KinaseActivity:
     """
