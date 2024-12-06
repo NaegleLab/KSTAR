@@ -614,7 +614,7 @@ def main():
         exit()
         
     log.info("Beginning to build pruning networks")
-    pruner = run_pruning(network, log, use_compendia, phospho_type, kinase_size, site_limit, num_networks, network_id, odir)
+    pruner = run_pruning(network, log, phospho_type, kinase_size, site_limit, num_networks, network_id, odir)
     save_pruning( phospho_type, network_id, kinase_size, site_limit, use_compendia, odir, log)
     save_run_information(results, use_compendia, pruner)
     
