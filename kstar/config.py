@@ -232,5 +232,3 @@ def check_configuration():
         print(
             'You are ready to generate predictions for ST networks, but not Y networks. If you want to generate Y predictions, create the Y network pickle with config.create_network_pickles(phosphoType = ["Y"])')
 
-# network_directory='/Volumes/naegle_lab/KinaseActivity/Data/Subgraph/Modifed NetworKIN/CompendiaLimit'
-# networkin = pickle.load( open(f"{network_directory}/compendia_limit.p", "rb" ) )
