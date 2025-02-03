@@ -1,49 +1,317 @@
+
 <!DOCTYPE html>
 
-<html lang="en" data-content_root="./">
+<html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <title>Map Datasets to KinPred &#8212; KSTAR documentation update v1.0 documentation</title>
-    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b3523f8e" />
-    <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=cb25574f" />
-    <link rel="stylesheet" type="text/css" href="_static/nbsphinx-code-cells.css?v=2aa19091" />
-    <script src="_static/documentation_options.js?v=e160b93e"></script>
-    <script src="_static/doctools.js?v=888ff710"></script>
-    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <title>Map Datasets to KinPred &#8212; KSTAR 1 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/classic.css" />
+    
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="../_static/doctools.js"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
-    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-    <link rel="index" title="Index" href="genindex.html" />
-    <link rel="search" title="Search" href="search.html" />
-   
-  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
-  
-  
-  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
-
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Plotting" href="Plotting.html" />
+    <link rel="prev" title="Network Generation" href="Pruning.html" /> 
   </head><body>
-  
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="Plotting.html" title="Plotting"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="Pruning.html" title="Network Generation"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">KSTAR 1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="tutorial.html" accesskey="U">Tutorial</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Map Datasets to KinPred</a></li> 
+      </ul>
+    </div>  
 
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
-          
-
           <div class="body" role="main">
             
-  <section id="Map-Datasets-to-KinPred">
-<h1>Map Datasets to KinPred<a class="headerlink" href="#Map-Datasets-to-KinPred" title="Link to this heading">¶</a></h1>
+  
+<style>
+/* CSS for nbsphinx extension */
+
+/* remove conflicting styling from Sphinx themes */
+div.nbinput.container div.prompt *,
+div.nboutput.container div.prompt *,
+div.nbinput.container div.input_area pre,
+div.nboutput.container div.output_area pre,
+div.nbinput.container div.input_area .highlight,
+div.nboutput.container div.output_area .highlight {
+    border: none;
+    padding: 0;
+    margin: 0;
+    box-shadow: none;
+}
+
+div.nbinput.container > div[class*=highlight],
+div.nboutput.container > div[class*=highlight] {
+    margin: 0;
+}
+
+div.nbinput.container div.prompt *,
+div.nboutput.container div.prompt * {
+    background: none;
+}
+
+div.nboutput.container div.output_area .highlight,
+div.nboutput.container div.output_area pre {
+    background: unset;
+}
+
+div.nboutput.container div.output_area div.highlight {
+    color: unset;  /* override Pygments text color */
+}
+
+/* avoid gaps between output lines */
+div.nboutput.container div[class*=highlight] pre {
+    line-height: normal;
+}
+
+/* input/output containers */
+div.nbinput.container,
+div.nboutput.container {
+    display: -webkit-flex;
+    display: flex;
+    align-items: flex-start;
+    margin: 0;
+    width: 100%;
+}
+@media (max-width: 540px) {
+    div.nbinput.container,
+    div.nboutput.container {
+        flex-direction: column;
+    }
+}
+
+/* input container */
+div.nbinput.container {
+    padding-top: 5px;
+}
+
+/* last container */
+div.nblast.container {
+    padding-bottom: 5px;
+}
+
+/* input prompt */
+div.nbinput.container div.prompt pre {
+    color: #307FC1;
+}
+
+/* output prompt */
+div.nboutput.container div.prompt pre {
+    color: #BF5B3D;
+}
+
+/* all prompts */
+div.nbinput.container div.prompt,
+div.nboutput.container div.prompt {
+    width: 4.5ex;
+    padding-top: 5px;
+    position: relative;
+    user-select: none;
+}
+
+div.nbinput.container div.prompt > div,
+div.nboutput.container div.prompt > div {
+    position: absolute;
+    right: 0;
+    margin-right: 0.3ex;
+}
+
+@media (max-width: 540px) {
+    div.nbinput.container div.prompt,
+    div.nboutput.container div.prompt {
+        width: unset;
+        text-align: left;
+        padding: 0.4em;
+    }
+    div.nboutput.container div.prompt.empty {
+        padding: 0;
+    }
+
+    div.nbinput.container div.prompt > div,
+    div.nboutput.container div.prompt > div {
+        position: unset;
+    }
+}
+
+/* disable scrollbars on prompts */
+div.nbinput.container div.prompt pre,
+div.nboutput.container div.prompt pre {
+    overflow: hidden;
+}
+
+/* input/output area */
+div.nbinput.container div.input_area,
+div.nboutput.container div.output_area {
+    -webkit-flex: 1;
+    flex: 1;
+    overflow: auto;
+}
+@media (max-width: 540px) {
+    div.nbinput.container div.input_area,
+    div.nboutput.container div.output_area {
+        width: 100%;
+    }
+}
+
+/* input area */
+div.nbinput.container div.input_area {
+    border: 1px solid #e0e0e0;
+    border-radius: 2px;
+    /*background: #f5f5f5;*/
+}
+
+/* override MathJax center alignment in output cells */
+div.nboutput.container div[class*=MathJax] {
+    text-align: left !important;
+}
+
+/* override sphinx.ext.imgmath center alignment in output cells */
+div.nboutput.container div.math p {
+    text-align: left;
+}
+
+/* standard error */
+div.nboutput.container div.output_area.stderr {
+    background: #fdd;
+}
+
+/* ANSI colors */
+.ansi-black-fg { color: #3E424D; }
+.ansi-black-bg { background-color: #3E424D; }
+.ansi-black-intense-fg { color: #282C36; }
+.ansi-black-intense-bg { background-color: #282C36; }
+.ansi-red-fg { color: #E75C58; }
+.ansi-red-bg { background-color: #E75C58; }
+.ansi-red-intense-fg { color: #B22B31; }
+.ansi-red-intense-bg { background-color: #B22B31; }
+.ansi-green-fg { color: #00A250; }
+.ansi-green-bg { background-color: #00A250; }
+.ansi-green-intense-fg { color: #007427; }
+.ansi-green-intense-bg { background-color: #007427; }
+.ansi-yellow-fg { color: #DDB62B; }
+.ansi-yellow-bg { background-color: #DDB62B; }
+.ansi-yellow-intense-fg { color: #B27D12; }
+.ansi-yellow-intense-bg { background-color: #B27D12; }
+.ansi-blue-fg { color: #208FFB; }
+.ansi-blue-bg { background-color: #208FFB; }
+.ansi-blue-intense-fg { color: #0065CA; }
+.ansi-blue-intense-bg { background-color: #0065CA; }
+.ansi-magenta-fg { color: #D160C4; }
+.ansi-magenta-bg { background-color: #D160C4; }
+.ansi-magenta-intense-fg { color: #A03196; }
+.ansi-magenta-intense-bg { background-color: #A03196; }
+.ansi-cyan-fg { color: #60C6C8; }
+.ansi-cyan-bg { background-color: #60C6C8; }
+.ansi-cyan-intense-fg { color: #258F8F; }
+.ansi-cyan-intense-bg { background-color: #258F8F; }
+.ansi-white-fg { color: #C5C1B4; }
+.ansi-white-bg { background-color: #C5C1B4; }
+.ansi-white-intense-fg { color: #A1A6B2; }
+.ansi-white-intense-bg { background-color: #A1A6B2; }
+
+.ansi-default-inverse-fg { color: #FFFFFF; }
+.ansi-default-inverse-bg { background-color: #000000; }
+
+.ansi-bold { font-weight: bold; }
+.ansi-underline { text-decoration: underline; }
+
+
+div.nbinput.container div.input_area div[class*=highlight] > pre,
+div.nboutput.container div.output_area div[class*=highlight] > pre,
+div.nboutput.container div.output_area div[class*=highlight].math,
+div.nboutput.container div.output_area.rendered_html,
+div.nboutput.container div.output_area > div.output_javascript,
+div.nboutput.container div.output_area:not(.rendered_html) > img{
+    padding: 5px;
+    margin: 0;
+}
+
+/* fix copybtn overflow problem in chromium (needed for 'sphinx_copybutton') */
+div.nbinput.container div.input_area > div[class^='highlight'],
+div.nboutput.container div.output_area > div[class^='highlight']{
+    overflow-y: hidden;
+}
+
+/* hide copybtn icon on prompts (needed for 'sphinx_copybutton') */
+.prompt .copybtn {
+    display: none;
+}
+
+/* Some additional styling taken form the Jupyter notebook CSS */
+.jp-RenderedHTMLCommon table,
+div.rendered_html table {
+  border: none;
+  border-collapse: collapse;
+  border-spacing: 0;
+  color: black;
+  font-size: 12px;
+  table-layout: fixed;
+}
+.jp-RenderedHTMLCommon thead,
+div.rendered_html thead {
+  border-bottom: 1px solid black;
+  vertical-align: bottom;
+}
+.jp-RenderedHTMLCommon tr,
+.jp-RenderedHTMLCommon th,
+.jp-RenderedHTMLCommon td,
+div.rendered_html tr,
+div.rendered_html th,
+div.rendered_html td {
+  text-align: right;
+  vertical-align: middle;
+  padding: 0.5em 0.5em;
+  line-height: normal;
+  white-space: normal;
+  max-width: none;
+  border: none;
+}
+.jp-RenderedHTMLCommon th,
+div.rendered_html th {
+  font-weight: bold;
+}
+.jp-RenderedHTMLCommon tbody tr:nth-child(odd),
+div.rendered_html tbody tr:nth-child(odd) {
+  background: #f5f5f5;
+}
+.jp-RenderedHTMLCommon tbody tr:hover,
+div.rendered_html tbody tr:hover {
+  background: rgba(66, 165, 245, 0.2);
+}
+</style>
+<section id="Map-Datasets-to-KinPred">
+<h1>Map Datasets to KinPred<a class="headerlink" href="#Map-Datasets-to-KinPred" title="Permalink to this heading"></a></h1>
 <section id="Download-and-Process-Dataset-of-Interest">
-<h2>Download and Process Dataset of Interest<a class="headerlink" href="#Download-and-Process-Dataset-of-Interest" title="Link to this heading">¶</a></h2>
+<h2>Download and Process Dataset of Interest<a class="headerlink" href="#Download-and-Process-Dataset-of-Interest" title="Permalink to this heading"></a></h2>
 <p>Prior to predicting kinase activities, datasets need to be mapped to KinPred to obtain the Uniprot ID, phosphosite, and the +/-7 peptide sequence that will be used by KSTAR to identify which kinases are associated with each phosphosite. In order to map kinase activities, the dataframe containing phosphoproteomic data should contain each peptides Uniprot accession, as well as either the site number or peptide sequence. If the peptide sequence is used, it should be formatted with only the
 phosphorylated peptides being lowercased. For example, if a peptide sequence is annotated with ‘(ph)’ in front of the phosphorylated amino acid, you would need to remove the ‘(ph)’ from the sequence and lowercase the phosphorylated amino acid. So, the peptide sequence SGLAYCPND(ph)YHQLFSPR would become SGLAYCPNDyHQLFSPR.</p>
 <p>It is recommended to use the peptide sequence rather than the site number when possible, as this is more likely to be found in the most recent version of KinPred. An example of the processed dataset can be seen below, which is a trimmed, processed, and mapped version of the dataset published publically (Chylek, 2014). You can download this data from the original publication below or the pre-mapped version at <a class="reference external" href="https://figshare.com/articles/dataset/KSTAR_Supplementary_Data/14919726">FigShare</a>.</p>
-<p>Reference: L. A. Chylek, V. Akimov, J. Dengjel, K. T. G. Rigbolt, B. Hu, W. S. Hlavacek, and B. Blagoev. Phosphorylation Site Dynamics of Early T-cell Receptor Signaling. PLoS ONE, 9(8):e104240,</p>
-<ol class="arabic simple" start="2014">
-<li></li>
-</ol>
+<p>Reference: L. A. Chylek, V. Akimov, J. Dengjel, K. T. G. Rigbolt, B. Hu, W. S. Hlavacek, and B. Blagoev. Phosphorylation Site Dynamics of Early T-cell Receptor Signaling. PLoS ONE, 9(8):e104240, 2014.</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
@@ -242,7 +510,7 @@ phosphorylated peptides being lowercased. For example, if a peptide sequence is 
 <p>Notice that all data columns in the dataset have ‘data:’ in front of them. This is how KSTAR will identify which columns to use when making evidence decisions. This can be done manually prior to mapping, or will be done by KSTAR automatically once you indicate which columns you would like to use as evidence.</p>
 </section>
 <section id="Map-the-Dataset-to-KinPred">
-<h2>Map the Dataset to KinPred<a class="headerlink" href="#Map-the-Dataset-to-KinPred" title="Link to this heading">¶</a></h2>
+<h2>Map the Dataset to KinPred<a class="headerlink" href="#Map-the-Dataset-to-KinPred" title="Permalink to this heading"></a></h2>
 <p>First, we need to indicate where to save the mapped data and where to record information about the mapping process:</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
@@ -435,8 +703,8 @@ possible.</p>
 </ol>
 </section>
 <section id="Explore-the-Mapped-Dataset">
-<h2>Explore the Mapped Dataset<a class="headerlink" href="#Explore-the-Mapped-Dataset" title="Link to this heading">¶</a></h2>
-<p>One way to check how well the mapping worked is to check the number of peptides in the original dataframe vs. the newly mapped dataframe.</p>
+<h2>Explore the Mapped Dataset<a class="headerlink" href="#Explore-the-Mapped-Dataset" title="Permalink to this heading"></a></h2>
+<p>One way to check how well the mapping worked is to check the number of peptides in the original dataframe vs. the newly mapped dataframe.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
 </pre></div>
@@ -455,20 +723,16 @@ Original number of lines in df: 665
 New number of lines in mapped:665
 </pre></div></div>
 </div>
-<p>In this case, no peptides were lost during the mapping process. Changes to the number of peptides could be a result of several things:</p>
-<ol class="arabic simple">
-<li><p>Failure to find the corresponding peptide</p></li>
-<li><p>A peptide with multiple phosphorylation sites was seperated into seperate peptides</p></li>
-</ol>
+<p>In this case, no peptides were lost during the mapping process. Changes to the number of peptides could be a result of several things: 1. Failure to find the corresponding peptide 2. A peptide with multiple phosphorylation sites was seperated into seperate peptides</p>
 <p>For specifics on mapping failures, go to the log file for details.</p>
 </section>
 </section>
 <section id="Predict-Kinase-Activities">
-<h1>Predict Kinase Activities<a class="headerlink" href="#Predict-Kinase-Activities" title="Link to this heading">¶</a></h1>
+<h1>Predict Kinase Activities<a class="headerlink" href="#Predict-Kinase-Activities" title="Permalink to this heading"></a></h1>
 <p>Once pruned networks have been generated or downloaded and data has been mapped, you are now ready to generate kinase activity predictions. Kinase activity calculation requires selection of the following choices</p>
 <ol class="arabic simple">
-<li><p><strong>phospho_type:</strong> Tyrosine [‘Y’] or Serine/Threonine [‘ST’], or both [‘Y, ‘ST’] (default).</p></li>
-<li><p><strong>agg:</strong> How to handle duplicates of the same peptide (i.e. aggregation) and determine sites to use as evidence.</p>
+<li><p><strong>phospho_type:</strong> Tyrosine [‘Y’] or Serine/Threonine [‘ST’], or both [‘Y, ’ST’] (default).</p></li>
+<li><p><strong>agg:</strong> How to handle duplicates of the same peptide (i.e. aggregation) and determine sites to use as evidence.</p>
 <ol class="arabic simple">
 <li><p>‘count’: counts the total number of times a non-NaN value of that peptide occurred in an experiment, and accepts any site that appears an amount of times equal to or above the threshold. This is recommended if you do not want to use quantification values and instead want to focus only on sites identified in each sample.</p></li>
 <li><p>‘mean’: averages the non-NaN values found for multiple peptides. We recommend using this when you do want to use quantification values, such as when comparing a pre and post treatment condition.</p></li>
@@ -492,7 +756,7 @@ New number of lines in mapped:665
 </div>
 </div>
 <section id="Determine-Thresholds">
-<h2>Determine Thresholds<a class="headerlink" href="#Determine-Thresholds" title="Link to this heading">¶</a></h2>
+<h2>Determine Thresholds<a class="headerlink" href="#Determine-Thresholds" title="Permalink to this heading"></a></h2>
 <p>It is useful to determine the best threshold to use (which sites to use as evidence for each sample). One easy benchmark way is to identify the number of sites that will be used as evidence at different thresholds. For tyrosine kinase activities, it is generally recommended that samples have at least 50 tyrosine sites used as evidence, while for serine/threonine kinase activities, it is recommended that samples have at least 1000 sites used as evidence. While not a necessity, it is also
 beneficial to have comparable site numbers across samples.</p>
 <p>Similar to mapping, a log file will be generated to indicate the progress of activity prediction and any errors that arise during the process. To intialize the log file, run the below code. It can be useful to name your log files differently based on whether you are generating predictions for tyrosine kinases or serine/threonine kinases.</p>
@@ -593,7 +857,7 @@ dtype: int64
 <p>All samples above (except for the 0 time point, which will be removed prior to activity calculation) have greater than 50 sites being used as evidence, and the evidence sizes are generally comparable. This is a good threshold to use.</p>
 </section>
 <section id="Calculate-Statistical-Enrichment-(Hypergeometric-p-values)">
-<h2>Calculate Statistical Enrichment (Hypergeometric p-values)<a class="headerlink" href="#Calculate-Statistical-Enrichment-(Hypergeometric-p-values)" title="Link to this heading">¶</a></h2>
+<h2>Calculate Statistical Enrichment (Hypergeometric p-values)<a class="headerlink" href="#Calculate-Statistical-Enrichment-(Hypergeometric-p-values)" title="Permalink to this heading"></a></h2>
 <p>Now that we have defined our parameters, the first step to obtaining activity predictions is calculating the statistical enrichment of kinase substrates in the dataset using the hypergeometric test. For each network + kinase, the hypergeometric tests asks the likelihood that k kinase substrates were identified in an experiment with n identified peptides, given that there are K kinase substrates in the entire phosphoproteome, N. From these tests, a set of 50 p-values for each kinase will be
 generated indicating the enrichment found in each pruned network. To obtain these predictions, use the following steps</p>
 <ol class="arabic simple">
@@ -640,7 +904,7 @@ generated indicating the enrichment found in each pruned network. To obtain thes
 </div>
 </div>
 <ol class="arabic simple" start="4">
-<li><p>Perform enrichment calculations. The enrichment_analysis() function within the calculate module can be used to generate the statistical enrichment values. This will return a dictionary containing a different KinaseActivity object for each modification type with predictions (‘Y’ and/or ‘ST).</p></li>
+<li><p>Perform enrichment calculations. The enrichment_analysis() function within the calculate module can be used to generate the statistical enrichment values. This will return a dictionary containing a different KinaseActivity object for each modification type with predictions (‘Y’ and/or ’ST).</p></li>
 </ol>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
@@ -655,7 +919,7 @@ generated indicating the enrichment found in each pruned network. To obtain thes
 <p>You can view the median p-values obtained for each kinase by looking at ‘activities’ attribute of the KinaseActivity class. We recommend continuing to the subsequent sections to generate more robust activity predictions, as the we have found that the median p-values suffer from kinase-specific false positive rates.</p>
 </section>
 <section id="Generate-random-datasets,-run-kinase-activity-on-random-datasets,-normalize-original-analysis">
-<h2>Generate random datasets, run kinase activity on random datasets, normalize original analysis<a class="headerlink" href="#Generate-random-datasets,-run-kinase-activity-on-random-datasets,-normalize-original-analysis" title="Link to this heading">¶</a></h2>
+<h2>Generate random datasets, run kinase activity on random datasets, normalize original analysis<a class="headerlink" href="#Generate-random-datasets,-run-kinase-activity-on-random-datasets,-normalize-original-analysis" title="Permalink to this heading"></a></h2>
 <p>Once the enrichment of each kinase in the pruned networks has been calculated from the enrichment_analysis() function, we would next like to ask, for each kinase, how likely it is to have obtained that same enrichment (as indicated by the p-value) or better from a random phosphoproteomic experiment. To do so, we will first need to generate random phosphoproteomic experiments and repeat hypergeometric enrichment on these experiments. In order to perform random activity calculation, you will need
 to indicate the number of random experiments to generate. We have found that 150 provides a good balance between statistical power and computational complexity.</p>
 <p><em>Note: For larger datasets this can be slow and memory intensive. In order to speed up these calculations, it is possible to use multiprocessing by adjusting the ‘PROCESSES’ parameter to the number of core you would like to use. The default is 1 (use only a single core). You can also use a highly parallelized version through nextflow (see ‘KSTAR in Parallel’)</em></p>
@@ -885,7 +1149,7 @@ Length: 602, dtype: object
 </div>
 </section>
 <section id="Calculate-Mann-Whitney-Significance">
-<h2>Calculate Mann Whitney Significance<a class="headerlink" href="#Calculate-Mann-Whitney-Significance" title="Link to this heading">¶</a></h2>
+<h2>Calculate Mann Whitney Significance<a class="headerlink" href="#Calculate-Mann-Whitney-Significance" title="Permalink to this heading"></a></h2>
 <p>Finally, final activity scores are calculated by implementing the Mann Whitney U-test to compare the distribution of real p-values (activity predictions on the real dataset) to the random p-values (activity predictions on the random dataset). Further, a false positive rate is calculated by pulling out one of the random datasets and comparing to all other random datasets using the same Mann Whitney test. The parameter ‘number_sig_trials’ indicates the number of times to repeat this calculation to
 obtain the false positive rate. As with the previous analysis, the ‘PROCESSES’ parameter can be adjusted to perform multiprocessing.</p>
 <div class="nbinput nblast docutils container">
@@ -898,7 +1162,7 @@ obtain the false positive rate. As with the previous analysis, the ‘PROCESSES�
 </div>
 </section>
 <section id="Save-KSTAR-Results">
-<h2>Save KSTAR Results<a class="headerlink" href="#Save-KSTAR-Results" title="Link to this heading">¶</a></h2>
+<h2>Save KSTAR Results<a class="headerlink" href="#Save-KSTAR-Results" title="Permalink to this heading"></a></h2>
 <p>There are a couple of options to save the results of KSTAR analysis. To save all information (hypergeometric enrichment results, random experiments, mann whitney activities and fpr), we have provided a function to save all information while not taking up too much memory.</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[23]:
@@ -922,66 +1186,103 @@ obtain the false positive rate. As with the previous analysis, the ‘PROCESSES�
 </section>
 
 
+            <div class="clearer"></div>
           </div>
-          
         </div>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-<h1 class="logo"><a href="index.html">KSTAR documentation update</a></h1>
-
-
-
-
-
-
-
-
-<h3>Navigation</h3>
-
-<div class="relations">
-<h3>Related Topics</h3>
-<ul>
-  <li><a href="index.html">Documentation overview</a><ul>
-  </ul></li>
+  <div>
+    <h3><a href="../index.html">Table of Contents</a></h3>
+    <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../Overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Dependencies.html">Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../KSTAR.html">KSTAR</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Getting Started</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="tutorial.html">Tutorial</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="tutorial.html#network-generation">Network Generation</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="tutorial.html#activity-prediction">Activity Prediction</a><ul class="current">
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Map Datasets to KinPred</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#Download-and-Process-Dataset-of-Interest">Download and Process Dataset of Interest</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#Map-the-Dataset-to-KinPred">Map the Dataset to KinPred</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#Explore-the-Mapped-Dataset">Explore the Mapped Dataset</a></li>
 </ul>
-</div>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#Predict-Kinase-Activities">Predict Kinase Activities</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#Determine-Thresholds">Determine Thresholds</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#Calculate-Statistical-Enrichment-(Hypergeometric-p-values)">Calculate Statistical Enrichment (Hypergeometric p-values)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#Generate-random-datasets,-run-kinase-activity-on-random-datasets,-normalize-original-analysis">Generate random datasets, run kinase activity on random datasets, normalize original analysis</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#Calculate-Mann-Whitney-Significance">Calculate Mann Whitney Significance</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#Save-KSTAR-Results">Save KSTAR Results</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial.html#plotting">Plotting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial.html#additional-analyses">Additional Analyses</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../Examples/Examples.html">Analysis Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Parallel/parallel.html">KSTAR in Parallel</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../faq.html">Frequently Asked Questions</a></li>
+</ul>
+
+  </div>
+  <div>
+    <h4>Previous topic</h4>
+    <p class="topless"><a href="Pruning.html"
+                          title="previous chapter">Network Generation</a></p>
+  </div>
+  <div>
+    <h4>Next topic</h4>
+    <p class="topless"><a href="Plotting.html"
+                          title="next chapter">Plotting</a></p>
+  </div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/Tutorial/Activity_Calculation.ipynb.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
 <div id="searchbox" style="display: none" role="search">
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
-    <form class="search" action="search.html" method="get">
+    <form class="search" action="../search.html" method="get">
       <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
       <input type="submit" value="Go" />
     </form>
     </div>
 </div>
 <script>document.getElementById('searchbox').style.display = "block"</script>
-
-
-
-
-
-
-
-
         </div>
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="footer">
-      &copy;2025, Levi Custer.
-      
-      |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 7.2.6</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
-      
-      |
-      <a href="_sources/Activity_Calculation_1.ipynb.txt"
-          rel="nofollow">Page source</a>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="Plotting.html" title="Plotting"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="Pruning.html" title="Network Generation"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">KSTAR 1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="tutorial.html" >Tutorial</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Map Datasets to KinPred</a></li> 
+      </ul>
     </div>
-
-    
-
-    
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2020, Naegle Lab.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.0.2.
+    </div>
   </body>
 </html>
