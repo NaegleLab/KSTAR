@@ -419,7 +419,6 @@ class KinaseActivity:
 
                     # Process the current dataset
                     self.load_pregenerated_random_activities(with_pregenerated_evidence, with_pregenerated, pregen_activities_list)
-                    print(pregen_activities_list, "pregen")
                 # Process from-scratch data
                 else:
                     self.data_columns_from_scratch = [dataset]
@@ -459,7 +458,6 @@ class KinaseActivity:
         -------
         None
         """
-        print(save_random_experiments)
         if self.use_pregen_data:
             num_random_experiments = 150
         else:
