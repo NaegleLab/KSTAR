@@ -4,11 +4,11 @@ from setuptools import setup, find_packages
 # Run setup
 setup(
     name="kstar",
-    version="0.5.0",
+    version="1.0.0",
     author="Naegle Lab",
     author_email="kmn4mj@virginia.edu",
     url="https://github.com/NaegleLab/KSTAR",
-    install_requires=['pandas', 'numpy', 'scipy', 'matplotlib', 'seaborn', 'statsmodels', 'biopython','requests'],
+nstall_requires=['pandas==2.1.*', 'numpy==1.26.*', 'scipy==1.11.*', 'matplotlib==3.8.*', 'seaborn==0.13.*', 'biopython==1.81.*','requests==2.31.*'],
     license='GNU General Public License v3',
     description='KSTAR: Kinase-Substrate Transfer to Activity Relationships',
     long_description="""KSTAR is an open-source software for estimating kinase activities from phosphoproteomic data. 
@@ -21,7 +21,6 @@ setup(
     ],
     packages=find_packages(),
     include_package_data = True,
-    python_requires=">=3.6",
+    python_requires=">=3.11",
     zip_safe = False
 )
-
