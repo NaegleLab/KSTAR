@@ -1,5 +1,5 @@
 {% set name = "kstar" %}
-{% set version = "0.5.0" %}
+{% set version = "1.0.0" %}
 
 
 package:
@@ -8,7 +8,7 @@ package:
 
 source:
   url: https://pypi.io/packages/source/{{ name[0] }}/{{ name }}/kstar-{{ version }}.tar.gz
-  sha256: c8eb8f2622f777f05f8b9e65cc7bd104d57bf65202aef92745744a5855302ffa
+  sha256: 4bd585f61486f68f8e3ce800ad8ea678dc29524d8cfbf72d40bc670d0b8aadd6
 
 build:
   number: 0
@@ -18,17 +18,16 @@ build:
 requirements:
   host:
     - pip
-    - python >=3.6
+    - python >=3.11
   run:
-    - biopython
-    - matplotlib-base
-    - numpy
-    - pandas
-    - python >=3.6
-    - requests
-    - scipy
-    - seaborn
-    - statsmodels
+    - biopython==1.81.*
+    - matplotlib-base==3.8.*
+    - numpy==1.26.*
+    - pandas==2.1.*
+    - python>=3.11
+    - requests==2.31.*
+    - scipy==1.11.*
+    - seaborn==0.13.*
 
 test:
   imports:
@@ -49,3 +48,4 @@ about:
 extra:
   recipe-maintainers:
     - NaegleLab
+
