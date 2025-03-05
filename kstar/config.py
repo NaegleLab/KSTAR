@@ -35,7 +35,7 @@ directory_file.close()
 NETWORK_DIR = directories[0]
 
 RESOURCE_URL = 'https://ndownloader.figshare.com/files/28762653'  # location of corresponding release of data
-NETWORK_URL = 'https://ndownloader.figshare.com/files/28768155'
+NETWORK_URL = 'https://ndownloader.figshare.com/files/52178324'
 
 # RESOURCE_DIR dependencies
 HUMAN_REF_FASTA_FILE = f"{RESOURCE_DIR}/humanProteome.fasta"  # download from KinPred https://doi.org/10.1101/2020.08.10.244426
@@ -72,10 +72,10 @@ KSTAR_KINASE = 'KSTAR_KINASE'
 # PARAMETERS USED FOR RUNNING KSTAR USING PREGENERATED EXPERIMENTS
 USE_PREGEN_DATA = True
 SAVE_NEW_PRECOMPUTE = False
-PREGENERATED_EXPERIMENTS_PATH = KSTAR_DIR + "/NETWORKS/NetworKIN"
+PREGENERATED_EXPERIMENTS_PATH = NETWORK_DIR
 NETWORK_HASH_Y = 'd73e971979661777c05182efad8b314b1aa78896e242810cce8ecd51b23c85c6'
 NETWORK_HASH_ST = '68328e443909aecbb6a1f6b0572da171f6b1213c95ecf1928b621ef39826c953'
-DIRECTORY_FOR_SAVE_PRECOMPUTE = ""
+DIRECTORY_FOR_SAVE_PRECOMPUTE = None
 
 
 ## END DECLARATION OF GLOBALS
@@ -98,19 +98,24 @@ def install_resource_files():
 
 # def update_network_directory(directory, *kwargs):
 
-def install_network_files():
-    """Retrieves Network files that are the companion for this version release from FigShare, unzips them to the correct directory for resource files."""
+def install_network_files(target_dir=None):
+    """Retrieves Network files that are the companion for this version release from FigShare, unzips them to the specified directory."""
     print("Requesting network file")
     r = requests.get(NETWORK_URL, allow_redirects=True)
-    outputFile = KSTAR_DIR + "/NETWORKS.tar.gz"
+
+    # Use target_dir if provided, otherwise default to KSTAR_DIR
+    install_dir = target_dir if target_dir else KSTAR_DIR
+    outputFile = os.path.join(install_dir, "NETWORKS.tar.gz")
+
+    # Create target directory if it doesn't exist
+    os.makedirs(install_dir, exist_ok=True)
 
     open(outputFile, 'wb').write(r.content)
 
     t = tarfile.open(outputFile, 'r')
 
-    print("Extracting %s" % outputFile)
-    t.extractall(KSTAR_DIR)
-
+    print(f"Extracting {outputFile}")
+    t.extractall(install_dir)
 
 def update_network_directory(directory, create_pickles=True, KSTAR_DIR=KSTAR_DIR, NETWORK_DIR=NETWORK_DIR):
     """
