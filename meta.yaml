@@ -1,5 +1,5 @@
 {% set name = "kstar" %}
-{% set version = "1.0.0" %}
+{% set version = "1.0.1" %}
 
 
 package:
@@ -18,7 +18,7 @@ build:
 requirements:
   host:
     - pip
-    - python >=3.11
+    - python >=3.10
   run:
     - biopython==1.81.*
     - matplotlib-base==3.8.*

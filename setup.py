@@ -4,7 +4,7 @@ from setuptools import setup, find_packages
 # Run setup
 setup(
     name="kstar",
-    version="1.0.0",
+    version="1.0.1",
     author="Naegle Lab",
     author_email="kmn4mj@virginia.edu",
     url="https://github.com/NaegleLab/KSTAR",
@@ -21,6 +21,6 @@ setup(
     ],
     packages=find_packages(),
     include_package_data = True,
-    python_requires=">=3.11",
+    python_requires=">=3.10",
     zip_safe = False
 )
