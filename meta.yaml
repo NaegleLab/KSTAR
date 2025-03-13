@@ -8,7 +8,7 @@ package:
 
 source:
   url: https://pypi.io/packages/source/{{ name[0] }}/{{ name }}/kstar-{{ version }}.tar.gz
-  sha256: 4bd585f61486f68f8e3ce800ad8ea678dc29524d8cfbf72d40bc670d0b8aadd6
+  sha256: c56c401af595a7606d09a0995a0d7d04b8ef4c17fe1a6a1ca32b2d362a4558b3
 
 build:
   number: 0
@@ -20,11 +20,11 @@ requirements:
     - pip
     - python >=3.10
   run:
-    - biopython==1.81.*
+    - biopython==1.78.*
     - matplotlib-base==3.8.*
     - numpy==1.26.*
     - pandas==2.1.*
-    - python>=3.11
+    - python>=3.10
     - requests==2.31.*
     - scipy==1.11.*
     - seaborn==0.13.*
@@ -38,6 +38,7 @@ test:
     - pip check
   requires:
     - pip
+    - setuptools
 
 about:
   home: https://github.com/NaegleLab/KSTAR
