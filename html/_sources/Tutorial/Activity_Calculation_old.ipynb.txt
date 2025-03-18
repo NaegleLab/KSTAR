@@ -1,0 +1,1284 @@
+{
+ "cells": [
+  {
+   "metadata": {},
+   "cell_type": "markdown",
+   "source": "# Map Datasets to KinPred",
+   "id": "a09ba2aa2a6b9a0f"
+  },
+  {
+   "metadata": {},
+   "cell_type": "markdown",
+   "source": [
+    "## Download and Process Dataset of Interest\n",
+    "Prior to predicting kinase activities, datasets need to be mapped to KinPred to obtain the Uniprot ID, phosphosite, and the +/-7 peptide sequence that will be used by KSTAR to identify which kinases are associated with each phosphosite. In order to map kinase activities, the dataframe containing phosphoproteomic data should contain each peptides Uniprot accession, as well as either the site number or peptide sequence. If the peptide sequence is used, it should be formatted with only the phosphorylated peptides being lowercased. For example, if a peptide sequence is annotated with '(ph)' in front of the phosphorylated amino acid, you would need to remove the '(ph)' from the sequence and lowercase the phosphorylated amino acid. So, the peptide sequence SGLAYCPND(ph)YHQLFSPR would become SGLAYCPNDyHQLFSPR.\n",
+    "\n",
+    "It is recommended to use the peptide sequence rather than the site number when possible, as this is more likely to be found in the most recent version of KinPred. An example of the processed dataset can be seen below, which is a trimmed, processed, and mapped version of the dataset published publically (Chylek, 2014). You can download this data from the original publication below or the pre-mapped version at [FigShare](https://figshare.com/articles/dataset/KSTAR_Supplementary_Data/14919726).\n",
+    "\n",
+    "Reference:  L. A. Chylek, V. Akimov, J. Dengjel, K. T. G. Rigbolt, B. Hu, W. S. Hlavacek, and B. Blagoev.\n",
+    "Phosphorylation Site Dynamics of Early T-cell Receptor Signaling. PLoS ONE, 9(8):e104240,\n",
+    "2014."
+   ],
+   "id": "1b78ffdbe02c6a06"
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 1,
+   "id": "67047061",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "#import KSTAR and other necesary packages\n",
+    "import pandas as pd\n",
+    "import numpy as np\n",
+    "import pickle\n",
+    "import os\n",
+    "\n",
+    "from kstar import config, helpers, mapping"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 2,
+   "id": "cdf7b2fd",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "<div>\n",
+       "<style scoped>\n",
+       "    .dataframe tbody tr th:only-of-type {\n",
+       "        vertical-align: middle;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe tbody tr th {\n",
+       "        vertical-align: top;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe thead th {\n",
+       "        text-align: right;\n",
+       "    }\n",
+       "</style>\n",
+       "<table border=\"1\" class=\"dataframe\">\n",
+       "  <thead>\n",
+       "    <tr style=\"text-align: right;\">\n",
+       "      <th></th>\n",
+       "      <th>query_accession</th>\n",
+       "      <th>mod_sites</th>\n",
+       "      <th>peptide</th>\n",
+       "      <th>data:time:0</th>\n",
+       "      <th>data:time:5</th>\n",
+       "      <th>data:time:15</th>\n",
+       "      <th>data:time:30</th>\n",
+       "      <th>data:time:60</th>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>MS_id</th>\n",
+       "      <th></th>\n",
+       "      <th></th>\n",
+       "      <th></th>\n",
+       "      <th></th>\n",
+       "      <th></th>\n",
+       "      <th></th>\n",
+       "      <th></th>\n",
+       "      <th></th>\n",
+       "    </tr>\n",
+       "  </thead>\n",
+       "  <tbody>\n",
+       "    <tr>\n",
+       "      <th>7605136</th>\n",
+       "      <td>Q9P2D3-1</td>\n",
+       "      <td>Y1104</td>\n",
+       "      <td>EAAEVCEyAMSLAK</td>\n",
+       "      <td>0.0</td>\n",
+       "      <td>-0.01</td>\n",
+       "      <td>-0.28</td>\n",
+       "      <td>-0.03</td>\n",
+       "      <td>-0.27</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>7605137</th>\n",
+       "      <td>A0FGR8-6</td>\n",
+       "      <td>Y845</td>\n",
+       "      <td>NLIAFSEDGSDPyVR</td>\n",
+       "      <td>0.0</td>\n",
+       "      <td>0.26</td>\n",
+       "      <td>0.27</td>\n",
+       "      <td>0.04</td>\n",
+       "      <td>0.05</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>7605138</th>\n",
+       "      <td>Q5T4S7-2</td>\n",
+       "      <td>Y5156</td>\n",
+       "      <td>HNDMPIyEAADK</td>\n",
+       "      <td>0.0</td>\n",
+       "      <td>0.31</td>\n",
+       "      <td>-0.15</td>\n",
+       "      <td>0.01</td>\n",
+       "      <td>-0.23</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>7605139</th>\n",
+       "      <td>Q16181-1</td>\n",
+       "      <td>Y30</td>\n",
+       "      <td>NLEGyVGFANLPNQVYR</td>\n",
+       "      <td>0.0</td>\n",
+       "      <td>-0.14</td>\n",
+       "      <td>-0.19</td>\n",
+       "      <td>0.07</td>\n",
+       "      <td>0.15</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>7605140</th>\n",
+       "      <td>Q16181-1</td>\n",
+       "      <td>Y41</td>\n",
+       "      <td>NLEGYVGFANLPNQVyR</td>\n",
+       "      <td>0.0</td>\n",
+       "      <td>-0.14</td>\n",
+       "      <td>-0.09</td>\n",
+       "      <td>0.04</td>\n",
+       "      <td>-0.06</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>...</th>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>7605855</th>\n",
+       "      <td>O95801</td>\n",
+       "      <td>Y129</td>\n",
+       "      <td>AAAQYyLGNFR</td>\n",
+       "      <td>0.0</td>\n",
+       "      <td>0.15</td>\n",
+       "      <td>0.39</td>\n",
+       "      <td>-0.05</td>\n",
+       "      <td>0.08</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>7605859</th>\n",
+       "      <td>O60711</td>\n",
+       "      <td>Y22</td>\n",
+       "      <td>STLQDSDEySNPAPLPLDQHSR</td>\n",
+       "      <td>0.0</td>\n",
+       "      <td>-0.73</td>\n",
+       "      <td>0.76</td>\n",
+       "      <td>4.48</td>\n",
+       "      <td>5.88</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>7605860</th>\n",
+       "      <td>O60711</td>\n",
+       "      <td>Y203</td>\n",
+       "      <td>SGLAYCPNDyHQLFSPR</td>\n",
+       "      <td>0.0</td>\n",
+       "      <td>0.55</td>\n",
+       "      <td>-1.77</td>\n",
+       "      <td>3.58</td>\n",
+       "      <td>5.15</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>7605861</th>\n",
+       "      <td>P47736</td>\n",
+       "      <td>Y374</td>\n",
+       "      <td>LINAEyACYK</td>\n",
+       "      <td>0.0</td>\n",
+       "      <td>-0.12</td>\n",
+       "      <td>0.19</td>\n",
+       "      <td>0.02</td>\n",
+       "      <td>-0.16</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>7605863</th>\n",
+       "      <td>Q14511</td>\n",
+       "      <td>Y345</td>\n",
+       "      <td>DGVyDVPLHNPPDAK</td>\n",
+       "      <td>0.0</td>\n",
+       "      <td>-0.41</td>\n",
+       "      <td>-0.14</td>\n",
+       "      <td>-0.12</td>\n",
+       "      <td>-0.29</td>\n",
+       "    </tr>\n",
+       "  </tbody>\n",
+       "</table>\n",
+       "<p>665 rows × 8 columns</p>\n",
+       "</div>"
+      ],
+      "text/plain": [
+       "        query_accession mod_sites                 peptide  data:time:0  \\\n",
+       "MS_id                                                                    \n",
+       "7605136        Q9P2D3-1     Y1104          EAAEVCEyAMSLAK          0.0   \n",
+       "7605137        A0FGR8-6      Y845         NLIAFSEDGSDPyVR          0.0   \n",
+       "7605138        Q5T4S7-2     Y5156            HNDMPIyEAADK          0.0   \n",
+       "7605139        Q16181-1       Y30       NLEGyVGFANLPNQVYR          0.0   \n",
+       "7605140        Q16181-1       Y41       NLEGYVGFANLPNQVyR          0.0   \n",
+       "...                 ...       ...                     ...          ...   \n",
+       "7605855          O95801      Y129             AAAQYyLGNFR          0.0   \n",
+       "7605859          O60711       Y22  STLQDSDEySNPAPLPLDQHSR          0.0   \n",
+       "7605860          O60711      Y203       SGLAYCPNDyHQLFSPR          0.0   \n",
+       "7605861          P47736      Y374              LINAEyACYK          0.0   \n",
+       "7605863          Q14511      Y345         DGVyDVPLHNPPDAK          0.0   \n",
+       "\n",
+       "         data:time:5  data:time:15  data:time:30  data:time:60  \n",
+       "MS_id                                                           \n",
+       "7605136        -0.01         -0.28         -0.03         -0.27  \n",
+       "7605137         0.26          0.27          0.04          0.05  \n",
+       "7605138         0.31         -0.15          0.01         -0.23  \n",
+       "7605139        -0.14         -0.19          0.07          0.15  \n",
+       "7605140        -0.14         -0.09          0.04         -0.06  \n",
+       "...              ...           ...           ...           ...  \n",
+       "7605855         0.15          0.39         -0.05          0.08  \n",
+       "7605859        -0.73          0.76          4.48          5.88  \n",
+       "7605860         0.55         -1.77          3.58          5.15  \n",
+       "7605861        -0.12          0.19          0.02         -0.16  \n",
+       "7605863        -0.41         -0.14         -0.12         -0.29  \n",
+       "\n",
+       "[665 rows x 8 columns]"
+      ]
+     },
+     "execution_count": 2,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "#load data\n",
+    "df = pd.read_csv('example.tsv', index_col = 0, sep = '\\t')\n",
+    "df"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "cb39e3c9",
+   "metadata": {},
+   "source": [
+    "Notice that all data columns in the dataset have 'data:' in front of them. This is how KSTAR will identify which columns to use when making evidence decisions. This can be done manually prior to mapping, or will be done by KSTAR automatically once you indicate which columns you would like to use as evidence."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "72b627ad",
+   "metadata": {},
+   "source": [
+    "## Map the Dataset to KinPred"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "1f26722b",
+   "metadata": {},
+   "source": [
+    "First, we need to indicate where to save the mapped data and where to record information about the mapping process:"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 3,
+   "id": "9837f752",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "#define the directory where mapped dataset and run information will be saved. \n",
+    "odir = './example'\n",
+    "#if directory doesn't exist yet, create it\n",
+    "if not os.path.exists(f\"{odir}/MAPPED_DATA\"): \n",
+    "    os.mkdir(f\"{odir}/MAPPED_DATA\")   "
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "bed96ff1",
+   "metadata": {},
+   "source": [
+    "Next, we want to intialize a log file which will record information about the mapping run, including any errors that arise during the process. This log file will be saved in the location indicated by the second parameter of the 'helpers.get_logger()' function."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 4,
+   "id": "eee80454",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "#Define the log name\n",
+    "logName = 'example_run'\n",
+    "#intialize logger\n",
+    "mapping_log = helpers.get_logger(f\"mapping_{logName}\", f\"{odir}/MAPPED_DATA/mapping_{logName}.log\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "aed543d4",
+   "metadata": {},
+   "source": [
+    "The last step before mapping your dataset to KinPred is to construct a dictionary which indicates the columns where KSTAR can find information about each peptide. This should include the 'accession_id', the uniprot accession corresponding to the identified peptide. It should also include __either__ the 'peptide' (amino acid sequence with phosphorylation sites lowercased) or the 'site' (modified amino acid + modification location, such as Y11). It is recommended to use the peptide sequence when possible.\n",
+    "\n",
+    "The format of this dictionary should be: {'peptide': 'Col_with_PeptideInfo', 'accession_id': 'Col_with_UniprotID'}"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 5,
+   "id": "5b5214a7",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "mapDict = {'peptide':'peptide', 'accession_id':'query_accession'}"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "0e1dbca3",
+   "metadata": {},
+   "source": [
+    "You are now ready to map the dataset, which can be done using the ExperimentMapper class."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 6,
+   "id": "0deb2370",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "#map dataset and record process in the logger\n",
+    "exp_mapper = mapping.ExperimentMapper(experiment = df,\n",
+    "                                      columns = mapDict, \n",
+    "                                      logger = mapping_log)\n",
+    "#save mapped dataset\n",
+    "exp_mapper.experiment.to_csv(f\"{odir}/MAPPED_DATA/{logName}_mapped.tsv\", sep = '\\t', index = False)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "4d9ff0d9",
+   "metadata": {},
+   "source": [
+    "If you look at the ExperimentMapper class, you will find that five new columns have been added to the original dataset, which allows for easy mapping to KSTAR networks used in activity prediction."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 7,
+   "id": "8b65b790",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "<div>\n",
+       "<style scoped>\n",
+       "    .dataframe tbody tr th:only-of-type {\n",
+       "        vertical-align: middle;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe tbody tr th {\n",
+       "        vertical-align: top;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe thead th {\n",
+       "        text-align: right;\n",
+       "    }\n",
+       "</style>\n",
+       "<table border=\"1\" class=\"dataframe\">\n",
+       "  <thead>\n",
+       "    <tr style=\"text-align: right;\">\n",
+       "      <th></th>\n",
+       "      <th>query_accession</th>\n",
+       "      <th>mod_sites</th>\n",
+       "      <th>peptide</th>\n",
+       "      <th>data:time:0</th>\n",
+       "      <th>data:time:5</th>\n",
+       "      <th>data:time:15</th>\n",
+       "      <th>data:time:30</th>\n",
+       "      <th>data:time:60</th>\n",
+       "      <th>KSTAR_ACCESSION</th>\n",
+       "      <th>KSTAR_PEPTIDE</th>\n",
+       "      <th>KSTAR_SITE</th>\n",
+       "      <th>KSTAR_NUM_COMPENDIA</th>\n",
+       "      <th>KSTAR_NUM_COMPENDIA_CLASS</th>\n",
+       "    </tr>\n",
+       "  </thead>\n",
+       "  <tbody>\n",
+       "    <tr>\n",
+       "      <th>0</th>\n",
+       "      <td>Q9P2D3-1</td>\n",
+       "      <td>Y1104</td>\n",
+       "      <td>EAAEVCEyAMSLAK</td>\n",
+       "      <td>0.0</td>\n",
+       "      <td>-0.01</td>\n",
+       "      <td>-0.28</td>\n",
+       "      <td>-0.03</td>\n",
+       "      <td>-0.27</td>\n",
+       "      <td>Q9P2D3</td>\n",
+       "      <td>EAAEVCEyAMSLAKN</td>\n",
+       "      <td>Y1104</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>1</th>\n",
+       "      <td>A0FGR8-6</td>\n",
+       "      <td>Y845</td>\n",
+       "      <td>NLIAFSEDGSDPyVR</td>\n",
+       "      <td>0.0</td>\n",
+       "      <td>0.26</td>\n",
+       "      <td>0.27</td>\n",
+       "      <td>0.04</td>\n",
+       "      <td>0.05</td>\n",
+       "      <td>A0FGR8</td>\n",
+       "      <td>SEDGSDPyVRMYLLP</td>\n",
+       "      <td>Y824</td>\n",
+       "      <td>2</td>\n",
+       "      <td>1</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>2</th>\n",
+       "      <td>Q5T4S7-2</td>\n",
+       "      <td>Y5156</td>\n",
+       "      <td>HNDMPIyEAADK</td>\n",
+       "      <td>0.0</td>\n",
+       "      <td>0.31</td>\n",
+       "      <td>-0.15</td>\n",
+       "      <td>0.01</td>\n",
+       "      <td>-0.23</td>\n",
+       "      <td>Q5T4S7</td>\n",
+       "      <td>RHNDMPIyEAADKAL</td>\n",
+       "      <td>Y5135</td>\n",
+       "      <td>1</td>\n",
+       "      <td>1</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>3</th>\n",
+       "      <td>Q16181-1</td>\n",
+       "      <td>Y30</td>\n",
+       "      <td>NLEGyVGFANLPNQVYR</td>\n",
+       "      <td>0.0</td>\n",
+       "      <td>-0.14</td>\n",
+       "      <td>-0.19</td>\n",
+       "      <td>0.07</td>\n",
+       "      <td>0.15</td>\n",
+       "      <td>Q16181</td>\n",
+       "      <td>QQKNLEGyVGFANLP</td>\n",
+       "      <td>Y30</td>\n",
+       "      <td>5</td>\n",
+       "      <td>2</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>4</th>\n",
+       "      <td>Q16181-1</td>\n",
+       "      <td>Y41</td>\n",
+       "      <td>NLEGYVGFANLPNQVyR</td>\n",
+       "      <td>0.0</td>\n",
+       "      <td>-0.14</td>\n",
+       "      <td>-0.09</td>\n",
+       "      <td>0.04</td>\n",
+       "      <td>-0.06</td>\n",
+       "      <td>Q16181</td>\n",
+       "      <td>ANLPNQVyRKSVKRG</td>\n",
+       "      <td>Y41</td>\n",
+       "      <td>1</td>\n",
+       "      <td>1</td>\n",
+       "    </tr>\n",
+       "  </tbody>\n",
+       "</table>\n",
+       "</div>"
+      ],
+      "text/plain": [
+       "  query_accession mod_sites            peptide  data:time:0  data:time:5  \\\n",
+       "0        Q9P2D3-1     Y1104     EAAEVCEyAMSLAK          0.0        -0.01   \n",
+       "1        A0FGR8-6      Y845    NLIAFSEDGSDPyVR          0.0         0.26   \n",
+       "2        Q5T4S7-2     Y5156       HNDMPIyEAADK          0.0         0.31   \n",
+       "3        Q16181-1       Y30  NLEGyVGFANLPNQVYR          0.0        -0.14   \n",
+       "4        Q16181-1       Y41  NLEGYVGFANLPNQVyR          0.0        -0.14   \n",
+       "\n",
+       "   data:time:15  data:time:30  data:time:60 KSTAR_ACCESSION    KSTAR_PEPTIDE  \\\n",
+       "0         -0.28         -0.03         -0.27          Q9P2D3  EAAEVCEyAMSLAKN   \n",
+       "1          0.27          0.04          0.05          A0FGR8  SEDGSDPyVRMYLLP   \n",
+       "2         -0.15          0.01         -0.23          Q5T4S7  RHNDMPIyEAADKAL   \n",
+       "3         -0.19          0.07          0.15          Q16181  QQKNLEGyVGFANLP   \n",
+       "4         -0.09          0.04         -0.06          Q16181  ANLPNQVyRKSVKRG   \n",
+       "\n",
+       "  KSTAR_SITE  KSTAR_NUM_COMPENDIA  KSTAR_NUM_COMPENDIA_CLASS  \n",
+       "0      Y1104                    0                          0  \n",
+       "1       Y824                    2                          1  \n",
+       "2      Y5135                    1                          1  \n",
+       "3        Y30                    5                          2  \n",
+       "4        Y41                    1                          1  "
+      ]
+     },
+     "execution_count": 7,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "exp_mapper.experiment.head()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "916fbff0",
+   "metadata": {},
+   "source": [
+    "These additional columns have the following meaning:\n",
+    "\n",
+    "1. 'KSTAR_ACCESSION': Uniprot accession id corresponding to reviewed protein sequence, focusing only on the canonical isoforms of each protein.\n",
+    "2. 'KSTAR_PEPTIDE': Peptide sequence containing a single phosphorylation site, including the 7 amino acids both before and after the modified residue.\n",
+    "3. 'KSTAR_SITE': Location of modified residue in the protein\n",
+    "4. 'KSTAR_NUM_COMPENDIA': The number of different phosphoproteome compendia that modification site is identified in, used as an indicator of the study bias of each modification site. For this purpose, PhosphoSitePlus, PhosphoELM, HPRD, ______, and ProteomeScout were profiled.\n",
+    "5. 'KSTAR_NUM_COMPENDIA_CLASS': Same as 4, but sites are grouped into smaller classes based on study bias (0 is <1 compendia, 1 is 1-3 compendia, 2 is >3 compendia)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "4124e12b",
+   "metadata": {},
+   "source": [
+    "## Explore the Mapped Dataset"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "a9e24ca3",
+   "metadata": {},
+   "source": [
+    "One way to check how well the mapping worked is to check the number of peptides in the original dataframe vs. the newly mapped dataframe. "
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 8,
+   "id": "c135a18e",
+   "metadata": {
+    "scrolled": true
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Original number of lines in df: 665\n",
+      "New number of lines in mapped:665\n"
+     ]
+    }
+   ],
+   "source": [
+    "#Look at how many of the peptides in the dataset were actually mapped. This indicates how well the mapping worked\n",
+    "print(\"Original number of lines in df: %d\\nNew number of lines in mapped:%d\"%(len(df), len(exp_mapper.experiment)))"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "56a74073",
+   "metadata": {},
+   "source": [
+    "In this case, no peptides were lost during the mapping process. Changes to the number of peptides could be a result of several things:\n",
+    "1. Failure to find the corresponding peptide \n",
+    "2. A peptide with multiple phosphorylation sites was seperated into seperate peptides\n",
+    "\n",
+    "For specifics on mapping failures, go to the log file for details."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "28016ca5",
+   "metadata": {},
+   "source": [
+    "# Predict Kinase Activities"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "a9e5c4fc",
+   "metadata": {},
+   "source": [
+    "Once pruned networks have been generated or downloaded and data has been mapped, you are now ready to generate kinase activity predictions. Kinase activity calculation requires selection of the following choices\n",
+    "\n",
+    "1. __phospho_type:__ Tyrosine ['Y'] or Serine/Threonine ['ST'], or both ['Y, 'ST'] (default). \n",
+    "2. __agg:__ How to handle duplicates of the same peptide (i.e. aggregation) and determine sites to use as evidence. \n",
+    "    1. 'count': counts the total number of times a non-NaN value of that peptide occurred in an experiment, and accepts any site that appears an amount of times equal to or above the threshold. This is recommended if you do not want to use quantification values and instead want to focus only on sites identified in each sample. \n",
+    "    2. 'mean': averages the non-NaN values found for multiple peptides. We recommend using this when you do want to use quantification values, such as when comparing a pre and post treatment condition.\n",
+    "    3. 'max': will obtain the maximum quantification value seen for the given site\n",
+    "    4. 'min': will obtain the minimum quantification value seen for the given site\n",
+    "3. __threshold:__ defines which of the phosphorylation sites to use as evidence for each condition. If greater == True (default), any site with an aggregated value greater than the threshold will be used as evidence for prediction for each condition. If greater == False, any site with an aggregated value less than the threshold will be used as evidence for prediction for each condition."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 9,
+   "id": "9e23f95e",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "#Import preamble of kstar and other necessary functions\n",
+    "import pandas as pd\n",
+    "import os\n",
+    "import pickle\n",
+    "\n",
+    "from kstar import config, helpers, calculate"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "59c7a5d9",
+   "metadata": {},
+   "source": [
+    "## Determine Thresholds\n",
+    "It is useful to determine the best threshold to use (which sites to use as evidence for each sample). One easy benchmark way is to identify the number of sites that will be used as evidence at different thresholds. For tyrosine kinase activities, it is generally recommended that samples have at least 50 tyrosine sites used as evidence, while for serine/threonine kinase activities, it is recommended that samples have at least 1000 sites used as evidence. While not a necessity, it is also beneficial to have comparable site numbers across samples."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "84ee2050",
+   "metadata": {},
+   "source": [
+    "Similar to mapping, a log file will be generated to indicate the progress of activity prediction and any errors that arise during the process. To intialize the log file, run the below code. It can be useful to name your log files differently based on whether you are generating predictions for tyrosine kinases or serine/threonine kinases."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 10,
+   "id": "f8613275",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "#define the directory where mapped dataset and run information will be saved. \n",
+    "odir = './example'\n",
+    "logName = 'example_run'\n",
+    "#Name\n",
+    "logName_new = logName + '_Y'\n",
+    "#if directory does not exits, create it\n",
+    "if not os.path.exists(f\"{odir}/RESULTS\"): \n",
+    "    os.mkdir(f\"{odir}/RESULTS\")\n",
+    "#intialize log file\n",
+    "activity_log = helpers.get_logger(f\"activity_{logName_new}\", f\"{odir}/RESULTS/activity_{logName_new}.log\")"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 11,
+   "id": "0b2c75ef",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "#load mapped data, if necessary\n",
+    "experiment = pd.read_csv(f'{odir}/MAPPED_DATA/{logName}_mapped.tsv', sep = '\\t', index_col = 0)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "6dd3ea23",
+   "metadata": {},
+   "source": [
+    "Next, we need to define the parameters to use for the generation of evidence in this experiment. These parameters include:\n",
+    "\n",
+    "1. __data_columns__: the location of abundance values from phosphoproteomic experiment. Either can provide a list of column names, or if is None, KSTAR will look for any column that contains 'data:' at the beginning of the name. Since the example dataset includes this 'data:' format, we will set this parameter to None.\n",
+    "\n",
+    "2. __agg__: We would like phosphorylation sites select sites based on the their abundance relative to the pre-stimulation condition, with sites appearing multiple times aggregated using a mean. As such, we will set this to be 'mean'. Other options include 'max' or 'min', which will take the maximum or minimum value seen across multiple sites. Last option is 'count', which will count the number of times a site appears across the dataset. This is good if you would like to use all sites observed in a sample (set threshold to 1).\n",
+    "\n",
+    "3. __greater__: boolean that indicates whether sites greater than or less than the threshold should be kept. We are interested in knowing which kinases activate upon TCR stimulation, so we want to look at phosphorylation sites with phosphorylation. For this reason, we will set greater = True.\n",
+    "\n",
+    "4. __threshold__: This will define the cutoff for keeping a phosphorylation site as evidence. If we look at the original data, abundance values are relative to the 0 minute timepoint and appear to be log transformed. We want to focus on kinases that have increased activity after stimulation, so we think that 0.2 (phosphorylation sites logfold change >0.2 used as evidnece) will be  a good threshold.\n",
+    "\n",
+    "5. __evidence_size__: Optional, if provided will override threshold. Instead of using a threshold, this parameter will force all samples to use the same number of phosphorylation sites as evidence for prediction for each sample. For example, if evidence_size = 100 and greater = True, the 100 sites with the highest quantification values are pulled for each sample. This approach has not been extensively tested, so we only recommend this approach if thresholding produces a wide variety of evidence sizes."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 12,
+   "id": "2123234c",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "#Define parameters\n",
+    "data_columns = None\n",
+    "agg = 'mean' \n",
+    "greater = True\n",
+    "threshold = 0.2"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "a90086a2",
+   "metadata": {},
+   "source": [
+    "For all activity prediction steps, the KinaseActivity class (found within the calculate module) is used. To initialize the class, you only need to provide the original experiment, the logger, the data columns with abundance information, and the modification type of interest. We can then use the test_threshold() function in the KinaseActivity class to determine the number sites that will be used as evidence in each condition given a threshold of 0.2."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 13,
+   "id": "d21496a3",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Number of Sites That Will Be Used As Evidence For Each Sample:\n",
+      "Maximum = 200\n",
+      "Minimum = 128\n",
+      "Median = 163.0\n"
+     ]
+    }
+   ],
+   "source": [
+    "#intialize KinaseActivity class object\n",
+    "kinact = calculate.KinaseActivity(experiment, activity_log,data_columns = data_columns, phospho_type='Y')\n",
+    "#convert evidence into binary evidence based on the provided threshold\n",
+    "evidence_sizes = kinact.test_threshold(agg = agg, threshold = threshold,  greater = True, return_evidence_sizes = True)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "bc6d43bf",
+   "metadata": {},
+   "source": [
+    "The test_threshold function will output basic statistics on evidence sizes used. Here, we can see that with a threshold of 0.2, the minimum number of sites used is 128, which is above our recommended minimum of 50. We also see that the difference in evidence size is not large, so samples should be comparable. If you want to further inspect the data, the test_threshold() function has the option to return evidence sizes for each individual experiment:"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 14,
+   "id": "002993a2",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "data:time:5     128\n",
+       "data:time:15    135\n",
+       "data:time:30    191\n",
+       "data:time:60    200\n",
+       "dtype: int64"
+      ]
+     },
+     "execution_count": 14,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "#inspect the number of sites used for each sample\n",
+    "evidence_sizes"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "2a46de42",
+   "metadata": {},
+   "source": [
+    "All samples above (except for the 0 time point, which will be removed prior to activity calculation) have greater than 50 sites being used as evidence, and the evidence sizes are generally comparable. This is a good threshold to use."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "248d3ed2",
+   "metadata": {},
+   "source": [
+    "## Calculate Statistical Enrichment (Hypergeometric p-values)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "1e3a0b4c",
+   "metadata": {},
+   "source": [
+    "Now that we have defined our parameters, the first step to obtaining activity predictions is calculating the statistical enrichment of kinase substrates in the dataset using the hypergeometric test. For each network + kinase, the hypergeometric tests asks the likelihood that k kinase substrates were identified in an experiment with n identified peptides, given that there are K kinase substrates in the entire phosphoproteome, N. From these tests, a set of 50 p-values for each kinase will be generated indicating the enrichment found in each pruned network. To obtain these predictions, use the following steps\n",
+    "\n",
+    "1. Load the pruned kinase-substrate networks from the network pickles. Since the example dataset provided here is tyrosine enriched, using tyrosine networks. "
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 15,
+   "id": "cc9c3b1f",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "phospho_types = ['Y'] #running on this type of kinase/substrate network\n",
+    "\n",
+    "#Load the pickles containing the 50 pruned networks for tyrosine kinases\n",
+    "networks = {}\n",
+    "networks['Y'] = pickle.load(open(config.NETWORK_Y_PICKLE, \"rb\" ) )"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "72d5158c",
+   "metadata": {},
+   "source": [
+    "2. Initialize an activity log, which will store information about each run, including any errors that arise"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 16,
+   "id": "9bd4793d",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "#Create activity log: if already did this, ignore.\n",
+    "if not os.path.exists(f\"{odir}/RESULTS\"): \n",
+    "    os.mkdir(f\"{odir}/RESULTS\")\n",
+    "activity_log = helpers.get_logger(f\"activity_{logName}\", f\"{odir}/RESULTS/activity_{logName}.log\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "d964d7e9",
+   "metadata": {},
+   "source": [
+    "3. Define the parameter values to use for activity calculation. These are the same as those described in the 'Determine Threshold' section for generating binary evidence."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 17,
+   "id": "62f76c6b",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "data_columns = None #by passing None, all columns prefixed by data: will be used to calculate activity\n",
+    "agg = 'mean'\n",
+    "threshold = 0.2\n",
+    "greater = True"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "bdb1ee28",
+   "metadata": {},
+   "source": [
+    "4. Perform enrichment calculations. The enrichment_analysis() function within the calculate module can be used to generate the statistical enrichment values. This will return a dictionary containing a different KinaseActivity object for each modification type with predictions ('Y' and/or 'ST)."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 18,
+   "id": "27a258c6",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "kinact_dict = calculate.enrichment_analysis(experiment, activity_log, networks, phospho_types = phospho_types, \n",
+    "                                                agg =agg, threshold = threshold,  \n",
+    "                                                greater = greater, PROCESSES = 1)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "c5b6f171",
+   "metadata": {},
+   "source": [
+    "You can view the median p-values obtained for each kinase by looking at 'activities' attribute of the KinaseActivity class. We recommend continuing to the subsequent sections to generate more robust activity predictions, as the we have found that the median p-values suffer from kinase-specific false positive rates."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "c1aa5d86",
+   "metadata": {},
+   "source": [
+    "## Generate random datasets, run kinase activity on random datasets, normalize original analysis"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "a87641c9",
+   "metadata": {},
+   "source": [
+    "Once the enrichment of each kinase in the pruned networks has been calculated from the enrichment_analysis() function, we would next like to ask, for each kinase, how likely it is to have obtained that same enrichment (as indicated by the p-value) or better from a random phosphoproteomic experiment. To do so, we will first need to generate random phosphoproteomic experiments and repeat hypergeometric enrichment on these experiments. In order to perform random activity calculation, you will need to indicate the number of random experiments to generate. We have found that 150 provides a good balance between statistical power and computational complexity. \n",
+    "\n",
+    "*Note: For larger datasets this can be slow and memory intensive. In order to speed up these calculations, it is possible to use multiprocessing by adjusting the 'PROCESSES' parameter to the number of core you would like to use. The default is 1 (use only a single core). You can also use a highly parallelized version through nextflow (see 'KSTAR in Parallel')*"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 19,
+   "id": "692fc9e2",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "#Set the number of random experiments\n",
+    "num_random_experiments=150\n",
+    "#Generate random experiments\n",
+    "calculate.randomized_analysis(kinact_dict, activity_log, num_random_experiments, PROCESSES = 1)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "a557f2f5",
+   "metadata": {},
+   "source": [
+    "The random experiments generated from the above function can be found in the 'random_experiments' attribute of the KinaseActivity class. For each random experiment, the sites that will be included for random activity generation are indicated with 1."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 20,
+   "id": "49feab9e",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "<div>\n",
+       "<style scoped>\n",
+       "    .dataframe tbody tr th:only-of-type {\n",
+       "        vertical-align: middle;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe tbody tr th {\n",
+       "        vertical-align: top;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe thead th {\n",
+       "        text-align: right;\n",
+       "    }\n",
+       "</style>\n",
+       "<table border=\"1\" class=\"dataframe\">\n",
+       "  <thead>\n",
+       "    <tr style=\"text-align: right;\">\n",
+       "      <th></th>\n",
+       "      <th>KSTAR_ACCESSION</th>\n",
+       "      <th>KSTAR_SITE</th>\n",
+       "      <th>data:time:5:0</th>\n",
+       "      <th>data:time:5:1</th>\n",
+       "      <th>data:time:5:2</th>\n",
+       "      <th>data:time:5:3</th>\n",
+       "      <th>data:time:5:4</th>\n",
+       "      <th>data:time:5:5</th>\n",
+       "      <th>data:time:5:6</th>\n",
+       "      <th>data:time:5:7</th>\n",
+       "      <th>...</th>\n",
+       "      <th>data:time:60:140</th>\n",
+       "      <th>data:time:60:141</th>\n",
+       "      <th>data:time:60:142</th>\n",
+       "      <th>data:time:60:143</th>\n",
+       "      <th>data:time:60:144</th>\n",
+       "      <th>data:time:60:145</th>\n",
+       "      <th>data:time:60:146</th>\n",
+       "      <th>data:time:60:147</th>\n",
+       "      <th>data:time:60:148</th>\n",
+       "      <th>data:time:60:149</th>\n",
+       "    </tr>\n",
+       "  </thead>\n",
+       "  <tbody>\n",
+       "    <tr>\n",
+       "      <th>0</th>\n",
+       "      <td>A0AUZ9</td>\n",
+       "      <td>Y792</td>\n",
+       "      <td>NaN</td>\n",
+       "      <td>NaN</td>\n",
+       "      <td>NaN</td>\n",
+       "      <td>NaN</td>\n",
+       "      <td>NaN</td>\n",
+       "      <td>NaN</td>\n",
+       "      <td>NaN</td>\n",
+       "      <td>NaN</td>\n",
+       "      <td>...</td>\n",
+       "      <td>NaN</td>\n",
+       "      <td>NaN</td>\n",
+       "      <td>NaN</td>\n",
+       "      <td>NaN</td>\n",
+       "      <td>NaN</td>\n",
+       "      <td>NaN</td>\n",
+       "      <td>NaN</td>\n",
+       "      <td>NaN</td>\n",
+       "      <td>NaN</td>\n",
+       "      <td>NaN</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>1</th>\n",
+       "      <td>A0AV02</td>\n",
+       "      <td>Y107</td>\n",
+       "      <td>NaN</td>\n",
+       "      <td>NaN</td>\n",
+       "      <td>NaN</td>\n",
+       "      <td>NaN</td>\n",
+       "      <td>NaN</td>\n",
+       "      <td>NaN</td>\n",
+       "      <td>NaN</td>\n",
+       "      <td>NaN</td>\n",
+       "      <td>...</td>\n",
+       "      <td>NaN</td>\n",
+       "      <td>NaN</td>\n",
+       "      <td>NaN</td>\n",
+       "      <td>NaN</td>\n",
+       "      <td>NaN</td>\n",
+       "      <td>NaN</td>\n",
+       "      <td>NaN</td>\n",
+       "      <td>NaN</td>\n",
+       "      <td>NaN</td>\n",
+       "      <td>NaN</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>3</th>\n",
+       "      <td>A0AVF1</td>\n",
+       "      <td>Y174</td>\n",
+       "      <td>NaN</td>\n",
+       "      <td>NaN</td>\n",
+       "      <td>NaN</td>\n",
+       "      <td>NaN</td>\n",
+       "      <td>NaN</td>\n",
+       "      <td>NaN</td>\n",
+       "      <td>NaN</td>\n",
+       "      <td>NaN</td>\n",
+       "      <td>...</td>\n",
+       "      <td>NaN</td>\n",
+       "      <td>NaN</td>\n",
+       "      <td>NaN</td>\n",
+       "      <td>NaN</td>\n",
+       "      <td>NaN</td>\n",
+       "      <td>NaN</td>\n",
+       "      <td>NaN</td>\n",
+       "      <td>NaN</td>\n",
+       "      <td>NaN</td>\n",
+       "      <td>NaN</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>5</th>\n",
+       "      <td>A0AVK6</td>\n",
+       "      <td>Y202</td>\n",
+       "      <td>NaN</td>\n",
+       "      <td>NaN</td>\n",
+       "      <td>NaN</td>\n",
+       "      <td>NaN</td>\n",
+       "      <td>NaN</td>\n",
+       "      <td>NaN</td>\n",
+       "      <td>NaN</td>\n",
+       "      <td>NaN</td>\n",
+       "      <td>...</td>\n",
+       "      <td>NaN</td>\n",
+       "      <td>NaN</td>\n",
+       "      <td>NaN</td>\n",
+       "      <td>NaN</td>\n",
+       "      <td>NaN</td>\n",
+       "      <td>NaN</td>\n",
+       "      <td>NaN</td>\n",
+       "      <td>NaN</td>\n",
+       "      <td>NaN</td>\n",
+       "      <td>NaN</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>6</th>\n",
+       "      <td>A0AVK6</td>\n",
+       "      <td>Y316</td>\n",
+       "      <td>NaN</td>\n",
+       "      <td>NaN</td>\n",
+       "      <td>NaN</td>\n",
+       "      <td>NaN</td>\n",
+       "      <td>NaN</td>\n",
+       "      <td>NaN</td>\n",
+       "      <td>NaN</td>\n",
+       "      <td>NaN</td>\n",
+       "      <td>...</td>\n",
+       "      <td>NaN</td>\n",
+       "      <td>NaN</td>\n",
+       "      <td>NaN</td>\n",
+       "      <td>NaN</td>\n",
+       "      <td>NaN</td>\n",
+       "      <td>NaN</td>\n",
+       "      <td>NaN</td>\n",
+       "      <td>NaN</td>\n",
+       "      <td>NaN</td>\n",
+       "      <td>NaN</td>\n",
+       "    </tr>\n",
+       "  </tbody>\n",
+       "</table>\n",
+       "<p>5 rows × 602 columns</p>\n",
+       "</div>"
+      ],
+      "text/plain": [
+       "  KSTAR_ACCESSION KSTAR_SITE  data:time:5:0  data:time:5:1  data:time:5:2  \\\n",
+       "0          A0AUZ9       Y792            NaN            NaN            NaN   \n",
+       "1          A0AV02       Y107            NaN            NaN            NaN   \n",
+       "3          A0AVF1       Y174            NaN            NaN            NaN   \n",
+       "5          A0AVK6       Y202            NaN            NaN            NaN   \n",
+       "6          A0AVK6       Y316            NaN            NaN            NaN   \n",
+       "\n",
+       "   data:time:5:3  data:time:5:4  data:time:5:5  data:time:5:6  data:time:5:7  \\\n",
+       "0            NaN            NaN            NaN            NaN            NaN   \n",
+       "1            NaN            NaN            NaN            NaN            NaN   \n",
+       "3            NaN            NaN            NaN            NaN            NaN   \n",
+       "5            NaN            NaN            NaN            NaN            NaN   \n",
+       "6            NaN            NaN            NaN            NaN            NaN   \n",
+       "\n",
+       "   ...  data:time:60:140  data:time:60:141  data:time:60:142  \\\n",
+       "0  ...               NaN               NaN               NaN   \n",
+       "1  ...               NaN               NaN               NaN   \n",
+       "3  ...               NaN               NaN               NaN   \n",
+       "5  ...               NaN               NaN               NaN   \n",
+       "6  ...               NaN               NaN               NaN   \n",
+       "\n",
+       "   data:time:60:143  data:time:60:144  data:time:60:145  data:time:60:146  \\\n",
+       "0               NaN               NaN               NaN               NaN   \n",
+       "1               NaN               NaN               NaN               NaN   \n",
+       "3               NaN               NaN               NaN               NaN   \n",
+       "5               NaN               NaN               NaN               NaN   \n",
+       "6               NaN               NaN               NaN               NaN   \n",
+       "\n",
+       "   data:time:60:147  data:time:60:148  data:time:60:149  \n",
+       "0               NaN               NaN               NaN  \n",
+       "1               NaN               NaN               NaN  \n",
+       "3               NaN               NaN               NaN  \n",
+       "5               NaN               NaN               NaN  \n",
+       "6               NaN               NaN               NaN  \n",
+       "\n",
+       "[5 rows x 602 columns]"
+      ]
+     },
+     "execution_count": 20,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "#This object holds the random datasets that were used, where NaN means a site was not selected and 1 means it was\n",
+    "kinact_dict['Y'].random_experiments.head()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "dea69709",
+   "metadata": {},
+   "source": [
+    "If you sum the random experiments object, it will tell you how many total sites were selected for each random experiment, which should match the parent experiment:"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 21,
+   "id": "9b40e588",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "KSTAR_ACCESSION     A0AUZ9A0AV02A0AVF1A0AVK6A0AVK6A0AVT1A0AVT1A0AV...\n",
+       "KSTAR_SITE          Y792Y107Y174Y202Y316Y1046Y44Y558Y994Y403Y366Y1...\n",
+       "data:time:5:0                                                   128.0\n",
+       "data:time:5:1                                                   128.0\n",
+       "data:time:5:2                                                   128.0\n",
+       "                                          ...                        \n",
+       "data:time:60:145                                                200.0\n",
+       "data:time:60:146                                                200.0\n",
+       "data:time:60:147                                                200.0\n",
+       "data:time:60:148                                                200.0\n",
+       "data:time:60:149                                                200.0\n",
+       "Length: 602, dtype: object"
+      ]
+     },
+     "execution_count": 21,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "# If you sum the random_experiments it will tell you how many total sites were selected, which should match\n",
+    "# the parent experiment \n",
+    "kinact_dict['Y'].random_experiments.sum()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "426ac79b",
+   "metadata": {},
+   "source": [
+    "## Calculate Mann Whitney Significance"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "fbbb8e79",
+   "metadata": {},
+   "source": [
+    "Finally, final activity scores are calculated by implementing the Mann Whitney U-test to compare the distribution of real p-values (activity predictions on the real dataset) to the random p-values (activity predictions on the random dataset). Further, a false positive rate is calculated by pulling out one of the random datasets and comparing to all other random datasets using the same Mann Whitney test. The parameter 'number_sig_trials' indicates the number of times to repeat this calculation to obtain the false positive rate. As with the previous analysis, the 'PROCESSES' parameter can be adjusted to perform multiprocessing."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 22,
+   "id": "c1d48987",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "calculate.Mann_Whitney_analysis(kinact_dict, activity_log, number_sig_trials = 100, PROCESSES = 1)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "51408fb2",
+   "metadata": {},
+   "source": [
+    "## Save KSTAR Results"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "493caf6a",
+   "metadata": {},
+   "source": [
+    "There are a couple of options to save the results of KSTAR analysis. To save all information (hypergeometric enrichment results, random experiments, mann whitney activities and fpr), we have provided a function to save all information while not taking up too much memory."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 23,
+   "id": "20551d55",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "calculate.save_kstar_slim(kinact_dict, logName, odir)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "5022869f",
+   "metadata": {},
+   "source": [
+    "Lastly, it is possible to just save each KinaseActivity attribute individually using pandas:"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 24,
+   "id": "17c8ca25",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "kinact_dict['Y'].activities_mann_whitney.to_csv(f'{logName}_Y_mann_whitney_activities.tsv', sep = '\\t')\n",
+    "kinact_dict['Y'].fpr_mann_whitney.to_csv(f'{logName}_Y_mann_whitney_fpr.tsv', sep = '\\t')"
+   ]
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": "Python 3 (ipykernel)",
+   "language": "python",
+   "name": "python3"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 3
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython3",
+   "version": "3.10.8"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 5
+}
