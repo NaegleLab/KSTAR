@@ -6,7 +6,7 @@ The "Config" Module
 --------------------
 
 .. automodule:: kstar.config
-	:members: install_resource_files, update_network_directory, create_network_pickles
+	:members: install_resource_files, install_network_files, update_network_directory, create_network_pickles
 	 
 The "Prune" Module
 -----------------
@@ -14,29 +14,28 @@ The "Prune" Module
 The "Pruner" Class
 ~~~~~~~~~~~~~~~~~
 .. autoclass:: kstar.prune.Pruner
-	:members:
+    :members:
 	
 Functions to Perform Pruning
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 .. automodule:: kstar.prune
-	:members: run_pruning, save_pruning, save_run_information
+    :members: run_pruning, save_pruning, save_run_information
 	
 The "ExperimentMapper" class
 --------------------
 .. autoclass:: kstar.mapping.ExperimentMapper
-	:members: 
+    :members:
 
 
 The "KinaseActivity" class
 --------------------------
 .. autoclass:: kstar.calculate.KinaseActivity
-	:members: calculate_Mann_Whitney_activities_sig, calculate_kinase_activities, check_data_columns, create_binary_evidence, find_pvalue_limits, set_data_columns, calculate_random_activities, get_run_date  
-
+    :members: calculate_Mann_Whitney_activities_sig, calculate_kinase_activities, check_data_columns, create_binary_evidence, test_threshold, set_data_columns, calculate_random_activities, get_run_date, get_compendia_distribution, add_networks_batch, add_network, set_evidence, summarize_activities, aggregate_activities, find_pvalue_limits, getFilteredCompendia, parse_network_information, network_check_for_pregeneration, load_pregenerated_random_activities, add_pregenerated_to_random_enrichment, save_new_precomputed_random_enrichment, get_run_information_content
 
 The "DotPlot" class
 --------------------
 .. autoclass:: kstar.plot.DotPlot
-	:members: dotplot, cluster, context, drop_kinases, drop_kinases_with_no_significance
+    :members: dotplot, cluster, context, drop_kinases, drop_kinases_with_no_significance, evidence_count
 
 Supporting Functions
 --------------------
@@ -45,16 +44,16 @@ Master Functions for Running KSTAR Pipeline
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. automodule:: kstar.calculate
-	:members: enrichment_analysis, randomized_analysis, Mann_Whitney_analysis 
+    :members: enrichment_analysis, randomized_analysis, Mann_Whitney_analysis
 	
 Functions for Saving and Loading KSTAR results
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	
 .. automodule:: kstar.calculate
-	:members: save_kstar, save_kstar_slim, from_kstar_slim, from_kstar_nextflow
+    :members: save_kstar, save_kstar_slim, from_kstar_slim, from_kstar_nextflow
 
 Other Helper Functions
 ~~~~~~~~~~~~~~~~~~~~~~
 .. automodule:: kstar.helpers
-	:members: 
+    :members:
 	

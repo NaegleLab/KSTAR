@@ -35,7 +35,7 @@ and time costs are often too high for many large datasets. For these cases, we h
 with the nextflow software package. The remainder of this section will detail how to install and run KSTAR with nextflow.
 
 Requirements
-~~~~~~~~~~~~
+^^^^^^^^^^^^
 
 The nextflow pipeline takes advantage of either Docker or Singularity containers. These are compatible with POSIX operating 
 systems (Linux, OS X, etc.). However, nextflow can also be run on a Windows machine with the use of WSL2. Windows has provided instructions for 
@@ -46,7 +46,7 @@ This implementation is best suited for high performance computing environments, 
 and 16GB of available memory suggested.
 
 Installation
-~~~~~~~~~~~~
+^^^^^^^^^^^^
 
 Before implementing KSTAR with nextflow, Docker will need to be installed. The nextflow implementation utilizes a docker container of the 
 KSTAR algorithm. For details on how to install Docker, visit `Install Docker <https://docs.docker.com/get-docker/>`_. 
@@ -57,7 +57,6 @@ First, it is recommended that you download KSTAR from github into an easily acce
 
    git clone https://github.com/NaegleLab/KSTAR.git
 
-
 Next, set up a conda virtual environment and install nextflow:
 
 .. code-block:: bash
@@ -66,8 +65,16 @@ Next, set up a conda virtual environment and install nextflow:
    conda activate kstar
    conda install -c bioconda nextflow
 
+Setting up KSTAR for Nextflow
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Download Resource Files
+"""""""""""""""""""""""
+
+As with the standard implementation, the nextflow implementation of KSTAR requires a reference proteome and phosphoproteome. These can be downloaded using the config.install_resource_files() function within the python interpreter (from the main KSTAR directory). It will install the necessary files to the default location, which is the RESOURCE_FILES directory in the repository.
+
 Downloading or Generating Networks used in KSTAR
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+""""""""""""""""""""""""""""""""""""""""""""""""
 
 As with the standard implementation of KSTAR, you will need to obtain KSTAR pruned networks that will be used in activity calculation. You can
 download KSTAR networks from the `Network FigShare <https://figshare.com/articles/dataset/NETWORKS/14944305>`_. Unlike the standard implementation,
@@ -78,14 +85,16 @@ need to make sure the directory structure where these networks are located is co
 '{resource_directory}/{network_directory}/{phospho_event}/INDIVIDUAL_NETWORKS', where elements in brackets are given as parameters during a nextflow 
 run. Each individual pruned network should be a .tsv file located in the above directory.
 
+In either case, make sure to place the networks in the same directory as the resource files (RESOURCE_FILES folder creating when running config.install_resource_files()).
+
 Mapping datasets
-~~~~~~~~~~~~~~~~
+""""""""""""""""
 
 Datasets must be mapped prior to running KSTAR with nextflow. The nextflow implementation is strictly for activity prediction. The mapped data 
 should be a .tsv file that contains at least data columns, KSTAR_ACCESSION, KSTAR_PEPTIDE, AND KSTAR_SITE. 
 
 Running nextflow
-~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^
 
 Once all the above requirements are satisfied, KSTAR can be run using a simple bash script within the nextflow directory that looks like 
 the one below:
@@ -121,7 +130,7 @@ below for a description of the accepted parameters by nextflow:
    :header-rows: 1
    
 Output of a nextflow run
-~~~~~~~~~~~~~~~~~~~~~~~~
+""""""""""""""""""""""""
 
 Each run with nextflow will deposit all results from a run in the folder indicated by the outdir parameter. There will be seperate folders for tyrosine 
 and serine/threonine results if both types of runs are performed. Within the out directory, there will be the following subfolders, most of which mirror 
@@ -133,7 +142,7 @@ what is saved in the pickle object in the base KSTAR algorithm:
    :header-rows: 1
    
 Running nextflow on Singularity
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+"""""""""""""""""""""""""""""""
 
 It is also possible to implement the above using singularity containers instead of docker containers. If singularity is already installed, only a small 
 addition at the bottom of the bash script is needed to use singularity instead of docker.

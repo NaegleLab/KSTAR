@@ -4,7 +4,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
     <title>Map Datasets to KinPred &#8212; KSTAR 1 documentation</title>
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
@@ -15,6 +15,7 @@
     <script src="../_static/underscore.js"></script>
     <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="../_static/doctools.js"></script>
+    <script src="../_static/sphinx_highlight.js"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     
     <link rel="index" title="Index" href="../genindex.html" />
@@ -158,10 +159,11 @@ div.nboutput.container div.prompt > div {
     }
 }
 
-/* disable scrollbars on prompts */
+/* disable scrollbars and line breaks on prompts */
 div.nbinput.container div.prompt pre,
 div.nboutput.container div.prompt pre {
     overflow: hidden;
+    white-space: pre;
 }
 
 /* input/output area */
@@ -304,10 +306,11 @@ div.rendered_html tbody tr:hover {
   background: rgba(66, 165, 245, 0.2);
 }
 </style>
+<p><strong>Note:</strong> If you are using KSTAR version 0.5.3 or older, <a class="reference external" href="https://naeglelab.github.io/KSTAR/Tutorial/Activity_Calculation_old.html">follow this link to the correct tutorial</a></p>
 <section id="Map-Datasets-to-KinPred">
-<h1>Map Datasets to KinPred<a class="headerlink" href="#Map-Datasets-to-KinPred" title="Permalink to this heading"></a></h1>
+<h1>Map Datasets to KinPred<a class="headerlink" href="#Map-Datasets-to-KinPred" title="Permalink to this heading">¶</a></h1>
 <section id="Download-and-Process-Dataset-of-Interest">
-<h2>Download and Process Dataset of Interest<a class="headerlink" href="#Download-and-Process-Dataset-of-Interest" title="Permalink to this heading"></a></h2>
+<h2>Download and Process Dataset of Interest<a class="headerlink" href="#Download-and-Process-Dataset-of-Interest" title="Permalink to this heading">¶</a></h2>
 <p>Prior to predicting kinase activities, datasets need to be mapped to KinPred to obtain the Uniprot ID, phosphosite, and the +/-7 peptide sequence that will be used by KSTAR to identify which kinases are associated with each phosphosite. In order to map kinase activities, the dataframe containing phosphoproteomic data should contain each peptides Uniprot accession, as well as either the site number or peptide sequence. If the peptide sequence is used, it should be formatted with only the
 phosphorylated peptides being lowercased. For example, if a peptide sequence is annotated with ‘(ph)’ in front of the phosphorylated amino acid, you would need to remove the ‘(ph)’ from the sequence and lowercase the phosphorylated amino acid. So, the peptide sequence SGLAYCPND(ph)YHQLFSPR would become SGLAYCPNDyHQLFSPR.</p>
 <p>It is recommended to use the peptide sequence rather than the site number when possible, as this is more likely to be found in the most recent version of KinPred. An example of the processed dataset can be seen below, which is a trimmed, processed, and mapped version of the dataset published publically (Chylek, 2014). You can download this data from the original publication below or the pre-mapped version at <a class="reference external" href="https://figshare.com/articles/dataset/KSTAR_Supplementary_Data/14919726">FigShare</a>.</p>
@@ -510,7 +513,7 @@ phosphorylated peptides being lowercased. For example, if a peptide sequence is 
 <p>Notice that all data columns in the dataset have ‘data:’ in front of them. This is how KSTAR will identify which columns to use when making evidence decisions. This can be done manually prior to mapping, or will be done by KSTAR automatically once you indicate which columns you would like to use as evidence.</p>
 </section>
 <section id="Map-the-Dataset-to-KinPred">
-<h2>Map the Dataset to KinPred<a class="headerlink" href="#Map-the-Dataset-to-KinPred" title="Permalink to this heading"></a></h2>
+<h2>Map the Dataset to KinPred<a class="headerlink" href="#Map-the-Dataset-to-KinPred" title="Permalink to this heading">¶</a></h2>
 <p>First, we need to indicate where to save the mapped data and where to record information about the mapping process:</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
@@ -703,7 +706,7 @@ possible.</p>
 </ol>
 </section>
 <section id="Explore-the-Mapped-Dataset">
-<h2>Explore the Mapped Dataset<a class="headerlink" href="#Explore-the-Mapped-Dataset" title="Permalink to this heading"></a></h2>
+<h2>Explore the Mapped Dataset<a class="headerlink" href="#Explore-the-Mapped-Dataset" title="Permalink to this heading">¶</a></h2>
 <p>One way to check how well the mapping worked is to check the number of peptides in the original dataframe vs. the newly mapped dataframe.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
@@ -728,7 +731,7 @@ New number of lines in mapped:665
 </section>
 </section>
 <section id="Predict-Kinase-Activities">
-<h1>Predict Kinase Activities<a class="headerlink" href="#Predict-Kinase-Activities" title="Permalink to this heading"></a></h1>
+<h1>Predict Kinase Activities<a class="headerlink" href="#Predict-Kinase-Activities" title="Permalink to this heading">¶</a></h1>
 <p>Once pruned networks have been generated or downloaded and data has been mapped, you are now ready to generate kinase activity predictions. Kinase activity calculation requires selection of the following choices</p>
 <ol class="arabic simple">
 <li><p><strong>phospho_type:</strong> Tyrosine [‘Y’] or Serine/Threonine [‘ST’], or both [‘Y, ’ST’] (default).</p></li>
@@ -756,7 +759,7 @@ New number of lines in mapped:665
 </div>
 </div>
 <section id="Determine-Thresholds">
-<h2>Determine Thresholds<a class="headerlink" href="#Determine-Thresholds" title="Permalink to this heading"></a></h2>
+<h2>Determine Thresholds<a class="headerlink" href="#Determine-Thresholds" title="Permalink to this heading">¶</a></h2>
 <p>It is useful to determine the best threshold to use (which sites to use as evidence for each sample). One easy benchmark way is to identify the number of sites that will be used as evidence at different thresholds. For tyrosine kinase activities, it is generally recommended that samples have at least 50 tyrosine sites used as evidence, while for serine/threonine kinase activities, it is recommended that samples have at least 1000 sites used as evidence. While not a necessity, it is also
 beneficial to have comparable site numbers across samples.</p>
 <p>Similar to mapping, a log file will be generated to indicate the progress of activity prediction and any errors that arise during the process. To intialize the log file, run the below code. It can be useful to name your log files differently based on whether you are generating predictions for tyrosine kinases or serine/threonine kinases.</p>
@@ -857,7 +860,7 @@ dtype: int64
 <p>All samples above (except for the 0 time point, which will be removed prior to activity calculation) have greater than 50 sites being used as evidence, and the evidence sizes are generally comparable. This is a good threshold to use.</p>
 </section>
 <section id="Calculate-Statistical-Enrichment-(Hypergeometric-p-values)">
-<h2>Calculate Statistical Enrichment (Hypergeometric p-values)<a class="headerlink" href="#Calculate-Statistical-Enrichment-(Hypergeometric-p-values)" title="Permalink to this heading"></a></h2>
+<h2>Calculate Statistical Enrichment (Hypergeometric p-values)<a class="headerlink" href="#Calculate-Statistical-Enrichment-(Hypergeometric-p-values)" title="Permalink to this heading">¶</a></h2>
 <p>Now that we have defined our parameters, the first step to obtaining activity predictions is calculating the statistical enrichment of kinase substrates in the dataset using the hypergeometric test. For each network + kinase, the hypergeometric tests asks the likelihood that k kinase substrates were identified in an experiment with n identified peptides, given that there are K kinase substrates in the entire phosphoproteome, N. From these tests, a set of 50 p-values for each kinase will be
 generated indicating the enrichment found in each pruned network. To obtain these predictions, use the following steps</p>
 <ol class="arabic simple">
@@ -916,240 +919,71 @@ generated indicating the enrichment found in each pruned network. To obtain thes
 </pre></div>
 </div>
 </div>
-<p>You can view the median p-values obtained for each kinase by looking at ‘activities’ attribute of the KinaseActivity class. We recommend continuing to the subsequent sections to generate more robust activity predictions, as the we have found that the median p-values suffer from kinase-specific false positive rates.</p>
 </section>
 <section id="Generate-random-datasets,-run-kinase-activity-on-random-datasets,-normalize-original-analysis">
-<h2>Generate random datasets, run kinase activity on random datasets, normalize original analysis<a class="headerlink" href="#Generate-random-datasets,-run-kinase-activity-on-random-datasets,-normalize-original-analysis" title="Permalink to this heading"></a></h2>
-<p>Once the enrichment of each kinase in the pruned networks has been calculated from the enrichment_analysis() function, we would next like to ask, for each kinase, how likely it is to have obtained that same enrichment (as indicated by the p-value) or better from a random phosphoproteomic experiment. To do so, we will first need to generate random phosphoproteomic experiments and repeat hypergeometric enrichment on these experiments. In order to perform random activity calculation, you will need
-to indicate the number of random experiments to generate. We have found that 150 provides a good balance between statistical power and computational complexity.</p>
+<h2>Generate random datasets, run kinase activity on random datasets, normalize original analysis<a class="headerlink" href="#Generate-random-datasets,-run-kinase-activity-on-random-datasets,-normalize-original-analysis" title="Permalink to this heading">¶</a></h2>
+<p>You can view the median p-values obtained for each kinase by looking at ‘activities’ attribute of the KinaseActivity class. We recommend continuing to the subsequent sections to generate more robust activity predictions, as the we have found that the median p-values suffer from kinase-specific false positive rates.</p>
+<p>Once the enrichment of each kinase in the pruned networks has been calculated from the enrichment_analysis() function, we would next like to ask, for each kinase, how likely it is to have obtained that same enrichment (as indicated by the p-value) or better from a random phosphoproteomic experiment.</p>
+<p>To achieve this, we have two approaches:</p>
+<ol class="arabic simple">
+<li><p>Generating Random Phosphoproteomic Experiments: This method involves simulating random phosphoproteomic datasets and performing hypergeometric enrichment on these experiments. We have found that generating 150 random experiments provides a good balance between statistical power and computational complexity.</p></li>
+<li><p>Using Pregenerated Random Experiments: To save computational resources and time, precomputed random experiment activity lists can be used instead. This approach eliminates the need for on-the-fly random dataset generation, significantly improving efficiency, particularly for large datasets.</p></li>
+</ol>
 <p><em>Note: For larger datasets this can be slow and memory intensive. In order to speed up these calculations, it is possible to use multiprocessing by adjusting the ‘PROCESSES’ parameter to the number of core you would like to use. The default is 1 (use only a single core). You can also use a highly parallelized version through nextflow (see ‘KSTAR in Parallel’)</em></p>
+<p>Using Pregenerated Random Experiment Activity Lists (Default)</p>
+<p>KSTAR is set by default to use pre-generated random experiment activity lists to improve computational efficiency. If you wish to use pre-generated random experiments, configure the following parameters:</p>
+<ol class="arabic simple">
+<li><p>use_pregen_data = Enables the use of pre-generated random experiment activity lists, avoiding the need to generate new random experiments.</p></li>
+<li><p>pre-generated_experiments_path: Specifies the file path to pre-generated random experiment activity lists. If left as None, KSTAR will use the default pre-generated activity lists.</p></li>
+<li><p>network_hash: A unique identifier for the network used to generate the pre-generated random experiments. If using your own pre-generated experiment activity lists, you must set this to the unique ID (hash) of the network generated during pruning. This can be found in your run-information.txt file generated when creating your network</p></li>
+<li><p>save_random_experiments: If enabled, the full random experiment files used in the analysis will be saved for further examination.</p></li>
+</ol>
+<p>Generating New Random Experiments If you wish to generate your own random experiments instead of using pre-generated data, update the following parameters:</p>
+<ol class="arabic simple">
+<li><p>use_pregen_data: Setting this to FALSE disables the use of pre-generated random experiment activity lists, triggering the generation of new random experiments.</p></li>
+<li><p>directory_for_save_precompute: Specifies the directory to save new generated random experiment activity lists. You must specify a path if you wish to save the generated activity lists.</p></li>
+<li><p>save_new_precompute: Enables saving newly generated random experiment activity lists for future use. This allows the reuse of computed data in subsequent runs without needing to regenerate experiments. This is not required if you prefer to use KSTAR’s default pre-generated activity lists.</p></li>
+<li><p>save_random_experiments = True (optional): If enabled, the full random experiment files generated during the process will be saved for further analysis.</p></li>
+</ol>
+<p>By default, num_random_experiments = 150, providing a balance between statistical power and computational efficiency.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">use_pregen_data</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="n">save_new_precompute</span> <span class="o">=</span> <span class="kc">False</span>
+<span class="n">pregenerated_experiments_path</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="n">directory_for_save_precompute</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="n">network_hash</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="n">save_random_experiments</span> <span class="o">=</span> <span class="kc">False</span>
+</pre></div>
+</div>
+</div>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">#Set the number of random experiments</span>
 <span class="n">num_random_experiments</span><span class="o">=</span><span class="mi">150</span>
-<span class="c1">#Generate random experiments</span>
-<span class="n">calculate</span><span class="o">.</span><span class="n">randomized_analysis</span><span class="p">(</span><span class="n">kinact_dict</span><span class="p">,</span> <span class="n">activity_log</span><span class="p">,</span> <span class="n">num_random_experiments</span><span class="p">,</span> <span class="n">PROCESSES</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span>
-</pre></div>
-</div>
-</div>
-<p>The random experiments generated from the above function can be found in the ‘random_experiments’ attribute of the KinaseActivity class. For each random experiment, the sites that will be included for random activity generation are indicated with 1.</p>
-<div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">#This object holds the random datasets that were used, where NaN means a site was not selected and 1 means it was</span>
-<span class="n">kinact_dict</span><span class="p">[</span><span class="s1">&#39;Y&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">random_experiments</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
-</pre></div>
-</div>
-</div>
-<div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
-</pre></div>
-</div>
-<div class="output_area rendered_html docutils container">
-<div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
 
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th>KSTAR_ACCESSION</th>
-      <th>KSTAR_SITE</th>
-      <th>data:time:5:0</th>
-      <th>data:time:5:1</th>
-      <th>data:time:5:2</th>
-      <th>data:time:5:3</th>
-      <th>data:time:5:4</th>
-      <th>data:time:5:5</th>
-      <th>data:time:5:6</th>
-      <th>data:time:5:7</th>
-      <th>...</th>
-      <th>data:time:60:140</th>
-      <th>data:time:60:141</th>
-      <th>data:time:60:142</th>
-      <th>data:time:60:143</th>
-      <th>data:time:60:144</th>
-      <th>data:time:60:145</th>
-      <th>data:time:60:146</th>
-      <th>data:time:60:147</th>
-      <th>data:time:60:148</th>
-      <th>data:time:60:149</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>0</th>
-      <td>A0AUZ9</td>
-      <td>Y792</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>...</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-    </tr>
-    <tr>
-      <th>1</th>
-      <td>A0AV02</td>
-      <td>Y107</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>...</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-    </tr>
-    <tr>
-      <th>3</th>
-      <td>A0AVF1</td>
-      <td>Y174</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>...</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-    </tr>
-    <tr>
-      <th>5</th>
-      <td>A0AVK6</td>
-      <td>Y202</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>...</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-    </tr>
-    <tr>
-      <th>6</th>
-      <td>A0AVK6</td>
-      <td>Y316</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>...</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-    </tr>
-  </tbody>
-</table>
-<p>5 rows × 602 columns</p>
-</div></div>
-</div>
-<p>If you sum the random experiments object, it will tell you how many total sites were selected for each random experiment, which should match the parent experiment:</p>
-<div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[21]:
+<span class="c1">#Generate random experiments or use pregenerated random experiments</span>
+<span class="n">calculate</span><span class="o">.</span><span class="n">randomized_analysis</span><span class="p">(</span>
+    <span class="n">kinact_dict</span><span class="p">,</span>
+    <span class="n">activity_log</span><span class="p">,</span>
+    <span class="n">num_random_experiments</span><span class="p">,</span>
+    <span class="n">use_pregen_data</span><span class="p">,</span>
+    <span class="n">save_new_precompute</span><span class="p">,</span>
+    <span class="n">pregenerated_experiments_path</span><span class="p">,</span>
+    <span class="n">directory_for_save_precompute</span><span class="p">,</span>
+    <span class="n">network_hash</span><span class="p">,</span>
+    <span class="n">save_random_experiments</span><span class="p">,</span>
+    <span class="n">PROCESSES</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># If you sum the random_experiments it will tell you how many total sites were selected, which should match</span>
-<span class="c1"># the parent experiment</span>
-<span class="n">kinact_dict</span><span class="p">[</span><span class="s1">&#39;Y&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">random_experiments</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
-</pre></div>
-</div>
-</div>
-<div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[21]:
-</pre></div>
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-KSTAR_ACCESSION     A0AUZ9A0AV02A0AVF1A0AVK6A0AVK6A0AVT1A0AVT1A0AV...
-KSTAR_SITE          Y792Y107Y174Y202Y316Y1046Y44Y558Y994Y403Y366Y1...
-data:time:5:0                                                   128.0
-data:time:5:1                                                   128.0
-data:time:5:2                                                   128.0
-                                          ...
-data:time:60:145                                                200.0
-data:time:60:146                                                200.0
-data:time:60:147                                                200.0
-data:time:60:148                                                200.0
-data:time:60:149                                                200.0
-Length: 602, dtype: object
-</pre></div></div>
 </div>
 </section>
 <section id="Calculate-Mann-Whitney-Significance">
-<h2>Calculate Mann Whitney Significance<a class="headerlink" href="#Calculate-Mann-Whitney-Significance" title="Permalink to this heading"></a></h2>
+<h2>Calculate Mann Whitney Significance<a class="headerlink" href="#Calculate-Mann-Whitney-Significance" title="Permalink to this heading">¶</a></h2>
 <p>Finally, final activity scores are calculated by implementing the Mann Whitney U-test to compare the distribution of real p-values (activity predictions on the real dataset) to the random p-values (activity predictions on the random dataset). Further, a false positive rate is calculated by pulling out one of the random datasets and comparing to all other random datasets using the same Mann Whitney test. The parameter ‘number_sig_trials’ indicates the number of times to repeat this calculation to
 obtain the false positive rate. As with the previous analysis, the ‘PROCESSES’ parameter can be adjusted to perform multiprocessing.</p>
 <div class="nbinput nblast docutils container">
@@ -1162,7 +996,7 @@ obtain the false positive rate. As with the previous analysis, the ‘PROCESSES�
 </div>
 </section>
 <section id="Save-KSTAR-Results">
-<h2>Save KSTAR Results<a class="headerlink" href="#Save-KSTAR-Results" title="Permalink to this heading"></a></h2>
+<h2>Save KSTAR Results<a class="headerlink" href="#Save-KSTAR-Results" title="Permalink to this heading">¶</a></h2>
 <p>There are a couple of options to save the results of KSTAR analysis. To save all information (hypergeometric enrichment results, random experiments, mann whitney activities and fpr), we have provided a function to save all information while not taking up too much memory.</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[23]:
@@ -1282,7 +1116,7 @@ obtain the false positive rate. As with the previous analysis, the ‘PROCESSES�
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2020, Naegle Lab.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.0.2.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.3.0.
     </div>
   </body>
 </html>

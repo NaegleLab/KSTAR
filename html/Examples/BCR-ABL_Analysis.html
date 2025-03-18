@@ -4,7 +4,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
     <title>BCR-ABL inhibition by dasatinib in K562 cells (Asmussen, 2014) &#8212; KSTAR 1 documentation</title>
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
@@ -15,6 +15,7 @@
     <script src="../_static/underscore.js"></script>
     <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="../_static/doctools.js"></script>
+    <script src="../_static/sphinx_highlight.js"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     
     <link rel="index" title="Index" href="../genindex.html" />
@@ -158,10 +159,11 @@ div.nboutput.container div.prompt > div {
     }
 }
 
-/* disable scrollbars on prompts */
+/* disable scrollbars and line breaks on prompts */
 div.nbinput.container div.prompt pre,
 div.nboutput.container div.prompt pre {
     overflow: hidden;
+    white-space: pre;
 }
 
 /* input/output area */
@@ -305,7 +307,7 @@ div.rendered_html tbody tr:hover {
 }
 </style>
 <section id="BCR-ABL-inhibition-by-dasatinib-in-K562-cells-(Asmussen,-2014)">
-<h1>BCR-ABL inhibition by dasatinib in K562 cells (Asmussen, 2014)<a class="headerlink" href="#BCR-ABL-inhibition-by-dasatinib-in-K562-cells-(Asmussen,-2014)" title="Permalink to this heading"></a></h1>
+<h1>BCR-ABL inhibition by dasatinib in K562 cells (Asmussen, 2014)<a class="headerlink" href="#BCR-ABL-inhibition-by-dasatinib-in-K562-cells-(Asmussen,-2014)" title="Permalink to this heading">¶</a></h1>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
@@ -328,8 +330,11 @@ div.rendered_html tbody tr:hover {
 <span class="n">rcParams</span><span class="p">[</span><span class="s1">&#39;font.size&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">12</span>
 <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
 
+
+<span class="c1">#where supplementary data was downloaded to (From https://figshare.com/articles/dataset/KSTAR_Supplementary_Data/14919726)</span>
+<span class="n">SUPPLEMENTS_DIR</span> <span class="o">=</span> <span class="s1">&#39;./&#39;</span>
 <span class="c1">#Directory where KSTAR Supplemental data was set</span>
-<span class="n">odir</span> <span class="o">=</span> <span class="n">conf</span><span class="o">.</span><span class="n">SUPPLEMENTS_DIR</span><span class="o">+</span><span class="s1">&#39;Supplements/SupplementaryData/Control_Experiments/BCR_ABL_K562_Asmussen2014/&#39;</span>
+<span class="n">odir</span> <span class="o">=</span> <span class="n">SUPPLEMENTS_DIR</span><span class="o">+</span><span class="s1">&#39;Supplements/SupplementaryData/Control_Experiments/BCR_ABL_K562_Asmussen2014/&#39;</span>
 
 <span class="c1">#load the Mann Whitney activities and FPR for Tyrosine predictions,</span>
 <span class="c1">#it will be faster and less data than loading all KSTAR outputs</span>
@@ -337,15 +342,17 @@ div.rendered_html tbody tr:hover {
 <span class="n">fpr</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">odir</span><span class="o">+</span><span class="s1">&#39;/RESULTS/BCR-ABL_Y_mann_whitney_fpr.tsv&#39;</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s1">&#39;</span><span class="se">\t</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">index_col</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 
 
-<span class="c1">#set preferred kinase names (make a kinase_dict)</span>
+<span class="c1">#load kinase map from supplementary data</span>
+<span class="n">KINASE_MAP</span> <span class="o">=</span>  <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">SUPPLEMENTS_DIR</span><span class="o">+</span><span class="s1">&#39;SupplementaryData/Map/globalKinaseMap.csv&#39;</span><span class="p">,</span> <span class="n">index_col</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span>
+<span class="c1">#set preferred kinase names from the kinase map (make a kinase_dict)</span>
 <span class="n">kinase_dict</span> <span class="o">=</span> <span class="p">{}</span>
 <span class="k">for</span> <span class="n">kinase</span> <span class="ow">in</span> <span class="n">activities</span><span class="o">.</span><span class="n">index</span><span class="p">:</span>
-    <span class="n">kinase_dict</span><span class="p">[</span><span class="n">kinase</span><span class="p">]</span> <span class="o">=</span> <span class="n">conf</span><span class="o">.</span><span class="n">KINASE_MAP</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">kinase</span><span class="p">,</span><span class="s1">&#39;Preferred Name&#39;</span><span class="p">]</span>
+    <span class="n">kinase_dict</span><span class="p">[</span><span class="n">kinase</span><span class="p">]</span> <span class="o">=</span> <span class="n">KINASE_MAP</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">kinase</span><span class="p">,</span><span class="s1">&#39;Preferred Name&#39;</span><span class="p">]</span>
 </pre></div>
 </div>
 </div>
 <section id="Plot-kinases-sorted-by-activity-pre-treatment">
-<h2>Plot kinases sorted by activity pre-treatment<a class="headerlink" href="#Plot-kinases-sorted-by-activity-pre-treatment" title="Permalink to this heading"></a></h2>
+<h2>Plot kinases sorted by activity pre-treatment<a class="headerlink" href="#Plot-kinases-sorted-by-activity-pre-treatment" title="Permalink to this heading">¶</a></h2>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
 </pre></div>
@@ -403,7 +410,7 @@ div.rendered_html tbody tr:hover {
 </div>
 </section>
 <section id="Plot-kinases-sorted-by-activity-pre-treatment,-but-with-only-significant-kinases">
-<h2>Plot kinases sorted by activity pre-treatment, but with only significant kinases<a class="headerlink" href="#Plot-kinases-sorted-by-activity-pre-treatment,-but-with-only-significant-kinases" title="Permalink to this heading"></a></h2>
+<h2>Plot kinases sorted by activity pre-treatment, but with only significant kinases<a class="headerlink" href="#Plot-kinases-sorted-by-activity-pre-treatment,-but-with-only-significant-kinases" title="Permalink to this heading">¶</a></h2>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
 </pre></div>
@@ -489,6 +496,7 @@ div.rendered_html tbody tr:hover {
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../Parallel/parallel.html">KSTAR in Parallel</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../faq.html">Frequently Asked Questions</a></li>
 </ul>
 
   </div>
@@ -545,7 +553,7 @@ div.rendered_html tbody tr:hover {
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2020, Naegle Lab.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.0.2.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.3.0.
     </div>
   </body>
 </html>

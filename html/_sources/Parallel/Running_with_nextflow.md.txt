@@ -24,15 +24,19 @@ First, it is recommended that you download KSTAR from github into an easily acce
 git clone https://github.com/NaegleLab/KSTAR.git
 ```
 
-Next, set up a conda virtual environment and install nextflow:
+Next, set up a conda virtual environment and install nextflow (can also use other package managers):
 
 ```
 conda create -n kstar
 conda activate kstar
 conda install -c bioconda nextflow
 ```
+## Prepping the KSTAR/nextflow environment
+### Installing resource files
 
-## Downloading or Generating Networks used in KSTAR
+As with the standard implementation, the nextflow implementation of KSTAR requires a reference proteome and phosphoproteome. These can be downloaded from using the config.install_resource_files() function within the python interpreter (from the main KSTAR directory). It will install the necessary files to the default location, which is the RESOURCE_FILES directory in the repository.
+
+### Downloading or Generating Networks used in KSTAR
 
 As with the standard implementation of KSTAR, you will need to obtain KSTAR pruned networks that will be used in activity calculation. You can
 download KSTAR networks from the [Network FigShare](https://figshare.com/articles/dataset/NETWORKS/14944305). Unlike the standard implementation,
@@ -43,8 +47,10 @@ need to make sure the directory structure where these networks are located is co
 '{resource_directory}/{network_directory}/{phospho_event}/INDIVIDUAL_NETWORKS', where elements in brackets are given as parameters during a nextflow 
 run. Each individual pruned network should be a .tsv file located in the above directory.
 
+In both cases, make sure to place the networks in the same directory as the resource files (RESOURCE_FILES folder creating when running config.install_resource_files()).
 
-## Mapping datasets
+
+### Mapping datasets
 
 Datasets must be mapped prior to running KSTAR with nextflow. The nextflow implementation is strictly for activity prediction. The mapped data 
 should be a .tsv file that contains at least data columns, KSTAR_ACCESSION, KSTAR_PEPTIDE, AND KSTAR_SITE. 
@@ -65,7 +71,7 @@ nextflow run main.nf -profile Y \
 --experiment_file data/example_data_mapped.tsv \
 --outdir ./results \
 --resource_directory ../RESOURCE_FILES \
---network_directoyr /NETWORKS/NetworKIN \
+--network_directory /NETWORKS/NetworKIN \
 --data_columns data:Column1,data:Column2,data:Column3,data:Column4 \
 --num_random_experiments 150 \
 --threshold 0.5 \

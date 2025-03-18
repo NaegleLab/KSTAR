@@ -49,9 +49,13 @@ from kstar import config
 
 config.install_resource_files()
 ```
-
+```
+# For KSTAR versions 1.0.1 and newer, KSTAR will automatically download the network files using the code below. Please specifiy the your working directory for the targer_dir parameter.  If you are using KSTAR version 0.5.3 or older, you will need to manually download the networks. Please download the networks using the guide below.
+config.install_network_files(target_dir="")
+```
 
 #### Downloading Networks
+**Note:** If you are using KSTAR version 0.5.3 or older, please use the guide below to download the networks.
 
 In addition to the resource files above, KSTAR also requires heuristically pruned kinase-substrate graphs used for activity calculation.
 Pre-generated networks are available for download, which were generated based on NetworKIN. You may also generate your own networks if preferred.
@@ -65,8 +69,7 @@ If using self generated networks:
 
 1. Identify and download the base kinase-substrate prediction graph you would like to use for network generation. This should include weighted edges indicating the likelihood that a kinase phosphorylates a particular substrate, and should include predictions for all sites in the phosphoproteome.
 2. Follow the tutorial for network generation to produce pruned networks from your weighted network (found in Tutorial section of this documentation).
-3. Store the generated networks in an easily accessible location. Individual network files should be placed in a directory within the network
-directory in a folder titled 'INDIVIDUAL_NETWORKS'. 
+3. Store the generated networks in an easily accessible location. Individual network files should be placed in a directory within the network directory in a folder titled 'INDIVIDUAL_NETWORKS'. 
 
 #### Configure KSTAR to point to the correct network directory
 
@@ -85,7 +88,7 @@ The python code used should look similar to below:
 from kstar import config
 
 #update network directory: If KSTAR does not find this directory + necessary files, it will notify you
-config.NETWORK_DIR = config.update_network_directory('./NETWORKS/NetworKIN')
+config.NETWORK_DIR, config.NETWORK_Y_PICKLES, config.NETWORK_ST_PICKLES = config.update_network_directory('./NETWORKS/NetworKIN')
 
 #create network pickles. Only need to run this function if network pickles were not already generated.
 config.create_network_pickles()

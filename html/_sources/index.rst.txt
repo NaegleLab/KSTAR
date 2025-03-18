@@ -8,16 +8,17 @@ KSTAR
 
 
 .. toctree::
-	:maxdepth: 2
-	:caption: Contents:
+   :maxdepth: 2
+   :caption: Contents:
 
-	Overview
-	Dependencies
-	KSTAR
-	quickstart
-	Tutorial/tutorial
-	Examples/Examples
-	Parallel/parallel
+   Overview
+   Dependencies
+   KSTAR
+   quickstart
+   Tutorial/tutorial
+   Examples/Examples
+   Parallel/parallel
+   faq
 
 
 

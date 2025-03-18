@@ -2,27 +2,39 @@
  "cells": [
   {
    "cell_type": "code",
-   "execution_count": 1,
    "id": "f94f3521",
-   "metadata": {},
+   "metadata": {
+    "ExecuteTime": {
+     "end_time": "2025-03-17T18:35:15.024439Z",
+     "start_time": "2025-03-17T18:35:11.170132Z"
+    }
+   },
+   "source": [
+    "from kstar import config"
+   ],
    "outputs": [
     {
      "name": "stdout",
      "output_type": "stream",
      "text": [
-      "Could not find network directory. Please update using config.update_network_directory().\n"
+      "Could not find any network pickles. Please create network pickles using config.create_network_pickles().\n"
      ]
     }
    ],
-   "source": [
-    "from kstar import config"
-   ]
+   "execution_count": 2
   },
   {
    "cell_type": "code",
-   "execution_count": 3,
    "id": "82a5b709",
-   "metadata": {},
+   "metadata": {
+    "ExecuteTime": {
+     "end_time": "2025-03-17T18:35:18.214874Z",
+     "start_time": "2025-03-17T18:35:18.212158Z"
+    }
+   },
+   "source": [
+    "config.check_configuration()"
+   ],
    "outputs": [
     {
      "name": "stdout",
@@ -32,97 +44,98 @@
      ]
     }
    ],
-   "source": [
-    "config.check_configuration()"
-   ]
+   "execution_count": 3
   },
   {
    "cell_type": "code",
-   "execution_count": 5,
    "id": "6a42267a",
-   "metadata": {},
+   "metadata": {
+    "ExecuteTime": {
+     "end_time": "2025-03-17T18:35:20.028543Z",
+     "start_time": "2025-03-17T18:35:20.024602Z"
+    }
+   },
+   "source": [
+    "config.NETWORK_DIR"
+   ],
    "outputs": [
     {
      "data": {
       "text/plain": [
-       "'C:/Users/Sam/OneDrive/Documents/GradSchool/NETWORKS/NetworKIN'"
+       "'/Users/zxa7aw/Documents/KSTAR/KSTAR_documentation_update/KSTAR_documentation-master'"
       ]
      },
-     "execution_count": 5,
+     "execution_count": 4,
      "metadata": {},
      "output_type": "execute_result"
     }
    ],
-   "source": [
-    "config.NETWORK_DIR"
-   ]
+   "execution_count": 4
   },
   {
    "cell_type": "code",
-   "execution_count": 2,
    "id": "4f4dc9c2",
-   "metadata": {},
+   "metadata": {
+    "ExecuteTime": {
+     "end_time": "2025-03-17T18:35:42.088668Z",
+     "start_time": "2025-03-17T18:35:21.402744Z"
+    }
+   },
+   "source": [
+    "config.install_resource_files()\n",
+    "#The network files for KSTAR to run. Please specifiy the your working directory for the targer_dir parameter.\n",
+    "config.install_network_files(target_dir=\"\")"
+   ],
    "outputs": [
     {
      "name": "stdout",
      "output_type": "stream",
      "text": [
-      "Requesting file\n",
-      "Extracting C:\\Users\\Sam\\Documents\\Grad\\KinaseActivity\\KSTAR/RESOURCE_FILES.tar.gz\n"
+      "Requesting resource file\n",
+      "Extracting /Users/zxa7aw/miniconda3/envs/KSTAR_sphinx/lib/python3.11/site-packages/RESOURCE_FILES.tar.gz\n",
+      "Requesting network file\n",
+      "Extracting /Users/zxa7aw/Documents/KSTAR/KSTAR_documentation_update/KSTAR_documentation-master/NETWORKS.tar.gz\n"
      ]
     }
    ],
-   "source": [
-    "config.install_resource_files()"
-   ]
+   "execution_count": 5
   },
   {
    "cell_type": "code",
-   "execution_count": 3,
    "id": "d47c8d3f",
-   "metadata": {},
+   "metadata": {
+    "ExecuteTime": {
+     "end_time": "2025-03-17T18:35:45.469340Z",
+     "start_time": "2025-03-17T18:35:45.464279Z"
+    }
+   },
+   "source": "config.NETWORK_DIR = config.update_network_directory('./NETWORKS/NetworKIN')",
    "outputs": [
     {
      "name": "stdout",
      "output_type": "stream",
      "text": [
-      "Network directory updated.\n",
-      "Network pickles already generated\n"
+      "Network directory updated.\n"
      ]
     }
    ],
-   "source": [
-    "config.NETWORK_DIR = config.update_network_directory('C:/Users/Sam/OneDrive/Documents/GradSchool/NETWORKS/NetworKIN')"
-   ]
+   "execution_count": 6
   },
   {
-   "cell_type": "code",
-   "execution_count": null,
-   "id": "b0659d72",
    "metadata": {},
+   "cell_type": "code",
    "outputs": [],
-   "source": []
+   "source": "",
+   "id": "b0659d72",
+   "execution_count": null
   },
   {
    "cell_type": "code",
-   "execution_count": 4,
    "id": "0b44ad24",
    "metadata": {},
-   "outputs": [
-    {
-     "name": "stdout",
-     "output_type": "stream",
-     "text": [
-      "Loaded 50 number of networks for phosphoType Y\n",
-      "Saved pickle file at C:/Users/Sam/OneDrive/Documents/GradSchool/NETWORKS/NetworKIN//network_Y.p\n",
-      "Loaded 50 number of networks for phosphoType ST\n",
-      "Saved pickle file at C:/Users/Sam/OneDrive/Documents/GradSchool/NETWORKS/NetworKIN//network_ST.p\n"
-     ]
-    }
-   ],
-   "source": [
-    "config.create_network_pickles()"
-   ]
+   "source": "config.create_network_pickles()",
+   "outputs": [],
+   "execution_count": null
   },
   {
    "cell_type": "code",

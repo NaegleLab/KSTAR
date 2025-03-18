@@ -4,7 +4,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
     <title>Tutorial &#8212; KSTAR 1 documentation</title>
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
@@ -15,6 +15,7 @@
     <script src="../_static/underscore.js"></script>
     <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="../_static/doctools.js"></script>
+    <script src="../_static/sphinx_highlight.js"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     
     <link rel="index" title="Index" href="../genindex.html" />
@@ -48,21 +49,21 @@
           <div class="body" role="main">
             
   <section id="tutorial">
-<h1>Tutorial<a class="headerlink" href="#tutorial" title="Permalink to this heading"></a></h1>
+<h1>Tutorial<a class="headerlink" href="#tutorial" title="Permalink to this heading">¶</a></h1>
 <section id="network-generation">
-<h2>Network Generation<a class="headerlink" href="#network-generation" title="Permalink to this heading"></a></h2>
+<h2>Network Generation<a class="headerlink" href="#network-generation" title="Permalink to this heading">¶</a></h2>
 <div class="toctree-wrapper compound">
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="Pruning.html">Network Generation</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="Pruning.html#run-pruning-within-python">Run pruning within python</a></li>
-<li class="toctree-l2"><a class="reference internal" href="Pruning.html#run-pruning-from-the-command-line">Run pruning from the command line</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Pruning.html#download-pre-generated-networks">Download pre-generated networks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Pruning.html#generate-your-own-networks">Generate your own networks</a></li>
 </ul>
 </li>
 </ul>
 </div>
 </section>
 <section id="activity-prediction">
-<h2>Activity Prediction<a class="headerlink" href="#activity-prediction" title="Permalink to this heading"></a></h2>
+<h2>Activity Prediction<a class="headerlink" href="#activity-prediction" title="Permalink to this heading">¶</a></h2>
 <div class="toctree-wrapper compound">
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="Activity_Calculation.html">Map Datasets to KinPred</a><ul>
@@ -79,14 +80,29 @@
 <li class="toctree-l2"><a class="reference internal" href="Activity_Calculation.html#Save-KSTAR-Results">Save KSTAR Results</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="Activity_Calculation.html#Plot-Results">Plot Results</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="Activity_Calculation.html#Load-in-KSTAR-results">Load in KSTAR results</a></li>
-<li class="toctree-l2"><a class="reference internal" href="Activity_Calculation.html#Plot-the-base-dotplot">Plot the base dotplot</a></li>
-<li class="toctree-l2"><a class="reference internal" href="Activity_Calculation.html#Change-the-axis-labels-and-sort-kinases-based-on-activity">Change the axis labels and sort kinases based on activity</a></li>
-<li class="toctree-l2"><a class="reference internal" href="Activity_Calculation.html#Remove-kinases-that-never-show-significant-activity">Remove kinases that never show significant activity</a></li>
-<li class="toctree-l2"><a class="reference internal" href="Activity_Calculation.html#Cluster-the-kinase-activities">Cluster the kinase activities</a></li>
-<li class="toctree-l2"><a class="reference internal" href="Activity_Calculation.html#Add-context-to-dotplot">Add context to dotplot</a></li>
-<li class="toctree-l2"><a class="reference internal" href="Activity_Calculation.html#Plot-dotplot-with-the-false-positive-rate-indicated-by-hue">Plot dotplot with the false positive rate indicated by hue</a></li>
+</ul>
+</div>
+</section>
+<section id="plotting">
+<h2>Plotting<a class="headerlink" href="#plotting" title="Permalink to this heading">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="Plotting.html">Plotting</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="Plotting.html#With-Interactive-Web-App">With Interactive Web App</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Plotting.html#In-Python">In Python</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+<section id="additional-analyses">
+<h2>Additional Analyses<a class="headerlink" href="#additional-analyses" title="Permalink to this heading">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="Additional_Analysis.html">Assessing KSTAR Networks and Activity Predictions</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="Additional_Analysis.html#Load-results-and-other-necessary-data-(networks,-binary-evidence,-etc.)">Load results and other necessary data (networks, binary evidence, etc.)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Additional_Analysis.html#Identify-relevant-phosphorylation-sites-for-a-kinase-of-interest">Identify relevant phosphorylation sites for a kinase of interest</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Additional_Analysis.html#Exploring-Network-and-Experiment-Coverage-of-Phosphorylation-Sites">Exploring Network and Experiment Coverage of Phosphorylation Sites</a></li>
 </ul>
 </li>
 </ul>
@@ -117,13 +133,21 @@
 <li class="toctree-l2"><a class="reference internal" href="#activity-prediction">Activity Prediction</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="Activity_Calculation.html">Map Datasets to KinPred</a></li>
 <li class="toctree-l3"><a class="reference internal" href="Activity_Calculation.html#Predict-Kinase-Activities">Predict Kinase Activities</a></li>
-<li class="toctree-l3"><a class="reference internal" href="Activity_Calculation.html#Plot-Results">Plot Results</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#plotting">Plotting</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="Plotting.html">Plotting</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#additional-analyses">Additional Analyses</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="Additional_Analysis.html">Assessing KSTAR Networks and Activity Predictions</a></li>
 </ul>
 </li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../Examples/Examples.html">Analysis Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../Parallel/parallel.html">KSTAR in Parallel</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../faq.html">Frequently Asked Questions</a></li>
 </ul>
 
   </div>
@@ -179,7 +203,7 @@
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2020, Naegle Lab.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.0.2.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.3.0.
     </div>
   </body>
 </html>
