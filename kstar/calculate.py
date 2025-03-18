@@ -356,11 +356,10 @@ class KinaseActivity:
                 raise FileNotFoundError(f"Directory not found: {compendia_file_path}")
         return pregenerated_sizes_files
 
-    def calculate_random_activities(self, logger, num_random_experiments=150, use_pregen_data=None,
-                                    save_new_precompute=None, pregenerated_experiments_path=None,
-                                    directory_for_save_precompute=None, network_hash=None, save_random_experiments = None, PROCESSES=1):
+    def calculate_random_activities(self, logger, num_random_experiments=150, use_pregen_data=None, save_new_precompute=None, pregenerated_experiments_path=None, directory_for_save_precompute=None, network_hash=None, save_random_experiments = None, PROCESSES=1):
         """
-        Generate random experiments and calculate the kinase activities for these random experiments.
+        Generate random experiments and calculate kinase activities.Either uses pre-generated activity lists or
+        generates new random experiments based on the provided parameters.
 
         Parameters
         ----------
@@ -439,10 +438,9 @@ class KinaseActivity:
         self.add_pregenerated_to_random_enrichment()
 
 
-    def calculate_random_enrichment(self, num_random_experiments,
-                                    selection_type='KSTAR_NUM_COMPENDIA_CLASS', save_random_experiments=False, PROCESSES=1):
+    def calculate_random_enrichment(self, num_random_experiments, selection_type='KSTAR_NUM_COMPENDIA_CLASS', save_random_experiments=False, PROCESSES=1):
         """
-        Calculate the kinase activities for each random experiment and discard the resulting random experiment.
+        Calculate the kinase activities for each random experiment and discard the resulting random experiment unless save_random_experiments is set to True.
 
         Parameters
         ----------
@@ -643,17 +641,18 @@ class KinaseActivity:
 
     def add_pregenerated_to_random_enrichment(self):
         """
-        Combine pregenerated random activities with random enrichment, sort based on the "data" column,
+        Combine pre-generated random activities with random enrichment, sort based on the "data" column,
         and reorganize the combined DataFrame based on the original column order in self.data_columns.
 
-        Assumptions
-        -----------
-        Assumes self.pregenerated_random_activities and self.random_enrichment are already populated.
+        If use_pregen_data is True and data_columns_from_scratch is None, uses only pre-generated activities.
+        If use_pregen_data is True and data_columns_from_scratch exists, combines both pre-generated and
+        newly calculated random activities.
+        If use_pregen_data is False, uses only newly calculated random activities.
 
-        Parameters
-        ----------
-        file_path : str
-            The path to the file where the precomputed random enrichment data will be saved.
+        Returns
+        -------
+        None
+            Updates self.random_enrichment with the combined and sorted activities
         """
 
         if self.use_pregen_data:
@@ -719,17 +718,25 @@ class KinaseActivity:
         with open(run_info_save_path, 'w') as file:
             file.write(run_info_content)
         self.logger.info(f"RUN_INFORMATION.txt saved to {run_info_save_path}")
+
     def get_run_information_content(self):
         """
-        Generate the content for the RUN_INFORMATION.txt file.
+        Retrieve network information from RUN_INFORMATION.txt based on phospho_type.
 
-        This function compiles the necessary information about the current run, including unique ID, date, network used,
-        phospho type, kinase size, site limit, number of networks, and compendia counts.
+        Reads the RUN_INFORMATION.txt file from the appropriate network directory based on
+        the phospho_type ('Y' or 'ST'). The file contains network configuration details
+        including unique ID, date, network specifications, and compendia counts.
 
         Returns
         -------
         str
-            A string containing the formatted content for the RUN_INFORMATION.txt file.
+            Contents of RUN_INFORMATION.txt if found.
+            'RUN_INFORMATION.txt file not found.' if the file doesn't exist.
+
+        Raises
+        ------
+        ValueError
+            If phospho_type is not 'Y' or 'ST'.
         """
         base_path = config.NETWORK_DIR
         if self.phospho_type == 'Y':
@@ -745,11 +752,6 @@ class KinaseActivity:
         except FileNotFoundError:
             self.logger.warning(f"RUN_INFORMATION.txt file not found at: {run_info_path}")
             return "RUN_INFORMATION.txt file not found."
-
-    def add_networks_batch(self, networks):
-        for nid, network in networks.items():
-            self.add_network(nid, network)
-        self.num_networks = len(networks)
 
 
     def add_networks_batch(self, networks):
