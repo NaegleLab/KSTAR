@@ -94,15 +94,20 @@ the reference phosphoproteome from KinPred. After installing KSTAR, run <em>inst
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">kstar</span> <span class="kn">import</span> <span class="n">config</span>
 
 <span class="n">config</span><span class="o">.</span><span class="n">install_resource_files</span><span class="p">()</span>
+
 </pre></div>
 </div>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># For KSTAR versions 1.0.1 and newer, KSTAR will automatically download the network files using the code below. Please specifiy the your working directory for the targer_dir parameter.  If you are using KSTAR version 0.5.3 or older, you will need to manually download the networks. Please download the networks using the guide below.</span>
+</section>
+<section id="downloading-networks-for-kstar-version-1-0-1-and-newer">
+<h3>Downloading Networks for KSTAR version 1.0.1 and newer<a class="headerlink" href="#downloading-networks-for-kstar-version-1-0-1-and-newer" title="Permalink to this heading">¶</a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># For KSTAR versions 1.0.1 and newer, KSTAR will automatically download the network files using the code below.</span>
+<span class="c1"># Please specifiy your working directory for the targer_dir parameter.  </span>
 <span class="n">config</span><span class="o">.</span><span class="n">install_network_files</span><span class="p">(</span><span class="n">target_dir</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </section>
-<section id="downloading-networks">
-<h3>Downloading Networks<a class="headerlink" href="#downloading-networks" title="Permalink to this heading">¶</a></h3>
+<section id="downloading-networks-for-kstar-version-0-5-3-and-older">
+<h3>Downloading Networks for KSTAR version 0.5.3 and older<a class="headerlink" href="#downloading-networks-for-kstar-version-0-5-3-and-older" title="Permalink to this heading">¶</a></h3>
 <p><strong>Note:</strong> If you are using KSTAR version 0.5.3 or older, please use the guide below to download the networks.</p>
 <p>In addition to the resource files above, KSTAR also requires heuristically pruned kinase-substrate graphs used for activity calculation.
 Pre-generated networks are available for download, which were generated based on NetworKIN. You may also generate your own networks if preferred.</p>
@@ -188,7 +193,8 @@ the ‘Network Generation’ section if you would like to use your own networks 
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#configuring-your-kstar-environment">Configuring your KSTAR environment</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#downloading-resource-files">Downloading Resource Files</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#downloading-networks">Downloading Networks</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#downloading-networks-for-kstar-version-1-0-1-and-newer">Downloading Networks for KSTAR version 1.0.1 and newer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#downloading-networks-for-kstar-version-0-5-3-and-older">Downloading Networks for KSTAR version 0.5.3 and older</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#configure-kstar-to-point-to-the-correct-network-directory">Configure KSTAR to point to the correct network directory</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#verify-that-kstar-environment-is-ready">Verify that KSTAR environment is ready</a></li>
 </ul>
