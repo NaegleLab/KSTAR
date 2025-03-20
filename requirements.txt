@@ -7,3 +7,4 @@ seaborn==0.13.*
 statsmodels==0.13.*
 biopython==1.78.*
 requests==2.31.*
+
