@@ -5,4 +5,6 @@ scipy==1.11.*
 matplotlib==3.8.*
 seaborn==0.13.*
 statsmodels==0.13.*
-biopython==1.81.*
+biopython==1.78.*
+requests==2.31.*
+
