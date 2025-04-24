@@ -1,4 +1,4 @@
-name: Track GitHub Traffic Statistics to Central Repository
+name: Track GitHub Traffic Statistics
 
 on:
   schedule:
@@ -13,14 +13,14 @@ jobs:
       - name: Checkout source repository
         uses: actions/checkout@v3
         with:
-          path: source-repo  # Check out to a specific folder
+          path: source-repo
       
       - name: Checkout stats repository
         uses: actions/checkout@v3
         with:
-          repository: NaegleLab/github-stats-central  # Replace with your central stats repo
-          path: stats-repo  # Check out to a specific folder
-          token: ${{ secrets.STATS_REPO_PAT }}  # PAT with access to the stats repo
+          repository: YourUsername/github-stats-central  # Replace with your actual central stats repo
+          path: stats-repo
+          token: ${{ secrets.STATS_REPO_PAT }}
       
       - name: Set up Python
         uses: actions/setup-python@v4
@@ -35,18 +35,32 @@ jobs:
       - name: Create scripts directory
         run: |
           mkdir -p ${{ github.workspace }}/stats-repo/.github/scripts/
-          cp ${{ github.workspace }}/source-repo/.github/scripts/track_traffic_central.py ${{ github.workspace }}/stats-repo/.github/scripts/
+          cp ${{ github.workspace }}/source-repo/.github/scripts/collect_traffic.py ${{ github.workspace }}/stats-repo/.github/scripts/
+      
+      - name: Extract repository name
+        id: repo-name
+        run: |
+          REPO_NAME=$(echo "${{ github.repository }}" | cut -d'/' -f2)
+          echo "repo_name=$REPO_NAME" >> $GITHUB_OUTPUT
+      
+      - name: Create output directory
+        run: |
+          mkdir -p ${{ github.workspace }}/stats-repo/data/${{ github.repository_owner }}/${{ steps.repo-name.outputs.repo_name }}
       
       - name: Run traffic collection script
         env:
-          GITHUB_TOKEN: ${{ secrets.TRAFFIC_PAT }}  # Token for accessing traffic data
+          GITHUB_TOKEN: ${{ secrets.TRAFFIC_PAT }}
           REPO_OWNER: ${{ github.repository_owner }}
-          REPO_NAME: ${{ github.event.repository.name }}
-          OUTPUT_DIR: ${{ github.workspace }}/stats-repo/data/${{ github.repository_owner }}/${{ github.event.repository.name }}
+          REPO_NAME: ${{ steps.repo-name.outputs.repo_name }}
+          OUTPUT_DIR: ${{ github.workspace }}/stats-repo/data/${{ github.repository_owner }}/${{ steps.repo-name.outputs.repo_name }}
         run: |
-          mkdir -p $OUTPUT_DIR
+          echo "Environment variables:"
+          echo "REPO_OWNER: $REPO_OWNER"
+          echo "REPO_NAME: $REPO_NAME"
+          echo "OUTPUT_DIR: $OUTPUT_DIR"
+          
           cd ${{ github.workspace }}/stats-repo
-          python .github/scripts/track_traffic_central.py
+          python .github/scripts/collect_traffic.py
       
       - name: Commit and push to stats repository
         run: |
@@ -54,5 +68,5 @@ jobs:
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
           git add data/
-          git diff --quiet && git diff --staged --quiet || git commit -m "Update traffic statistics for ${{ github.repository_owner }}/${{ github.event.repository.name }}"
+          git diff --quiet && git diff --staged --quiet || git commit -m "Update traffic statistics for ${{ github.repository_owner }}/${{ steps.repo-name.outputs.repo_name }}"
           git push
