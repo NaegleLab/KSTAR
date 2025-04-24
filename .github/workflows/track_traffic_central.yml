@@ -60,7 +60,7 @@ jobs:
           echo "OUTPUT_DIR: $OUTPUT_DIR"
           
           cd ${{ github.workspace }}/stats-repo
-          python .github/scripts/collect_traffic.py
+          python .github/scripts/track_traffic_central.py
       
       - name: Commit and push to stats repository
         run: |
