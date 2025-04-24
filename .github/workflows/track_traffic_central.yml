@@ -35,7 +35,7 @@ jobs:
       - name: Create scripts directory
         run: |
           mkdir -p ${{ github.workspace }}/stats-repo/.github/scripts/
-          cp ${{ github.workspace }}/source-repo/.github/scripts/collect_traffic.py ${{ github.workspace }}/stats-repo/.github/scripts/
+          cp ${{ github.workspace }}/source-repo/.github/scripts/track_traffic_central.py ${{ github.workspace }}/stats-repo/.github/scripts/
       
       - name: Extract repository name
         id: repo-name
