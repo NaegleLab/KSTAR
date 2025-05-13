@@ -75,8 +75,6 @@ SAVE_NEW_PRECOMPUTE = False
 PREGENERATED_EXPERIMENTS_PATH = NETWORK_DIR
 NETWORK_HASH_Y = 'd73e971979661777c05182efad8b314b1aa78896e242810cce8ecd51b23c85c6'
 NETWORK_HASH_ST = '68328e443909aecbb6a1f6b0572da171f6b1213c95ecf1928b621ef39826c953'
-DIRECTORY_FOR_SAVE_PRECOMPUTE = None
-
 
 ## END DECLARATION OF GLOBALS
 
@@ -100,6 +98,8 @@ def install_resource_files():
 
 def install_network_files(target_dir=None):
     """Retrieves Network files that are the companion for this version release from FigShare, unzips them to the specified directory."""
+    global DIRECTORY_FOR_SAVE_PRECOMPUTE
+
     print("Requesting network file")
     r = requests.get(NETWORK_URL, allow_redirects=True)
 

@@ -261,7 +261,7 @@ class KinaseActivity:
         pregen_dir = self.pregenerated_experiments_path
         target_hash = self.network_hash
 
-        pregen_network_dir = os.path.join(pregen_dir, self.phospho_type)
+        pregen_network_dir = os.path.join(str(pregen_dir), str(self.phospho_type))
 
         # Iterate over subdirectories in pregen_experiments
         for dir_name in os.listdir(pregen_network_dir):
@@ -344,7 +344,7 @@ class KinaseActivity:
                 raise ValueError(f"ERROR: Unrecognized phosphoType '{self.phospho_type}'. Must be 'Y' or 'ST'.")
 
             compendia_file_path = os.path.join(
-                self.pregenerated_experiments_path, self.phospho_type, self.network_hash, compendia_paths[key]
+                str(self.pregenerated_experiments_path), str(self.phospho_type), str(self.network_hash), str(compendia_paths[key])
             )
 
             if os.path.exists(compendia_file_path):
@@ -392,6 +392,7 @@ class KinaseActivity:
         self.pregenerated_experiments_path = pregenerated_experiments_path
         self.directory_for_save_precompute = directory_for_save_precompute
         self.network_hash = network_hash
+        random_activities_list = []
 
         if use_pregen_data:
             # Initialize lists
@@ -412,7 +413,7 @@ class KinaseActivity:
             # Process pre-generated data, one dataset at a time
                 if use_pregen:
                     with_pregenerated = [dataset]
-                    self.logger.info(f"Using pregenerated random experiments for: {', '.join(dataset)}")
+                    self.logger.info(f"Using pregenerated random experiments for: {dataset}")
                     with_pregenerated_evidence = self.evidence_binary[
                         ['KSTAR_ACCESSION', 'KSTAR_SITE', 'KSTAR_NUM_COMPENDIA', 'KSTAR_NUM_COMPENDIA_CLASS', dataset]
                         ].copy()
@@ -422,10 +423,11 @@ class KinaseActivity:
                 # Process from-scratch data
                 else:
                     self.data_columns_from_scratch = [dataset]
-                    self.logger.info(f"Generating random experiments for: {', '.join(dataset)}")
+                    self.logger.info(f"Generating random experiments for: {dataset}")
                     self.calculate_random_enrichment(num_random_experiments, selection_type='KSTAR_NUM_COMPENDIA_CLASS',
                         save_random_experiments = save_random_experiments, PROCESSES=PROCESSES
                 )
+                    random_activities_list.append(self.random_enrichment.copy())
 
         # Process all from-scratch data if use_pregen_data is False
         else:
@@ -434,6 +436,12 @@ class KinaseActivity:
             self.calculate_random_enrichment(num_random_experiments, selection_type='KSTAR_NUM_COMPENDIA_CLASS',
                 save_random_experiments = save_random_experiments, PROCESSES=PROCESSES
             )
+        if random_activities_list:
+            self.random_enrichment = pd.concat(random_activities_list, ignore_index=True)
+            self.random_enrichment.to_csv(
+                os.path.join('/Users/zxa7aw/Documents/KSTAR/KSTAR_config_check/datasets/RESULTS/random_enrichment.tsv'),
+                sep='\t', index=False)
+
         # Add pre-generated data to random enrichment
         self.add_pregenerated_to_random_enrichment()
 
@@ -510,6 +518,7 @@ class KinaseActivity:
                 combined_activities_list = []
                 save_experiments = itertools.repeat(save_random_experiments)
                 for col in self.data_columns_from_scratch:
+                    print(("cl"))
                     activities_list = []
                     compendia_sizes = self.evidence_binary[self.evidence_binary[col] == 1].groupby(
                         selection_type).size()
@@ -525,6 +534,7 @@ class KinaseActivity:
                         self.save_new_precomputed_random_enrichment(activities_list_df, col)
                     combined_activities_list.extend(activities_list)
                 self.random_enrichment = pd.concat(combined_activities_list).reset_index(drop=True)
+                self.random_enrichment.to_csv(os.path.join( '/Users/zxa7aw/Documents/KSTAR/KSTAR_kristen_git/datasets/RESULTS/random_enrichment.tsv'), sep='\t', index=False)
         else:
             if save_random_experiments:
                 all_rand_experiments = []
@@ -557,6 +567,7 @@ class KinaseActivity:
             else:
                 combined_activities_list = []
                 for col in self.data_columns_from_scratch:
+                    print("tru")
                     activities_list = []
                     # determine distribution of study bias across real dataset
                     compendia_sizes = self.evidence_binary[self.evidence_binary[col] == 1].groupby(
@@ -573,6 +584,8 @@ class KinaseActivity:
                         self.save_new_precomputed_random_enrichment(activities_list_df, col)
                     combined_activities_list.extend(activities_list)
                 self.random_enrichment = pd.concat(combined_activities_list).reset_index(drop=True)
+
+
 
 
 
@@ -614,7 +627,7 @@ class KinaseActivity:
                         raise ValueError(f"ERROR: Unrecognized phosphoType '{self.phospho_type}'. Must be 'Y' or 'ST'.")
 
                     compendia_file_path = os.path.join(
-                        self.pregenerated_experiments_path, self.phospho_type, self.network_hash, compendia_paths[key]
+                        str(self.pregenerated_experiments_path), str(self.phospho_type), str(self.network_hash), str(compendia_paths[key])
                     )
 
                     if not os.path.exists(compendia_file_path):
@@ -702,8 +715,8 @@ class KinaseActivity:
         if key not in compendia_paths:
             raise ValueError("Invalid phospho_type or compendia class counts")
 
-        compendia_file_path = os.path.join(self.directory_for_save_precompute, self.phospho_type, self.network_hash,
-                                           compendia_paths[key])
+        compendia_file_path = os.path.join(str(self.directory_for_save_precompute), str(self.phospho_type), str(self.network_hash),
+                                           str(compendia_paths[key]))
         os.makedirs(compendia_file_path, exist_ok=True)
 
         # Save activities to file
@@ -1521,10 +1534,10 @@ def randomized_analysis(kinact_dict, log, num_random_experiments=150, use_pregen
         pregenerated_experiments_path = config.PREGENERATED_EXPERIMENTS_PATH
     if not isinstance(pregenerated_experiments_path, str):
         raise ValueError("pregenerated_experiments_path must be a string")
-    if directory_for_save_precompute is None:
-        directory_for_save_precompute = config.DIRECTORY_FOR_SAVE_PRECOMPUTE
-    if not isinstance(directory_for_save_precompute, str):
-        raise ValueError("pregenerated_experiments_path must be a string")
+    if save_new_precompute:
+        if not isinstance(directory_for_save_precompute, str) or not directory_for_save_precompute:
+            raise ValueError("When save_new_precompute is True, directory_for_save_precompute must be provided as a non-empty string")
+
     for phospho_type, kinact in kinact_dict.items():
         if network_hash is None:
             if phospho_type == 'Y':
