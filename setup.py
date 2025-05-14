@@ -5,7 +5,7 @@ from setuptools import setup, find_packages
 setup(
     name="kstar",
 
-    version="1.0.1",
+    version="1.0.2",
     author="Naegle Lab",
     author_email="kmn4mj@virginia.edu",
     url="https://github.com/NaegleLab/KSTAR",
