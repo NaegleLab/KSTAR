@@ -438,9 +438,6 @@ class KinaseActivity:
             )
         if random_activities_list:
             self.random_enrichment = pd.concat(random_activities_list, ignore_index=True)
-            self.random_enrichment.to_csv(
-                os.path.join('/Users/zxa7aw/Documents/KSTAR/KSTAR_config_check/datasets/RESULTS/random_enrichment.tsv'),
-                sep='\t', index=False)
 
         # Add pre-generated data to random enrichment
         self.add_pregenerated_to_random_enrichment()
@@ -534,7 +531,6 @@ class KinaseActivity:
                         self.save_new_precomputed_random_enrichment(activities_list_df, col)
                     combined_activities_list.extend(activities_list)
                 self.random_enrichment = pd.concat(combined_activities_list).reset_index(drop=True)
-                self.random_enrichment.to_csv(os.path.join( '/Users/zxa7aw/Documents/KSTAR/KSTAR_kristen_git/datasets/RESULTS/random_enrichment.tsv'), sep='\t', index=False)
         else:
             if save_random_experiments:
                 all_rand_experiments = []
