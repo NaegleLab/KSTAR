@@ -1,5 +1,5 @@
 {% set name = "kstar" %}
-{% set version = "1.0.3" %}
+{% set version = "1.0.4" %}
 {% set python_min = "3.9" %}
 
 package:
