@@ -8,7 +8,7 @@ package:
 
 source:
   url: https://pypi.org/packages/source/{{ name[0] }}/{{ name }}/kstar-{{ version }}.tar.gz
-  sha256: 6e1ffa6625ba581d91c939f535ca11551bd329168308326e028a9ebafc192572
+  sha256: 5c439ac4c6873cec8beb53684c12847448456c57b6ff8edfbdfe87ec5ff6dd4e
 
 build:
   number: 0
