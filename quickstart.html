@@ -4,16 +4,13 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
     <title>Getting Started &#8212; KSTAR 1 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/classic.css" />
     
     <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-    <script src="_static/jquery.js"></script>
-    <script src="_static/underscore.js"></script>
-    <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="_static/doctools.js"></script>
     <script src="_static/sphinx_highlight.js"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -59,10 +56,10 @@ same pruned networks as utilized in the KSTAR paper.</p>
 <h3>Pip<a class="headerlink" href="#pip" title="Permalink to this heading">¶</a></h3>
 <p>To install via pip, execute <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">kstar</span></code>.</p>
 </section>
-<section id="conda">
-<h3>Conda Forge<a class="headerlink" href="#conda" title="Permalink to this heading">¶</a></h3>
-<p>Please note: the conda-forge build of <strong>KSTAR</strong> is now required. Versions up to and including 1.0.1 are deprecated. Install the latest package from conda-forge:  <a href="https://anaconda.org/conda-forge/kstar" target="_blank" rel="noopener">Conda-Forge KSTAR</a>.
-</p>
+<section id="conda-forge">
+<h3>Conda Forge<a class="headerlink" href="#conda-forge" title="Permalink to this heading">¶</a></h3>
+<p>Please note: the conda-forge build of KSTAR is now required. Versions up to and including 1.0.3 are
+deprecated. Install the latest package from conda-forge: <a class="reference external" href="https://anaconda.org/conda-forge/kstar">Conda-Forge KSTAR</a>.</p>
 <p>To install via conda-forge, execute <code class="docutils literal notranslate"><span class="pre">conda</span> <span class="pre">install</span> <span class="pre">-c</span> <span class="pre">conda-forge</span> <span class="pre">kstar</span></code>.</p>
 </section>
 <section id="tarball">
@@ -93,24 +90,23 @@ FigShare or generated with the Pruner class) will need to be downloaded and conf
 <h3>Downloading Resource Files<a class="headerlink" href="#downloading-resource-files" title="Permalink to this heading">¶</a></h3>
 <p>We have provided all resource files required for running KSTAR in a publicly available figshare, which includes the reference proteome and
 the reference phosphoproteome from KinPred. After installing KSTAR, run <em>install_resource_files()</em> within python to obtain these:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">kstar</span> <span class="kn">import</span> <span class="n">config</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">kstar</span><span class="w"> </span><span class="kn">import</span> <span class="n">config</span>
 
 <span class="n">config</span><span class="o">.</span><span class="n">install_resource_files</span><span class="p">()</span>
-
 </pre></div>
 </div>
 </section>
-<section id="downloading-networks-for-kstar-version-1-0-3-and-newer">
-<h3>Downloading Networks for KSTAR version 1.0.3 and newer<a class="headerlink" href="#downloading-networks-for-kstar-version-1-0-3-and-newer" title="Permalink to this heading">¶</a></h3>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># For KSTAR versions 1.0.3 and newer, KSTAR will automatically download the network files using the code below.</span>
-<span class="c1"># Please specifiy your working directory for the targer_dir parameter. Example directory shown below.  </span>
+<section id="downloading-networks-for-kstar-version-1-0-4-and-newer">
+<h3>Downloading Networks for KSTAR version 1.0.4 and newer<a class="headerlink" href="#downloading-networks-for-kstar-version-1-0-4-and-newer" title="Permalink to this heading">¶</a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1">#For KSTAR versions 1.0.4 and newer, KSTAR will automatically download the network files using the code below.</span>
+<span class="c1">#Please specifiy your working directory for the targer_dir parameter. Example directory shown below.  </span>
 <span class="n">config</span><span class="o">.</span><span class="n">install_network_files</span><span class="p">(</span><span class="n">target_dir</span><span class="o">=</span><span class="s2">&quot;/Users/naeglelab/Documents/KSTAR&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </section>
 <section id="downloading-networks-for-kstar-version-0-5-3-and-older">
 <h3>Downloading Networks for KSTAR version 0.5.3 and older<a class="headerlink" href="#downloading-networks-for-kstar-version-0-5-3-and-older" title="Permalink to this heading">¶</a></h3>
-<p><strong>Note:</strong> If you are using KSTAR version 0.5.3 or older, please use the guide below to download the networks.</p>
+<p>Note: If you are using KSTAR version 0.5.3 or older, please use the guide below to download the networks.</p>
 <p>In addition to the resource files above, KSTAR also requires heuristically pruned kinase-substrate graphs used for activity calculation.
 Pre-generated networks are available for download, which were generated based on NetworKIN. You may also generate your own networks if preferred.</p>
 <p>If using the published networks:</p>
@@ -138,10 +134,10 @@ pickle them for you.</p></li>
 <li><p>You will need to restart the kernel for the updates to take place within your environment.</p></li>
 </ol>
 <p>The python code used should look similar to below:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">kstar</span> <span class="kn">import</span> <span class="n">config</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">kstar</span><span class="w"> </span><span class="kn">import</span> <span class="n">config</span>
 
 <span class="c1">#update network directory: If KSTAR does not find this directory + necessary files, it will notify you</span>
-<span class="n">config</span><span class="o">.</span><span class="n">NETWORK_DIR</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">NETWORK_Y_PICKLES</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">NETWORK_ST_PICKLES</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">update_network_directory</span><span class="p">(</span><span class="s1">&#39;/Users/naeglelab/Documents/KSTAR/NETWORKS/NetworKIN&#39;</span><span class="p">)</span>
+<span class="n">config</span><span class="o">.</span><span class="n">NETWORK_DIR</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">NETWORK_Y_PICKLES</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">NETWORK_ST_PICKLES</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">update_network_directory</span><span class="p">(</span><span class="s1">&#39;/Users/naeglelab/Documents/KSTAR/NETWORKS/NETWORKS/NetworKIN&#39;</span><span class="p">)</span>
 
 <span class="c1">#create network pickles. Only need to run this function if network pickles were not already generated.</span>
 <span class="n">config</span><span class="o">.</span><span class="n">create_network_pickles</span><span class="p">()</span>
@@ -153,7 +149,7 @@ you only need to run the above steps once. All subsequent imports will remember 
 <section id="verify-that-kstar-environment-is-ready">
 <h3>Verify that KSTAR environment is ready<a class="headerlink" href="#verify-that-kstar-environment-is-ready" title="Permalink to this heading">¶</a></h3>
 <p>To check to make sure the previous steps all worked as desired, run <em>check_configuration()</em>:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">kstar</span> <span class="kn">import</span> <span class="n">config</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">kstar</span><span class="w"> </span><span class="kn">import</span> <span class="n">config</span>
 
 <span class="n">config</span><span class="o">.</span><span class="n">check_configuration</span><span class="p">()</span>
 </pre></div>
@@ -188,14 +184,14 @@ the ‘Network Generation’ section if you would like to use your own networks 
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Getting Started</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#installation">Installation</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#pip">Pip</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#conda">Conda</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#conda-forge">Conda Forge</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#tarball">Tarball</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#git">Git</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#configuring-your-kstar-environment">Configuring your KSTAR environment</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#downloading-resource-files">Downloading Resource Files</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#downloading-networks-for-kstar-version-1-0-3-and-newer">Downloading Networks for KSTAR version 1.0.3 and newer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#downloading-networks-for-kstar-version-1-0-4-and-newer">Downloading Networks for KSTAR version 1.0.4 and newer</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#downloading-networks-for-kstar-version-0-5-3-and-older">Downloading Networks for KSTAR version 0.5.3 and older</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#configure-kstar-to-point-to-the-correct-network-directory">Configure KSTAR to point to the correct network directory</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#verify-that-kstar-environment-is-ready">Verify that KSTAR environment is ready</a></li>
@@ -205,7 +201,6 @@ the ‘Network Generation’ section if you would like to use your own networks 
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="Tutorial/tutorial.html">Tutorial</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Examples/Examples.html">Analysis Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="Parallel/parallel.html">KSTAR in Parallel</a></li>
 <li class="toctree-l1"><a class="reference internal" href="faq.html">Frequently Asked Questions</a></li>
 </ul>
@@ -263,7 +258,7 @@ the ‘Network Generation’ section if you would like to use your own networks 
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2020, Naegle Lab.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.3.0.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 6.2.1.
     </div>
   </body>
 </html>

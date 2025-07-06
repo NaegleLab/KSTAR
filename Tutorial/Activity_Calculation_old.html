@@ -4,16 +4,13 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
     <title>Map Datasets to KinPred &#8212; KSTAR 1 documentation</title>
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../_static/classic.css" />
     
     <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
-    <script src="../_static/jquery.js"></script>
-    <script src="../_static/underscore.js"></script>
-    <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="../_static/doctools.js"></script>
     <script src="../_static/sphinx_highlight.js"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -310,16 +307,16 @@ phosphorylated peptides being lowercased. For example, if a peptide sequence is 
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">#import KSTAR and other necesary packages</span>
-<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">pickle</span>
-<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pickle</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
 
-<span class="kn">from</span> <span class="nn">kstar</span> <span class="kn">import</span> <span class="n">config</span><span class="p">,</span> <span class="n">helpers</span><span class="p">,</span> <span class="n">mapping</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kstar</span><span class="w"> </span><span class="kn">import</span> <span class="n">config</span><span class="p">,</span> <span class="n">helpers</span><span class="p">,</span> <span class="n">mapping</span>
 </pre></div>
 </div>
 </div>
-<div class="nbinput docutils container">
+<div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
 </pre></div>
 </div>
@@ -328,177 +325,6 @@ phosphorylated peptides being lowercased. For example, if a peptide sequence is 
 <span class="n">df</span>
 </pre></div>
 </div>
-</div>
-<div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
-</pre></div>
-</div>
-<div class="output_area rendered_html docutils container">
-<div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th>query_accession</th>
-      <th>mod_sites</th>
-      <th>peptide</th>
-      <th>data:time:0</th>
-      <th>data:time:5</th>
-      <th>data:time:15</th>
-      <th>data:time:30</th>
-      <th>data:time:60</th>
-    </tr>
-    <tr>
-      <th>MS_id</th>
-      <th></th>
-      <th></th>
-      <th></th>
-      <th></th>
-      <th></th>
-      <th></th>
-      <th></th>
-      <th></th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>7605136</th>
-      <td>Q9P2D3-1</td>
-      <td>Y1104</td>
-      <td>EAAEVCEyAMSLAK</td>
-      <td>0.0</td>
-      <td>-0.01</td>
-      <td>-0.28</td>
-      <td>-0.03</td>
-      <td>-0.27</td>
-    </tr>
-    <tr>
-      <th>7605137</th>
-      <td>A0FGR8-6</td>
-      <td>Y845</td>
-      <td>NLIAFSEDGSDPyVR</td>
-      <td>0.0</td>
-      <td>0.26</td>
-      <td>0.27</td>
-      <td>0.04</td>
-      <td>0.05</td>
-    </tr>
-    <tr>
-      <th>7605138</th>
-      <td>Q5T4S7-2</td>
-      <td>Y5156</td>
-      <td>HNDMPIyEAADK</td>
-      <td>0.0</td>
-      <td>0.31</td>
-      <td>-0.15</td>
-      <td>0.01</td>
-      <td>-0.23</td>
-    </tr>
-    <tr>
-      <th>7605139</th>
-      <td>Q16181-1</td>
-      <td>Y30</td>
-      <td>NLEGyVGFANLPNQVYR</td>
-      <td>0.0</td>
-      <td>-0.14</td>
-      <td>-0.19</td>
-      <td>0.07</td>
-      <td>0.15</td>
-    </tr>
-    <tr>
-      <th>7605140</th>
-      <td>Q16181-1</td>
-      <td>Y41</td>
-      <td>NLEGYVGFANLPNQVyR</td>
-      <td>0.0</td>
-      <td>-0.14</td>
-      <td>-0.09</td>
-      <td>0.04</td>
-      <td>-0.06</td>
-    </tr>
-    <tr>
-      <th>...</th>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-    </tr>
-    <tr>
-      <th>7605855</th>
-      <td>O95801</td>
-      <td>Y129</td>
-      <td>AAAQYyLGNFR</td>
-      <td>0.0</td>
-      <td>0.15</td>
-      <td>0.39</td>
-      <td>-0.05</td>
-      <td>0.08</td>
-    </tr>
-    <tr>
-      <th>7605859</th>
-      <td>O60711</td>
-      <td>Y22</td>
-      <td>STLQDSDEySNPAPLPLDQHSR</td>
-      <td>0.0</td>
-      <td>-0.73</td>
-      <td>0.76</td>
-      <td>4.48</td>
-      <td>5.88</td>
-    </tr>
-    <tr>
-      <th>7605860</th>
-      <td>O60711</td>
-      <td>Y203</td>
-      <td>SGLAYCPNDyHQLFSPR</td>
-      <td>0.0</td>
-      <td>0.55</td>
-      <td>-1.77</td>
-      <td>3.58</td>
-      <td>5.15</td>
-    </tr>
-    <tr>
-      <th>7605861</th>
-      <td>P47736</td>
-      <td>Y374</td>
-      <td>LINAEyACYK</td>
-      <td>0.0</td>
-      <td>-0.12</td>
-      <td>0.19</td>
-      <td>0.02</td>
-      <td>-0.16</td>
-    </tr>
-    <tr>
-      <th>7605863</th>
-      <td>Q14511</td>
-      <td>Y345</td>
-      <td>DGVyDVPLHNPPDAK</td>
-      <td>0.0</td>
-      <td>-0.41</td>
-      <td>-0.14</td>
-      <td>-0.12</td>
-      <td>-0.29</td>
-    </tr>
-  </tbody>
-</table>
-<p>665 rows × 8 columns</p>
-</div></div>
 </div>
 <p>Notice that all data columns in the dataset have ‘data:’ in front of them. This is how KSTAR will identify which columns to use when making evidence decisions. This can be done manually prior to mapping, or will be done by KSTAR automatically once you indicate which columns you would like to use as evidence.</p>
 </section>
@@ -555,136 +381,13 @@ possible.</p>
 </div>
 </div>
 <p>If you look at the ExperimentMapper class, you will find that five new columns have been added to the original dataset, which allows for easy mapping to KSTAR networks used in activity prediction.</p>
-<div class="nbinput docutils container">
+<div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">exp_mapper</span><span class="o">.</span><span class="n">experiment</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
 </pre></div>
 </div>
-</div>
-<div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
-</pre></div>
-</div>
-<div class="output_area rendered_html docutils container">
-<div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th>query_accession</th>
-      <th>mod_sites</th>
-      <th>peptide</th>
-      <th>data:time:0</th>
-      <th>data:time:5</th>
-      <th>data:time:15</th>
-      <th>data:time:30</th>
-      <th>data:time:60</th>
-      <th>KSTAR_ACCESSION</th>
-      <th>KSTAR_PEPTIDE</th>
-      <th>KSTAR_SITE</th>
-      <th>KSTAR_NUM_COMPENDIA</th>
-      <th>KSTAR_NUM_COMPENDIA_CLASS</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>0</th>
-      <td>Q9P2D3-1</td>
-      <td>Y1104</td>
-      <td>EAAEVCEyAMSLAK</td>
-      <td>0.0</td>
-      <td>-0.01</td>
-      <td>-0.28</td>
-      <td>-0.03</td>
-      <td>-0.27</td>
-      <td>Q9P2D3</td>
-      <td>EAAEVCEyAMSLAKN</td>
-      <td>Y1104</td>
-      <td>0</td>
-      <td>0</td>
-    </tr>
-    <tr>
-      <th>1</th>
-      <td>A0FGR8-6</td>
-      <td>Y845</td>
-      <td>NLIAFSEDGSDPyVR</td>
-      <td>0.0</td>
-      <td>0.26</td>
-      <td>0.27</td>
-      <td>0.04</td>
-      <td>0.05</td>
-      <td>A0FGR8</td>
-      <td>SEDGSDPyVRMYLLP</td>
-      <td>Y824</td>
-      <td>2</td>
-      <td>1</td>
-    </tr>
-    <tr>
-      <th>2</th>
-      <td>Q5T4S7-2</td>
-      <td>Y5156</td>
-      <td>HNDMPIyEAADK</td>
-      <td>0.0</td>
-      <td>0.31</td>
-      <td>-0.15</td>
-      <td>0.01</td>
-      <td>-0.23</td>
-      <td>Q5T4S7</td>
-      <td>RHNDMPIyEAADKAL</td>
-      <td>Y5135</td>
-      <td>1</td>
-      <td>1</td>
-    </tr>
-    <tr>
-      <th>3</th>
-      <td>Q16181-1</td>
-      <td>Y30</td>
-      <td>NLEGyVGFANLPNQVYR</td>
-      <td>0.0</td>
-      <td>-0.14</td>
-      <td>-0.19</td>
-      <td>0.07</td>
-      <td>0.15</td>
-      <td>Q16181</td>
-      <td>QQKNLEGyVGFANLP</td>
-      <td>Y30</td>
-      <td>5</td>
-      <td>2</td>
-    </tr>
-    <tr>
-      <th>4</th>
-      <td>Q16181-1</td>
-      <td>Y41</td>
-      <td>NLEGYVGFANLPNQVyR</td>
-      <td>0.0</td>
-      <td>-0.14</td>
-      <td>-0.09</td>
-      <td>0.04</td>
-      <td>-0.06</td>
-      <td>Q16181</td>
-      <td>ANLPNQVyRKSVKRG</td>
-      <td>Y41</td>
-      <td>1</td>
-      <td>1</td>
-    </tr>
-  </tbody>
-</table>
-</div></div>
 </div>
 <p>These additional columns have the following meaning:</p>
 <ol class="arabic simple">
@@ -698,7 +401,7 @@ possible.</p>
 <section id="Explore-the-Mapped-Dataset">
 <h2>Explore the Mapped Dataset<a class="headerlink" href="#Explore-the-Mapped-Dataset" title="Permalink to this heading">¶</a></h2>
 <p>One way to check how well the mapping worked is to check the number of peptides in the original dataframe vs. the newly mapped dataframe.</p>
-<div class="nbinput docutils container">
+<div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
 </pre></div>
 </div>
@@ -706,15 +409,6 @@ possible.</p>
 <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Original number of lines in df: </span><span class="si">%d</span><span class="se">\n</span><span class="s2">New number of lines in mapped:</span><span class="si">%d</span><span class="s2">&quot;</span><span class="o">%</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">exp_mapper</span><span class="o">.</span><span class="n">experiment</span><span class="p">)))</span>
 </pre></div>
 </div>
-</div>
-<div class="nboutput nblast docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-Original number of lines in df: 665
-New number of lines in mapped:665
-</pre></div></div>
 </div>
 <p>In this case, no peptides were lost during the mapping process. Changes to the number of peptides could be a result of several things: 1. Failure to find the corresponding peptide 2. A peptide with multiple phosphorylation sites was seperated into seperate peptides</p>
 <p>For specifics on mapping failures, go to the log file for details.</p>
@@ -740,11 +434,11 @@ New number of lines in mapped:665
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">#Import preamble of kstar and other necessary functions</span>
-<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
-<span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">pickle</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pickle</span>
 
-<span class="kn">from</span> <span class="nn">kstar</span> <span class="kn">import</span> <span class="n">config</span><span class="p">,</span> <span class="n">helpers</span><span class="p">,</span> <span class="n">calculate</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kstar</span><span class="w"> </span><span class="kn">import</span> <span class="n">config</span><span class="p">,</span> <span class="n">helpers</span><span class="p">,</span> <span class="n">calculate</span>
 </pre></div>
 </div>
 </div>
@@ -802,7 +496,7 @@ sizes.</p></li>
 </div>
 </div>
 <p>For all activity prediction steps, the KinaseActivity class (found within the calculate module) is used. To initialize the class, you only need to provide the original experiment, the logger, the data columns with abundance information, and the modification type of interest. We can then use the test_threshold() function in the KinaseActivity class to determine the number sites that will be used as evidence in each condition given a threshold of 0.2.</p>
-<div class="nbinput docutils container">
+<div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
 </pre></div>
 </div>
@@ -813,19 +507,8 @@ sizes.</p></li>
 </pre></div>
 </div>
 </div>
-<div class="nboutput nblast docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-Number of Sites That Will Be Used As Evidence For Each Sample:
-Maximum = 200
-Minimum = 128
-Median = 163.0
-</pre></div></div>
-</div>
 <p>The test_threshold function will output basic statistics on evidence sizes used. Here, we can see that with a threshold of 0.2, the minimum number of sites used is 128, which is above our recommended minimum of 50. We also see that the difference in evidence size is not large, so samples should be comparable. If you want to further inspect the data, the test_threshold() function has the option to return evidence sizes for each individual experiment:</p>
-<div class="nbinput docutils container">
+<div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
 </pre></div>
 </div>
@@ -833,19 +516,6 @@ Median = 163.0
 <span class="n">evidence_sizes</span>
 </pre></div>
 </div>
-</div>
-<div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
-</pre></div>
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-data:time:5     128
-data:time:15    135
-data:time:30    191
-data:time:60    200
-dtype: int64
-</pre></div></div>
 </div>
 <p>All samples above (except for the 0 time point, which will be removed prior to activity calculation) have greater than 50 sites being used as evidence, and the evidence sizes are generally comparable. This is a good threshold to use.</p>
 </section>
@@ -928,7 +598,7 @@ to indicate the number of random experiments to generate. We have found that 150
 </div>
 </div>
 <p>The random experiments generated from the above function can be found in the ‘random_experiments’ attribute of the KinaseActivity class. For each random experiment, the sites that will be included for random activity generation are indicated with 1.</p>
-<div class="nbinput docutils container">
+<div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
 </pre></div>
 </div>
@@ -937,180 +607,8 @@ to indicate the number of random experiments to generate. We have found that 150
 </pre></div>
 </div>
 </div>
-<div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
-</pre></div>
-</div>
-<div class="output_area rendered_html docutils container">
-<div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th>KSTAR_ACCESSION</th>
-      <th>KSTAR_SITE</th>
-      <th>data:time:5:0</th>
-      <th>data:time:5:1</th>
-      <th>data:time:5:2</th>
-      <th>data:time:5:3</th>
-      <th>data:time:5:4</th>
-      <th>data:time:5:5</th>
-      <th>data:time:5:6</th>
-      <th>data:time:5:7</th>
-      <th>...</th>
-      <th>data:time:60:140</th>
-      <th>data:time:60:141</th>
-      <th>data:time:60:142</th>
-      <th>data:time:60:143</th>
-      <th>data:time:60:144</th>
-      <th>data:time:60:145</th>
-      <th>data:time:60:146</th>
-      <th>data:time:60:147</th>
-      <th>data:time:60:148</th>
-      <th>data:time:60:149</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>0</th>
-      <td>A0AUZ9</td>
-      <td>Y792</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>...</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-    </tr>
-    <tr>
-      <th>1</th>
-      <td>A0AV02</td>
-      <td>Y107</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>...</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-    </tr>
-    <tr>
-      <th>3</th>
-      <td>A0AVF1</td>
-      <td>Y174</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>...</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-    </tr>
-    <tr>
-      <th>5</th>
-      <td>A0AVK6</td>
-      <td>Y202</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>...</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-    </tr>
-    <tr>
-      <th>6</th>
-      <td>A0AVK6</td>
-      <td>Y316</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>...</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-    </tr>
-  </tbody>
-</table>
-<p>5 rows × 602 columns</p>
-</div></div>
-</div>
 <p>If you sum the random experiments object, it will tell you how many total sites were selected for each random experiment, which should match the parent experiment:</p>
-<div class="nbinput docutils container">
+<div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[21]:
 </pre></div>
 </div>
@@ -1119,26 +617,6 @@ to indicate the number of random experiments to generate. We have found that 150
 <span class="n">kinact_dict</span><span class="p">[</span><span class="s1">&#39;Y&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">random_experiments</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
 </pre></div>
 </div>
-</div>
-<div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[21]:
-</pre></div>
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-KSTAR_ACCESSION     A0AUZ9A0AV02A0AVF1A0AVK6A0AVK6A0AVT1A0AVT1A0AV...
-KSTAR_SITE          Y792Y107Y174Y202Y316Y1046Y44Y558Y994Y403Y366Y1...
-data:time:5:0                                                   128.0
-data:time:5:1                                                   128.0
-data:time:5:2                                                   128.0
-                                          ...
-data:time:60:145                                                200.0
-data:time:60:146                                                200.0
-data:time:60:147                                                200.0
-data:time:60:148                                                200.0
-data:time:60:149                                                200.0
-Length: 602, dtype: object
-</pre></div></div>
 </div>
 </section>
 <section id="Calculate-Mann-Whitney-Significance">
@@ -1194,7 +672,6 @@ obtain the false positive rate. As with the previous analysis, the ‘PROCESSES�
 <li class="toctree-l1"><a class="reference internal" href="../KSTAR.html">KSTAR</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Getting Started</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tutorial.html">Tutorial</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../Examples/Examples.html">Analysis Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../Parallel/parallel.html">KSTAR in Parallel</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../faq.html">Frequently Asked Questions</a></li>
 </ul>
@@ -1236,7 +713,7 @@ obtain the false positive rate. As with the previous analysis, the ‘PROCESSES�
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2020, Naegle Lab.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.3.0.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 6.2.1.
     </div>
   </body>
 </html>
