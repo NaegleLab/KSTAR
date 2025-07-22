@@ -20,6 +20,7 @@ jobs:
         with:
           repository: NaegleLab/github-stats-central  # Replace with your actual central stats repo
           path: stats-repo
+          branch: main
           token: ${{ secrets.STATS_REPO_PAT }}
       
       - name: Set up Python
