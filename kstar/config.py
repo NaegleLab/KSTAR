@@ -20,13 +20,15 @@ Update these if you want to update:
 
 ## BEGIN DECLARATION OF GLOBALS
 
-KSTAR_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+#grab package directory (include specific folder)
+KSTAR_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__))) + "/kstar"
+#KSTAR_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 RESOURCE_DIR = KSTAR_DIR + "/RESOURCE_FILES"
 
 # DOWNLOAD RESOURCE_FILES from Figshare to get started using networks
 # Directories for the project (where to find resource file folder), resource folder, and network directories are all set by directories.txt, which
 # can be updated with update_directories().
-directory_file = open(f'{KSTAR_DIR}/kstar/directories.txt', 'r')
+directory_file = open(f'{KSTAR_DIR}/directories.txt', 'r')
 directories = []
 for line in directory_file:
     directories.append(line.split()[0])
@@ -116,6 +118,7 @@ def install_network_files(target_dir=None):
 
     print(f"Extracting {outputFile}")
     t.extractall(install_dir)
+    update_network_directory(f"{install_dir}/NETWORKS/NetworKIN", create_pickles=True)
 
 def update_network_directory(directory, create_pickles=True, KSTAR_DIR=KSTAR_DIR, NETWORK_DIR=NETWORK_DIR):
     """
@@ -176,7 +179,6 @@ def update_network_directory(directory, create_pickles=True, KSTAR_DIR=KSTAR_DIR
     NETWORK_Y_PICKLE = f"{NETWORK_DIR}/network_Y.p"  # created by create_networkin_pickles()
     NETWORK_ST_PICKLE = f"{NETWORK_DIR}/network_ST.p"  # created by create_networkin_pickles()
     return NETWORK_DIR, NETWORK_Y_PICKLE, NETWORK_ST_PICKLE
-
 
 # def create_network_pickles(phosphoType = ['Y','ST'], *kwargs)
 def create_network_pickles(phosphoTypes=['Y', 'ST'], network_directory=NETWORK_DIR):

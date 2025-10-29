@@ -1,7 +1,4 @@
 import numpy as np
-import pandas as pd
-from enum import Enum
-
 
 import matplotlib.pyplot as plt
 from matplotlib.lines import Line2D
@@ -466,7 +463,7 @@ class DotPlot:
         }
         
         if orientation in [ 'left', 'right']:
-            index = list(self.values.index)
+            index = list(self.values.index)[::-1]  #reverse order for left/right orientation
         elif orientation in ['top', 'bottom']:
             index = list(self.values.columns)
         else: 

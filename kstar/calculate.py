@@ -12,6 +12,7 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 import concurrent.futures
 
+from tqdm import tqdm
 from datetime import datetime
 from itertools import repeat
 from collections import defaultdict
@@ -61,6 +62,10 @@ class KinaseActivity:
         indicates whether sites with greater or lower abundances than the threshold will be used
     run_data: string
         indicates the date that kinase activity object was initialized
+    min_dataset_size_for_pregenerated: int
+        minimum dataset size required to use pregenerated random activities
+    max_diff_from_pregenerated: float
+        maximum percent difference between dataset size and pregenerated random activity size to use pregenerated data
 
     ---------------------------------
     After Hypergeometric Calculations
@@ -92,7 +97,7 @@ class KinaseActivity:
 
     """
 
-    def __init__(self, evidence, logger, data_columns=None, phospho_type='Y'):
+    def __init__(self, evidence, logger, data_columns=None, phospho_type='Y', min_dataset_size_for_pregenerated=150, max_diff_from_pregenerated=0.20):
         self.phospho_type = phospho_type
         self.set_evidence(evidence)
 
@@ -113,8 +118,8 @@ class KinaseActivity:
         self.random_experiments = None
 
         # added fields for pregenerated_random
-        self.min_dataset_size_for_pregenerated = 150
-        self.max_diff_from_pregenerated = 0.20
+        self.min_dataset_size_for_pregenerated = min_dataset_size_for_pregenerated
+        self.max_diff_from_pregenerated = max_diff_from_pregenerated
         self.random_activities_list = None
         self.compendia_distribution = None
         self.data_columns_from_scratch = None
@@ -149,19 +154,27 @@ class KinaseActivity:
                         if len(evidence[evidence[col] >= self.threshold]) > 0:
                             new_data_columns.append(col)
                         else:
+                            print(f"{col} does not have any evidence, and will not be used.")
                             self.logger.warning(f"{col} does not have any evidence")
                     else:
                         if len(evidence[evidence[col] <= self.threshold]) > 0:
                             new_data_columns.append(col)
                         else:
+                            print(f"{col} does not have any evidence, and will not be used.")
                             self.logger.warning(f"{col} does not have any evidence")
                 else:
                     if ~evidence[col].isna().all():
                         new_data_columns.append(col)
                     else:
+                        print(f"{col} does not have any evidence, and will not be used.")
                         self.logger.warning(f"{col} does not have any evidence")
             else:
+                print(f"{col} not in evidence, and will not be used.")
                 self.logger.warning(f"{col} not in evidence")
+
+        #make sure there is at least one data column
+        if len(new_data_columns) == 0:
+            raise ValueError("ERROR: No valid data columns found after filtering evidence. Please check that data columns are in evidence and that evidence has at least one point of evidence per data column after filtering if threshold is set.")
         self.data_columns = new_data_columns
 
     def set_data_columns(self, data_columns=None):
@@ -179,7 +192,7 @@ class KinaseActivity:
                     self.data_columns.append(col)
         else:
             self.data_columns = data_columns
-            print(self.data_columns)
+            #print(self.data_columns)
         self.check_data_columns()
 
     def test_threshold(self, threshold, agg='mean', greater=True, plot=False, return_evidence_sizes=False):
@@ -356,7 +369,7 @@ class KinaseActivity:
                 raise FileNotFoundError(f"Directory not found: {compendia_file_path}")
         return pregenerated_sizes_files
 
-    def calculate_random_activities(self, logger, num_random_experiments=150, use_pregen_data=None, save_new_precompute=None, pregenerated_experiments_path=None, directory_for_save_precompute=None, network_hash=None, save_random_experiments = None, PROCESSES=1):
+    def calculate_random_activities(self, num_random_experiments=150, use_pregen_data=None, save_new_precompute=None, pregenerated_experiments_path=None, directory_for_save_precompute=None, network_hash=None, save_random_experiments = None, PROCESSES=1):
         """
         Generate random experiments and calculate kinase activities.Either uses pre-generated activity lists or
         generates new random experiments based on the provided parameters.
@@ -395,39 +408,45 @@ class KinaseActivity:
         random_activities_list = []
 
         if use_pregen_data:
-            # Initialize lists
-            pregen_activities_list = []
             # Classify datasets
+            dataset_sizes = {col: self.evidence_binary[col].sum() for col in self.data_columns} #get dataset sizes
+            pregenerated_sizes = self.check_file_sizes_for_pregenerated()
+            network_check = self.network_check_for_pregeneration()
+
+            #use_pregen = {}
+            self.data_columns_with_pregenerated = []
+            self.data_columns_from_scratch = []
             for dataset in self.data_columns:
-                dataset_sizes = {col: self.evidence_binary[col].sum() for col in self.data_columns}
-                pregenerated_sizes = self.check_file_sizes_for_pregenerated()
                 size = dataset_sizes[dataset]
 
+                #make sure dataset is large enough to use pregenerated data
                 large_enough = size >= self.min_dataset_size_for_pregenerated
+                #make sure pregenerated data is comparable in size to dataset
                 close_enough = any(
                     abs(pregen_size - size) / size < self.max_diff_from_pregenerated for pregen_size in
                     pregenerated_sizes)
-
-                use_pregen = large_enough and close_enough and self.network_check_for_pregeneration()
+                # make sure pregenerated files match network
+                use_pregen = large_enough and close_enough and network_check
+                if use_pregen:
+                    self.data_columns_with_pregenerated.append(dataset)
+                else:
+                    self.data_columns_from_scratch.append(dataset)
 
             # Process pre-generated data, one dataset at a time
-                if use_pregen:
-                    with_pregenerated = [dataset]
-                    self.logger.info(f"Using pregenerated random experiments for: {dataset}")
-                    with_pregenerated_evidence = self.evidence_binary[
-                        ['KSTAR_ACCESSION', 'KSTAR_SITE', 'KSTAR_NUM_COMPENDIA', 'KSTAR_NUM_COMPENDIA_CLASS', dataset]
-                        ].copy()
+            print('Loading pre-generated random activities for datasets where applicable...')
+            self.load_pregenerated_random_activities()
 
-                    # Process the current dataset
-                    self.load_pregenerated_random_activities(with_pregenerated_evidence, with_pregenerated, pregen_activities_list)
-                # Process from-scratch data
-                else:
-                    self.data_columns_from_scratch = [dataset]
-                    self.logger.info(f"Generating random experiments for: {dataset}")
-                    self.calculate_random_enrichment(num_random_experiments, selection_type='KSTAR_NUM_COMPENDIA_CLASS',
-                        save_random_experiments = save_random_experiments, PROCESSES=PROCESSES
+            #report on which datasets will use pregenerated data
+            if len(self.data_columns_from_scratch) > 0:
+                print(f"{len(self.data_columns_from_scratch)} out of {len(self.data_columns)} columns did not have appropriate pregenerated random activities and will calculate from scratch: {', '.join(self.data_columns_from_scratch)}")
+
+                self.logger.info(f"Generating random experiments for: {', '.join(self.data_columns_from_scratch)}")
+                self.calculate_random_enrichment(num_random_experiments, selection_type='KSTAR_NUM_COMPENDIA_CLASS',
+                    save_random_experiments = save_random_experiments, PROCESSES=PROCESSES
                 )
-                    random_activities_list.append(self.random_enrichment.copy())
+
+            # Add pre-generated data to random enrichment
+            self.add_pregenerated_to_random_enrichment()
 
         # Process all from-scratch data if use_pregen_data is False
         else:
@@ -436,11 +455,10 @@ class KinaseActivity:
             self.calculate_random_enrichment(num_random_experiments, selection_type='KSTAR_NUM_COMPENDIA_CLASS',
                 save_random_experiments = save_random_experiments, PROCESSES=PROCESSES
             )
-        if random_activities_list:
-            self.random_enrichment = pd.concat(random_activities_list, ignore_index=True)
+
 
         # Add pre-generated data to random enrichment
-        self.add_pregenerated_to_random_enrichment()
+        #self.add_pregenerated_to_random_enrichment()
 
 
     def calculate_random_enrichment(self, num_random_experiments, selection_type='KSTAR_NUM_COMPENDIA_CLASS', save_random_experiments=False, PROCESSES=1):
@@ -475,78 +493,71 @@ class KinaseActivity:
 
         if PROCESSES > 1:
             pool = multiprocessing.Pool(processes=PROCESSES)
+            # prepare iterable for all 150 experiments to be generated
             filtered_compendia = itertools.repeat(filtered_compendia)
             networks = itertools.repeat(self.networks)
             network_sizes = itertools.repeat(self.network_sizes)
             rand_exp_numbers = list(range(num_random_experiments))
-            if save_random_experiments:
-                rand_experiments = []
-                save_experiments = itertools.repeat(save_random_experiments)
-                combined_activities_list = []
-                for col in self.data_columns_from_scratch:
-                    activities_list = []
-                    compendia_sizes = self.evidence_binary[self.evidence_binary[col] == 1].groupby(
-                        selection_type).size()
-                    compendia_sizes = itertools.repeat(compendia_sizes)
-                    networks = itertools.repeat(self.networks)
-                    network_sizes = itertools.repeat(self.network_sizes)
-                    col_name = itertools.repeat(col)
-                    iterable = zip(compendia_sizes, filtered_compendia, networks, network_sizes, col_name,
-                                   rand_exp_numbers, save_experiments)
-                    result = pool.starmap(calculate_random_activity_singleExperiment2, iterable)
-                    # extract results
+            networks = itertools.repeat(self.networks)
+            network_sizes = itertools.repeat(self.network_sizes)
+            save_experiments = itertools.repeat(save_random_experiments)
+            rand_experiments = []
+
+            combined_activities_list = []
+            for col in tqdm(self.data_columns_from_scratch, desc="Calculating activities from random experiments for each column not using pregenerated random activities"):
+                activities_list = []
+                compendia_sizes = self.evidence_binary[self.evidence_binary[col] == 1].groupby(
+                            selection_type).size()
+                compendia_sizes = itertools.repeat(compendia_sizes)
+                col_name = itertools.repeat(col)
+                iterable = zip(compendia_sizes, filtered_compendia, networks, network_sizes, col_name,
+                                rand_exp_numbers, save_experiments)
+                result = pool.starmap(calculate_random_activity_singleExperiment, iterable)
+                # extract results
+                if save_random_experiments:
                     activities, experiments = zip(*result)
-                    activities_list.extend(activities)
                     rand_experiments.extend(experiments)
+                    activities_list.extend(activities)
+                else:
+                    activities_list = activities_list + result
 
-                    if self.save_new_precompute:
-                        activities_list_df = pd.concat(activities_list).reset_index(drop=True)
-                        self.save_new_precomputed_random_enrichment(activities_list_df, col)
-                    combined_activities_list.extend(activities_list)
 
-                # save data
-                self.random_enrichment = pd.concat(combined_activities_list).reset_index(drop=True)
+                if self.save_new_precompute:
+                    activities_list_df = pd.concat(activities_list).reset_index(drop=True)
+                    self.save_new_precomputed_random_enrichment(activities_list_df, col)
+                combined_activities_list.extend(activities_list)
+
+            # save data
+            self.random_enrichment = pd.concat(combined_activities_list).reset_index(drop=True)
+            if save_random_experiments:
                 rand_experiments = pd.concat(rand_experiments).reset_index(drop=True)
                 rand_experiments['weight'] = 1
                 self.random_experiments = rand_experiments.pivot(index=[config.KSTAR_ACCESSION, config.KSTAR_SITE],columns='Experiment',
                     values='weight').reset_index()
 
-            else:
-                combined_activities_list = []
-                save_experiments = itertools.repeat(save_random_experiments)
-                for col in self.data_columns_from_scratch:
-                    print(("cl"))
-                    activities_list = []
-                    compendia_sizes = self.evidence_binary[self.evidence_binary[col] == 1].groupby(
-                        selection_type).size()
-                    compendia_sizes = itertools.repeat(compendia_sizes)
-                    col_name = itertools.repeat(col)
-                    iterable = zip(compendia_sizes, filtered_compendia, networks, network_sizes, col_name,
-                                   rand_exp_numbers, save_experiments)
-                    result = pool.starmap(calculate_random_activity_singleExperiment2, iterable)
-                    # extract results
-                    activities_list = activities_list + result
-                    if self.save_new_precompute:
-                        activities_list_df = pd.concat(activities_list).reset_index(drop=True)
-                        self.save_new_precomputed_random_enrichment(activities_list_df, col)
-                    combined_activities_list.extend(activities_list)
-                self.random_enrichment = pd.concat(combined_activities_list).reset_index(drop=True)
         else:
             if save_random_experiments:
                 all_rand_experiments = []
                 combined_activities_list = []
-                for col in self.data_columns_from_scratch:
+                rand_exp_numbers = list(range(num_random_experiments))
+                for col in tqdm(self.data_columns_from_scratch, desc="Calculating activities from random experiments for each dataset not using pregenerated random activities"):
                     activities_list = []
+                    #group evidence by compendia sizes (number of compendia each site is found in)
                     compendia_sizes = self.evidence_binary[self.evidence_binary[col] == 1].groupby(
                             selection_type).size()
+                    
+                    # generate random experiments and calculate activities
                     for i in range(num_random_experiments):
-                        name = f'{col}:{i}'
-                        rand_experiment = generate_random_experiments.build_single_filtered_experiment(
-                            compendia_sizes, filtered_compendia, name, selection_type=selection_type)
-                        all_rand_experiments.append(rand_experiment)
-                        act = calculate_hypergeometric_activities(rand_experiment, self.networks,
-                                                                    self.network_sizes, name)
+                        results = calculate_random_activity_singleExperiment(compendia_sizes, filtered_compendia, self.networks, self.network_sizes, col, i, save_random_experiments)
+                        # extract results (either activity alone or experiment)
+                        if save_random_experiments:
+                            act, exp = results
+                            all_rand_experiments.append(exp)
+                        else:
+                            act = results
                         activities_list.append(act)
+
+                    # if want to save new precomputed data for each experiment
                     if self.save_new_precompute:
                         activities_list_df = pd.concat(activities_list).reset_index(drop=True)
                         self.save_new_precomputed_random_enrichment(activities_list_df, col)
@@ -555,37 +566,17 @@ class KinaseActivity:
                     # combine all random activities
                 self.random_enrichment = pd.concat(combined_activities_list).reset_index(drop=True)
 
-                # reformat random experiments into single matrix
-                all_rand_experiments = pd.concat(all_rand_experiments)
-                all_rand_experiments['weight'] = 1
-                self.random_experiments = all_rand_experiments.pivot(index=[config.KSTAR_ACCESSION, config.KSTAR_SITE],columns='Experiment',
-                    values='weight').reset_index()
-            else:
-                combined_activities_list = []
-                for col in self.data_columns_from_scratch:
-                    print("tru")
-                    activities_list = []
-                    # determine distribution of study bias across real dataset
-                    compendia_sizes = self.evidence_binary[self.evidence_binary[col] == 1].groupby(
-                            selection_type).size()
-                    for i in range(num_random_experiments):
-                        name = f'{col}:{i}'
-                        rand_experiment = generate_random_experiments.build_single_filtered_experiment(
-                                compendia_sizes, filtered_compendia, name, selection_type='KSTAR_NUM_COMPENDIA_CLASS')
-                        act = calculate_hypergeometric_activities(rand_experiment, self.networks,
-                                                                      self.network_sizes, name)
-                        activities_list.append(act)
-                    if self.save_new_precompute:
-                        activities_list_df = pd.concat(activities_list).reset_index(drop=True)
-                        self.save_new_precomputed_random_enrichment(activities_list_df, col)
-                    combined_activities_list.extend(activities_list)
-                self.random_enrichment = pd.concat(combined_activities_list).reset_index(drop=True)
+                # reformat random experiments into single matrix, if wanting to save
+                if save_random_experiments:
+                    all_rand_experiments = pd.concat(all_rand_experiments)
+                    all_rand_experiments['weight'] = 1
+                    self.random_experiments = all_rand_experiments.pivot(index=[config.KSTAR_ACCESSION, config.KSTAR_SITE],columns='Experiment',
+                        values='weight').reset_index()
 
 
 
 
-
-    def load_pregenerated_random_activities(self, with_pregenerated_evidence, with_pregenerated, pregen_activities_list):
+    def load_pregenerated_random_activities(self):
         """
         Load pre-generated random activities for the given datasets.
 
@@ -605,9 +596,10 @@ class KinaseActivity:
         -------
         None
         """
-        if with_pregenerated_evidence is not None:
+        if len(self.data_columns_with_pregenerated) > 0:
+                #initialize lists
                 self.num_random_experiments = 150
-                dataset_activities_list = []
+                pregen_activities_list = []
                 # Define mapping for compendia file paths
                 compendia_paths = {
                     ('Y', True): 'compendia_0_0_1_30_2_70',
@@ -615,7 +607,8 @@ class KinaseActivity:
                     ('ST', None): 'compendia_0_0_1_30_2_70'
                 }
 
-                for dataset in with_pregenerated:
+                for dataset in self.data_columns_with_pregenerated:
+                    with_pregenerated_evidence = self.evidence_binary[self.evidence_binary['KSTAR_ACCESSION', 'KSTAR_SITE','KSTAR_NUM_COMPENDIA_CLASS', 'KSTAR_NUM_COMPENDIA', dataset]]
                     compendia_class_counts = self.get_compendia_distribution(with_pregenerated_evidence, [dataset])
                     key = (self.phospho_type, compendia_class_counts[dataset][2] > 60 if self.phospho_type == 'Y' else None)
 
@@ -643,10 +636,12 @@ class KinaseActivity:
                         rand_dataset_activities['data'] = rand_dataset_activities['data'].apply(
                             lambda x: f"{dataset}{pattern.search(x).group()}" if pattern.search(x) else x
                         )
-                    dataset_activities_list.append(rand_dataset_activities)
+                    pregen_activities_list.append(rand_dataset_activities)
 
-                pregen_activities_list.append(pd.concat(dataset_activities_list))
-                self.pregenerated_random_activities = pd.concat(pregen_activities_list)
+                pregen_activities_list = pd.concat(pregen_activities_list)
+                self.pregenerated_random_activities = pregen_activities_list
+        else:
+            self.pregenerated_random_activities = pd.DataFrame()
 
     def add_pregenerated_to_random_enrichment(self):
         """
@@ -665,8 +660,10 @@ class KinaseActivity:
         """
 
         if self.use_pregen_data:
-            if self.data_columns_from_scratch is None:
+            if len(self.data_columns_from_scratch) == 0:
                 self.random_enrichment = self.pregenerated_random_activities
+            elif len(self.data_columns_with_pregenerated) == 0:
+                self.random_enrichment = self.random_enrichment
             else:
                 # Combine the two DataFrames
                 combined_df = pd.concat([self.random_enrichment, self.pregenerated_random_activities],
@@ -1274,33 +1271,33 @@ def calculate_hypergeometric_activities(evidence, networks, network_sizes, name)
     return hyp_act
 
 
-def calculate_random_activity_singleExperiment(filtered_evidence, filtered_compendia, networks, network_sizes, data_col,
-                                               num_random_experiments=150, save_experiments=False):
-    if save_experiments:
-        real_enrichment = []
-        all_rand_experiments = []
-        for i in range(num_random_experiments):
-            name = f'{data_col}:{i}'
-            rand_experiment = generate_random_experiments.build_single_filtered_experiment(filtered_evidence,
-                                                                                           filtered_compendia, name,
-                                                                                           selection_type='KSTAR_NUM_COMPENDIA_CLASS')
-            all_rand_experiments.append(rand_experiment)
-            act = calculate_hypergeometric_activities(rand_experiment, networks, network_sizes, name)
-            real_enrichment.append(act)
-        return real_enrichment, all_rand_experiments
-    else:
-        real_enrichment = []
-        for i in range(num_random_experiments):
-            name = f'{data_col}:{i}'
-            rand_experiment = generate_random_experiments.build_single_filtered_experiment(filtered_evidence,
-                                                                                           filtered_compendia, name,
-                                                                                           selection_type='KSTAR_NUM_COMPENDIA_CLASS')
-            act = calculate_hypergeometric_activities(rand_experiment, networks, network_sizes, name)
-            real_enrichment.append(act)
-        return real_enrichment
+#def calculate_random_activity_singleExperiment(filtered_evidence, filtered_compendia, networks, network_sizes, data_col,
+#                                               num_random_experiments=150, save_experiments=False):
+#    if save_experiments:
+#        real_enrichment = []
+#        all_rand_experiments = []
+#        for i in range(num_random_experiments):
+#            name = f'{data_col}:{i}'
+#            rand_experiment = generate_random_experiments.build_single_filtered_experiment(filtered_evidence,
+#                                                                                           filtered_compendia, name,
+#                                                                                           selection_type='KSTAR_NUM_COMPENDIA_CLASS')
+#            all_rand_experiments.append(rand_experiment)
+#            act = calculate_hypergeometric_activities(rand_experiment, networks, network_sizes, name)
+#            real_enrichment.append(act)
+#        return real_enrichment, all_rand_experiments
+#    else:
+#        real_enrichment = []
+#        for i in range(num_random_experiments):
+#            name = f'{data_col}:{i}'
+#            rand_experiment = generate_random_experiments.build_single_filtered_experiment(filtered_evidence,
+#                                                                                           filtered_compendia, name,
+#                                                                                           selection_type='KSTAR_NUM_COMPENDIA_CLASS')
+#            act = calculate_hypergeometric_activities(rand_experiment, networks, network_sizes, name)
+#            real_enrichment.append(act)
+#        return real_enrichment
 
 
-def calculate_random_activity_singleExperiment2(compendia_sizes, filtered_compendia, networks, network_sizes, data_col,
+def calculate_random_activity_singleExperiment(compendia_sizes, filtered_compendia, networks, network_sizes, data_col,
                                                 exp_num, save_experiments=False):
     name = f'{data_col}:{exp_num}'
     rand_experiment = generate_random_experiments.build_single_filtered_experiment(compendia_sizes, filtered_compendia,
@@ -1485,7 +1482,7 @@ def enrichment_analysis(experiment, log, networks, phospho_types=['Y', 'ST'], da
         kinact_dict[phospho_type] = kinact
     return kinact_dict
 
-def randomized_analysis(kinact_dict, log, num_random_experiments=150, use_pregen_data = False,
+def randomized_analysis(kinact_dict, num_random_experiments=150, use_pregen_data = False,
                         save_new_precompute = False, pregenerated_experiments_path = None,
                         directory_for_save_precompute = None, network_hash = None, save_random_experiments = None, PROCESSES = 1):
     """
@@ -1544,11 +1541,11 @@ def randomized_analysis(kinact_dict, log, num_random_experiments=150, use_pregen
             raise ValueError("network_hash must be a valid SHA-256 hash")
 
     for phospho_type, kinact in kinact_dict.items():
-        kinact.calculate_random_activities(log, num_random_experiments, use_pregen_data,save_new_precompute,
+        kinact.calculate_random_activities(num_random_experiments, use_pregen_data,save_new_precompute,
                                            pregenerated_experiments_path, directory_for_save_precompute,
                                            network_hash, save_random_experiments, PROCESSES=PROCESSES)
-    # Ensure `random_experiments` is stored in `kinact_dict`
-    kinact_dict[phospho_type].random_experiments = kinact.random_experiments
+        # Ensure `random_experiments` is stored in `kinact_dict`
+        #kinact_dict[phospho_type].random_experiments = kinact.random_experiments
 
 def Mann_Whitney_analysis(kinact_dict, log, number_sig_trials=100, PROCESSES=1):
     """
