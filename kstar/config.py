@@ -94,11 +94,14 @@ def install_resource_files():
 
     print("Extracting %s" % outputFile)
     t.extractall(KSTAR_DIR)
+    t.close()
+    #remove tar file
+    os.remove(outputFile)
 
 
 # def update_network_directory(directory, *kwargs):
 
-def install_network_files(target_dir=None):
+def install_network_files(target_dir=None, create_pickles = False):
     """Retrieves Network files that are the companion for this version release from FigShare, unzips them to the specified directory."""
     global DIRECTORY_FOR_SAVE_PRECOMPUTE
 
@@ -118,9 +121,15 @@ def install_network_files(target_dir=None):
 
     print(f"Extracting {outputFile}")
     t.extractall(install_dir)
-    update_network_directory(f"{install_dir}/NETWORKS/NetworKIN", create_pickles=True)
+    t.close()
+        # remove tar file
+    os.remove(outputFile)
 
-def update_network_directory(directory, create_pickles=True, KSTAR_DIR=KSTAR_DIR, NETWORK_DIR=NETWORK_DIR):
+    #update network directory
+    NETWORK_DIR, NETWORK_Y_PICKLE, NETWORK_ST_PICKLE = update_network_directory(f"{install_dir}/NETWORKS/NetworKIN", create_pickles=False)
+    return NETWORK_DIR, NETWORK_Y_PICKLE, NETWORK_ST_PICKLE
+
+def update_network_directory(directory, create_pickles=False, KSTAR_DIR=KSTAR_DIR, NETWORK_DIR=NETWORK_DIR):
     """
     Update the location of network the network files, and verify that all necessary files are located in directory
 
@@ -175,9 +184,9 @@ def update_network_directory(directory, create_pickles=True, KSTAR_DIR=KSTAR_DIR
         else:
             print('Network pickles already generated')
 
-    # update location of network pickles
-    NETWORK_Y_PICKLE = f"{NETWORK_DIR}/network_Y.p"  # created by create_networkin_pickles()
-    NETWORK_ST_PICKLE = f"{NETWORK_DIR}/network_ST.p"  # created by create_networkin_pickles()
+        # update location of network pickles
+        NETWORK_Y_PICKLE = f"{NETWORK_DIR}/network_Y.p"  # created by create_networkin_pickles()
+        NETWORK_ST_PICKLE = f"{NETWORK_DIR}/network_ST.p"  # created by create_networkin_pickles()
     return NETWORK_DIR, NETWORK_Y_PICKLE, NETWORK_ST_PICKLE
 
 # def create_network_pickles(phosphoType = ['Y','ST'], *kwargs)
