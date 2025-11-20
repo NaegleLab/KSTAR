@@ -2,7 +2,15 @@
 .DS_Store
 *.xls
 *.xlsx
+#resource files
 RESOURCE_FILES/
+kstar/RESOURCE_FILES/
+kstar/NETWORKS/
+
+#galaxy files that are copies
+galaxy/NETWORKS/
+galaxy/RESOURCE_FILES/
+galaxy/kstar/
 
 # nextflow 
 .nextflow*

@@ -1,4 +1,5 @@
-from Bio import SeqIO
+#from Bio import SeqIO
+import os, re, json
 import logging
 import argparse
 import urllib.parse
@@ -18,13 +19,24 @@ def process_fasta_file(fasta_file):
 	sequences : dict
 		{acc : sequence} dictionary generated from fasta file
 	"""
-	seqs = SeqIO.parse(open(fasta_file), 'fasta')
-
 	sequences = {}
-	for entry in seqs:
-		seq = str(entry.seq)
-		acc = entry.id.split('|')[1].strip()
-		sequences[acc] = seq
+	with open(fasta_file, "r") as f:
+		lines = f.readlines()
+		#find header lines by looking for lines that start with '>'
+
+		for i in range(len(lines)):
+			if lines[i].startswith('>'):
+				accession = lines[i].split('|')[1] #get accession from header
+				
+				#grab all sequences
+				seq = ''
+				j = i + 1
+				#collect sequence lines until the next header or end of file
+				while j < len(lines) and not lines[j].startswith('>'):
+					seq += lines[j].strip()
+					j += 1
+				#extract accession from header
+				sequences[accession] = seq
 	return sequences
 
 
@@ -97,50 +109,95 @@ def convert_acc_to_uniprot(df, acc_col_name, acc_col_type, acc_uni_name):
 	"""
 	# Convert refseq to Uniprot identifiers from the header of cptac dataset
 
-
-	#get the unique identifiers 
+	# get the unique identifiers
 	accVals = list(set(df[acc_col_name].values))
 
-	#create a query string for uniprot query
+	# create a query string for uniprot query
 	queryString = ''
 	for acc in accVals:
-	    #remove the isoform, which maps strangely
-
-	    queryString = "%s %s"%(queryString, acc)
+		# remove the isoform, which maps strangely
+		queryString = "%s %s" % (queryString, acc)
 
 	url = 'https://www.uniprot.org/uploadlists/'
 
 	params = {
-	'from': acc_col_type,
-	'to': 'ACC',
-	'format': 'tab',
-	'query': queryString#list(set(refseqList))
+		'from': acc_col_type,
+		'to': 'ACC',
+		'format': 'tab',
+		'query': queryString  # list(set(refseqList))
 	}
 
 	data = urllib.parse.urlencode(params)
 	data = data.encode('utf-8')
 	req = urllib.request.Request(url, data)
 	with urllib.request.urlopen(req) as f:
-	   response = f.read()
-	#print(response.decode('utf-8'))
+		response = f.read()
+	# print(response.decode('utf-8'))
 
-	ref_to_uni ={}
+	ref_to_uni = {}
 
 	for line in response.decode('utf-8').split('\n'):
-	    if line:
-	        l_arr = line.split('\t')
-	        fromVal = l_arr[0]
-	        if acc_col_type=='P_GI':
-	        	fromVal = 'gi|'+str(l_arr[0]) 
-	        ref_to_uni[fromVal] = l_arr[1]
+		if line:
+			l_arr = line.split('\t')
+			fromVal = l_arr[0]
+			if acc_col_type == 'P_GI':
+				fromVal = 'gi|' + str(l_arr[0])
+			ref_to_uni[fromVal] = l_arr[1]
 
-	#now walk through each row, create a unique and add accession
+	# now walk through each row, create a unique and add accession
 	uniprot_arr = []
 	for index, row in df.iterrows():
-	    acc = row[acc_col_name]
-	    if acc in ref_to_uni:
-	        uniprot_arr.append(ref_to_uni[acc])
-	    else:
-	        uniprot_arr.append('NotFound')
-	df[acc_uni_name]=uniprot_arr
+		acc = row[acc_col_name]
+		if acc in ref_to_uni:
+			uniprot_arr.append(ref_to_uni[acc])
+		else:
+			uniprot_arr.append('NotFound')
+	df[acc_uni_name] = uniprot_arr
 	return df
+
+#get network hash associated with Y and ST networks
+def parse_network_information(network_directory, file_type = 'txt'):
+	"""
+	Parse the RUN_INFORMATION.txt file from network pruning run and extract its data.
+
+	Args:
+		file_path (str): Path to the RUN_INFORMATION.txt file.
+
+	Returns:
+		dict: A dictionary containing the parsed data.
+	"""
+	if file_type == 'txt':
+		file_path = os.path.join(network_directory, "RUN_INFORMATION.txt")
+		try:
+			with open(file_path, 'r') as file:
+				content = file.read()
+			return {
+				"unique_network_id": re.search(r"Unique Network ID:\s+([a-fA-F0-9]+)", content).group(1),
+				"unique_reference_id": re.search(r"Unique Reference ID:\s+([a-fA-F0-9]+)", content).group(1),
+				"date_run": re.search(r"Date Run\s+([\d-]+\s[\d:.]+)", content).group(1),
+				"network_used": re.search(r"Network Used\s+([^\n]+)", content).group(1).strip(),
+				"phospho_type": re.search(r"Phospho Type\s+(\w+)", content).group(1),
+				"kinase_size": int(re.search(r"Kinase Size\s+(\d+)", content).group(1)),
+				"site_limit": int(re.search(r"Site Limit\s+(\d+)", content).group(1)),
+				"num_networks": int(re.search(r"# of Networks\s+(\d+)", content).group(1)),
+				"use_compendia": re.search(r"Use Compendia\s+(\w+)", content).group(1).lower() == "yes",
+				"compendia_counts": list(map(int, re.findall(r"Compendia \d+\s+(\d+)", content))),
+			}
+		except FileNotFoundError:
+			raise FileNotFoundError(f"RUN_INFORMATION.txt file not found at: {file_path}")
+		except AttributeError as e:
+			raise ValueError(f"Error parsing the RUN_INFORMATION.txt file: {e}")
+	elif file_type == 'json':
+		file_path = os.path.join(network_directory, "RUN_INFORMATION.json")
+
+		try:
+			with open(file_path, 'r') as file:
+				data = json.load(file)
+
+			return data
+		except FileNotFoundError:
+			raise FileNotFoundError(f"RUN_INFORMATION.json file not found at: {file_path}")
+		except json.JSONDecodeError as e:
+			raise ValueError(f"Error parsing the RUN_INFORMATION.json file: {e}")
+	else:
+		raise ValueError("file_type must be either 'txt' or 'json'")

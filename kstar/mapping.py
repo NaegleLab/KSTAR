@@ -98,6 +98,16 @@ class ExperimentMapper:
 
         #initialize dataframe to record sites that could not be mapped
         self.not_mapped = pd.DataFrame()
+
+        #identify cases where accession ids in experiment are not found in resource files
+        accession_not_found = self.experiment[~self.experiment[config.KSTAR_ACCESSION].isin(self.compendia[config.KSTAR_ACCESSION])].copy()
+        accession_not_found['Error'] = 'Accession not present in reference'
+        self.not_mapped = pd.concat([self.not_mapped, accession_not_found], ignore_index=True)
+
+        #keep only those accessions that are found in compendia
+        self.experiment = self.experiment[self.experiment[config.KSTAR_ACCESSION].isin(self.compendia[config.KSTAR_ACCESSION])]
+        
+        #align peptides/sites to reference sequences
         self.align_sites(window)
 
         compendia = self.compendia[[config.KSTAR_ACCESSION, config.KSTAR_SITE, 'KSTAR_NUM_COMPENDIA', 'KSTAR_NUM_COMPENDIA_CLASS']]
@@ -276,9 +286,12 @@ class ExperimentMapper:
             with open(f"{self.odir}/MAPPED_DATA/{self.name}_mapping_stats.txt", 'w') as f:
                 #get number of sites in each data column in experiment
                 f.write('Site counts per data column after mapping:\n')
-                for data_col in self.data_columns:
-                    num_sites = self.experiment[[config.KSTAR_ACCESSION, config.KSTAR_SITE, data_col]].drop_duplicates()
-                    f.write(f"{data_col} -> {len(num_sites)}\n")
+                for phospho_type in ['Y', 'ST']:
+                    f.write(f"\nPhospho type: {phospho_type}\n")
+                    for data_col in self.data_columns:
+                        num_sites = self.experiment.loc[self.experiment[config.KSTAR_SITE].str.startswith(tuple(phospho_type)), [config.KSTAR_ACCESSION, config.KSTAR_SITE, data_col]].dropna().drop_duplicates()
+                        f.write(f"{data_col} -> {len(num_sites)}\n")
+                    
 
                 f.write('\nMapping success statistics:\n')
                 if 'site' in self.columns:
