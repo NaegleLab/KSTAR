@@ -24,22 +24,64 @@ Update these if you want to update:
 KSTAR_DIR = os.path.dirname(os.path.abspath(__file__))
 RESOURCE_DIR = KSTAR_DIR + "/RESOURCE_FILES"
 
+#read information about reference files
+with open(f"{RESOURCE_DIR}/reference_info.json", "r") as f:
+    REFERENCE_INFO = json.load(f)
+
 
 ###### Customizable configuration ####################
 configuration_file = f'{KSTAR_DIR}/configuration.json'
 with open(configuration_file, 'r') as cf:
     config_data = json.load(cf)
 
-#extract network directory from configuration file, make sure it can be found. By default this will be located in KSTAR_DIR/NETWORKS/NetworKIN
+#extract network directory from configuration file, make sure it can be found. By default this will be located in KSTAR_DIR/NETWORKS/
 NETWORK_DIR = config_data["network_directory"]
+if NETWORK_DIR is None or NETWORK_DIR == "":
+    NETWORK_DIR = f"{KSTAR_DIR}/NETWORKS/"
+#look for tyrosine and serine/threonine networks by name, then load network information
+NETWORK_NAME = {}
+NETWORK_NAME['Y'] = config_data.get('tyrosine_network_name', 'Default')
+NETWORK_NAME['ST'] = config_data.get('serine_threonine_network_name', 'Default')
+
+
+DEFAULT_RANDOM_ACTIVITIES_DIR = NETWORK_DIR
+NETWORK_SUBDIR = {'Y': f"{NETWORK_DIR}/Y/{NETWORK_NAME['Y']}/",
+                  'ST': f"{NETWORK_DIR}/ST/{NETWORK_NAME['ST']}/"}
+
+
+NETWORK_INFO = {}
+NETWORK_HASH = {}
+#check that network directory exists
+if not os.path.isdir(f"{NETWORK_DIR}"):
+    print('Warning: Could not find network directory as specified in configuration file. If you have not downloaded networks, please do so using config.install_network_files(). If using your own networks, please update the configuration file using config.update_configuration() to point to correct directory and network name')
+else:
+    #check to make sure Y network folder exists, if it does, make sure its compatible with reference
+    if not os.path.isdir(NETWORK_SUBDIR['Y']):
+        print(f'Warning: Could not find tyrosine network that goes by the name {NETWORK_NAME["Y"]}. Please update the name of the network you would like to use in the configuration file using config.update_configuration()')
+    else:
+        #load network information, make sure its compatible with reference    
+        NETWORK_INFO['Y'] = helpers.parse_network_information(NETWORK_SUBDIR['Y'])
+        NETWORK_HASH['Y'] = NETWORK_INFO['Y']['unique_network_id']
+        if NETWORK_INFO['Y']['unique_reference_id'] != REFERENCE_INFO['unique_reference_id']:
+            print(f'Warning: The tyrosine network you have selected does not match the reference proteome used in this KSTAR installation. Please verify that the KSTAR networks were created using the same reference phosphoproteome.')
+
+    #check to make sure ST network folder exists,if it does, make sure its compatible with reference
+    if not os.path.isdir(NETWORK_SUBDIR['ST']):
+        print(f'Warning: Could not find serine/threonine network that goes by the name {NETWORK_NAME["ST"]}. Please update the name of the network you would like to use in the configuration file using config.update_configuration()')
+    else:
+        ST_NETWORK_INFO = helpers.parse_network_information(NETWORK_SUBDIR['ST'])
+        NETWORK_HASH['ST'] = ST_NETWORK_INFO['unique_network_id']
+        if ST_NETWORK_INFO['unique_reference_id'] != REFERENCE_INFO['unique_reference_id']:
+            print(f'Warning: The serine/threonine network you have selected does not match the reference proteome used in this KSTAR installation. Please verify that the KSTAR networks were created using the same reference phosphoproteome.')
+
+
+
+
+######## Pregeneration parameters ################
 CUSTOM_RANDOM_ACTIVITIES_DIR = config_data["custom_pregenerated_experiments_dir"]
-# PARAMETERS USED FOR RUNNING KSTAR USING PREGENERATED RANDOM ACTIVITIES
 USE_PREGENERATED_RANDOM_ACTIVITIES = config_data['use_pregenerated_random_activities']
 SAVE_NEW_RANDOM_ACTIVITIES = config_data['save_new_random_activities']
 SAVE_RANDOM_EXPERIMENTS = config_data['save_random_experiments']
-NETWORK_HASH_Y = config_data['Y_network_hash']
-NETWORK_HASH_ST = config_data['ST_network_hash']
-
 
 ######### static configuration (user cannot change) ################
 RESOURCE_URL = 'https://ndownloader.figshare.com/files/28762653'  # location of corresponding release of data
@@ -82,17 +124,77 @@ except FileNotFoundError:
 if NETWORK_DIR is None or NETWORK_DIR == "":
     NETWORK_DIR = f"{KSTAR_DIR}/NETWORKS/NetworKIN"
 
-# check to see if networks can be found
-if not os.path.isdir(NETWORK_DIR):
-    print('Could not find network directory. Please update using config.update_network_directory().')
 
-DEFAULT_RANDOM_ACTIVITIES_DIR = NETWORK_DIR
-Y_NETWORK_DIR = f"{NETWORK_DIR}/Y/{NETWORK_HASH_Y}/"
-ST_NETWORK_DIR = f"{NETWORK_DIR}/ST/{NETWORK_HASH_ST}/"
+DEFAULT_RANDOM_ACTIVITIES_DIR = {
+    'Y': f"{NETWORK_DIR}/Y/{NETWORK_NAME['Y']}/RANDOM_ACTIVITIES/",
+    'ST': f"{NETWORK_DIR}/ST/{NETWORK_NAME['ST']}/RANDOM_ACTIVITIES/"
+}
+
 
 
 ## END DECLARATION OF GLOBALS
-def update_configuration(network_dir=None, y_network_hash=None, st_network_hash=None, save_random_experiments = None, use_pregenerated_random_activities=None, save_new_random_activities=None, custom_pregenerated_experiments_dir=None):
+
+
+## USER FUNCTIONS TO UPDATE CONFIGURATION GLOBALS
+def update_network_directory(network_dir = None, y_network_name = None, st_network_name = None):
+    """
+    Update the location of network the network files, and verify that all necessary files are located in directory
+
+    Parameters
+    ----------
+    network_dir: string
+        path to where network files are located
+    y_network_name: string
+        name of the tyrosine network to use
+    st_network_name: string
+        name of the serine/threonine network to use
+
+    """
+    global NETWORK_DIR
+    global NETWORK_SUBDIR
+    global NETWORK_NAME
+    global NETWORK_INFO
+    if network_dir is not None:
+        NETWORK_DIR = network_dir
+        #check to make sure directory exists
+        if not os.path.isdir(network_dir):
+            raise ValueError(f"Provided network directory {network_dir} does not exist. Please provide a valid directory.")
+
+        if y_network_name is None:
+            #check to make sure subdirectories exist
+            NETWORK_SUBDIR['Y'] = f"{NETWORK_DIR}/Y/{NETWORK_NAME['Y']}/"
+            if not os.path.exists(f"{NETWORK_SUBDIR['Y']}/RUN_INFORMATION.txt"):
+                raise ValueError(f"Tyrosine network directory {NETWORK_SUBDIR['Y']} does not exist. Please provide a valid network name for the tyrosine network you would like to use and can be found in provided network directory.")
+            NETWORK_SUBDIR['ST'] = f"{NETWORK_DIR}/ST/{NETWORK_NAME['ST']}/"
+
+        if st_network_name is None:
+            NETWORK_SUBDIR['ST'] = f"{NETWORK_DIR}/ST/{NETWORK_NAME['ST']}/"
+            if not os.path.exists(f"{NETWORK_SUBDIR['ST']}/RUN_INFORMATION.txt"):
+                raise ValueError(f"Serine/threonine network directory {NETWORK_SUBDIR['ST']} does not exist. Please provide a valid network name for the serine/threonine network you would like to use and can be found in provided network directory.")
+
+    #update specifc network directories if needed
+    if y_network_name is not None:
+        NETWORK_NAME['Y'] = y_network_name
+        #Y_NETWORK_DIR = f"{NETWORK_DIR}/Y/{NETWORK_HASH_Y}/"
+        NETWORK_SUBDIR['Y'] = f"{NETWORK_DIR}/Y/{NETWORK_NAME['Y']}/"
+        if not os.path.exists(f"{NETWORK_SUBDIR['Y']}/RUN_INFORMATION.txt"):
+            raise ValueError(f"Tyrosine network directory {NETWORK_SUBDIR['Y']} does not exist. Please provide a valid network name for the tyrosine network you would like to use and can be found in provided network directory.")
+
+
+
+    if st_network_name is not None:
+        NETWORK_NAME['ST'] = st_network_name
+        #ST_NETWORK_DIR = f"{NETWORK_DIR}/ST/{NETWORK_HASH_ST}/"
+        NETWORK_SUBDIR['ST'] = f"{NETWORK_DIR}/ST/{NETWORK_NAME['ST']}/"
+        if not os.path.exists(f"{NETWORK_SUBDIR['ST']}/RUN_INFORMATION.txt"):
+            raise ValueError(f"Serine/threonine network directory {NETWORK_SUBDIR['ST']} does not exist. Please provide a valid network name for the serine/threonine network you would like to use and can be found in provided network directory.")
+    
+    #read in network info
+    NETWORK_INFO['ST'] = helpers.parse_network_information(f"{NETWORK_DIR}/ST/{NETWORK_NAME['ST']}/")
+    NETWORK_INFO['Y'] = helpers.parse_network_information(f"{NETWORK_DIR}/Y/{NETWORK_NAME['Y']}/")
+
+
+def update_configuration(network_dir=None, y_network_name=None, st_network_name=None, save_random_experiments = None, use_pregenerated_random_activities=None, save_new_random_activities=None, custom_pregenerated_activities_dir=None):
     """
     Update configuration parameters in current iteration and save to configuration file.
 
@@ -102,7 +204,7 @@ def update_configuration(network_dir=None, y_network_hash=None, st_network_hash=
         Whether to use pregenerated random activities when possible, by default None
     save_new_random_activities : bool, optional
         Whether to save new random activities when they are generated, by default False
-    custom_pregenerated_experiments_dir : str, optional
+    custom_pregenerated_activities_dir : str, optional
         Directory to save newly generated random activities for future use, by default None
     network_dir : str, optional
         Directory containing the kinase-substrate networks, by default None (which assumes it is located in kstar directory)
@@ -111,57 +213,34 @@ def update_configuration(network_dir=None, y_network_hash=None, st_network_hash=
     st_network_hash : str, optional
         Unique identifier of the serine/threonine network to use by default.
     """
+    global SAVE_RANDOM_EXPERIMENTS
+    global CUSTOM_RANDOM_ACTIVITIES_DIR
+    global SAVE_NEW_RANDOM_ACTIVITIES
+    global USE_PREGENERATED_RANDOM_ACTIVITIES
     if use_pregenerated_random_activities is not None:
-        global USE_PREGENERATED_RANDOM_ACTIVITIES
         USE_PREGENERATED_RANDOM_ACTIVITIES = use_pregenerated_random_activities
     if save_new_random_activities is not None:
-        global SAVE_NEW_RANDOM_ACTIVITIES
         SAVE_NEW_RANDOM_ACTIVITIES = save_new_random_activities
-    if custom_pregenerated_experiments_dir is not None:
-        if not os.path.isdir(custom_pregenerated_experiments_dir):
-            raise ValueError(f"Provided pregenerated experiments directory {custom_pregenerated_experiments_dir} does not exist. Please provide a valid directory.")
-        global CUSTOM_RANDOM_ACTIVITIES_DIR
-        CUSTOM_RANDOM_ACTIVITIES_DIR = custom_pregenerated_experiments_dir
+    if custom_pregenerated_activities_dir is not None:
+        if not os.path.isdir(custom_pregenerated_activities_dir):
+            raise ValueError(f"Provided pregenerated activities directory {custom_pregenerated_activities_dir} does not exist. Please provide a valid directory.")
+        CUSTOM_RANDOM_ACTIVITIES_DIR = custom_pregenerated_activities_dir
     if save_random_experiments is not None:
-        global SAVE_RANDOM_EXPERIMENTS
         SAVE_RANDOM_EXPERIMENTS = save_random_experiments
 
-    if network_dir is not None:
-        #check to make sure directory exists
-        if not os.path.isdir(network_dir):
-            raise ValueError(f"Provided network directory {network_dir} does not exist. Please provide a valid directory.")
-        global NETWORK_DIR
-        global Y_NETWORK_DIR
-        global ST_NETWORK_DIR
-        NETWORK_DIR = network_dir
-        #update specifc network directories if needed
-        if y_network_hash is not None:
-            global NETWORK_HASH_Y
-            NETWORK_HASH_Y = y_network_hash
-            #Y_NETWORK_DIR = f"{NETWORK_DIR}/Y/{NETWORK_HASH_Y}/"
-            Y_NETWORK_DIR = f"{NETWORK_DIR}/Y/"
-        else:
-            #Y_NETWORK_DIR = f"{NETWORK_DIR}/Y/{NETWORK_HASH_Y}/"
-            Y_NETWORK_DIR = f"{NETWORK_DIR}/Y/"
+    #update network directory and names if provided
+    update_network_directory(network_dir=network_dir, y_network_name=y_network_name, st_network_name=st_network_name)
 
-        if st_network_hash is not None:
-            global NETWORK_HASH_ST
-            NETWORK_HASH_ST = st_network_hash
-            #ST_NETWORK_DIR = f"{NETWORK_DIR}/ST/{NETWORK_HASH_ST}/"
-            ST_NETWORK_DIR = f"{NETWORK_DIR}/ST/"
-        else:
-            #ST_NETWORK_DIR = f"{NETWORK_DIR}/ST/{NETWORK_HASH_ST}/"
-            ST_NETWORK_DIR = f"{NETWORK_DIR}/ST/"
 
     #save changes to configuration file
     config_data = {
         "network_directory": NETWORK_DIR,
+        "Y_network_name": NETWORK_NAME['Y'],
+        "ST_network_name": NETWORK_NAME['ST'],
         'save_random_experiments': SAVE_RANDOM_EXPERIMENTS,
         "use_pregenerated_random_activities": USE_PREGENERATED_RANDOM_ACTIVITIES,
         "save_new_random_activities": SAVE_NEW_RANDOM_ACTIVITIES,
         "custom_pregenerated_experiments_dir": CUSTOM_RANDOM_ACTIVITIES_DIR,
-        "Y_network_hash": NETWORK_HASH_Y,
-        "ST_network_hash": NETWORK_HASH_ST
     }
 
     configuration_file = f'{KSTAR_DIR}/configuration.json'
@@ -222,7 +301,7 @@ def install_network_files(target_dir=None, create_pickles = False):
     os.remove(outputFile)
 
     #update network directory
-    update_configuration(network_dir=f"{install_dir}/NETWORKS/NetworKIN")
+    update_configuration(network_dir=f"{install_dir}/NETWORKS/NetworKIN", y_network_name='Default', st_network_name='Default')
     #update_network_directory(f"{install_dir}/NETWORKS/NetworKIN", create_pickles=False)
     #return NETWORK_DIR, NETWORK_Y_PICKLE, NETWORK_ST_PICKLE
 
@@ -245,7 +324,7 @@ def install_network_files(target_dir=None, create_pickles = False):
 #    with open(f'{KSTAR_DIR}/kstar/directories.txt', 'w') as d:
 #        d.writelines(lines)
 
-def find_available_network_hashes(phospho_type):
+def find_available_networks(phospho_type):
     """
     Find available network hashes in the current network directory, and return dictionary with information about them
 
@@ -257,34 +336,86 @@ def find_available_network_hashes(phospho_type):
     available_networks = {}
 
     for item in os.listdir(NETWORK_DIR + f'/{phospho_type}/'):
-        item_path = os.path.join(NETWORK_DIR, item)
+        item_path = os.path.join(NETWORK_DIR, phospho_type, item)
 
         #read network information
-        network_info = parse_network_information_json(item_path)
+        network_info = helpers.parse_network_information(item_path)
         available_networks[item] = network_info
     return available_networks
 
-def update_network_directory(directory):
-    """
-    Update the location of network the network files, and verify that all necessary files are located in directory
 
-    Parameters
-    ----------
-    directory: string
-        path to where network files are located
+def get_package_memory():
+    #compute size of resource files
+    reference_size = 0
+    for root, dirs, files in os.walk(RESOURCE_DIR):
+        for file in files:
+            path = os.path.join(root, file)
+            if os.path.isfile(path):
+                reference_size += os.path.getsize(path)
+
+    #network and pregenerated activities size    
+    total_size = {'Y': 0, 'ST': 0}
+    network_size = {'Y': 0, 'ST': 0}
+    rand_activity_size = {'Y': 0, 'ST': 0}
+    custom_activity_size = {'Y': 0, 'ST': 0}
+    for phospho_type in ['Y', 'ST']:
+        for root, dirs, files in os.walk(NETWORK_SUBDIR[phospho_type]):
+            for file in files:
+                path = os.path.join(root, file)
+                if os.path.isfile(path):
+                    total_size[phospho_type] += os.path.getsize(path)
+                    
+                    if 'INDIVIDUAL_NETWORKS' in root and file.endswith('.tsv'):
+                        network_size[phospho_type] += os.path.getsize(path)
+                    elif 'RANDOM_ACTIVITIES' in root and file.endswith('.tsv'):
+                        rand_activity_size[phospho_type] += os.path.getsize(path)
+            if CUSTOM_RANDOM_ACTIVITIES_DIR is not None:
+                custom_dir = os.path.join(CUSTOM_RANDOM_ACTIVITIES_DIR, phospho_type, NETWORK_NAME[phospho_type])
+                if os.path.isdir(custom_dir):
+                    for root, dirs, files in os.walk(custom_dir):
+                        for file in files:
+                            path = os.path.join(root, file)
+                            if os.path.isfile(path) and file.endswith('.tsv'):
+                                custom_activity_size[phospho_type] += os.path.getsize(path)
+
+    
+
+    #report memory in GB
+    print(f"Total reference proteome size: {reference_size / (1024**3):.2f} GB\n")
+    print('Tyrosine Network Directory:')
+    print(f"Total network directory size: {total_size['Y'] / (1024**3):.2f} GB")
+    print(f"Total .tsv network size: {network_size['Y'] / (1024**3):.2f} GB")
+    print(f"Total default random activity size: {rand_activity_size['Y'] / (1024**3):.2f} GB")
+    print(f"Total custom random activity size: {custom_activity_size['Y'] / (1024**3):.2f} GB")
+
+    print('\nSerine/Threonine Network Directory:')
+    print(f"Total network directory size: {total_size['ST'] / (1024 **3):.2f} GB")
+    print(f"Total .tsv network size: {network_size['ST'] / (1024 **3):.2f} GB")
+    print(f"Total default random activity size: {rand_activity_size['ST'] / (1024 **3):.2f} GB")
+    print(f"Total custom random activity size: {custom_activity_size['ST'] / (1024 **3):.2f} GB")
 
 
-    """
+#def update_network_directory(directory):
+#    """
+#    Update the location of network the network files, and verify that all necessary files are #located in directory
+
+#    Parameters
+#    ----------
+#    directory: string
+#        path to where network files are located
+
+
+#    """
 
     # check that directory exists
-    if not os.path.isdir(directory):
-        print(
-            'Directory not found, so configuration was not updated and no pickles were generated. Please verify that directory is correct')
-        return
+#    if not os.path.isdir(directory):
+#        print(
+#            'Directory not found, so configuration was not updated and no pickles were generated. #Please verify that directory is correct')
+#        return
 
     # update network directory in directories.txt (first line of the file)
-    update_configuration(network_dir = directory)
-    print('Network directory updated.')
+#    update_configuration(network_dir = directory)
+#    print('Network directory updated.')
 
 
 # def create_network_pickles(phosphoType = ['Y','ST'], *kwargs)
@@ -321,59 +452,6 @@ def update_network_directory(directory):
 #    CUSTOM_PREGENERATED_EXPERIMENTS_DIR = new_directory
 #    update_directory_file()
 
-def parse_network_information(network_directory):
-    """
-    Parse the RUN_INFORMATION.txt file from network pruning run and extract its data.
-
-    Args:
-        file_path (str): Path to the RUN_INFORMATION.txt file.
-
-    Returns:
-        dict: A dictionary containing the parsed data.
-    """
-    file_path = os.path.join(network_directory, "RUN_INFORMATION.txt")
-
-    try:
-        with open(file_path, 'r') as file:
-            content = file.read()
-
-        return {
-            "unique_id": re.search(r"Unique ID:\s+([a-fA-F0-9]+)", content).group(1),
-            "date_run": re.search(r"Date Run\s+([\d-]+\s[\d:.]+)", content).group(1),
-            "network_used": re.search(r"Network Used\s+([^\n]+)", content).group(1).strip(),
-            "phospho_type": re.search(r"Phospho Type\s+(\w+)", content).group(1),
-            "kinase_size": int(re.search(r"Kinase Size\s+(\d+)", content).group(1)),
-            "site_limit": int(re.search(r"Site Limit\s+(\d+)", content).group(1)),
-            "num_networks": int(re.search(r"# of Networks\s+(\d+)", content).group(1)),
-            "use_compendia": re.search(r"Use Compendia\s+(\w+)", content).group(1).lower() == "yes",
-            "compendia_counts": list(map(int, re.findall(r"Compendia \d+\s+(\d+)", content))),
-        }
-    except FileNotFoundError:
-        raise FileNotFoundError(f"RUN_INFORMATION.txt file not found at: {file_path}")
-    except AttributeError as e:
-        raise ValueError(f"Error parsing the RUN_INFORMATION.txt file: {e}")
-    
-def parse_network_information_json(network_directory):
-    """
-    Parse the RUN_INFORMATION.json file from network pruning run and extract its data.
-
-    Args:
-        network_directory (str): Path to the network directory containing RUN_INFORMATION.json.
-
-    Returns:
-        dict: A dictionary containing the parsed data.
-    """
-    file_path = os.path.join(network_directory, "RUN_INFORMATION.json")
-
-    try:
-        with open(file_path, 'r') as file:
-            data = json.load(file)
-
-        return data
-    except FileNotFoundError:
-        raise FileNotFoundError(f"RUN_INFORMATION.json file not found at: {file_path}")
-    except json.JSONDecodeError as e:
-        raise ValueError(f"Error parsing the RUN_INFORMATION.json file: {e}")
 
 def check_configuration():
     """
@@ -391,14 +469,16 @@ def check_configuration():
         print('Could not find network directory. Please update using config.update_network_directory().')
         ready_Y, ready_ST = False, False
     else:
-        if not os.path.isdir(Y_NETWORK_DIR) and not os.path.isdir(ST_NETWORK_DIR):
+        if not os.path.isdir(NETWORK_SUBDIR['Y']) and not os.path.isdir(NETWORK_SUBDIR['ST']):
             print(
                 'Could not find network files. Please create network pickles using config.create_network_pickles() or change network directory to where .tsv network files are located with config.update_network_directory().')
             ready_Y, ready_ST = False, False
-        elif not os.path.isdir(Y_NETWORK_DIR):
+        elif not os.path.isdir(NETWORK_SUBDIR['Y']):
             print('Could not find tyrosine network files (no Y folder in network directory)')
             ready_Y = False
-        elif not os.path.isdir(ST_NETWORK_DIR):
+
+            #report how many networks are available
+        elif not os.path.isdir(NETWORK_SUBDIR['ST']):
             print('Could not find serine/threonine network files (no ST folder in network directory)')
             ready_ST = False
 
@@ -409,9 +489,9 @@ def check_configuration():
     if USE_PREGENERATED_RANDOM_ACTIVITIES:
         #check tyrosine networks for pregenerated experiments
 
-        if not os.path.isdir(f"{Y_NETWORK_DIR}/RANDOM_ACTIVITIES/"):
+        if not os.path.isdir(f"{NETWORK_SUBDIR['Y']}/RANDOM_ACTIVITIES/"):
             print('Warning: Could not find pregenerated experiments directory for tyrosine network. This should be located within the default network directory. Without this, KSTAR will generate random experiments on the fly, which will take longer and may not be desired.')
-        if not os.path.isdir(f"{ST_NETWORK_DIR}/RANDOM_ACTIVITIES/"):
+        if not os.path.isdir(f"{NETWORK_SUBDIR['ST']}/RANDOM_ACTIVITIES/"):
             print('Warning: Could not find pregenerated experiments directory for serine/threonine network. This should be located within the default network directory. Without this, KSTAR will generate random experiments on the fly, which will take longer and may not be desired.')
 
 
