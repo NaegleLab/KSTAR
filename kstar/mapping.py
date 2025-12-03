@@ -3,6 +3,8 @@ import pandas as pd
 from collections import defaultdict
 import re
 import os
+
+import tqdm
 import numpy as np
 from kstar import config, helpers
 
@@ -66,24 +68,6 @@ class ExperimentMapper:
         self.name = name
         self.odir = odir
 
-        def set_accession_id(accession):
-            acc = accession.split('-')
-            if len(acc) > 1:
-                acc = acc[:-1]
-            return '-'.join(acc)
-        
-
-        if 'accession_id' not in columns.keys():
-            raise ValueError('ExperimentMapper requires accession_id as a dictionary key')
-        else:
-            self.experiment[config.KSTAR_ACCESSION] = self.experiment[columns['accession_id']].apply(set_accession_id) 
-
-        if 'peptide' not in columns.keys() and 'site' not in columns.keys():
-            raise ValueError('ExperimentMapper requires either site or peptide as keys in dictionary')
-
-        self.experiment[config.KSTAR_PEPTIDE] = self.experiment[columns['peptide']] if 'peptide' in columns.keys() else None
-        self.experiment[config.KSTAR_SITE] = self.experiment[columns['site']] if 'site' in columns.keys() else None
-
         #set up logger
         #if directory doesn't exist yet, create it
         if not os.path.exists(f"{odir}/MAPPED_DATA"):
@@ -93,6 +77,35 @@ class ExperimentMapper:
             self.logger = logger
         else:
             self.logger = helpers.get_logger(f"mapping_{name}", f"{odir}/MAPPED_DATA/mapping_{name}.log")
+
+
+        def set_accession_id(accession):
+            acc = accession.split('-')
+            if len(acc) > 1:
+                acc = acc[:-1]
+            return '-'.join(acc)
+        
+        print('Processing provided accessions...')
+        if 'accession_id' not in columns.keys():
+            raise ValueError('ExperimentMapper requires accession_id as a dictionary key')
+        else:
+            #check if accession column has NaN values
+            if self.experiment[columns['accession_id']].isna().any():
+                self.logger.warning("NaN values found in accession ID column. These rows will be removed during mapping.")
+                self.experiment = self.experiment.dropna(subset=[columns['accession_id']]).copy()
+            
+            #check if accession column has multiple accessions separated by ';'. If so, separate into unique rows
+            if self.experiment[columns['accession_id']].str.contains(';').any():
+                self.logger.warning("Multiple accession IDs found in some rows. These will be split into multiple rows for mapping.")
+                self.experiment[columns['accession_id']] = self.experiment[columns['accession_id']].str.split(';')
+                self.experiment = self.experiment.explode(columns['accession_id']).reset_index(drop=True).copy()
+            self.experiment[config.KSTAR_ACCESSION] = self.experiment[columns['accession_id']].apply(set_accession_id) 
+
+        if 'peptide' not in columns.keys() and 'site' not in columns.keys():
+            raise ValueError('ExperimentMapper requires either site or peptide as keys in dictionary')
+
+        self.experiment[config.KSTAR_PEPTIDE] = self.experiment[columns['peptide']] if 'peptide' in columns.keys() else None
+        self.experiment[config.KSTAR_SITE] = self.experiment[columns['site']] if 'site' in columns.keys() else None
 
         self.set_data_columns(data_columns)
 
@@ -106,7 +119,7 @@ class ExperimentMapper:
 
         #keep only those accessions that are found in compendia
         self.experiment = self.experiment[self.experiment[config.KSTAR_ACCESSION].isin(self.compendia[config.KSTAR_ACCESSION])]
-        
+        print('Aligning peptides/sites to reference sequences...')
         #align peptides/sites to reference sequences
         self.align_sites(window)
 
@@ -136,6 +149,8 @@ class ExperimentMapper:
 
         #save columns attribute
         self.columns = columns
+
+        print('Mapping complete.')
 
     def set_data_columns(self, data_columns):
         """
@@ -188,7 +203,7 @@ class ExperimentMapper:
 
         self.experiment = expand_peptide(self.experiment, config.KSTAR_PEPTIDE)
 
-        for index, row in self.experiment.iterrows():
+        for index, row in tqdm.tqdm(self.experiment.iterrows(), desc = 'Mapping peptides/sites to reference sequences', total = len(self.experiment)):
             sequence = self.get_sequence(row[config.KSTAR_ACCESSION])
             if sequence is not None:
                 # If peptide provided then find site
@@ -274,6 +289,21 @@ class ExperimentMapper:
         all_sites = pd.concat([mapped_sites, unmapped_sites], ignore_index=True).drop_duplicates()
         
         return len(mapped_sites), len(all_sites)
+    
+    def get_reason_for_unmapped(self):
+        """
+        Returns dataframe of unmapped sites with reasons for being unmapped
+
+        Returns
+        -------
+        errors : pandas Series
+            Series with counts of each error type
+        perc : pandas Series
+            Series with percentage of each error type
+        """
+        errors = self.not_mapped.groupby('Error').size().reset_index(name='Error Counts')
+        perc = (errors['Error Counts'] / len(self.not_mapped.dropna(subset = 'Error'))) * 100
+        return errors, perc
 
     def save_experiment(self, return_stats = True, return_lost_sites = True):
         self.experiment.to_csv(f"{self.odir}/MAPPED_DATA/{self.name}_mapped.csv", index = False)
@@ -300,6 +330,11 @@ class ExperimentMapper:
                 if 'peptide' in self.columns:
                     mapped_peptides, all_peptides = self.get_number_missed_peptides()
                     f.write(f"Mapped Peptides: {len(mapped_peptides)}/{len(all_peptides)} peptides mapped ({len(mapped_peptides)/len(all_peptides)*100:.2f}%).\n")
+
+                f.write('\nReasons for unmapped sites/peptides:\n')
+                errors, perc = self.get_reason_for_unmapped()
+                for i, row in errors.iterrows():
+                    f.write(f"{row['Error']}: {row['Error Counts']} ({perc.iloc[i]:.2f}%)\n")
 
                 f.write(f"\nSee {self.odir}/MAPPED_DATA/{self.name}_removed_sites.csv for details on removed sites/peptides.\n")
 
