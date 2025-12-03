@@ -122,7 +122,7 @@ except FileNotFoundError:
 
 #check network directory: if not found, set to default
 if NETWORK_DIR is None or NETWORK_DIR == "":
-    NETWORK_DIR = f"{KSTAR_DIR}/NETWORKS/NetworKIN"
+    NETWORK_DIR = f"{KSTAR_DIR}/NETWORKS/"
 
 
 DEFAULT_RANDOM_ACTIVITIES_DIR = {
