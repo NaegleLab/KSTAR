@@ -1,9 +1,20 @@
 #from Bio import SeqIO
-import os, re, json
+import os, re, json, sys, io
 import logging
 import argparse
+import pandas as pd
 import urllib.parse
 import urllib.request
+import inspect
+
+def suppress_print(func, *args, **kwargs):
+    saved_stdout = sys.stdout
+    sys.stdout = io.StringIO()
+    try:
+        result = func(*args, **kwargs)
+    finally:
+        sys.stdout = saved_stdout
+    return result
 
 def process_fasta_file(fasta_file):
 	"""
@@ -205,3 +216,47 @@ def parse_network_information(network_directory, file_type = 'txt'):
 			raise ValueError(f"Error parsing the RUN_INFORMATION.json file: {e}")
 	else:
 		raise ValueError("file_type must be either 'txt' or 'json'")
+	
+
+def extract_relevant_kwargs(func, **kwargs):
+    func_args = inspect.getfullargspec(func).args
+    return {k: kwargs[k] for k in func_args if k in kwargs}
+
+def extract_kwonlyargs(func, **kwargs):
+    func_kwonlyargs = inspect.getfullargspec(func).kwonlyargs
+    return {k: kwargs[k] for k in func_kwonlyargs if k in kwargs}
+
+
+def jaci_matrix_between_samples(evidence, samples):
+	"""
+	This function creates a looks at the similarity of evidence between samples based on Jaccard index of phosphopeptide identities
+
+	Parameters
+	----------
+	evidence: pd.DataFrame
+		evidence dataframe, preferably one that has been binarized
+	samples: a list of sample columns 
+	
+	Returns
+	-------
+	jaccard_matrix: pd.DataFrame
+		a dataframe showing the similarity of phosphopeptide identities between samples
+	"""
+	from sklearn.metrics.pairwise import pairwise_distances
+	samples = [s for s in samples if s in evidence.columns]
+
+	# check if binary matrix, convert to boolean. Raise warning if not binary, but convert by removing zeros and np.nans
+	if ((evidence[samples].values == 0) | (evidence[samples].values == 1)).all():
+		evidence[samples] = evidence[samples].astype(bool)
+	else:
+		print("Warning: evidence matrix is not binary. Converting to binary by treating all non-zero, non-nan values as True.")
+		evidence[samples] = evidence[samples].fillna(0)
+		evidence[samples] = evidence[samples].astype(bool)
+
+	jaccard_matrix = 1 - pairwise_distances(evidence[samples].T.to_numpy(), metric='jaccard')
+	col_names = [s.replace("data:", "") for s in samples]
+	ind_names = [s.replace("data:", "") for s in samples]
+	jaccard_matrix = pd.DataFrame(jaccard_matrix, columns=col_names, index=ind_names)
+	return jaccard_matrix
+
+

@@ -21,6 +21,7 @@ from itertools import repeat
 from collections import defaultdict
 from kstar import config, helpers, mapping
 from kstar.random_experiments import generate_random_experiments, calculate_fpr
+from kstar.plot import DotPlot, KSTAR_PDF, plot_jaci_between_samples
 
 
 class KinaseActivity:
@@ -112,14 +113,20 @@ class KinaseActivity:
 
     """
 
-    def __init__(self, evidence, odir, name = 'experiment', data_columns=None, phospho_type='Y', kinases = None, network_dir = None, use_pregen = None,default_pregen_only = True, custom_pregen_dir = None, min_dataset_size_for_pregenerated=150, max_diff_from_pregenerated=0.25, logger = None, network_name = None):
+    def __init__(self, evidence, odir, name = 'experiment', data_columns=None, phospho_type='Y', kinases = None, network_dir = None, use_pregen = None,default_pregen_only = True, custom_pregen_dir = None, min_dataset_size_for_pregenerated=150, max_diff_from_pregenerated=0.25, logger = None, network_name = None, seed = None):
         self.odir = odir
         self.name = name
         self.phospho_type = phospho_type
         self.set_evidence(evidence)
-
         self.networks = defaultdict()
         self.network_sizes = defaultdict()
+
+        #if no seed is set, set seed to current time
+        if seed is None:
+            seed = int(datetime.now().timestamp())
+        np.random.seed(seed)
+        self.random_seed = seed
+
         #set up logger
         #if directory doesn't exist yet, create it
         if not os.path.exists(f"{odir}/RESULTS/{phospho_type}"):
@@ -184,7 +191,6 @@ class KinaseActivity:
         # self.activities = None
 
         # Location of random experiments
-        self.randomized = False
         self.random_experiments = None
 
         # added fields for pregenerated_random
@@ -235,7 +241,7 @@ class KinaseActivity:
         self.threshold = None
         self.greater = True
 
-        self.run_date = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+        self.run_date = datetime.now().strftime("%m/%d/%Y %H:%M:%S")
 
         # if data columns is None, set data columns to be columns with data: in front
         self.set_data_columns(data_columns=data_columns)
@@ -244,10 +250,15 @@ class KinaseActivity:
         #get available pregenerated sizes
         self.pregenerated_sizes = self.check_file_sizes_for_pregenerated()
 
-    def check_data_columns(self):
+    def check_data_columns(self, min_evidence_size = 0):
         """
         Checks data columns to make sure column is in evidence and that evidence filtered on that data column
-        has at least one point of evidence. Removes all columns that do not meet criteria
+        has at least one point of evidence (or minimum set by min_evidence_size). Removes all columns that do not meet criteria
+
+        Parameters
+        ----------
+        min_evidence_size : int
+            minimum number of sites required for a data column to be considered for activity calculation
         """
         new_data_columns = []
         evidence = self.evidence.groupby([config.KSTAR_ACCESSION, config.KSTAR_SITE])[self.data_columns].agg(
@@ -256,13 +267,13 @@ class KinaseActivity:
             if col in self.evidence.columns:
                 if self.threshold is not None:
                     if self.greater:
-                        if len(evidence[evidence[col] >= self.threshold]) > 0:
+                        if len(evidence[evidence[col] >= self.threshold]) > min_evidence_size:
                             new_data_columns.append(col)
                         else:
                             print(f"{col} does not have any evidence, and will not be used.")
                             self.logger.warning(f"{col} does not have any evidence")
                     else:
-                        if len(evidence[evidence[col] <= self.threshold]) > 0:
+                        if len(evidence[evidence[col] <= self.threshold]) > min_evidence_size:
                             new_data_columns.append(col)
                         else:
                             print(f"{col} does not have any evidence, and will not be used.")
@@ -300,7 +311,7 @@ class KinaseActivity:
             #print(self.data_columns)
         self.check_data_columns()
 
-    def test_threshold(self, threshold, agg='mean', greater=True, plot=False, return_evidence_sizes=False):
+    def test_threshold(self, threshold, agg='mean', greater=True, plot=False, return_evidence_sizes=False, min_evidence_size = 0):
         """
         Given a threshold value, calculate the distribution of evidence sizes (i.e. number of sites used in prediction for each sample in the experiment).
 
@@ -314,27 +325,378 @@ class KinaseActivity:
             whether to use sites greater (True) or less (False) than the threshold
         plot: bool
             whether to plot a histogram of the evidence sizes used
-        return_site_nums: bool
+        return_evidence_sizes: bool
             indicates whether to return the evidence sizes for all samples or not
+        min_evidence_size: int
+            minimum number of sites required for a data column to be considered for activity calculation
 
         Returns
         -------
         Outputs the minimum, maximum, and median evidence sizes across all samples. May return evidence sizes of all samples as pandas series
         """
-        evidence_binary = self.create_binary_evidence(agg=agg, threshold=threshold, greater=greater)
+        evidence_binary = self.create_binary_evidence(agg=agg, threshold=threshold, greater=greater, drop_empty_columns=False, min_evidence_size = min_evidence_size)
         num_sites = evidence_binary[self.data_columns].sum()
         print('Number of Sites That Will Be Used As Evidence For Each Sample:')
         print('Maximum =', num_sites.max())
         print('Minimum =', num_sites.min())
         print('Median =', num_sites.median())
 
+        #get similarity between samples
+        print('\n')
+        jaci = helpers.jaci_matrix_between_samples(evidence_binary, self.data_columns)
+        print('Average Jaccard Similarity Between Samples:', round(jaci[jaci != 1].mean().mean(), 3))
+        print('Maximum Jaccard Similarity Between Samples:', round(jaci[jaci != 1].max().max(), 3))
+
+        #number of columns without enough evidence
+        print('\n')
+        num_columns_without_enough_evidence = (num_sites <= min_evidence_size).sum()
+        print(f"Number of columns without enough evidence (min = {min_evidence_size}): {num_columns_without_enough_evidence}")
+
+
+
         if plot:
+            fig, ax = plt.subplots(figsize = (8,4), ncols = 2)
+            fig.subplots_adjust(wspace=0.8)
             plt_data = num_sites.reset_index()
-            sns.histplot(data=plt_data, x=0)
-            plt.xlabel('Number of Sites Used As Evidence')
+            sns.histplot(data=plt_data, x=0, bins = 20, ax = ax[0])
+            ax[0].set_xlabel('Number of Sites Used As Evidence')
+            ax[0].set_ylabel('Frequency')
+            ax[0].set_title('Distribution of Evidence\nSizes Across Samples')
+
+            #plot jaccard similarity heatmap
+            plot_jaci_between_samples(jaci, self.data_columns, ax = ax[1], title = 'Jaccard Similarity\nBetween Samples', cmap = 'coolwarm')
 
         if return_evidence_sizes:
             return num_sites
+        
+    def test_threshold_range(self, min_threshold, max_threshold, step=0.1, agg = 'mean', greater = True, min_evidence_size = 0, desired_evidence_size = None):
+        """
+        Given a range of threshold values, calculate the distribution of evidence sizes (i.e. number of sites used in prediction for each sample in the experiment) and Jaccard similarity between samples at each threshold
+
+        Parameters
+        ----------
+        min_threshold: float
+            minimum cutoff for inclusion as evidence for prediction. If greater = True, sites with quantification greater than the threshold are used as evidence.
+        max_threshold: float
+            maximum cutoff for inclusion as evidence for prediction. If greater = True, sites with quantification greater than the threshold are used as evidence.
+        step: float
+            step size to use when iterating through threshold range
+        agg: str
+            how to combine sites with multiple instances in experiment
+        greater: bool
+            whether to use sites greater (True) or less (False) than the threshold
+        min_evidence_size: int
+            minimum number of sites required for a data column to be considered for activity calculation
+        desired_evidence_size: int or None
+            target evidence size to use for plotting. If None, will use 150 for phospho_type 'Y' and 1500 for phospho_type 'ST'
+        """
+        #size information
+        median_sizes = []
+        min_sizes = []
+        max_sizes = []
+        average_jac = []
+        max_jac = []
+        num_valid_columns = []
+
+        #set range of thresholds
+        if greater:
+            range_values = np.arange(min_threshold, max_threshold + step, step)
+        else:
+            range_values = np.arange(max_threshold, min_threshold - step, -step)
+
+        #iterate through threholds and calculate evidence sizes and jaccard similarity
+        for threshold in range_values:
+            #calculate binary evidence, checking if no evidence is found
+            try:
+                evidence_binary = helpers.suppress_print(self.create_binary_evidence, agg=agg, threshold=threshold, greater=greater, drop_empty_columns = False, min_evidence_size = min_evidence_size)
+            except Exception as e:
+                if e == ValueError:
+                    print(f"Warning: No evidence found at thresholds greater than {threshold}. Skipping these thresholds.")
+                    break
+
+            #calculate evidence sizes
+            num_sites = evidence_binary[self.data_columns].sum()
+            median_sizes.append(num_sites.median())
+            min_sizes.append(num_sites.min())
+            max_sizes.append(num_sites.max())
+
+            #get number of valid columns
+            num_valid_columns.append((num_sites > min_evidence_size).sum())
+
+            #calculate jaccard similarity between samples based on phosphosite identity
+            jaci = helpers.jaci_matrix_between_samples(evidence_binary, self.data_columns)
+            average_jac.append(jaci[jaci != 1].mean().mean())
+            max_jac.append(jaci[jaci != 1].max().max())
+        
+        #set desired evidence size if not provided (for plotting)
+        if desired_evidence_size is None:
+            desired_evidence_size = {'Y':150, 'ST':1500}[self.phospho_type]
+        recommended_similarity = 0.6
+        
+        #setup figure
+        fig, axes = plt.subplots(figsize = (8,4), nrows=1, ncols=2)
+        #make evidence size plot
+        axes[0].plot(range_values, median_sizes, linestyle='-', c = 'black', label = 'Median Across Samples')
+        axes[0].plot(range_values, min_sizes, linestyle = ':', c = 'black', label = 'Min/Max Across Samples')
+        axes[0].plot(range_values, max_sizes, linestyle = ':', c = 'black', label = 'Min/Max Across Samples')
+        axes[0].set_xlabel('Threshold')
+        axes[0].set_ylabel('Evidence Size')
+        axes[0].axhline(y=desired_evidence_size, color='red', linestyle='-', alpha = 0.5, label = 'Target Sample Size')
+        axes[0].legend(loc=(0, 1.05))
+
+        #make jaccard similarity plot
+        axes[1].plot(range_values, average_jac, linestyle = '-', c = 'black', label = 'Average Jaccard Similarity')
+        axes[1].plot(range_values, max_jac, linestyle = ':', c = 'black', label = 'Maximum Jaccard Similarity')
+        axes[1].axhline(y=recommended_similarity, color='red', linestyle='-', alpha = 0.5, label = 'Recommended Maximum Similarity')
+        axes[1].set_xlabel('Threshold')
+        axes[1].set_ylabel('Jaccard Similarity')
+        axes[1].legend(loc = (0, 1.05))
+
+        #if any data columns were removed due to lack of evidence, print a warning
+        if any([n < len(self.data_columns) for n in num_valid_columns]):
+            #find first threshold where number of valid columns is less than total data columns
+            for i, n in enumerate(num_valid_columns):
+                if n < len(self.data_columns):
+                    warning_threshold = range_values[i]
+                    break
+            print(f"Warning: Some data columns were removed due to lack of evidence at thresholds greater than {warning_threshold}.")
+
+
+        
+    def recommend_threshold_based_on_similarity(self, max_similarity = 0.7, min_threshold = 0, max_threshold = np.inf, step = 0.1, greater = True, agg = 'mean', pick_best_by = 'max'):
+        """
+        Given a minimum threshold (and max if provided), iteratively test thresholds to find the threshold that results in average Jaccard similarity between samples below the desired similarity
+        
+        Parameters
+        ----------
+        max_similarity: float
+            maximum average Jaccard similarity allowed between samples
+        min_threshold: float
+            minimum cutoff for inclusion as evidence for prediction. If greater = True, sites with quantification greater than the threshold are used as evidence.
+        max_threshold: float
+            maximum cutoff for inclusion as evidence for prediction. If greater = True, sites with quantification
+            greater than the threshold are used as evidence.
+        step: float
+            step size to use when iterating through threshold range
+        greater: bool
+            whether to use sites greater (True) or less (False) than the threshold
+        agg: str
+            how to combine sites with multiple instances in experiment
+        pick_best_by: str
+            method to use when aggregating Jaccard similarity values across samples, either 'max' or 'median'
+
+        Returns
+        -------
+        threshold: float
+            recommended threshold that results in average Jaccard similarity between samples below max_similarity
+        ave_jaci: float
+            average Jaccard similarity between samples at the recommended threshold
+        """
+        if greater:
+            threshold = min_threshold - step
+            ave_jaci = 1
+            while ave_jaci >= max_similarity and threshold <= max_threshold:
+                threshold += step
+                evidence_binary = self.create_binary_evidence(agg=agg, threshold=threshold, greater=greater, drop_empty_columns=False)
+                jaci = helpers.jaci_matrix_between_samples(evidence_binary, self.data_columns)
+                ave_jaci = jaci[jaci != 1].agg(pick_best_by).agg(pick_best_by)
+        else:
+            threshold = max_threshold + step
+            ave_jaci = 1
+            while ave_jaci >= max_similarity and threshold >= min_threshold:
+                threshold -= step
+                evidence_binary = self.create_binary_evidence(agg=agg, threshold=threshold, greater=greater, drop_empty_columns=False)
+                jaci = helpers.jaci_matrix_between_samples(evidence_binary, self.data_columns)
+                ave_jaci = jaci[jaci != 1].agg(pick_best_by).agg(pick_best_by)
+
+        return threshold, ave_jaci
+
+    def recommend_threshold_by_size(self, desired_evidence_size = None, min_threshold = 1, max_threshold = np.inf, step = 0.1, pick_best_by = 'median', greater = True, agg = 'mean'):
+        """
+        Given a minimum threshold (and max if provided), iteratively test thresholds to find the threshold that results in desired evidence size (by default based on median)
+
+        Parameters
+        ----------
+        desired_evidence_size: int
+            target evidence size to use when recommending threshold
+        min_threshold: float
+            minimum cutoff for inclusion as evidence for prediction. If greater = True, sites with quantification greater than the threshold are used as evidence.
+        max_threshold: float
+            maximum cutoff for inclusion as evidence for prediction. If greater = True, sites with quantification greater than the threshold are used as evidence.
+        step: float
+            step size to use when iterating through threshold range
+        pick_best_by: str
+            method to use when aggregating evidence size values across samples, either 'max' or 'median'
+        greater: bool
+            whether to use sites greater (True) or less (False) than the threshold
+        agg: str
+            how to combine sites with multiple instances in experiment
+        
+        Returns
+        -------
+        threshold: float
+            recommended threshold that results in desired evidence size
+        evidence_size: int
+            evidence size at the recommended threshold
+        """
+        #if not indicated, use default desired evidence size
+        if desired_evidence_size is None:
+            desired_evidence_size = 1500 if self.phospho_type == 'ST' else 150 
+
+        # find evidence with minimum threshold
+        if greater:
+            threshold = min_threshold - step
+            evidence_size = np.inf
+            # iterate through thresholds until evidence size is less than desired evidence size or threshold is greater than max_threshold
+            while evidence_size > desired_evidence_size and (threshold + step) <= max_threshold:
+                threshold += step
+                evidence_binary = self.create_binary_evidence(agg=agg, threshold=threshold, greater=greater, drop_empty_columns=False)
+                num_sites = evidence_binary[self.data_columns].sum()
+                evidence_size = num_sites.agg(pick_best_by)
+        else:
+            threshold = max_threshold + step
+            evidence_size = np.inf
+            # iterate through thresholds until evidence size is less than desired evidence size or threshold is less than min_threshold
+            while evidence_size > desired_evidence_size and (threshold - step) >= min_threshold:
+                threshold -= step
+                evidence_binary = self.create_binary_evidence(agg=agg, threshold=threshold, greater=greater, drop_empty_columns=False)
+                num_sites = evidence_binary[self.data_columns].sum()
+                # aggregate counts
+                evidence_size = num_sites.agg(pick_best_by)
+
+        return threshold, evidence_size
+    
+    def get_allowable_threshold(self, greater = True, agg='mean', min_evidence_size = 20):
+        """
+        Determine the minimum/maximum threshold that still results in all data columns having evidence
+
+        Parameters
+        ----------
+        greater: bool
+            whether to use sites greater (True) or less (False) than the threshold
+        min_evidence_size: int
+            minimum number of sites required for a data column to be considered for activity calculation
+
+        Returns
+        -------
+        allowable threshold: float
+            maximum or minimum threshold that still results in all data columns having evidence (or at least one if min_evidence_size = None)
+        """
+        #aggregate evidence by site (same as is done in create_binary_evidence)
+        agg_evidence = self.evidence.groupby([config.KSTAR_ACCESSION, config.KSTAR_SITE])[self.data_columns].agg(agg).reset_index()
+        if greater:
+            if min_evidence_size == 0:
+                #if no minimum evidence size, set allowable threshold to largest value that still results in at least one evidence point per data column
+                allowable_threshold = agg_evidence[self.data_columns].max().min()
+            elif min_evidence_size > 0:
+                #identify the nth largest value in each data column, where n = min_evidence_size
+                nth_largest_values = []
+                for col in self.data_columns:
+                    sorted_values = agg_evidence[col].dropna().sort_values(ascending=False).reset_index(drop=True)
+                    if len(sorted_values) >= min_evidence_size:
+                        nth_largest = sorted_values.iloc[min_evidence_size - 1]
+                    else:
+                        nth_largest = sorted_values.iloc[-1]
+                    nth_largest_values.append(nth_largest)
+                #set smallest of these values as the allowable threshold
+                allowable_threshold = min(nth_largest_values)
+            elif min_evidence_size is None:
+                #set allowable threshold to maximum value in data columns (value that would cause no evidence to be found in any column)
+                allowable_threshold = agg_evidence[self.data_columns].max().max()
+        else:
+            if min_evidence_size == 0:
+                allowable_threshold = agg_evidence[self.data_columns].min().max()
+            elif min_evidence_size > 0:
+                #identify the nth smallest value in each data column, where n = min_evidence_size
+                nth_smallest_values = []
+                for col in self.data_columns:
+                    sorted_values = agg_evidence[col].dropna().sort_values(ascending=True).reset_index(drop=True)
+                    if len(sorted_values) >= min_evidence_size:
+                        nth_smallest = sorted_values.iloc[min_evidence_size - 1]
+                    else:
+                        nth_smallest = sorted_values.iloc[-1]
+                    nth_smallest_values.append(nth_smallest)
+                allowable_threshold = max(nth_smallest_values)
+            elif min_evidence_size is None:
+                #set allowable threshold to minimum value in data columns
+                allowable_threshold = self.evidence[self.data_columns].min().min()
+
+        return allowable_threshold
+    
+    def recommend_threshold(self, desired_evidence_size = None, max_similarity = 0.7, consider_similarity = True, min_threshold = -np.inf, max_threshold = np.inf, step = 0.1, pick_best_size_by = 'median', pick_best_similarity_by = 'max', greater = True, agg = 'mean', min_evidence_size = 20, show_plots = True):
+        """
+        Recommend a threshold, one based on desired evidence size and one based on maximum average Jaccard similarity between samples. Will report the characteristics of the resulting evidences for both thresholds
+
+        Parameters
+        ----------
+        desired_evidence_size: int
+            target evidence size to use when recommending threshold
+        max_similarity: float
+            maximum average Jaccard similarity between samples to use when recommending threshold
+        min_threshold: float
+            minimum threshold to consider when recommending threshold
+        max_threshold: float
+            maximum threshold to consider when recommending threshold
+        step: float
+            step size to use when iterating through thresholds
+        greater: bool
+            whether to use sites greater (True) or less (False) than the threshold
+        agg: str
+            how to combine sites with multiple instances in experiment
+
+        Returns
+        -------
+        float
+            recommended threshold value
+        """
+        #make sure min and max thresholds are set appropriately
+        if greater and min_threshold == -np.inf:
+            raise ValueError("When greater = True, min_threshold must be set to a finite value.")
+        if not greater and max_threshold == np.inf:
+            raise ValueError("When greater = False, max_threshold must be set to a finite value.")
+
+
+        #determine the minimum/maximum threshold that still results in all data columns having evidence, based on min_evidence_size
+        allowable_threshold = self.get_allowable_threshold(greater=greater, min_evidence_size=min_evidence_size)
+        #raise errors or warnings if provided min/max thresholds are outside of allowable range
+        if greater:
+            if allowable_threshold < min_threshold:
+                raise ValueError(f'Min threshold of {min_threshold} is too high and results in no evidence for at least on data column. Your options include:\n1) Setting min_threshold to lower than {allowable_threshold}\n2) Lowering the `min_evidence_size` parameter in recommend_threshold to allow for smaller dataset sizes\n3) Set min_evidence_size to None if you do not care if some data columns are lost).')
+
+            elif allowable_threshold < max_threshold:
+                print(f'Warning: Max threshold of {max_threshold} is too high, resulting in no evidence for at least one data column. Maximum allowable threshold to retain evidence for all data columns is {allowable_threshold}. Setting max_threshold to {allowable_threshold}. You can lower the `min_evidence_size` parameter in recommend_threshold to allow higher thresholds (set to negative if you do not care if some data columns are lost).\n')
+                max_threshold = round(allowable_threshold,2)
+
+        else:
+            if allowable_threshold > max_threshold:
+                raise ValueError(f'Max threshold of {max_threshold} is too high and results in no evidence for at least on data column. Your options include:\n1) Setting max_threshold to higher than {allowable_threshold}\n2) Lowering the `min_evidence_size` parameter in recommend_threshold to allow for smaller dataset sizes\n3) Set min_evidence_size to None if you do not care if some data columns are lost).')
+            elif allowable_threshold > min_threshold:
+                print(f'Warning: Min threshold of {min_threshold} is too low, resulting in no evidence for at least one data column. Minimum allowable threshold to retain evidence for all data columns is {allowable_threshold}. Setting min_threshold to {allowable_threshold}. You can lower the `min_evidence_size` parameter in recommend_threshold to allow lower thresholds (set to None if you do not care if some data columns are lost).\n')
+                min_threshold = round(allowable_threshold,2)
+
+
+        #identify and test optimal threshold based on evidence size
+        threshold_by_size, evidence_size = self.recommend_threshold_by_size(desired_evidence_size=desired_evidence_size, pick_best_by=pick_best_size_by, min_threshold=min_threshold, max_threshold=max_threshold, step=step, greater=greater, agg=agg)
+        print(f'Recommended threshold based on {pick_best_size_by} evidence_size:', round(threshold_by_size, 2), f'(median sites = {evidence_size})')
+
+        #if also considering similarity between data columns, check here
+        if consider_similarity:
+            #identify and test optimal threshold based on similarity
+            threshold_by_similarity, similarity = self.recommend_threshold_based_on_similarity(max_similarity=max_similarity, min_threshold=min_threshold, max_threshold=max_threshold, step=step, greater=greater, agg=agg, pick_best_by=pick_best_similarity_by)
+            print(f'Recommended threshold based on {pick_best_similarity_by} similarity:', round(threshold_by_similarity, 2), f'({pick_best_similarity_by} Jaccard similarity = {round(similarity, 2)})')  
+
+            #choose the more stringent of the two thresholds
+            if greater:
+                recommended_threshold = round(max(threshold_by_size, threshold_by_similarity), 2)
+            else:
+                recommended_threshold = round(min(threshold_by_size, threshold_by_similarity), 2)
+
+            print(f"Final recommended threshold = {recommended_threshold})")
+        else:
+            #if not considering similarity, use threshold based on evidence size
+            recommended_threshold = round(threshold_by_size, 2)
+
+        return recommended_threshold
 
 
 
@@ -984,7 +1346,7 @@ class KinaseActivity:
             #self.logger.warning(
             #    f"Evidence not set. Evidence columns must include '{config.KSTAR_ACCESSION}' and '{config.KSTAR_SITE}' keys")
 
-    def create_binary_evidence(self, agg='mean', threshold=1.0, evidence_size=None, greater=True):
+    def create_binary_evidence(self, agg='mean', threshold=1.0, evidence_size=None, greater=True, min_evidence_size = 0, drop_empty_columns = True):
         """
         Returns a binary evidence data frame according to the parameters passed in for method for aggregating
         duplicates and considering whether a site is included as evidence or not
@@ -1002,6 +1364,10 @@ class KinaseActivity:
                 NA values are droped from consideration.
         greater: Boolean
             whether to keep sites that have a numerical value >=threshold (TRUE, default) or <=threshold (FALSE)
+        min_evidence_size : int
+            minimum number of sites required for a data column to be considered for activity calculation
+        drop_empty_columns : bool
+            whether to drop data columns with fewer than min_evidence_size sites
 
         Returns
         -------
@@ -1033,7 +1399,10 @@ class KinaseActivity:
         self.threshold = threshold
         self.evidence_size = evidence_size
         self.greater = greater
-        self.check_data_columns()
+
+        #check data columns are valid and have evidence
+        if drop_empty_columns:
+            self.check_data_columns(min_evidence_size = min_evidence_size)
 
         # collapse sites into single row based on agg parameter
         evidence = self.evidence.groupby([config.KSTAR_ACCESSION, config.KSTAR_SITE])[self.data_columns].agg(
@@ -1074,10 +1443,9 @@ class KinaseActivity:
         compendia = config.HUMAN_REF_COMPENDIA[
             ['KSTAR_ACCESSION', 'KSTAR_SITE', 'KSTAR_NUM_COMPENDIA', 'KSTAR_NUM_COMPENDIA_CLASS']]
         evidence_binary = evidence_binary.merge(compendia, on=[config.KSTAR_ACCESSION, config.KSTAR_SITE], how='left')
-
         return evidence_binary
 
-    def calculate_kinase_activities(self, agg='mean', threshold=1.0, evidence_size=None, greater=True, PROCESSES=1):
+    def calculate_kinase_activities(self, agg='mean', threshold=1.0, evidence_size=None, greater=True, min_evidence_size = 0, PROCESSES=1):
         """
         Calculates combined activity of experiments based that uses a threshold value to determine if an experiment sees a site or not
         To use values use 'mean' as agg
@@ -1098,6 +1466,10 @@ class KinaseActivity:
                 NA values are droped from consideration.
         greater: Boolean
             whether to keep sites that have a numerical value >=threshold (TRUE, default) or <=threshold (FALSE)
+        min_evidence_size : int
+            minimum number of sites required for a data column to be considered for activity calculation
+        PROCESSES : int
+            number of processes to use for multiprocessing
 
         Returns
         -------
@@ -1124,7 +1496,7 @@ class KinaseActivity:
         # self.set_data_columns(data_columns)
 
         self.evidence_binary = self.create_binary_evidence(agg=self.aggregate, threshold=self.threshold,
-                                                           evidence_size=self.evidence_size, greater=self.greater)
+                                                           evidence_size=self.evidence_size, greater=self.greater, min_evidence_size = min_evidence_size)
         #get dataset sizes and compendia distribution of binary evidence
         self.dataset_sizes = {col: self.evidence_binary[col].sum() for col in self.data_columns}
         self.compendia_distribution = self.get_compendia_distribution()
@@ -1362,6 +1734,62 @@ class KinaseActivity:
 
             self.activities_mann_whitney[exp] = pval_arr
             self.fpr_mann_whitney[exp] = fpr_arr
+
+    def get_param_dict(self):
+        """
+        Get a dictionary of important parameters needed to reinstantiate the KSTAR object
+        """
+        params = {}
+        #iterate through attributes and save those needed to reinstantiate object
+        for attr in vars(self):
+            #check for basic types only
+            if isinstance(getattr(self, attr), (int, float, str, bool, type(None))):
+                params[attr] = getattr(self, attr)
+
+            elif isinstance(getattr(self, attr), list):
+                #make sure list is of basic types
+                if all(isinstance(i, (int, float, str, bool, type(None))) for i in getattr(self, attr)):
+                    params[attr] = getattr(self, attr)
+        return params
+
+    def make_summary_pdf(self, regenerate_plots = False):
+        """
+        Create a summary PDF of the kinase activity results
+
+        Parameters
+        ----------
+        regenerate_plots : bool
+            Whether to regenerate plots even if they already exist
+        """
+        #construct param_dict
+        param_dict = self.get_param_dict()
+        summary_pdf = KSTAR_PDF(activities = self.activities_mann_whitney, fpr = self.fpr_mann_whitney, odir = self.odir, name = self.name, binarized_experiment = self.binarized_experiment, params = param_dict)
+        summary_pdf.generate_pdf(regenerate_plots = regenerate_plots)
+
+    def make_dotplot(self, include_evidence_sizes=True, **kwargs):
+        """
+        Create a dotplot of the kinase activity results
+
+        Parameters
+        ----------
+        include_evidence_sizes : bool
+            Whether to include evidence sizes in the dotplot
+        **kwargs
+            Additional keyword arguments to pass to the DotPlot initialization and make_complete_dotplot methods
+        """
+        #isolate kwargs unique to dotplot init
+        init_kwargs = helpers.extract_relevant_kwargs(DotPlot.__init__, kwargs)
+        other_kwargs = {k:v for k,v in kwargs.items() if k not in init_kwargs}
+        #initialize dotplot
+        dotplot = DotPlot(activities = self.activities_mann_whitney, fpr = self.fpr_mann_whitney, **init_kwargs)
+        #make dotplot
+        if include_evidence_sizes:
+            dotplot.make_complete_dotplot(binary_evidence=self.evidence_binary, include_recommendations=True, phospho_type = self.phospho_type, **other_kwargs)
+        else:
+            dotplot.make_complete_dotplot(include_recommendations=True, phospho_type = self.phospho_type, **other_kwargs)
+
+
+
 
 
 def get_available_kinases(phospho_type, network_dir=None):
@@ -1704,7 +2132,7 @@ Methods for running KSTAR pipeline
 
 
 def enrichment_analysis(experiment, odir, name='experiment', phospho_types=['Y', 'ST'], network_dir = None, data_columns=None, agg='mean',
-                        threshold=1.0, evidence_size=None, greater=True, PROCESSES=1, logger = None, min_dataset_size_for_pregenerated=150, max_diff_from_pregenerated=0.25):
+                        threshold=1.0, evidence_size=None, greater=True, min_evidence_size = 0, PROCESSES=1, logger = None, min_dataset_size_for_pregenerated=150, max_diff_from_pregenerated=0.25):
     """
     Function to establish a kstar KinaseActivity object from an experiment with an activity log
     add the networks, calculate, aggregate, and summarize the hypergeometric enrichment into a final activity object. Should be followed by
@@ -1767,7 +2195,7 @@ def enrichment_analysis(experiment, odir, name='experiment', phospho_types=['Y',
             
         kinact = KinaseActivity(experiment_sub, odir = odir, name = name, data_columns=data_columns, phospho_type=phospho_type, network_dir=network_dir, logger = logger, min_dataset_size_for_pregenerated=min_dataset_size_for_pregenerated, max_diff_from_pregenerated=max_diff_from_pregenerated,)
 
-        kinact.calculate_kinase_activities(agg=agg, threshold=threshold, evidence_size=evidence_size, greater=greater, 
+        kinact.calculate_kinase_activities(agg=agg, threshold=threshold, evidence_size=evidence_size, greater=greater, min_evidence_size=min_evidence_size,
                                            PROCESSES=PROCESSES)
         #kinact.aggregate_activities()
         #kinact.activities = kinact.summarize_activities()
@@ -1855,10 +2283,8 @@ def Mann_Whitney_analysis(kinact_dict, PROCESSES=1):
     for phospho_type, kinact in kinact_dict.items():
         kinact.calculate_Mann_Whitney_activities_sig(PROCESSES=PROCESSES)
 
-def run_kstar_analysis(experiment, odir, name='experiment', phospho_types=['Y', 'ST'], network_dir = None, data_columns=None, agg='mean',
-                        threshold=1.0, evidence_size=None, greater=True, num_random_experiments = 100, use_pregen_data = None,
-                        save_new_precompute = None, pregenerated_experiments_path = None,
-                        custom_pregen_dir = None, save_random_experiments = None, logger = None, mapped = True, map_dict = None, save = True, PROCESSES=1):
+def run_kstar_analysis(experiment, odir, name='experiment', phospho_types=['Y', 'ST'], data_columns=None,
+                        threshold=1.0, evidence_size=None, greater=True, save_output=True,PROCESSES=1, **kwargs):
     """
     Given a mapped experiment, run the KSTAR analysis pipeline.
 
@@ -1884,107 +2310,39 @@ def run_kstar_analysis(experiment, odir, name='experiment', phospho_types=['Y', 
         Size of evidence
     greater: bool
         Whether to use greater comparison
-    num_random_experiments: int
-        Number of random experiments to run
-    use_pregen_data: bool
-        Whether to use pre-generated data
-    save_new_precompute: bool
-        Whether to save new precomputed data
-    pregenerated_experiments_path: string
-        Path to pregenerated experiments
-    directory_for_save_precompute: string
-        Directory to save precomputed data
-    save_random_experiments: bool
-        Whether to save random experiments
-    logger: logger
-        Logger for logging messages
     PROCESSES: int
         Number of processes to use
 
     """
-    if not mapped:
-        if map_dict is None:
-            raise ValueError("map_dict must be provided if mapped is False. This should indicate the name of accession and site/peptide columns ({'accession': 'accession_column_name', 'site': 'site_column_name', 'peptide':'peptide_column_name'})")
-        print('Mapping experiment to reference phosphoprotome...')
-        exp_mapper = mapping.ExperimentMapper(experiment, map_dict, odir = odir, name = name)
-        if save:
-            print(f'Saving mapped experiment and relevant stats in {odir}/MAPPED_DATA/')
-            exp_mapper.save_experiment()
-        experiment = exp_mapper.experiment
-    
     #start enrichment analysis
     print('Starting kinase-substrate enrichment analysis...')
-    kinact_dict = enrichment_analysis(experiment, odir = odir, name = name, phospho_types = phospho_types, network_dir = network_dir, threshold = threshold, agg = agg, data_columns=data_columns, greater = greater, logger = logger, evidence_size=evidence_size,PROCESSES = PROCESSES)
+    enrichment_kwargs = helpers.extract_relevant_kwargs(enrichment_analysis, **kwargs)
+    kinact_dict = enrichment_analysis(experiment, odir = odir, name = name, phospho_types = phospho_types, threshold = threshold, data_columns=data_columns, greater = greater, evidence_size=evidence_size, PROCESSES = PROCESSES, **enrichment_kwargs)
     #
     print('Starting calculation of random activities...')
-    randomized_analysis(kinact_dict, num_random_experiments=num_random_experiments, use_pregen_data=use_pregen_data, save_new_precompute=save_new_precompute, pregenerated_experiments_path=pregenerated_experiments_path,custom_pregen_dir=custom_pregen_dir, save_random_experiments=save_random_experiments, PROCESSES=PROCESSES)
+    randomized_kwargs = helpers.extract_relevant_kwargs(randomized_analysis, **kwargs)
+    randomized_analysis(kinact_dict, PROCESSES=PROCESSES, **randomized_kwargs)
     #
     print('Comparing kinase-substrate enrichment from the real experiment to random experiments...')
     Mann_Whitney_analysis(kinact_dict, PROCESSES = PROCESSES)
 
-    if save:
+    if save_output:
         print(f'Saving KSTAR analysis results in {odir}/RESULTS/')
-        save_kstar_slim(kinact_dict, name, odir)
+        save_kwargs = helpers.extract_relevant_kwargs(save_kstar, **kwargs)
+        save_kstar(kinact_dict, name, odir, **save_kwargs)
 
     print('Done.')
+    return kinact_dict
 
     
     
 
 
-def save_kstar(kinact_dict, name, odir, PICKLE=True):
-    """
-    Having performed kinase activities (run_kstar_analyis), save each of the important dataframes to files and the final pickle
-    Saves an activities, aggregated_activities, summarized_activities tab-separated files
-    Saves a pickle file of dictionary
 
-    Parameters
-    ----------
-    kinact_dict: dictionary of Kinase Activity Objects
-        Outer keys are phosphoTypes run 'Y' and 'ST'
-        Includes the activities dictionary (see calculate_kinase_activities)
-        aggregation of activities across networks (see aggregate activities)
-        activity summary (see summarize_activities)
-    name: string
-        The name to use when saving activities
-    odir:  string
-        Outputdirectory to save files and pickle to
-    PICKLE: boolean
-        Whether to save the entire pickle file
-
-    Returns
-    -------
-    Nothing
-
-    """
-
-    if not os.path.exists(f"{odir}/RESULTS"):
-        os.mkdir(f"{odir}/RESULTS")
-
-    for phospho_type in kinact_dict:
-        kinact = kinact_dict[phospho_type]
-        name_out = f"{name}_{phospho_type}"
-        kinact.real_enrichment.to_csv(f"{odir}/RESULTS/{name_out}_real_enrichment.tsv", sep='\t')
-        kinact.evidence_binary.to_csv(f"{odir}/RESULTS/{name_out}_binarized_experiment.tsv", sep='\t', index=False)
-        if hasattr(kinact, 'random_experiments') and kinact.random_experiments is not None:
-            kinact.random_experiments.to_csv(f"{odir}/RESULTS/{name_out}_random_experiments.tsv", sep='\t', index=False)
-        if hasattr(kinact, 'random_enrichment'):
-            kinact.random_enrichment.to_csv(f"{odir}/RESULTS/{name_out}_random_enrichment.tsv", sep='\t')
-        if hasattr(kinact, 'activities_mann_whitney'):
-            kinact.activities_mann_whitney.to_csv(f"{odir}/RESULTS/{name_out}_mann_whitney_activities.tsv", sep='\t',
-                                                  index=True)
-            kinact.fpr_mann_whitney.to_csv(f"{odir}/RESULTS/{name_out}_mann_whitney_fpr.tsv", sep='\t', index=True)
-
-    if PICKLE:
-        pickle.dump(kinact_dict, open(f"{odir}/RESULTS/{name}_kinact.p", "wb"))
-
-
-def save_kstar_slim(kinact_dict, name, odir, param_format = 'pickle'):
+def save_kstar(kinact_dict, name, odir, minimal = True, param_format = 'json'):
     """
     Having performed kinase activities (run_kstar_analyis), save each of the important dataframes, minimizing the memory storage needed to get back
-    to a rebuilt version for plotting results and analysis. For each phospho_type in the kinact_dict, this will save three .tsv files for every activities
-    analysis run, two additional if random analysis was run, and two more if Mann Whitney based analysis was run. It also creates a readme file of the parameter values
-    used
+    to a rebuilt version for plotting results and analysis. For each phospho_type in the kinact_dict, at a minimum, this will save the binarized evidence, mann whitney activities and fpr dataframes, and parameters used during run. If you would like to save all files (hypergeometric and random enrichment intermediate files), set minimal = False.
 
     Parameters
     ----------
@@ -1997,6 +2355,11 @@ def save_kstar_slim(kinact_dict, name, odir, param_format = 'pickle'):
         The name to use when saving activities
     odir:  string
         Outputdirectory to save files and pickle to
+    minimal: bool
+        Whether to save only minimal files or all intermediate files
+    param_format: {'pickle', 'json'}
+        Format to save parameter dictionary in, either pickle or json. Json is recommended for easier human readability
+    
 
     Returns
     -------
@@ -2021,32 +2384,12 @@ def save_kstar_slim(kinact_dict, name, odir, param_format = 'pickle'):
             if isinstance(getattr(kinact, attr), (int, float, str, bool, type(None))):
                 param_temp[attr] = getattr(kinact, attr)
 
-       # param_temp['run_date'] = kinact.run_date
-       # param_temp['network_directory'] = kinact.network_directory
-       # param_temp['network_name'] = kinact.network_name
-       # param_temp['network_hash'] = kinact.network_hash
-       # param_temp['num_networks'] = kinact.num_networks
-       # param_temp['data_columns'] = kinact.data_columns
-       # param_temp['threshold'] = kinact.threshold
-       # param_temp['aggregate'] = kinact.aggregate
-       # param_temp['greater'] = kinact.greater
-       # param_temp['num_random_experiments'] = kinact.num_random_experiments
-       # param_temp['use_pregen_data'] = kinact.use_pregen_data
-        param_temp['mann_whitney'] = False
-       # param_temp['eataset_sizes'] = kinact.dataset_sizes
-       # param_temp['compendia_distribution'] = kinact.compendia_distribution
+            elif isinstance(getattr(kinact, attr), list):
+                #make sure list is of basic types
+                if all(isinstance(i, (int, float, str, bool, type(None))) for i in getattr(kinact, attr)):
+                    param_temp[attr] = getattr(kinact, attr)
 
-
-
-        #kinact.real_enrichment.to_csv(f"{odir}/RESULTS/{name_out}_real_enrichment.tsv", sep='\t')
-        # kinact.activities.to_csv(f"{odir}/RESULTS/{name_out}_activities.tsv", sep = '\t', index = True)
         kinact.evidence_binary.to_csv(f"{odir}/RESULTS/{name_out}_binarized_experiment.tsv", sep='\t', index=False)
-
-        #if hasattr(kinact, 'random_enrichment'):
-        #    param_temp['randomized'] = True
-        #    param_temp['num_random_experiments'] = kinact.num_random_experiments
-        #    kinact.random_enrichment.to_csv(f"{odir}/RESULTS/{name_out}_random_enrichment.tsv", sep='\t')
-        #    # if hasattr(kinact, 'random_experiments'):
 
         if hasattr(kinact, 'activities_mann_whitney'):
             param_temp['mann_whitney'] = True
@@ -2056,7 +2399,15 @@ def save_kstar_slim(kinact_dict, name, odir, param_format = 'pickle'):
 
         param_dict[phospho_type] = param_temp
 
-    # save the parameters in a pickle file for reinstantiating object information
+        #if indicated, save additional files (this is really just the hypergeometric and random enrichment intermediate files)
+        if not minimal:
+            kinact.real_enrichment.to_csv(f"{odir}/RESULTS/{name_out}_hypergeometric_enrichment.tsv", sep='\t')
+            if hasattr(kinact, 'random_experiments') and kinact.random_experiments is not None:
+                kinact.random_experiments.to_csv(f"{odir}/RESULTS/{name_out}_random_experiments.tsv", sep='\t', index=False)
+            if hasattr(kinact, 'random_enrichment'):
+                kinact.random_enrichment.to_csv(f"{odir}/RESULTS/{name_out}_random_enrichment.tsv", sep='\t')
+
+    # save the parameters in a pickle or json file for reinstantiating object information
     if param_format == 'pickle':
         pickle.dump(param_dict, open(f"{odir}/RESULTS/{name}_params.p", "wb"))
     elif param_format == 'json':
@@ -2065,6 +2416,31 @@ def save_kstar_slim(kinact_dict, name, odir, param_format = 'pickle'):
     else:
         raise ValueError("param_format must be either 'pickle' or 'json'")
 
+def load_param_dict(name, odir):
+    """
+    Given the name and output directory of a saved kstar analyis, load the parameters used for KSTAR analysis, which should be stored as either a pickle or json file.
+
+    Parameters
+    ----------
+    name: string
+        The name to used when saving activities and mapped data
+    odir:  string
+        Output directory of saved files and parameter pickle
+    """
+    # First check for the param file
+    if os.path.exists(f"{odir}/RESULTS/{name}_params.json"):
+        with open(f"{odir}/RESULTS/{name}_params.json", 'r') as json_file:
+            param_dict = json.load(json_file)
+    elif os.path.exists(f"{odir}/RESULTS/{name}_params.p"):
+        param_dict = pickle.load(open(f"{odir}/RESULTS/{name}_params.p", "rb"))
+    elif not os.path.exists(f"{odir}/RESULTS/") and not os.path.exists(f"{odir}/RESULTS/"):
+        print(f"ERROR: Cannot find RESULTS directory in output directory: {odir}/RESULTS/")
+        param_dict = None
+    else:
+        print(f"ERROR: Cannot find parameter dictionary file in RESULTS: {odir}/RESULTS/{name}_params.p or {odir}/RESULTS/{name}_params.json")
+        param_dict = None
+    return param_dict
+    
 
 def from_kstar_slim(name, odir):
     """
@@ -2077,21 +2453,11 @@ def from_kstar_slim(name, odir):
         The name to used when saving activities and mapped data
     odir:  string
         Output directory of saved files and parameter pickle
-    log: logger
-        Logger for logging activity messages
     """
 
     # First check for the param file
-    if os.path.exists(f"{odir}/RESULTS/{name}_params.json"):
-        with open(f"{odir}/RESULTS/{name}_params.json", 'r') as json_file:
-            param_dict = json.load(json_file)
-    elif os.path.exists(f"{odir}/RESULTS/{name}_params.p"):
-        param_dict = pickle.load(open(f"{odir}/RESULTS/{name}_params.p", "rb"))
-    elif not os.path.exists(f"{odir}/RESULTS/") and not os.path.exists(f"{odir}/RESULTS/"):
-        print(f"ERROR: Cannot find RESULTS directory in output directory: {odir}/RESULTS/")
-        return
-    else:
-        print(f"ERROR: Cannot find parameter dictionary file in RESULTS: {odir}/RESULTS/{name}_params.p or {odir}/RESULTS/{name}_params.json")
+    param_dict = load_param_dict(name, odir)
+    if param_dict is None:
         return
     
     kinact_dict = {}
@@ -2103,8 +2469,8 @@ def from_kstar_slim(name, odir):
         # check that the minimum file set exists so we can use binary_evidence file as the experiment
         evidence_binary = pd.read_csv(f"{odir}/RESULTS/{name_out}_binarized_experiment.tsv", sep='\t')
         #grab additional parameters needed to reinstate object
-        network_dir = params.get('network_directory', None)
-        network_name = params.get('network_name', None)
+        #network_dir = params.get('network_directory', None)
+        #network_name = params.get('network_name', None)
 
 
         #load activity logger
