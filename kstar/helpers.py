@@ -3,6 +3,7 @@ import os, re, json, sys, io
 import logging
 import argparse
 import pandas as pd
+import numpy as np
 import urllib.parse
 import urllib.request
 import inspect
@@ -226,8 +227,31 @@ def extract_kwonlyargs(func, **kwargs):
     func_kwonlyargs = inspect.getfullargspec(func).kwonlyargs
     return {k: kwargs[k] for k in func_kwonlyargs if k in kwargs}
 
+def calculate_jaccard_by_sets(set1, set2):
+	"""
+	Compares two sets and calculates the Jaccard index between them
+	"""
+	intersection = len(set1.intersection(set2))
+	union = len(set1.union(set2))
+	if union == 0:
+		return 0.0
+	return intersection / union
 
-def jaci_matrix_between_samples(evidence, samples):
+def calculate_jaccard_by_binary(set1, set2):
+	"""
+	Compares two binary arrays and calculates the Jaccard index between them (based on number of matches)
+	"""
+	#makes sure vectors are the same length
+	if len(set1) != len(set2):
+		raise ValueError("Input binary arrays must be of the same length.")
+	
+	intersection = np.logical_and(set1, set2).sum()
+	union = np.logical_or(set1, set2).sum()
+	if union == 0:
+		return 0.0
+	return intersection / union
+
+def jaci_matrix_between_samples(evidence, samples=None):
 	"""
 	This function creates a looks at the similarity of evidence between samples based on Jaccard index of phosphopeptide identities
 
@@ -242,8 +266,13 @@ def jaci_matrix_between_samples(evidence, samples):
 	jaccard_matrix: pd.DataFrame
 		a dataframe showing the similarity of phosphopeptide identities between samples
 	"""
-	from sklearn.metrics.pairwise import pairwise_distances
-	samples = [s for s in samples if s in evidence.columns]
+	#from sklearn.metrics.pairwise import pairwise_distances
+	if samples is None:
+		samples = [col for col in evidence.columns if col.startswith("data:")]
+		if len(samples) == 0:
+			raise ValueError("No sample columns found in evidence dataframe. Please provide a list of sample columns.")
+	else:
+		samples = [s for s in samples if s in evidence.columns]
 
 	# check if binary matrix, convert to boolean. Raise warning if not binary, but convert by removing zeros and np.nans
 	if ((evidence[samples].values == 0) | (evidence[samples].values == 1)).all():
@@ -253,10 +282,27 @@ def jaci_matrix_between_samples(evidence, samples):
 		evidence[samples] = evidence[samples].fillna(0)
 		evidence[samples] = evidence[samples].astype(bool)
 
-	jaccard_matrix = 1 - pairwise_distances(evidence[samples].T.to_numpy(), metric='jaccard')
-	col_names = [s.replace("data:", "") for s in samples]
-	ind_names = [s.replace("data:", "") for s in samples]
-	jaccard_matrix = pd.DataFrame(jaccard_matrix, columns=col_names, index=ind_names)
+
+      
+	#Calculate similarity between each column and construct a table to house the values
+	jaccard_matrix = pd.DataFrame(np.nan, columns = samples, index = samples)
+	for i in range(len(samples)-1):
+		for j in range(i+1, len(samples)):
+			set1 = evidence[samples[i]].values
+			set2 = evidence[samples[j]].values
+			similarity = calculate_jaccard_by_binary(set1,set2)
+			
+			#Add similarity metric to both sides of the table, so that it is symmetric
+			jaccard_matrix.loc[samples[i],samples[j]] = similarity
+			jaccard_matrix.loc[samples[j],samples[i]] = similarity
+	
+	#fill diagonal with 1s
+	for s in samples:
+		jaccard_matrix.loc[s,s] = 1.0
+
+	#remove "data:" from sample names for easier readability
+	jaccard_matrix.columns = [s.replace("data:", "") for s in samples]
+	jaccard_matrix.index = [s.replace("data:", "") for s in samples]
 	return jaccard_matrix
 
 

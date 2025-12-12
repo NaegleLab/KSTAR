@@ -3,7 +3,7 @@ import os
 import re
 import pickle
 import itertools
-import warnings
+import numbers
 
 import pandas as pd
 import numpy as np
@@ -369,7 +369,7 @@ class KinaseActivity:
         if return_evidence_sizes:
             return num_sites
         
-    def test_threshold_range(self, min_threshold, max_threshold, step=0.1, agg = 'mean', greater = True, min_evidence_size = 0, desired_evidence_size = None):
+    def test_threshold_range(self, min_threshold, max_threshold, step=0.1, agg = 'mean', greater = True, min_evidence_size = 0, desired_evidence_size = None, show_recommended = False):
         """
         Given a range of threshold values, calculate the distribution of evidence sizes (i.e. number of sites used in prediction for each sample in the experiment) and Jaccard similarity between samples at each threshold
 
@@ -405,17 +405,25 @@ class KinaseActivity:
             range_values = np.arange(max_threshold, min_threshold - step, -step)
 
         #iterate through threholds and calculate evidence sizes and jaccard similarity
+        plt_range = []
         for threshold in range_values:
             #calculate binary evidence, checking if no evidence is found
             try:
                 evidence_binary = helpers.suppress_print(self.create_binary_evidence, agg=agg, threshold=threshold, greater=greater, drop_empty_columns = False, min_evidence_size = min_evidence_size)
             except Exception as e:
-                if e == ValueError:
-                    print(f"Warning: No evidence found at thresholds greater than {threshold}. Skipping these thresholds.")
-                    break
+                print('Error encountered when calculating evidence at threshold', threshold)
+                print('Error message:', str(e))
+                break
+
 
             #calculate evidence sizes
             num_sites = evidence_binary[self.data_columns].sum()
+            if num_sites.min() == 0:
+                direction = 'greater' if greater else 'less'
+                print(f"Warning: Some data columns have no evidence at thresholds {direction} than {threshold}. Stopping further calculations.")
+                break
+
+            plt_range.append(threshold)
             median_sizes.append(num_sites.median())
             min_sizes.append(num_sites.min())
             max_sizes.append(num_sites.max())
@@ -423,10 +431,11 @@ class KinaseActivity:
             #get number of valid columns
             num_valid_columns.append((num_sites > min_evidence_size).sum())
 
-            #calculate jaccard similarity between samples based on phosphosite identity
-            jaci = helpers.jaci_matrix_between_samples(evidence_binary, self.data_columns)
-            average_jac.append(jaci[jaci != 1].mean().mean())
-            max_jac.append(jaci[jaci != 1].max().max())
+            if len(self.data_columns) > 1:
+                #calculate jaccard similarity between samples based on phosphosite identity
+                jaci = helpers.jaci_matrix_between_samples(evidence_binary, self.data_columns)
+                average_jac.append(jaci[jaci != 1].mean().mean())
+                max_jac.append(jaci[jaci != 1].max().max())
         
         #set desired evidence size if not provided (for plotting)
         if desired_evidence_size is None:
@@ -434,23 +443,33 @@ class KinaseActivity:
         recommended_similarity = 0.6
         
         #setup figure
-        fig, axes = plt.subplots(figsize = (8,4), nrows=1, ncols=2)
+        if len(self.data_columns) <= 1:
+            fig, size_ax = plt.subplots(figsize = (4,4), nrows=1, ncols=1)
+        else:
+            fig, axes = plt.subplots(figsize = (8,4), nrows=1, ncols=2)
+            size_ax = axes[0]
+            sim_ax = axes[1]
+            fig.subplots_adjust(wspace=0.6)
         #make evidence size plot
-        axes[0].plot(range_values, median_sizes, linestyle='-', c = 'black', label = 'Median Across Samples')
-        axes[0].plot(range_values, min_sizes, linestyle = ':', c = 'black', label = 'Min/Max Across Samples')
-        axes[0].plot(range_values, max_sizes, linestyle = ':', c = 'black', label = 'Min/Max Across Samples')
-        axes[0].set_xlabel('Threshold')
-        axes[0].set_ylabel('Evidence Size')
-        axes[0].axhline(y=desired_evidence_size, color='red', linestyle='-', alpha = 0.5, label = 'Target Sample Size')
-        axes[0].legend(loc=(0, 1.05))
+        
+        size_ax.plot(plt_range, median_sizes, linestyle='-', c = 'black', label = 'Median Across Samples')
+        size_ax.plot(plt_range, min_sizes, linestyle = ':', c = 'black', label = 'Min/Max Across Samples')
+        size_ax.plot(plt_range, max_sizes, linestyle = ':', c = 'black', label = 'Min/Max Across Samples')
+        size_ax.set_xlabel('Threshold')
+        size_ax.set_ylabel('Evidence Size')
+        if show_recommended:
+            size_ax.axhline(y=desired_evidence_size, color='red', linestyle='-', alpha = 0.5, label = 'Target Sample Size')
+        size_ax.legend(loc=(0, 1.05))
 
         #make jaccard similarity plot
-        axes[1].plot(range_values, average_jac, linestyle = '-', c = 'black', label = 'Average Jaccard Similarity')
-        axes[1].plot(range_values, max_jac, linestyle = ':', c = 'black', label = 'Maximum Jaccard Similarity')
-        axes[1].axhline(y=recommended_similarity, color='red', linestyle='-', alpha = 0.5, label = 'Recommended Maximum Similarity')
-        axes[1].set_xlabel('Threshold')
-        axes[1].set_ylabel('Jaccard Similarity')
-        axes[1].legend(loc = (0, 1.05))
+        if len(self.data_columns) > 1:
+            sim_ax.plot(plt_range, average_jac, linestyle = '-', c = 'black', label = 'Average Jaccard Similarity')
+            sim_ax.plot(plt_range, max_jac, linestyle = ':', c = 'black', label = 'Maximum Jaccard Similarity')
+            if show_recommended:
+                sim_ax.axhline(y=recommended_similarity, color='red', linestyle='-', alpha = 0.5, label = 'Recommended Maximum Similarity')
+            sim_ax.set_xlabel('Threshold')
+            sim_ax.set_ylabel('Jaccard Similarity')
+            sim_ax.legend(loc = (0, 1.05))
 
         #if any data columns were removed due to lack of evidence, print a warning
         if any([n < len(self.data_columns) for n in num_valid_columns]):
@@ -492,6 +511,9 @@ class KinaseActivity:
         ave_jaci: float
             average Jaccard similarity between samples at the recommended threshold
         """
+        #make sure there are multiple data columns to compare similarity between
+        if len(self.data_columns) <= 1:
+            raise ValueError("Cannot recommend threshold based on similarity with only one data column, since there are no other samples to compare to")
         if greater:
             threshold = min_threshold - step
             ave_jaci = 1
@@ -623,7 +645,7 @@ class KinaseActivity:
 
         return allowable_threshold
     
-    def recommend_threshold(self, desired_evidence_size = None, max_similarity = 0.7, consider_similarity = True, min_threshold = -np.inf, max_threshold = np.inf, step = 0.1, pick_best_size_by = 'median', pick_best_similarity_by = 'max', greater = True, agg = 'mean', min_evidence_size = 20, show_plots = True):
+    def recommend_threshold(self, desired_evidence_size = None, max_similarity = 0.7, consider_size = True, consider_similarity = True, min_threshold = -np.inf, max_threshold = np.inf, step = 0.1, pick_best_size_by = 'median', pick_best_similarity_by = 'max', greater = True, agg = 'mean', min_evidence_size = 20):
         """
         Recommend a threshold, one based on desired evidence size and one based on maximum average Jaccard similarity between samples. Will report the characteristics of the resulting evidences for both thresholds
 
@@ -654,6 +676,8 @@ class KinaseActivity:
             raise ValueError("When greater = True, min_threshold must be set to a finite value.")
         if not greater and max_threshold == np.inf:
             raise ValueError("When greater = False, max_threshold must be set to a finite value.")
+        if not consider_size and not consider_similarity:
+            raise ValueError("At least one of consider_size or consider_similarity must be set to True.")
 
 
         #determine the minimum/maximum threshold that still results in all data columns having evidence, based on min_evidence_size
@@ -662,7 +686,8 @@ class KinaseActivity:
         if greater:
             if allowable_threshold < min_threshold:
                 raise ValueError(f'Min threshold of {min_threshold} is too high and results in no evidence for at least on data column. Your options include:\n1) Setting min_threshold to lower than {allowable_threshold}\n2) Lowering the `min_evidence_size` parameter in recommend_threshold to allow for smaller dataset sizes\n3) Set min_evidence_size to None if you do not care if some data columns are lost).')
-
+            elif max_threshold == np.inf:
+                max_threshold = round(allowable_threshold, 2)
             elif allowable_threshold < max_threshold:
                 print(f'Warning: Max threshold of {max_threshold} is too high, resulting in no evidence for at least one data column. Maximum allowable threshold to retain evidence for all data columns is {allowable_threshold}. Setting max_threshold to {allowable_threshold}. You can lower the `min_evidence_size` parameter in recommend_threshold to allow higher thresholds (set to negative if you do not care if some data columns are lost).\n')
                 max_threshold = round(allowable_threshold,2)
@@ -670,31 +695,42 @@ class KinaseActivity:
         else:
             if allowable_threshold > max_threshold:
                 raise ValueError(f'Max threshold of {max_threshold} is too high and results in no evidence for at least on data column. Your options include:\n1) Setting max_threshold to higher than {allowable_threshold}\n2) Lowering the `min_evidence_size` parameter in recommend_threshold to allow for smaller dataset sizes\n3) Set min_evidence_size to None if you do not care if some data columns are lost).')
+            elif min_threshold == -np.inf:
+                min_threshold = round(allowable_threshold, 2)
             elif allowable_threshold > min_threshold:
                 print(f'Warning: Min threshold of {min_threshold} is too low, resulting in no evidence for at least one data column. Minimum allowable threshold to retain evidence for all data columns is {allowable_threshold}. Setting min_threshold to {allowable_threshold}. You can lower the `min_evidence_size` parameter in recommend_threshold to allow lower thresholds (set to None if you do not care if some data columns are lost).\n')
                 min_threshold = round(allowable_threshold,2)
 
 
         #identify and test optimal threshold based on evidence size
-        threshold_by_size, evidence_size = self.recommend_threshold_by_size(desired_evidence_size=desired_evidence_size, pick_best_by=pick_best_size_by, min_threshold=min_threshold, max_threshold=max_threshold, step=step, greater=greater, agg=agg)
-        print(f'Recommended threshold based on {pick_best_size_by} evidence_size:', round(threshold_by_size, 2), f'(median sites = {evidence_size})')
+        if consider_size:
+            threshold_by_size, evidence_size = self.recommend_threshold_by_size(desired_evidence_size=desired_evidence_size, pick_best_by=pick_best_size_by, min_threshold=min_threshold, max_threshold=max_threshold, step=step, greater=greater, agg=agg)
+            print(f'Recommended threshold based on {pick_best_size_by} evidence_size:', round(threshold_by_size, 2), f'({pick_best_size_by} sites = {evidence_size})')
+
 
         #if also considering similarity between data columns, check here
         if consider_similarity:
-            #identify and test optimal threshold based on similarity
-            threshold_by_similarity, similarity = self.recommend_threshold_based_on_similarity(max_similarity=max_similarity, min_threshold=min_threshold, max_threshold=max_threshold, step=step, greater=greater, agg=agg, pick_best_by=pick_best_similarity_by)
-            print(f'Recommended threshold based on {pick_best_similarity_by} similarity:', round(threshold_by_similarity, 2), f'({pick_best_similarity_by} Jaccard similarity = {round(similarity, 2)})')  
+            if len(self.data_columns) <= 1:
+                print('Warning: Cannot recommend threshold based on similarity with only one data column, since there are no other samples to compare to. Skipping similarity-based threshold recommendation.')
+                consider_similarity = False
+            else:
+                #identify and test optimal threshold based on similarity
+                threshold_by_similarity, similarity = self.recommend_threshold_based_on_similarity(max_similarity=max_similarity, min_threshold=min_threshold, max_threshold=max_threshold, step=step, greater=greater, agg=agg, pick_best_by=pick_best_similarity_by)
+                print(f'Recommended threshold based on {pick_best_similarity_by} similarity:', round(threshold_by_similarity, 2), f'({pick_best_similarity_by} Jaccard similarity = {round(similarity, 2)})')  
 
-            #choose the more stringent of the two thresholds
+        #choose the more stringent of the two thresholds
+        if consider_size and consider_similarity:
             if greater:
                 recommended_threshold = round(max(threshold_by_size, threshold_by_similarity), 2)
             else:
                 recommended_threshold = round(min(threshold_by_size, threshold_by_similarity), 2)
+        elif consider_size:
+            recommended_threshold = threshold_by_size
+        elif consider_similarity:
+            recommended_threshold = threshold_by_similarity
 
-            print(f"Final recommended threshold = {recommended_threshold})")
-        else:
-            #if not considering similarity, use threshold based on evidence size
-            recommended_threshold = round(threshold_by_size, 2)
+        print(f"Final recommended threshold = {recommended_threshold})")
+
 
         return recommended_threshold
 
@@ -962,6 +998,7 @@ class KinaseActivity:
         if pregenerated_only and not self.use_pregen_data:
             print("Warning: pregenerated_only is set to True but use_pregen_data is set to False. Setting use_pregen_data to True.")
             self.use_pregen_data = True
+    
         if self.use_pregen_data:
             # Prepare for pregenerated data by determining which datasets can use pregenerated data
             self.setup_pregenerated()
@@ -991,6 +1028,7 @@ class KinaseActivity:
         # Process all from-scratch data if use_pregen_data is False
         else:
             self.data_columns_from_scratch = self.data_columns
+            self.data_columns_with_pregenerated = []
             self.logger.info(f"Generating random experiments for: {', '.join(self.data_columns)}")
             self.calculate_random_enrichment(num_random_experiments, selection_type='KSTAR_NUM_COMPENDIA_CLASS',
                 save_random_experiments = save_random_experiments, PROCESSES=PROCESSES
@@ -1389,7 +1427,7 @@ class KinaseActivity:
             threshold = None
         elif evidence_size is not None and not isinstance(evidence_size, int):
             raise ValueError("evidence_size must be an integer or None.")
-        elif not isinstance(threshold, (int, float)):
+        elif not isinstance(threshold, numbers.Number):
             raise ValueError("Threshold must be an integer or float.")
 
         if agg not in ['mean', 'min','max', 'median']:
@@ -1685,7 +1723,6 @@ class KinaseActivity:
         if not isinstance(self.random_enrichment, pd.DataFrame):
             raise ValueError("Random activities do not exist, please run kstar_activity.randomized_analysis")
 
-        number_sig_trials = self.num_random_experiments - 1
 
         #initialize output dataframes
         self.activities_mann_whitney = pd.DataFrame(index=self.kinases,columns=self.data_columns)
@@ -1718,17 +1755,28 @@ class KinaseActivity:
             else:
                 pregenerated_fpr_stats = None
 
-            if PROCESSES > 1:
+            if PROCESSES > 1 or pregenerated_fpr_stats is not None:  #note: its slower to multiprocess without pregenerated data due to overhead, so just use single processor
                 #setup partial function for unchanging parameters
-                partial_func = partial(calculate_MannWhitney_one_experiment_one_kinase, real_grouped, random_grouped, exp, pregenerated_fpr_stats=pregenerated_fpr_stats)
+                #partial_func = partial(calculate_MannWhitney_one_experiment_one_kinase, real_grouped, random_grouped, exp)
+                #create list of pregenerated stats to pass
+                #if pregenerated_fpr_stats is not None:
+                #    pregenerated_fpr_stats_list = [pregenerated_fpr_stats[kin] for kin in self.kinases]
+                #split dataframe ahead of time for each kinase
+                real_enrichment_exp_list = [real_grouped.loc[(exp, kinase)] for kinase in self.kinases]
+                random_enrichment_exp_list = [random_grouped.loc[(exp, kinase)] for kinase in self.kinases]
+                pregenerated_fpr_stats_list = [pregenerated_fpr_stats[kinase] for kinase in self.kinases] if pregenerated_fpr_stats is not None else [None for _ in self.kinases]
                 #iterate through kinases in parallel
                 with concurrent.futures.ProcessPoolExecutor(max_workers=PROCESSES) as executor:
-                    for pval, fpr in executor.map(partial_func, self.kinases):
+                    for pval, fpr in executor.map(calculate_MannWhitney_one_experiment_one_kinase, real_enrichment_exp_list, random_enrichment_exp_list, pregenerated_fpr_stats_list):
                         pval_arr.append(pval)
                         fpr_arr.append(fpr)
             else:
                 for kinase in self.kinases:
-                    pval, fpr = calculate_MannWhitney_one_experiment_one_kinase(real_grouped, random_grouped,exp, kinase, pregenerated_fpr_stats=pregenerated_fpr_stats)
+                    tmp_real_grouped = real_grouped.loc[(exp, kinase)]
+                    tmp_random_grouped = random_grouped.loc[(exp, kinase)]
+                    pregenerated_fpr_stats_kinase = pregenerated_fpr_stats.get(kinase, None) if pregenerated_fpr_stats is not None else None
+                    
+                    pval, fpr = calculate_MannWhitney_one_experiment_one_kinase(tmp_real_grouped, tmp_random_grouped, pregenerated_fpr_stats=pregenerated_fpr_stats_kinase)
                     pval_arr.append(pval)
                     fpr_arr.append(fpr)
 
@@ -1763,8 +1811,8 @@ class KinaseActivity:
         """
         #construct param_dict
         param_dict = self.get_param_dict()
-        summary_pdf = KSTAR_PDF(activities = self.activities_mann_whitney, fpr = self.fpr_mann_whitney, odir = self.odir, name = self.name, binarized_experiment = self.binarized_experiment, params = param_dict)
-        summary_pdf.generate_pdf(regenerate_plots = regenerate_plots)
+        summary_pdf = KSTAR_PDF(activities = self.activities_mann_whitney, fpr = self.fpr_mann_whitney, odir = self.odir, name = self.name, binarized_experiment = self.evidence_binary, param_dict = param_dict)
+        summary_pdf.generate(regenerate_plots = regenerate_plots)
 
     def make_dotplot(self, include_evidence_sizes=True, **kwargs):
         """
@@ -1778,7 +1826,7 @@ class KinaseActivity:
             Additional keyword arguments to pass to the DotPlot initialization and make_complete_dotplot methods
         """
         #isolate kwargs unique to dotplot init
-        init_kwargs = helpers.extract_relevant_kwargs(DotPlot.__init__, kwargs)
+        init_kwargs = helpers.extract_relevant_kwargs(DotPlot.__init__, **kwargs)
         other_kwargs = {k:v for k,v in kwargs.items() if k not in init_kwargs}
         #initialize dotplot
         dotplot = DotPlot(activities = self.activities_mann_whitney, fpr = self.fpr_mann_whitney, **init_kwargs)
@@ -2079,15 +2127,15 @@ def calculate_fpr_Mann_Whitney(random_kinase_activity_array):
     return random_stats
 
 
-def calculate_MannWhitney_one_experiment_one_kinase(real_activities_grouped, rand_activities_grouped, experiment, kinase, pregenerated_fpr_stats = None):
+def calculate_MannWhitney_one_experiment_one_kinase(real_activities_grouped_one_kinase_one_exp, rand_activities_grouped_one_kinase_one_exp, pregenerated_fpr_stats = None):
     """
     For a given kinact object, where random generation and activity has already been run, this will calculate the Mann-Whitney U test between the p-values across all networks for the given experiment name and from the random networks. It will also calculate the significance value for the given test based on the target_alpha value by using each random set as a real set to bootstrap.
 
     Parameters
     ----------
-    real_activities_grouped : pandas.Series
+    real_activities_grouped_one_kinase_one_exp : pandas.Series
         Multi-index series containing kinase activities for a given experiment grouped by kinase. Should be indexed by kinase, with each entry being a list of activities across all networks. You can obtain this by performing a groupby on the real enrichment DataFrame.
-    rand_activities_grouped : pandas.Series
+    rand_activities_grouped_one_kinase_one_exp : pandas.Series
         Multi-index series object containing kinase activities for random experiments associated with the same sample as kinact_activities_sub, grouped by kinase and random experiment number. Should be indexed by kinase and rand experiment number, with each entry being a list of activities across all networks. You can obtain this by performing a groupby on the random enrichment DataFrame.
     kinase : str
         Kinase name to measure significance for.
@@ -2103,9 +2151,9 @@ def calculate_MannWhitney_one_experiment_one_kinase(real_activities_grouped, ran
     fpr_value : float
         The false positive rate where the p_value for the real experiment lies, given the random experiments.
     """
-    kinase_activity_list = real_activities_grouped.loc[experiment,kinase]
-    #grab 
-    random_kinase_activity_array = np.vstack(rand_activities_grouped.loc[experiment, kinase])
+    kinase_activity_list = real_activities_grouped_one_kinase_one_exp
+    #reformat random activities into array
+    random_kinase_activity_array = np.vstack(rand_activities_grouped_one_kinase_one_exp)
 
     #remove one random experiment to make real and random Mann Whitney tests comparable (same number of random experiments used for comparison)
     i = np.random.randint(0, random_kinase_activity_array.shape[0])
@@ -2117,7 +2165,7 @@ def calculate_MannWhitney_one_experiment_one_kinase(real_activities_grouped, ran
     
     # Calculate FPR using the helper function
     if pregenerated_fpr_stats is not None:
-        randomStats = pregenerated_fpr_stats[kinase]
+        randomStats = pregenerated_fpr_stats
     else:
         randomStats = calculate_fpr_Mann_Whitney(random_kinase_activity_array)
     fpr_value = calculate_fpr.single_pvalue_fpr(randomStats, p_value)
@@ -2131,8 +2179,8 @@ Methods for running KSTAR pipeline
 """
 
 
-def enrichment_analysis(experiment, odir, name='experiment', phospho_types=['Y', 'ST'], network_dir = None, data_columns=None, agg='mean',
-                        threshold=1.0, evidence_size=None, greater=True, min_evidence_size = 0, PROCESSES=1, logger = None, min_dataset_size_for_pregenerated=150, max_diff_from_pregenerated=0.25):
+def enrichment_analysis(experiment, odir, name='experiment', phospho_types=['Y', 'ST'], data_columns=None, agg='mean',
+                        threshold=1.0, evidence_size=None, greater=True, min_evidence_size=0, PROCESSES=1, **kwargs):
     """
     Function to establish a kstar KinaseActivity object from an experiment with an activity log
     add the networks, calculate, aggregate, and summarize the hypergeometric enrichment into a final activity object. Should be followed by
@@ -2142,13 +2190,10 @@ def enrichment_analysis(experiment, odir, name='experiment', phospho_types=['Y',
     ----------
     experiment: pandas df
         experiment dataframe that has been mapped, includes KSTAR_SITE, KSTAR_ACCESSION, etc.
-    log: logger object
-        Log to write activity log error and update to
-    networks: dictionary of dictionaries
-        Outer dictionary keys are 'Y' and 'ST'.
-        Establish a network by loading a pickle of desired networks. See the helpers and config file for this.
-        If downloaded from FigShare, then the GLOBAL network pickles in config file can be loaded
-        For example: networks['Y'] = pickle.load(open(config.NETWORK_Y_PICKLE, "rb" ))
+    odir : str
+        path to where you would like logger and output saved
+    name : str
+        name to use for outputs
     phospho_types: {['Y', 'ST'], ['Y'], ['ST']}
         Which substrate/kinaset-type to run activity for: Both ['Y, 'ST'] (default), Tyrosine ['Y'], or Serine/Threonine ['ST']
     data_columns : list
@@ -2159,10 +2204,18 @@ def enrichment_analysis(experiment, odir, name='experiment', phospho_types=['Y',
         'count' combines multiple representations and adds if values are non-NaN
         'mean' uses the mean value of numerical data from multiple representations of the same peptide.
             NA values are droped from consideration.
-    threshold : float
-        threshold value used to filter rows
+    threshold : float or dict
+        threshold value used to filter rows. If provided as a dictionary, keys should be 'Y' and/or 'ST' with float values for each phospho_type.
+    evidence_size : int or dict
+        size of evidence to use for filtering. If provided as a dictionary, keys should be 'Y' and/or 'ST' with int values for each phospho_type. Will overide threshold if both provided.
+    min_evidence_size : int
+        minimum size of evidence to run kinase activity on. Default 0, meaning any data column with at least one site will be run on
     greater: Boolean
         whether to keep sites that have a numerical value >=threshold (TRUE, default) or <=threshold (FALSE)
+    PROCESSES : int
+        number of processes to use for parallel computation, by default 1.
+    **kwargs
+        Additional keyword arguments to pass to the KinaseActivity class
 
     Returns
     -------
@@ -2173,9 +2226,25 @@ def enrichment_analysis(experiment, odir, name='experiment', phospho_types=['Y',
         activity summary (see summarize_activities)
 
     """
+    #check to make sure threshold and evidence_size are properly formatted
+    if isinstance(threshold, dict):
+        for pt in phospho_types:
+            if pt not in threshold:
+                raise ValueError("When providing threshold as a dictionary, it must include keys for all phospho_types being run.")
+    else:
+        threshold = {pt: threshold for pt in phospho_types}
+    
+    if isinstance(evidence_size, dict):
+        for pt in phospho_types:
+            if pt not in evidence_size:
+                raise ValueError("When providing evidence_size as a dictionary, it must include keys for all phospho_types being run.")
+    else:
+        evidence_size = {pt: evidence_size for pt in phospho_types}
+
     #make sure odir exists
     if not os.path.exists(odir):
         raise ValueError(f"Output directory {odir} does not exist. Please create it before running enrichment_analysis.")
+    
     kinact_dict = {}
     # For each phosphoType of interest, establish a kinase activity object on a filtered dataset and run, aggregate, and summarize activity
     if not isinstance(phospho_types, list):
@@ -2192,13 +2261,10 @@ def enrichment_analysis(experiment, odir, name='experiment', phospho_types=['Y',
 
         else:
             raise ValueError("ERROR: Did not recognize phosphoType %s, which should only include 'Y' or 'ST' " % (phospho_type))
-            
-        kinact = KinaseActivity(experiment_sub, odir = odir, name = name, data_columns=data_columns, phospho_type=phospho_type, network_dir=network_dir, logger = logger, min_dataset_size_for_pregenerated=min_dataset_size_for_pregenerated, max_diff_from_pregenerated=max_diff_from_pregenerated,)
-
-        kinact.calculate_kinase_activities(agg=agg, threshold=threshold, evidence_size=evidence_size, greater=greater, min_evidence_size=min_evidence_size,
-                                           PROCESSES=PROCESSES)
-        #kinact.aggregate_activities()
-        #kinact.activities = kinact.summarize_activities()
+        #initialize KinaseActivity object
+        kinact = KinaseActivity(experiment_sub, odir = odir, name = name, data_columns=data_columns, phospho_type=phospho_type, **kwargs)
+        #perform hypergeometric enrichment across all networks
+        kinact.calculate_kinase_activities(agg=agg, threshold=threshold[phospho_type], evidence_size=evidence_size[phospho_type], greater=greater, min_evidence_size=min_evidence_size, PROCESSES=PROCESSES)
         kinact_dict[phospho_type] = kinact
     return kinact_dict
 
@@ -2409,7 +2475,7 @@ def save_kstar(kinact_dict, name, odir, minimal = True, param_format = 'json'):
 
     # save the parameters in a pickle or json file for reinstantiating object information
     if param_format == 'pickle':
-        pickle.dump(param_dict, open(f"{odir}/RESULTS/{name}_params.p", "wb"))
+        pickle.dump(param_dict, open(f"{odir}/RESULTS/{name}_{phospho_type}_params.p", "wb"))
     elif param_format == 'json':
         with open(f"{odir}/RESULTS/{name}_params.json", 'w') as json_file:
             json.dump(param_dict, json_file, indent=4)
@@ -2479,13 +2545,12 @@ def from_kstar_slim(name, odir):
         #kinact.real_enrichment = pd.read_csv(f"{odir}/RESULTS/{name_out}_real_enrichment.tsv", sep='\t', index_col=0)
         kinact.evidence_binary = evidence_binary
 
-        if 'mann_whitney' in params.keys():
-            # read mann_whitney and load
-            kinact.activities_mann_whitney = pd.read_csv(f"{odir}/RESULTS/{name_out}_mann_whitney_activities.tsv",
-                                                         sep='\t', index_col=config.KSTAR_KINASE)
-            kinact.fpr_mann_whitney = pd.read_csv(f"{odir}/RESULTS/{name_out}_mann_whitney_fpr.tsv", sep='\t',
-                                                  index_col=config.KSTAR_KINASE)
-            params.pop('mann_whitney', None)
+        # read mann_whitney and load
+        kinact.activities_mann_whitney = pd.read_csv(f"{odir}/RESULTS/{name_out}_mann_whitney_activities.tsv",
+                                                        sep='\t', index_col=config.KSTAR_KINASE)
+        kinact.fpr_mann_whitney = pd.read_csv(f"{odir}/RESULTS/{name_out}_mann_whitney_fpr.tsv", sep='\t',
+                                                index_col=config.KSTAR_KINASE)
+        #params.pop('mann_whitney', None)
 
 
         for param_name in params:
