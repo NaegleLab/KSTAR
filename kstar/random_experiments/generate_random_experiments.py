@@ -3,7 +3,7 @@ import multiprocessing
 import itertools
 import argparse
 import os
-from kstar import config
+from kstar import config 
 
 #%%
 #%%

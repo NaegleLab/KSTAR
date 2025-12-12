@@ -282,9 +282,17 @@ def generate_default_random_activities_v2(phospho_type, compendia_sizes, network
     #generate random activities for each experiment size with the given compendia distribution
     activities_dict = {}
     #for size in tqdm(exp_sizes, desc = f'Generating random activities for pregenerated experiment sizes ({[str(e) for e in exp_sizes]})'):
-    exp_args = [(size, compendia_sizes, phospho_type, networks, network_sizes, filtered_compendia, num_random_experiments, save_dir) for size in exp_sizes]
-    with Pool(PROCESSES) as pool:
-        results = tqdm(pool.starmap(process_exp, exp_args), total = len(exp_sizes))
+    #exp_args = [(size, compendia_sizes, phospho_type, networks, network_sizes, filtered_compendia, num_random_experiments, save_dir) for size in exp_sizes]
+    #setup partial function with constant parameter values to pass to multiprocessor
+    if PROCESSES > 1:
+        #setup partial function with fixed parameters to pass to multiprocessor pool
+        partial_func = partial(process_exp, compendia_sizes = compendia_sizes, phospho_type = phospho_type, networks = networks, network_sizes = network_sizes, filtered_compendia = filtered_compendia, num_random_experiments = num_random_experiments, save_dir = save_dir)
+        with Pool(PROCESSES) as pool:
+            results = tqdm(pool.imap_unordered(partial_func, exp_sizes), total = len(exp_sizes), desc = f'Pregenerating random activities for {phospho_type} experiments (compendia_sizes={"_".join(map(str, compendia_sizes))})')
+    else:
+        results = []
+        for size in tqdm(exp_sizes, desc = f'Pregenerating random activities for {phospho_type} experiments (compendia_sizes={"_".join(map(str, compendia_sizes))})'):
+            process_exp(size, compendia_sizes, phospho_type, networks, network_sizes, filtered_compendia, num_random_experiments, save_dir)
     return results
 
 
@@ -492,6 +500,41 @@ def save_random_activities_dict(activities_dict, odir):
         #save to file
         tmp_pivot.to_csv(f"{odir}/{size}/random_enrichment.tsv", sep='\t', index = False)
 
+def generate_all_default_random_activities_and_fpr_stats(phospho_types = ['Y', 'ST'],network_dir = None, network_name = None, logger = None, regenerate=False, PROCESSES = 1):
+    """
+    Generate all default pregenerated random activities and FPR statistics for both phosphotyrosine and phosphoserine/threonine experiments with default experiment sizes and compendia distributions recommended for KSTAR.
+
+    Parameters
+    ----------
+    network_dir : str, optional
+        Directory containing the kinase-substrate networks. If None, uses default from config.
+    network_name : str, optional
+        Name of the kinase-substrate network to use. If None, uses default from config.
+    logger : logging.Logger, optional
+        Logger for logging progress messages. If None, no logging is performed.
+    PROCESSES : int, optional
+        Number of processes to use for multiprocessing. Default is 1 (no multiprocessing).
+    """
+    exp_sizes = {'Y': (50, 1000), 'ST': (500, 20000)} #min and max number of sites in experiment
+    compendia_sizes = {'Y': [[0,50,50], [0,30,70]], 'ST': [[0,30,70]]} # compendia bias distributions as percents (0: low bias, 1: medium bias, 2: high bias)
+
+
+    #for both tyrosine and serine/threonine, generate default pregenerated random activities and FPR stats
+    for phospho_type in phospho_types:
+        min_size, max_size = exp_sizes[phospho_type]
+        #iterat through compendia sizes and pregenerate random activities
+        for comp_size in compendia_sizes[phospho_type]:
+            generate_default_random_activities(network_dir = network_dir, network_name = network_name, phospho_type = phospho_type, compendia_sizes = comp_size, min_size = min_size, max_size = max_size, frac_difference = 0.25, num_random_experiments = 150, regenerate=regenerate, PROCESSES = PROCESSES)
+        print(f'Finished generating default pregenerated random activities for phospho_type={phospho_type}. Generating FPR statistics now...')
+        if logger is not None:
+            logger.info(f'Finished generating default pregenerated random activities for phospho_type={phospho_type}. Generating FPR statistics now...')
+
+        #using just generated random activities, generate FPR stats
+        generate_default_fpr_stats(phospho_type = phospho_type, network_dir = network_dir, network_name = network_name, regenerate = regenerate, PROCESSES=PROCESSES)
+        print('Finished generating FPR statistics.')
+        if logger is not None:
+            logger.info('Finished generating FPR statistics.')
+
 
 def main():
     #parse command-line arguments
@@ -503,11 +546,7 @@ def main():
     parser.add_argument('-p', type=int, default=1, help='Number of processes to use for multiprocessing. Default is 1 (no multiprocessing).')
     args = parser.parse_args()
 
-    #construct default random activities for tyrosine
-    min_size = 50
-    max_size = 1000
-    frac_difference = 0.25
-    compendia_sizes = [[0,50,50], [0, 30, 70]]  # 0: low bias, 1: medium bias, 2: high bias
+
     for comp_size in compendia_sizes:
         activities_dict = generate_default_random_activities(phospho_type = 'Y', compendia_sizes = comp_size, min_size = min_size, max_size = max_size, frac_difference = frac_difference, num_random_experiments = 150, network_dir = args.network_dir, network_name=args.network_name, PROCESSES = args.p)
 
