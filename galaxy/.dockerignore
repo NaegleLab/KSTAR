@@ -1,17 +1,18 @@
 #individual files to ignore
-/kstar/directories.txt
-/kstar/configuration.json
-/kstar/analysis/*
-/kstar/README.md
-/kstar/kstar_runner.py
-/kstar/calculate_v1.py
-/kstar/defaults.txt
-/kstar/precalculate.py
-/kstar/prune.py
+kstar/directories.txt
+kstar/configuration.json
+kstar/analysis/*
+kstar/README.md
+kstar/kstar_runner.py
+kstar/calculate_v1.py
+kstar/defaults.txt
+kstar/pregenerate.py
+kstar/prune.py
+kstar/summarize.py
 
 #directories to ignore
-/kstar/analysis/
-/kstar/log/
+kstar/analysis/
+kstar/log/
 kstar/kstar.egg-info/
 kstar/__pycache__/
 

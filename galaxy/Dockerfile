@@ -7,6 +7,11 @@ ENV PYTHONDONTWRITEBYTECODE=1
 # Turns off buffering for easier container logging
 ENV PYTHONUNBUFFERED=1
 
+
+#install gcc and other dependencies
+#RUN apt-get update && \
+#    apt-get install -y --no-install-recommends build-essential gcc && \
+#    rm -rf /var/lib/apt/lists/*
 #install python dependencies
 #RUN pip install -U pip && \
 #    pip install --no-cache-dir pandas==2.1.* && \
@@ -19,7 +24,7 @@ COPY kstar/ ./kstar/
 RUN pip install --no-cache-dir . \
     && rm -rf ~/.cache/pip /var/lib/apt/lists/* 
 
-#add resource files
+#add resource files to /opt/kstar_resources/ and establish environment variable for resources
 COPY RESOURCE_FILES/ /opt/kstar_resources/RESOURCE_FILES/
 COPY NETWORKS/ /opt/kstar_resources/NETWORKS/
 ENV KSTAR_RESOURCE_DIR=/opt/kstar_resources/
