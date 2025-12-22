@@ -275,9 +275,9 @@ def install_resource_files():
     HUMAN_REF_COMPENDIA = pd.read_csv(f"{RESOURCE_DIR}/HumanPhosphoProteome.csv")
 
 
-# def update_network_directory(directory, *kwargs):
 
-def install_network_files(target_dir=None, create_pickles = False):
+
+def install_network_files(target_dir=None):
     """Retrieves Network files that are the companion for this version release from FigShare, unzips them to the specified directory."""
 
     print("Requesting network file")
@@ -302,27 +302,8 @@ def install_network_files(target_dir=None, create_pickles = False):
 
     #update network directory
     update_configuration(network_dir=f"{install_dir}/NETWORKS/NetworKIN", y_network_name='Default', st_network_name='Default')
-    #update_network_directory(f"{install_dir}/NETWORKS/NetworKIN", create_pickles=False)
-    #return NETWORK_DIR, NETWORK_Y_PICKLE, NETWORK_ST_PICKLE
 
-#def update_directory_file():
-#    """
-#    Update the directories.txt file with new directories for network files and pregenerated #experiments
 
-#    Parameters
-#    ----------
-#    network_dir: string
-#        path to where network files are located
-#    pregenerated_experiments_dir: string
-#        path to where pregenerated experiments are located
-#    custom_pregenerated_experiments_dir: string
-#        path to where custom pregenerated experiments are located
-
-#    """
-#    lines = [NETWORK_DIR + '\n', CUSTOM_PREGENERATED_EXPERIMENTS_DIR + '\n']
-#    # read current directories
-#    with open(f'{KSTAR_DIR}/kstar/directories.txt', 'w') as d:
-#        d.writelines(lines)
 
 def find_available_networks(phospho_type):
     """
@@ -334,14 +315,27 @@ def find_available_networks(phospho_type):
         dictionary containing all available networks, in the format -> Network hash : network information dictionary
     """
     available_networks = {}
-
+    found_but_invalid = {}
     for item in os.listdir(NETWORK_DIR + f'/{phospho_type}/'):
         item_path = os.path.join(NETWORK_DIR, phospho_type, item)
-
-        #read network information
-        network_info = helpers.parse_network_information(item_path)
-        available_networks[item] = network_info
-    return available_networks
+        #check if RUN_INFORMATION.txt file exists
+        if not os.path.isfile(os.path.join(item_path, "RUN_INFORMATION.txt")):
+            found_but_invalid[item] = "Could not find RUN_INFORMATION.txt file"
+        else:
+            #read network information
+            network_info = helpers.parse_network_information(item_path)
+            #make sure network matches reference proteome
+            if network_info['unique_reference_id'] != REFERENCE_INFO['unique_reference_id']:
+                found_but_invalid[item] = "Network does not match reference proteome used in this KSTAR installation"
+            elif network_info['phospho_type'] != phospho_type:
+                found_but_invalid[item] = f"Network phospho type {network_info['phospho_type']} does not match requested phospho type {phospho_type}"
+            elif not os.path.exists(os.path.join(item_path, f"INDIVIDUAL_NETWORKS/")):
+                found_but_invalid[item] = "Could not find INDIVIDUAL_NETWORKS directory within network folder"
+            elif not os.path.exists(os.path.join(item_path, f"RANDOM_ACTIVITIES/")) and USE_PREGENERATED_RANDOM_ACTIVITIES:
+                found_but_invalid[item] = "Could not find RANDOM_ACTIVITIES directory within network folder"
+            else:
+                available_networks[item] = network_info
+    return available_networks, found_but_invalid
 
 
 def get_package_memory():
@@ -395,62 +389,8 @@ def get_package_memory():
     print(f"Total custom random activity size: {custom_activity_size['ST'] / (1024 **3):.2f} GB")
 
 
-#def update_network_directory(directory):
-#    """
-#    Update the location of network the network files, and verify that all necessary files are #located in directory
-
-#    Parameters
-#    ----------
-#    directory: string
-#        path to where network files are located
 
 
-#    """
-
-    # check that directory exists
-#    if not os.path.isdir(directory):
-#        print(
-#            'Directory not found, so configuration was not updated and no pickles were generated. #Please verify that directory is correct')
-#        return
-
-    # update network directory in directories.txt (first line of the file)
-#    update_configuration(network_dir = directory)
-#    print('Network directory updated.')
-
-
-# def create_network_pickles(phosphoType = ['Y','ST'], *kwargs)
-#def create_network_pickles(phosphoTypes=['Y', 'ST'], network_directory=NETWORK_DIR):
-#    """
-#    Given network files declared in globals, create pickles of the kstar object that can then be quickly loaded in analysis
-#    Assumes that the Network structure has two folders Y and ST under the NETWORK_DIR global variable and that
-#    all .csv files in those directories should be loaded into a network pickle.
-#    """
-
-#    for phosphoType in phosphoTypes:
-#        network = {}
-#        if not os.path.isfile(f"{network_directory}/network_{phosphoType}.p"):
-#            directory = f"{network_directory}/{phosphoType}/INDIVIDUAL_NETWORKS/"
-#            # get all csv files in that directory
-#            for file in os.listdir(directory):
-#                if file.endswith(".tsv"):
-#                    # get the value of the network number
-#                    file_noext = file.strip(".tsv").split('_')
-#                    key_name = 'nkin' + str(file_noext[1])
-#                    # print("Debug: key name is %s"%(key_name))
-#                    network[key_name] = pd.read_csv(f"{directory}{file}", sep='\t')
-#            print("Loaded %d number of networks for phosphoType %s" % (len(network), phosphoType))
-#            pickle.dump(network, open(f"{network_directory}/network_{phosphoType}.p", "wb"))
-#            print(f"Saved pickle file at {network_directory}/network_{phosphoType}.p")
-#        else:
-#            print(f"{phosphoType} network pickle already generated")
-
-#def update_pregenerated_experiments_dir(new_directory):
-#    """
-#    Update the directory for pregenerated experiments.
-#    """
-#    global CUSTOM_PREGENERATED_EXPERIMENTS_DIR
-#    CUSTOM_PREGENERATED_EXPERIMENTS_DIR = new_directory
-#    update_directory_file()
 
 
 def check_configuration():

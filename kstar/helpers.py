@@ -171,6 +171,20 @@ def convert_acc_to_uniprot(df, acc_col_name, acc_col_type, acc_uni_name):
 	df[acc_uni_name] = uniprot_arr
 	return df
 
+def load_networks_from_directory(network_directory, network_name, phospho_type = 'Y'):
+	network_subdir = os.path.join(network_directory, phospho_type, network_name, 'INDIVIDUAL_NETWORKS/')
+
+	networks = {}
+	for filename in os.listdir(network_subdir):
+		net_num = filename.split('_')[1]
+		if filename.endswith('.tsv'):
+			file_path = os.path.join(network_subdir, filename)
+			network = pd.read_csv(file_path, sep='\t')
+			#restrict to specified kinases if provided
+			networks[net_num] = network
+
+	return networks
+
 #get network hash associated with Y and ST networks
 def parse_network_information(network_directory, file_type = 'txt'):
 	"""

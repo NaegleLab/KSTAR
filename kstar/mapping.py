@@ -61,10 +61,10 @@ class ExperimentMapper:
     """ 
     #for documentation purposes convert non required parameters to kwargs
     #def __init__(self, experiment, columns, logger, *kwargs): 
-    def __init__(self, experiment, columns, odir='./', name = 'experiment', window = 7, data_columns = None, logger = None, sequences=config.HUMAN_REF_SEQUENCES, compendia=config.HUMAN_REF_COMPENDIA): 
+    def __init__(self, experiment, columns, odir='./', name = 'experiment', window = 7, data_columns = None, logger = None, sequences=None, compendia=None): 
         self.experiment = experiment
-        self.sequences = sequences
-        self.compendia = compendia
+        self.sequences = sequences if sequences is not None else config.HUMAN_REF_SEQUENCES
+        self.compendia = compendia if compendia is not None else config.HUMAN_REF_COMPENDIA
         self.name = name
         self.odir = odir
 
@@ -268,10 +268,10 @@ class ExperimentMapper:
             raise ValueError('ExperimentMapper was not provided a peptide columns, so cannot report the number of original peptides that were not mapped. Use `get_number_missed_sites` instead.')
         
         #get unique peptides that were mapped or unmapped
-        mapped_peptides = self.experiment['Peptide'].unique()
-        unmapped_peptides = self.not_mapped['Peptide'].unique()
+        mapped_peptides = self.experiment.groupby([config.KSTAR_ACCESSION, self.columns['peptide']]).size().shape[0]
+        unmapped_peptides = self.not_mapped.groupby([config.KSTAR_ACCESSION, self.columns['peptide']]).size().shape[0]
         #combine both mapped and unmapped peptides to get total unique peptides from original experiment
-        all_peptides = np.unique(np.concatenate((mapped_peptides, unmapped_peptides)))
+        all_peptides = mapped_peptides + unmapped_peptides
         
         return mapped_peptides, all_peptides
     
@@ -306,6 +306,16 @@ class ExperimentMapper:
         return errors, perc
 
     def save_experiment(self, return_stats = True, return_lost_sites = True):
+        """
+        Given a completed mapping process, save the resulting experiment and reporting files (if desired) to the output directory.
+
+        Parameters
+        ----------
+        return_stats : bool
+            Whether to save a mapping statistics file. Default is True.
+        return_lost_sites : bool    
+            Whether to save csv file containing any sites/peptides that were removed during the mapping process. Default is True.
+        """
         self.experiment.to_csv(f"{self.odir}/MAPPED_DATA/{self.name}_mapped.csv", index = False)
 
         #report
@@ -329,7 +339,7 @@ class ExperimentMapper:
                     f.write(f"Mapped Sites: {len(mapped_sites)}/{len(all_sites)} sites mapped ({len(mapped_sites)/len(all_sites)*100:.2f}%).\n")
                 if 'peptide' in self.columns:
                     mapped_peptides, all_peptides = self.get_number_missed_peptides()
-                    f.write(f"Mapped Peptides: {len(mapped_peptides)}/{len(all_peptides)} peptides mapped ({len(mapped_peptides)/len(all_peptides)*100:.2f}%).\n")
+                    f.write(f"Mapped Peptides: {mapped_peptides}/{all_peptides} peptides mapped ({mapped_peptides/all_peptides*100:.2f}%).\n")
 
                 f.write('\nReasons for unmapped sites/peptides:\n')
                 errors, perc = self.get_reason_for_unmapped()
@@ -595,20 +605,3 @@ def get_aligned_peptide(site, sequence, window):
         return peptide
     return None
 
-def run_mapping(experiment, odir, name, map_columns, window=7, data_columns=None):
-    if not os.path.exists(f"{odir}/MAPPED_DATA"): 
-        os.mkdir(f"{odir}/MAPPED_DATA")   
-    mapping_log = helpers.get_logger(f"mapping_{name}", f"{odir}/MAPPED_DATA/mapping_{name}.log")
-    exp_mapper = ExperimentMapper(
-        experiment = experiment,
-        sequences = config.HUMAN_REF_SEQUENCES, 
-        columns = map_columns, 
-        logger = mapping_log, 
-        compendia = config.HUMAN_REF_COMPENDIA, 
-        window = window, 
-        data_columns = data_columns)
-     
-    experiment = exp_mapper.experiment 
-    experiment.to_csv(f"{odir}/MAPPED_DATA/{name}_mapped.tsv", sep = '\t', index = False)
-    
-    return experiment

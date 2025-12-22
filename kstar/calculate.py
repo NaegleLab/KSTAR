@@ -4,6 +4,7 @@ import re
 import pickle
 import itertools
 import numbers
+import shutil
 
 import pandas as pd
 import numpy as np
@@ -42,6 +43,8 @@ class KinaseActivity:
         list of kinases to predict activity for. If None, will use all kinases found in the provided networks
     network_dir : string or None
         directory where pruned KSTAR networks are located. If None, will use config.NETWORK_DIR. If network files were downloaded with config.install_network_files(), this directory should already be set and does not need to be provided.
+    network_name : string or None
+        name of the network to use. If None, will use the default network name from config based on phospho_type
     data_columns: list
         list of the columns containing the abundance values, which will be used to determine which sites will be used as evidence for activity prediction in each sample
     phospho_type: string, either 'Y' or 'ST'
@@ -52,6 +55,8 @@ class KinaseActivity:
         minimum dataset size required to use pregenerated random activities (by number of sites used as evidence). Default is 150
     max_diff_from_pregenerated: float
         maximum percent difference between dataset size and pregenerated random activity size to use pregenerated data. Default is 0.20 (i.e. 20%)
+    seed : int or None
+        random seed to use for random number generation. If None, seed will be set to current time
 
     Attributes
     ----------
@@ -59,29 +64,25 @@ class KinaseActivity:
     Upon Initialization
     -------------------
     evidence: pandas dataframe
-        inputted evidence column
+        inputted dataset used for kinase activity calculation
+    networks: dict
+        dictionary of pruned kinase substrate networks, with keys as network ids and values as pandas dataframes
     data_columns: list
         list of columns containing abundance values, which will be used to determine which sites will be used as evidence. If inputted data_columns parameter was None, this lists includes in column in evidence prefixed by 'data:'
     logger : Logger object
         keeps track of kstar analysis, including any errors that occur
-    phospho_type: string
-        indicated phosphomod of interest
-    network_directory: string
-        directory where kinase substrate networks can be downloaded, as indicated in config.py
-    normalized: bool
-        indicates whether normalization analysis has been performed
     aggregate: string
         the type of aggregation to use when determining binary evidence, either 'count' or 'mean'. Default is 'count'.
-    threshold: float
-        cutoff to use when determining what sites to use for each experiment
-    greater: bool
-        indicates whether sites with greater or lower abundances than the threshold will be used
-    run_data: string
+    run_date: string
         indicates the date that kinase activity object was initialized
-    min_dataset_size_for_pregenerated: int
-        minimum dataset size required to use pregenerated random activities
-    max_diff_from_pregenerated: float
-        maximum percent difference between dataset size and pregenerated random activity size to use pregenerated data
+    random_seed: int
+        random seed used for activity calculation. Only relevant if not using pregenerated random activities
+    network_info: dict
+        metadata about the loaded networks
+    network_hash: string
+        unique identifier for the loaded networks
+    kinases: list
+        list of kinases to predict activity for
 
     ---------------------------------
     After Hypergeometric Calculations
@@ -97,10 +98,13 @@ class KinaseActivity:
     After Random Enrichment Calculation
     -----------------------------------
     random_experiments: pandas dataframe
-        contains information about the sites randomly sampled for each random experiment
-
-    random_kinact: KinaseActivity object
+        contains information about the sites randomly sampled for each random experiment. Will only be saved if save_random_experiments=True.
+    random_enrichment: KinaseActivity object
         KinaseActivity object containing random activities predicted from each of the random experiments
+    data_columns_from_scratch: list
+        list of data columns which generated random activities from scratch
+    data_columns_with_pregenerated: list
+        list of data columns which generated random activities from pregenerated random activities
 
     ---------------------------
     After Mann Whitney Analysis
@@ -113,7 +117,7 @@ class KinaseActivity:
 
     """
 
-    def __init__(self, evidence, odir, name = 'experiment', data_columns=None, phospho_type='Y', kinases = None, network_dir = None, use_pregen = None,default_pregen_only = True, custom_pregen_dir = None, min_dataset_size_for_pregenerated=150, max_diff_from_pregenerated=0.25, logger = None, network_name = None, seed = None):
+    def __init__(self, evidence, odir, name = 'experiment', data_columns=None, phospho_type='Y', kinases = None, network_dir = None, logger = None, network_name = None, seed = None):
         self.odir = odir
         self.name = name
         self.phospho_type = phospho_type
@@ -148,6 +152,7 @@ class KinaseActivity:
             self.network_directory = network_dir + f"/{self.phospho_type}/{self.network_name}/"
         else:
             #use default network directory from config
+            self.network_name = network_name if network_name is not None else config.NETWORK_NAME[self.phospho_type]
             self.network_directory = config.NETWORK_SUBDIR[self.phospho_type]
 
         #check to make sure network directory exists
@@ -156,7 +161,6 @@ class KinaseActivity:
         
 
         #load network and meta information
-        self.network_name = network_name if network_name is not None else config.NETWORK_NAME[self.phospho_type]
         self.add_networks_from_directory()
         self.network_info = helpers.parse_network_information(self.network_directory)
         self.network_hash = self.network_info['unique_network_id']
@@ -194,40 +198,11 @@ class KinaseActivity:
         self.random_experiments = None
 
         # added fields for pregenerated_random
-        self.min_dataset_size_for_pregenerated = min_dataset_size_for_pregenerated
-        self.max_diff_from_pregenerated = max_diff_from_pregenerated
-        self.random_activities_list = None
         self.compendia_distribution = None
         self.data_columns_from_scratch = None
-        self.use_pregen_data = use_pregen if use_pregen is not None else config.USE_PREGENERATED_RANDOM_ACTIVITIES
-        self.save_new_precompute = config.SAVE_NEW_RANDOM_ACTIVITIES
         self.pregenerated_experiments_path = self.network_directory + "/RANDOM_ACTIVITIES/" 
 
 
-        #default path should be located in network directory, check to make sure it and any provided custom directory exists
-        self.default_pregen_only = default_pregen_only
-        if not default_pregen_only:
-            if custom_pregen_dir is None:
-                self.custom_pregenerated_path = os.path.join(config.CUSTOM_RANDOM_ACTIVITIES_DIR, self.network_name)
-            else:
-                 self.custom_pregenerated_path = os.path.join(custom_pregen_dir, self.network_name)
-
-            match = self.network_check_for_pregeneration(self.custom_pregenerated_path)
-            if not match:
-                print("Warning: Provided custom pregenerated directory either could not be find or does not match the network hash (i.e. was created using a different network). Please either set use_default_pregen_only to True or fix directory")
-                self.custom_pregenerated_path = None
-                self.default_pregen_only = True
-            
-            if (not match and not os.path.exists(self.pregenerated_experiments_path)) and self.use_pregen_data:
-                raise ValueError('Could not find pregenerated random activities (either default or in the provided custom directory. Please pregenerate activities with the pregenerate module or set use_pregen = False.)')
-            else:
-                self.network_check = True
-        else:
-            self.custom_pregenerated_path = None
-            if  not os.path.exists(self.pregenerated_experiments_path) and self.use_pregen_data:
-                raise ValueError(f'Could not find pregenerated random activities in expected network directory ({self.pregenerated_experiments_path}). Please pregenerate activities with the pregenerate module or set use_pregen = False.')
-            else:
-                self.network_check = True
 
         self.compendia_paths = {
             ('Y', True): 'compendia=0_30_70',
@@ -243,12 +218,38 @@ class KinaseActivity:
 
         self.run_date = datetime.now().strftime("%m/%d/%Y %H:%M:%S")
 
+        self.dropped_columns = []
         # if data columns is None, set data columns to be columns with data: in front
         self.set_data_columns(data_columns=data_columns)
         #calculate the compendia distriubtion for each column
         #self.get_compendia_distribution(selection_type = "KSTAR_NUM_COMPENDIA_CLASS")
         #get available pregenerated sizes
-        self.pregenerated_sizes = self.check_file_sizes_for_pregenerated()
+        #self.pregenerated_sizes = self.check_file_sizes_for_pregenerated()
+
+    def report_warning(self, message):
+        """
+        Reports a warning message to both the logger and standard output
+
+        Parameters
+        ----------
+        message : str
+            warning message to report
+        """
+        print("WARNING:", message)
+        self.logger.warning(message)
+
+    def check_valid_threshold(self, threshold=None, greater = True, agg ='mean', min_evidence_size=0, allow_column_loss = True):
+        evidence = self.evidence.groupby([config.KSTAR_ACCESSION, config.KSTAR_SITE])[self.data_columns].agg(agg)
+        binary_evidence = evidence >= threshold if greater else evidence <= threshold
+        num_sites = binary_evidence.sum()
+        if allow_column_loss and (num_sites > min_evidence_size).any():
+            return True
+        elif not allow_column_loss and (num_sites > min_evidence_size).all():
+            return True
+        else:
+            return False
+        
+
 
     def check_data_columns(self, min_evidence_size = 0):
         """
@@ -270,23 +271,23 @@ class KinaseActivity:
                         if len(evidence[evidence[col] >= self.threshold]) > min_evidence_size:
                             new_data_columns.append(col)
                         else:
-                            print(f"{col} does not have any evidence, and will not be used.")
-                            self.logger.warning(f"{col} does not have any evidence")
+                            self.report_warning(f"{col} does not have sufficient evidence, and will not be used.")
+                            self.dropped_columns.append(col)
                     else:
                         if len(evidence[evidence[col] <= self.threshold]) > min_evidence_size:
                             new_data_columns.append(col)
                         else:
-                            print(f"{col} does not have any evidence, and will not be used.")
-                            self.logger.warning(f"{col} does not have any evidence")
+                            self.report_warning(f"{col} does not have sufficient evidence, and will not be used.")
+                            self.dropped_columns.append(col)
                 else:
                     if ~evidence[col].isna().all():
                         new_data_columns.append(col)
                     else:
-                        print(f"{col} does not have any evidence, and will not be used.")
-                        self.logger.warning(f"{col} does not have any evidence")
+                        self.report_warning(f"{col} does not have any evidence, and will not be used.")
+                        self.dropped_columns.append(col)
             else:
-                print(f"{col} not in evidence, and will not be used.")
-                self.logger.warning(f"{col} not in evidence")
+                self.report_warning(f"{col} not in evidence, and will not be used.")
+                self.dropped_columns.append(col)
 
         #make sure there is at least one data column
         if len(new_data_columns) == 0:
@@ -324,7 +325,7 @@ class KinaseActivity:
         greater: bool
             whether to use sites greater (True) or less (False) than the threshold
         plot: bool
-            whether to plot a histogram of the evidence sizes used
+            whether to plot a histogram of the evidence sizes used and heatmap of Jaccard similarity between samples
         return_evidence_sizes: bool
             indicates whether to return the evidence sizes for all samples or not
         min_evidence_size: int
@@ -355,7 +356,7 @@ class KinaseActivity:
 
 
         if plot:
-            fig, ax = plt.subplots(figsize = (8,4), ncols = 2)
+            fig, ax = plt.subplots(figsize = (12,4), ncols = 2, width_ratios = [1,0.7])
             fig.subplots_adjust(wspace=0.8)
             plt_data = num_sites.reset_index()
             sns.histplot(data=plt_data, x=0, bins = 20, ax = ax[0])
@@ -364,7 +365,7 @@ class KinaseActivity:
             ax[0].set_title('Distribution of Evidence\nSizes Across Samples')
 
             #plot jaccard similarity heatmap
-            plot_jaci_between_samples(jaci, self.data_columns, ax = ax[1], title = 'Jaccard Similarity\nBetween Samples', cmap = 'coolwarm')
+            plot_jaci_between_samples(evidence_binary, self.data_columns, ax = ax[1], title = 'Jaccard Similarity\nBetween Samples', cmap = 'coolwarm', annot = False)
 
         if return_evidence_sizes:
             return num_sites
@@ -389,6 +390,8 @@ class KinaseActivity:
             minimum number of sites required for a data column to be considered for activity calculation
         desired_evidence_size: int or None
             target evidence size to use for plotting. If None, will use 150 for phospho_type 'Y' and 1500 for phospho_type 'ST'
+        show_recommended: bool
+            whether to show recommended evidence size and similarity lines on the plots
         """
         #size information
         median_sizes = []
@@ -596,6 +599,8 @@ class KinaseActivity:
         ----------
         greater: bool
             whether to use sites greater (True) or less (False) than the threshold
+        agg: str
+            how to combine sites with multiple instances in experiment
         min_evidence_size: int
             minimum number of sites required for a data column to be considered for activity calculation
 
@@ -645,7 +650,7 @@ class KinaseActivity:
 
         return allowable_threshold
     
-    def recommend_threshold(self, desired_evidence_size = None, max_similarity = 0.7, consider_size = True, consider_similarity = True, min_threshold = -np.inf, max_threshold = np.inf, step = 0.1, pick_best_size_by = 'median', pick_best_similarity_by = 'max', greater = True, agg = 'mean', min_evidence_size = 20):
+    def recommend_threshold(self, desired_evidence_size = None, max_similarity = 0.7, consider_size = True, consider_similarity = True, min_threshold = -np.inf, max_threshold = np.inf, step = 0.1, pick_best_size_by = 'median', pick_best_similarity_by = 'max', greater = True, agg = 'mean', min_evidence_size = 20, allow_column_loss = False):
         """
         Recommend a threshold, one based on desired evidence size and one based on maximum average Jaccard similarity between samples. Will report the characteristics of the resulting evidences for both thresholds
 
@@ -654,17 +659,29 @@ class KinaseActivity:
         desired_evidence_size: int
             target evidence size to use when recommending threshold
         max_similarity: float
-            maximum average Jaccard similarity between samples to use when recommending threshold
+            maximum average Jaccard similarity between samples to use when recommending threshold. Default is 0.7
+        consider_size: bool
+            whether to consider evidence size when recommending threshold
+        consider_similarity: bool
+            whether to consider similarity between data columns when recommending threshold
         min_threshold: float
-            minimum threshold to consider when recommending threshold
+            minimum threshold to consider when recommending threshold. Must be provided if greater = True. Default is -infinity
         max_threshold: float
-            maximum threshold to consider when recommending threshold
+            maximum threshold to consider when recommending threshold. Must be provided if greater = False. Default is infinity
         step: float
             step size to use when iterating through thresholds
+        pick_best_size_by: str
+            method to use when aggregating evidence size values across samples, recommended to be either 'min', 'max', or 'median'
+        pick_best_similarity_by: str
+            method to use when aggregating Jaccard similarity values across samples, recommended to be either 'max' or 'median'
         greater: bool
             whether to use sites greater (True) or less (False) than the threshold
         agg: str
             how to combine sites with multiple instances in experiment
+        min_evidence_size: int
+            minimum number of sites required for a data column to be considered for activity calculation
+        allow_column_loss: bool
+            whether to allow some data columns to be lost when recommending threshold based on size. If False, will raise an error if min/max thresholds provided result in loss of any data columns
 
         Returns
         -------
@@ -680,26 +697,28 @@ class KinaseActivity:
             raise ValueError("At least one of consider_size or consider_similarity must be set to True.")
 
 
-        #determine the minimum/maximum threshold that still results in all data columns having evidence, based on min_evidence_size
-        allowable_threshold = self.get_allowable_threshold(greater=greater, min_evidence_size=min_evidence_size)
-        #raise errors or warnings if provided min/max thresholds are outside of allowable range
-        if greater:
-            if allowable_threshold < min_threshold:
-                raise ValueError(f'Min threshold of {min_threshold} is too high and results in no evidence for at least on data column. Your options include:\n1) Setting min_threshold to lower than {allowable_threshold}\n2) Lowering the `min_evidence_size` parameter in recommend_threshold to allow for smaller dataset sizes\n3) Set min_evidence_size to None if you do not care if some data columns are lost).')
-            elif max_threshold == np.inf:
-                max_threshold = round(allowable_threshold, 2)
-            elif allowable_threshold < max_threshold:
-                print(f'Warning: Max threshold of {max_threshold} is too high, resulting in no evidence for at least one data column. Maximum allowable threshold to retain evidence for all data columns is {allowable_threshold}. Setting max_threshold to {allowable_threshold}. You can lower the `min_evidence_size` parameter in recommend_threshold to allow higher thresholds (set to negative if you do not care if some data columns are lost).\n')
-                max_threshold = round(allowable_threshold,2)
+        #if not allowing column loss, check that provided min/max thresholds will not result in any data columns being lost
+        if not allow_column_loss:
+            #determine the minimum/maximum threshold that still results in all data columns having evidence, based on min_evidence_size
+            allowable_threshold = self.get_allowable_threshold(greater=greater, min_evidence_size=min_evidence_size)
+            #raise errors or warnings if provided min/max thresholds are outside of allowable range
+            if greater:
+                if allowable_threshold < min_threshold:
+                    raise ValueError(f'Min threshold of {min_threshold} is too high and results in no evidence for at least on data column. Your options include:\n1) Setting min_threshold to lower than {allowable_threshold}\n2) Lowering the `min_evidence_size` parameter in recommend_threshold to allow for smaller dataset sizes\n3) Set alow_column_loss = True if you do not care if some data columns are lost).')
+                elif max_threshold == np.inf:
+                    max_threshold = round(allowable_threshold, 2)
+                elif allowable_threshold < max_threshold:
+                    print(f'Warning: Max threshold of {max_threshold} is too high, resulting in no evidence for at least one data column. Maximum allowable threshold to retain evidence for all data columns is {allowable_threshold}. Setting max_threshold to {allowable_threshold}. You can lower the `min_evidence_size` parameter in recommend_threshold to allow higher thresholds (set to negative if you do not care if some data columns are lost).\n')
+                    max_threshold = round(allowable_threshold,2)
 
-        else:
-            if allowable_threshold > max_threshold:
-                raise ValueError(f'Max threshold of {max_threshold} is too high and results in no evidence for at least on data column. Your options include:\n1) Setting max_threshold to higher than {allowable_threshold}\n2) Lowering the `min_evidence_size` parameter in recommend_threshold to allow for smaller dataset sizes\n3) Set min_evidence_size to None if you do not care if some data columns are lost).')
-            elif min_threshold == -np.inf:
-                min_threshold = round(allowable_threshold, 2)
-            elif allowable_threshold > min_threshold:
-                print(f'Warning: Min threshold of {min_threshold} is too low, resulting in no evidence for at least one data column. Minimum allowable threshold to retain evidence for all data columns is {allowable_threshold}. Setting min_threshold to {allowable_threshold}. You can lower the `min_evidence_size` parameter in recommend_threshold to allow lower thresholds (set to None if you do not care if some data columns are lost).\n')
-                min_threshold = round(allowable_threshold,2)
+            else:
+                if allowable_threshold > max_threshold:
+                    raise ValueError(f'Max threshold of {max_threshold} is too high and results in no evidence for at least on data column. Your options include:\n1) Setting max_threshold to higher than {allowable_threshold}\n2) Lowering the `min_evidence_size` parameter in recommend_threshold to allow for smaller dataset sizes\n3) Set allow_column_loss = True if you do not care if some data columns are lost).')
+                elif min_threshold == -np.inf:
+                    min_threshold = round(allowable_threshold, 2)
+                elif allowable_threshold > min_threshold:
+                    print(f'Warning: Min threshold of {min_threshold} is too low, resulting in no evidence for at least one data column. Minimum allowable threshold to retain evidence for all data columns is {allowable_threshold}. Setting min_threshold to {allowable_threshold}. You can lower the `min_evidence_size` parameter in recommend_threshold to allow lower thresholds (set allow_column_loss=True if you do not care if some data columns are lost).\n')
+                    min_threshold = round(allowable_threshold,2)
 
 
         #identify and test optimal threshold based on evidence size
@@ -753,7 +772,7 @@ class KinaseActivity:
                 return False
 
             # Parse and compare the RUN_INFORMATION.txt files
-            default_values = helpers.parse_network_information(default_file_path)
+            default_values = helpers.parse_network_information(pregenerated_path)
             if default_values['unique_network_id'] != self.network_hash:
                 return False
 
@@ -792,39 +811,7 @@ class KinaseActivity:
             compendia_distribution[col] = {k: round(compendia_counts.get(k, 0), 2) for k in range(3)}
         return compendia_distribution
     
-    #def find_closest_compendia_distribution(self, high_study_fraction):
 
-
-    #def check_file_sizes_for_pregenerated(self):
-    #    """
-    #    Check the sizes of pre-generated files for the given datasets.
-
-    #    This function identifies the appropriate pre-generated file sizes based on the dataset size and returns a list of these sizes.
-
-    #    Returns
-    #    -------
-    #    pregenerated_sizes_files : list
-    #        List of sizes of pre-generated files that match the dataset size criteria.
-    #    """
-
-    #    pregenerated_sizes_files = []
-    #    compendia_class_counts = self.get_compendia_distribution(self.data_columns)
-    #    for dataset in self.data_columns:
-    #        # Determine path key (phospho_type + class condition)
-    #        key = (self.phospho_type, compendia_class_counts[dataset][2] > 60 if self.phospho_type == 'Y' else None)
-
-    #        if key not in self.compendia_paths:
-    #            raise ValueError(f"ERROR: Unrecognized phosphoType '{self.phospho_type}'. Must be 'Y' or 'ST'.")
-
-    #        compendia_file_path = os.path.join(
-    #            str(self.pregenerated_experiments_path), str(self.compendia_paths[key])
-    #        )
-
-    #        if os.path.exists(compendia_file_path):
-    #            pregenerated_sizes = os.listdir(compendia_file_path)
-    #        else:
-    #            raise FileNotFoundError(f"Directory not found: {compendia_file_path}")
-    #    return pregenerated_sizes
 
     def check_file_sizes_for_pregenerated(self):
         """
@@ -851,20 +838,39 @@ class KinaseActivity:
         if not self.default_pregen_only:
             custom_compendia_distributions = os.listdir(self.custom_pregenerated_path)
             for dist in custom_compendia_distributions:
-                file_sizes = os.listdir(os.path.join(self.custom_pregenerated_path, dist))
-                #convert to int
-                file_sizes = [int(size) for size in file_sizes]
-                pregenerated_sizes_files[dist.split('=')[1]] = file_sizes
-                #experiment sizes will be the directories within each compendia distribution
-                if dist.split('=')[1] not in pregenerated_sizes_files:
+                tmp_path = os.path.join(self.custom_pregenerated_path, dist)
+                #make sure it's a directory
+                if os.path.isdir(tmp_path):
+                    file_sizes = os.listdir(tmp_path)
+                    #convert to int
+                    file_sizes = [int(size) for size in file_sizes]
                     pregenerated_sizes_files[dist.split('=')[1]] = file_sizes
-                else:
-                    pregenerated_sizes_files[dist.split('=')[1]].extend(file_sizes)
+                    #experiment sizes will be the directories within each compendia distribution
+                    if dist.split('=')[1] not in pregenerated_sizes_files:
+                        pregenerated_sizes_files[dist.split('=')[1]] = file_sizes
+                    else:
+                        pregenerated_sizes_files[dist.split('=')[1]].extend(file_sizes)
 
         return pregenerated_sizes_files
-
     
-    def determine_if_pregen(self, dataset):
+    def determine_pregen_compendia_dist(self, high_study_bias_perc):
+        """
+        Based on the phospho_type and compendia class counts, determine the appropriate pregenerated compendia distribution to use.
+        
+        Parameters
+        ----------
+        high_study_bias_perc : int
+            percentage of sites in experiment that have high study bias (KSTAR_COMPENDIA_CLASS = 2)
+        """
+        if self.phospho_type == 'Y':
+            pregen_compendia_dist = '0_30_70' if high_study_bias_perc > 60 else '0_50_50'
+        elif self.phospho_type == 'ST':
+            pregen_compendia_dist = '0_30_70' 
+        else:
+            raise ValueError(f"ERROR: Unrecognized phosphoType '{self.phospho_type}'. Must be 'Y' or 'ST'.")
+        return pregen_compendia_dist
+
+    def determine_if_pregen(self, dataset, max_diff_from_pregenerated=0.25, min_dataset_size_for_pregenerated=150):
         """
         Given a dataset size and compendia distribution, determine if pregenerated data should be used, and output the location of the file to use.
 
@@ -883,41 +889,57 @@ class KinaseActivity:
         high_study_bias_perc = int(self.compendia_distribution[dataset][2])
         size = self.dataset_sizes[dataset]
 
-        if self.phospho_type == 'Y':
-            pregen_compendia_dist = '0_30_70' if high_study_bias_perc > 60 else '0_50_50'
-        elif self.phospho_type == 'ST':
-            pregen_compendia_dist = '0_30_70' 
-        else:
-            raise ValueError(f"ERROR: Unrecognized phosphoType '{self.phospho_type}'. Must be 'Y' or 'ST'.")
+        pregen_compendia_dist = self.determine_pregen_compendia_dist(high_study_bias_perc)
 
 
         #get experiment sizes associated with compendia distribution
+        if not hasattr(self, 'pregenerated_sizes'):
+            self.pregenerated_sizes = self.check_file_sizes_for_pregenerated()
+
         available_sizes = self.pregenerated_sizes[pregen_compendia_dist]
         #make sure dataset is large enough to use pregenerated data
-        large_enough = size >= self.min_dataset_size_for_pregenerated
+        large_enough = size >= min_dataset_size_for_pregenerated
         #make sure pregenerated data is comparable in size to dataset
         close_enough = any(
-            abs(pregen_size - size) / size < self.max_diff_from_pregenerated for pregen_size in
+            abs(pregen_size - size) / size < max_diff_from_pregenerated for pregen_size in
             available_sizes)
         # make sure pregenerated files match network
         use_pregen = large_enough and close_enough
         self.logger.info(f"Use pregen for {dataset}: {use_pregen} (Dataset Size: {size}, Large Enough: {large_enough}, Close Enough: {close_enough})")
         if use_pregen:
             closest_size = min(available_sizes, key=lambda x: abs(x - size))
-            matched_experiment_dir = self.get_pregenerated_experiment_dir(compendia_class_counts=pregen_compendia_dist, size=closest_size)
+            matched_experiment_dir = self.get_pregenerated_experiment_dir(closest_size, high_study_bias_perc)
         else:
             matched_experiment_dir = None
         return use_pregen, matched_experiment_dir
     
-    def get_pregenerated_experiment_dir(self, compendia_class_counts, size):
+    def get_pregenerated_subdirectory(self, size, high_study_bias_perc):
+        """
+        Given a column of interest, determine the specific pregenerated path to use based on the compendia distribution and dataset size. This will output the subdirectory to append to either the default or custom pregenerated path.
+        
+        Parameters
+        ----------
+        col : str
+            Column of interest in the dataset.
+        """
+        # Determine the compendia directory based on phospho_type and class counts
+        #get real experiment characteristics
+        pregen_compendia_dist = self.determine_pregen_compendia_dist(high_study_bias_perc)
+
+        # Save activities to file
+        specific_path = os.path.join(f'compendia={pregen_compendia_dist}', str(size))
+        return specific_path
+
+    def get_pregenerated_experiment_dir(self, size, high_study_bias_perc):
         """
         Given a the compendia distribution and size, get the path to the pregenerated experiment directory. Will first check default directory, then custom directory if provided.
         """
+        pregenerated_subdirectory = self.get_pregenerated_subdirectory(size, high_study_bias_perc)
         default_exp_file_path = os.path.join(
-            str(self.pregenerated_experiments_path), f'compendia={compendia_class_counts}', str(size)
+            str(self.pregenerated_experiments_path), pregenerated_subdirectory
         )
         custom_exp_file_path = os.path.join(
-            str(self.custom_pregenerated_path), f'compendia={compendia_class_counts}', str(size)
+            str(self.custom_pregenerated_path), pregenerated_subdirectory
         )
 
         if os.path.exists(default_exp_file_path):
@@ -925,14 +947,93 @@ class KinaseActivity:
         elif os.path.exists(custom_exp_file_path):
             return custom_exp_file_path
         else:
-            raise FileNotFoundError(f"Could not find pregenerated experiment directory associated with compendia={compendia_class_counts} and size={size} in either default or custom pregenerated paths for dataset size {size} and compendia distribution {compendia_class_counts}.")
+            raise FileNotFoundError(f"Could not find pregenerated experiment directory located at {pregenerated_subdirectory} in either default or custom pregenerated paths.")
         
-    def setup_pregenerated(self):
+    def check_pregenerated(self, default_pregen_only=False, custom_pregen_dir=None, save_new_random_activities = False):
+        """
+        Make sure that either default pregenerated data or custom pregenerated data exists and matches the network hash.
+        
+        Parameters
+        ----------
+        default_pregen_only : bool
+            Whether to only use the default pregenerated data, by default False.
+        custom_pregen_dir : str, optional
+            Path to the custom pregenerated data directory, by default None.
+        """
+        #default path should be located in network directory, check to make sure it and any provided custom directory exists
+        custom_pregen_dir = custom_pregen_dir if custom_pregen_dir is not None else config.CUSTOM_RANDOM_ACTIVITIES_DIR
+
+        self.default_pregen_only = default_pregen_only
+        if not default_pregen_only and custom_pregen_dir is None:
+            #self.report_warning("Warning: custom_pregen_dir is not provided, so will only using default pregenerated data.")
+            self.default_pregen_only = True
+            self.custom_pregenerated_path = None
+            if not os.path.exists(self.pregenerated_experiments_path):
+                raise ValueError(f'Could not find pregenerated random activities in expected network directory ({self.pregenerated_experiments_path}). Please pregenerate activities with the pregenerate module or set use_pregen = False.')
+            else:
+                self.network_check = True
+
+        elif default_pregen_only and custom_pregen_dir is not None:
+            self.report_warning("Warning: custom_pregen_dir is provided but default_pregen_only is set to True. Ignoring custom pregenerated directory and only using default pregenerated data.")
+            self.custom_pregenerated_path = None
+            #make sure default pregenerated path exists
+            if not os.path.exists(self.pregenerated_experiments_path):
+                raise ValueError(f'Could not find pregenerated random activities in expected network directory ({self.pregenerated_experiments_path}). Please pregenerate activities with the pregenerate module or set use_pregen = False.')
+            else:
+                self.network_check = True
+        elif not default_pregen_only and custom_pregen_dir is not None:
+            #set and check custom pregenerated path
+            if not os.path.exists(custom_pregen_dir):
+                raise ValueError(f"Provided custom pregenerated directory '{custom_pregen_dir}' does not exist. Please provide a valid directory or set use_default_pregen_only to True.")
+            
+            custom_pregenerated_path = os.path.join(custom_pregen_dir, self.phospho_type, self.network_name)
+
+            #check if custom pregenerated directory exists
+            if not os.path.exists(custom_pregenerated_path):
+                if not save_new_random_activities:
+                    self.report_warning(f'Found provided pregenerated directory ({custom_pregen_dir}), but it does not contain a subdirectory for this network. Will only use default pregenerated data. To save new pregenerated data to this directory, set save_new_random_activities = True.')
+                else:
+                    self.report_warning(f'Provided pregenerated directory ({custom_pregen_dir}) does not contain a subdirectory for this network. Creating new pregenerated directory at {custom_pregenerated_path} to save new random activities.')
+                    #add run information to custom pregenerated directory
+                    os.makedirs(custom_pregenerated_path)
+                    #copy run information file from network directory
+                    run_info_file = os.path.join(self.network_directory, "RUN_INFORMATION.txt")
+                    shutil.copyfile(run_info_file, os.path.join(custom_pregenerated_path, "RUN_INFORMATION.txt"))
+
+                self.custom_pregenerated_path = custom_pregenerated_path
+                self.network_check = True
+            else:
+                #check to make sure network hash matches
+                match = self.network_check_for_pregeneration(custom_pregenerated_path)
+                if not match:
+                    print("Warning: Provided custom pregenerated directory either could not be find or does not match the network hash (i.e. was created using a different network). Please either set use_default_pregen_only to True or fix directory")
+                    self.custom_pregenerated_path = None
+                    self.default_pregen_only = True
+                if (not match and not os.path.exists(self.pregenerated_experiments_path)):
+                    raise ValueError('Could not find pregenerated random activities (either default or in the provided custom directory. Please pregenerate activities with the pregenerate module or set use_pregen = False.)')
+                else:
+                    self.network_check = True
+                    self.custom_pregenerated_path = custom_pregenerated_path
+        else:
+            self.custom_pregenerated_path = None
+            if  not os.path.exists(self.pregenerated_experiments_path):
+                raise ValueError(f'Could not find pregenerated random activities in expected network directory ({self.pregenerated_experiments_path}). Please pregenerate activities with the pregenerate module or set use_pregen = False.')
+            else:
+                self.network_check = True
+        
+    def setup_pregenerated(self, max_diff_from_pregenerated=0.25, min_dataset_size_for_pregenerated=150):
         """
         For each dataset, determine if pregenerated data can be used based on dataset size and compendia distribution, and identify the specific pregenerated experiment directory to use for each experiment
+
+        Parameters
+        ----------
+        max_diff_from_pregenerated : float
+            Maximum allowed difference in size between the dataset and pregenerated data to use pregenerated data, by default 0.25.
+        min_dataset_size_for_pregenerated : int
+            Minimum dataset size required to use pregenerated data, by default 150.
         """
         # Classify datasets
-        pregenerated_sizes = self.check_file_sizes_for_pregenerated()
+        self.check_file_sizes_for_pregenerated()
         #network_check = self.network_check_for_pregeneration()
         if not self.network_check:
             self.logger.warning("Network used does not match any pre-generated networks. All datasets will be calculated from scratch.")
@@ -944,9 +1045,21 @@ class KinaseActivity:
             self.data_columns_with_pregenerated = []
             self.data_columns_from_scratch = []
             self.selected_pregenerated_paths = {}
+
+            #make sure parameters are valid and store if so
+            if isinstance(max_diff_from_pregenerated, float) and 0 <= max_diff_from_pregenerated <= 1:
+                self.max_diff_from_pregenerated = max_diff_from_pregenerated
+            else:
+                raise ValueError("max_diff_from_pregenerated must be a float between 0 and 1.")
+            
+            if isinstance(min_dataset_size_for_pregenerated, int) and min_dataset_size_for_pregenerated >= 0:
+                self.min_dataset_size_for_pregenerated = min_dataset_size_for_pregenerated
+            else:
+                raise ValueError("min_dataset_size_for_pregenerated must be a non-negative integer.")
+
             for dataset in self.data_columns:
                 #determine if pregenerated data can be used for this dataset, and get matched experiment directory if so
-                use_pregen, matched_experiment_dir  = self.determine_if_pregen(dataset)
+                use_pregen, matched_experiment_dir  = self.determine_if_pregen(dataset, max_diff_from_pregenerated=max_diff_from_pregenerated, min_dataset_size_for_pregenerated=min_dataset_size_for_pregenerated)
                 self.selected_pregenerated_paths[dataset] = matched_experiment_dir
                 if use_pregen:
                     self.data_columns_with_pregenerated.append(dataset)
@@ -956,71 +1069,96 @@ class KinaseActivity:
 
             
 
-    def get_random_activities(self, num_random_experiments=150, use_pregenerated_random_activities=None, save_new_random_activities=None,  custom_pregenerated_path=None, save_random_experiments=None, pregenerated_only = False, PROCESSES=1):
+    def get_random_activities(self, num_random_experiments=150, use_pregenerated_random_activities=None, default_pregen_only = False, save_new_random_activities=None,  custom_pregenerated_path=None, save_random_experiments=None, require_pregenerated = False, max_diff_from_pregenerated=0.25, min_dataset_size_for_pregenerated=150, PROCESSES=1):
         """
         Generate random experiments and calculate kinase activities.Either uses pre-generated activity lists or
         generates new random experiments based on the provided parameters.
 
         Parameters
         ----------
-        logger : Logger object
-            Logger to record the progress and any issues during the randomization pipeline.
         num_random_experiments : int, optional
             Number of random experiments to generate, by default 150.
-        use_pregen_data : bool, optional
-            Whether to use pre-generated data, by default None.
-        save_new_precompute : bool, optional
-            Whether to save new precomputed data, by default None.
-        pregenerated_experiments_path : str, optional
-            Path to the directory containing pre-generated experiments, by default None.
-        directory_for_save_precompute : str, optional
-            Directory to save new precomputed data, by default None.
-        network_hash : str, optional
-            Hash of the network used, by default None.
+        use_pregenerated_random_activities : bool, optional
+            Whether to use pre-generated data, by default None and will use configuration value.
+        default_pregen_only : bool, optional
+            Whether to only use the default pregenerated data found in the network directory folder, by default False.
+        save_new_random_activities : bool, optional
+            Whether to save new pregenerated data, by default None and will use configuration value
+        custom_pregenerated_path : str, optional
+            Directory to save new precomputed data, by default None and will use configuration value.
         save_random_experiments : bool, optional
-            Whether to save the generated random experiments, by default None.
+            Whether to save the generated random experiments, by default None and will use configuration value.
+        require_pregenerated : bool, optional
+            Whether to require using pre-generated data for all datasets, by default False. This is will ensure fast run times, but may result in some datasets not being processed if they do not have matching pre-generated data (most commonly due to smaller samples).
+        max_diff_from_pregenerated : float, optional
+            Maximum allowed difference in size between the dataset and pregenerated data to use pregenerated data, by default 0.25.
+        min_dataset_size_for_pregenerated : int, optional
+            Minimum dataset size required to use pregenerated data, by default 150.
         PROCESSES : int, optional
             Number of processes to use for parallel computation, by default 1.
 
-        Returns
-        -------
-        None
+        
+        New Attributes
+        --------------
+        self.random_enrichment : pandas.DataFrame
+            DataFrame containing the kinase activities for each random experiment.
+        self.random_experiments : pandas.DataFrame
+            DataFrame containing the generated random experiments. Only saved if save_random_experiments is set to True and not using pregenerated data.
+
         """
         self.logger.info("Running Randomization Pipeline")
-        if use_pregenerated_random_activities is not None:
-            self.use_pregen_data = use_pregenerated_random_activities
-        if save_new_random_activities is not None:
-            self.save_new_precompute = save_new_random_activities
-        if custom_pregenerated_path is not None:
-            self.custom_pregenerated_path = custom_pregenerated_path
+        self.use_pregen_data = use_pregenerated_random_activities if use_pregenerated_random_activities is not None else config.USE_PREGENERATED_RANDOM_ACTIVITIES
+        #if use_pregen_data is True, force num_random_experiments to 150
+        if self.use_pregen_data and num_random_experiments != 150:
+            print("Note: When using pregenerated random activities, num_random_experiments must be set to 150 to match pregenerated data.")
+            num_random_experiments = 150
+        
+        custom_pregenerated_path = custom_pregenerated_path if custom_pregenerated_path is not None else config.CUSTOM_RANDOM_ACTIVITIES_DIR
+        if save_new_random_activities and custom_pregenerated_path is None:
+            raise ValueError("If save_new_random_activities is set to True, must provide a `custom_pregenerated_path` to save new pregenerated data.")
+        
 
-
-        if pregenerated_only and not self.use_pregen_data:
-            print("Warning: pregenerated_only is set to True but use_pregen_data is set to False. Setting use_pregen_data to True.")
+        self.require_pregenerated = require_pregenerated
+        if self.require_pregenerated and not self.use_pregen_data:
+            self.report_warning("require_pregenerated is set to True but use_pregen_data is set to False. Setting use_pregen_data to True.")
             self.use_pregen_data = True
-    
+
         if self.use_pregen_data:
+            #make sure pregenerated data exists and matches network
+            self.check_pregenerated(default_pregen_only=default_pregen_only, custom_pregen_dir=custom_pregenerated_path)
+
+            #initialize other parameters
+            self.save_new_pregenerated = save_new_random_activities if save_new_random_activities is not None else config.SAVE_NEW_RANDOM_ACTIVITIES
+            
+
+
             # Prepare for pregenerated data by determining which datasets can use pregenerated data
-            self.setup_pregenerated()
+            self.setup_pregenerated(max_diff_from_pregenerated=max_diff_from_pregenerated, min_dataset_size_for_pregenerated=min_dataset_size_for_pregenerated)
+
 
             # Process pre-generated data, one dataset at a time
             print('Loading pre-generated random activities for datasets where applicable...')
-            self.load_pregenerated_random_enrichment()
-
             #report on which datasets will use pregenerated data
-            if len(self.data_columns_from_scratch) > 0 and not pregenerated_only:
+            if len(self.data_columns_from_scratch) > 0 and not self.require_pregenerated:
                 print(f"{len(self.data_columns_from_scratch)} out of {len(self.data_columns)} columns did not have appropriate pregenerated random enrichment and will calculate from scratch: {', '.join(self.data_columns_from_scratch)}")
 
                 self.logger.info(f"Generating random experiments for: {', '.join(self.data_columns_from_scratch)}")
                 self.calculate_random_enrichment(num_random_experiments, selection_type='KSTAR_NUM_COMPENDIA_CLASS',
-                    save_random_experiments = save_random_experiments, PROCESSES=PROCESSES
+                    save_random_experiments = save_random_experiments, save_new_random_activities = save_new_random_activities, PROCESSES=PROCESSES
                 )
-            elif len(self.data_columns_from_scratch) > 0 and pregenerated_only:
-                print(f"The following columns did not have a matched pregenerated dataset and will not be processed {', '.join(self.data_columns_from_scratch)}. \nTo calculate random activities for these datasets automatically, please set pregenerated_only to False.")
+            elif len(self.data_columns_with_pregenerated) == 0 and self.require_pregenerated:
+                raise ValueError("No datasets had appropriate pregenerated random enrichment to use. Please set require_pregenerated to False to calculate random activities from scratch for datasets without matched pregenerated data.")
+            elif len(self.data_columns_from_scratch) > 0 and self.require_pregenerated:
+                print(f"The following columns did not have a matched pregenerated dataset and will not be processed {', '.join(self.data_columns_from_scratch)}. \nTo calculate random activities for these datasets automatically, please set require_pregenerated to False.")
                 self.logger.info(f"Skipping activity calculation for the following columns that did not have matched pregenerated dataset: {', '.join(self.data_columns_from_scratch)}")
                 #remove columns without pregenerated data from data_columns
                 self.data_columns = self.data_columns_with_pregenerated
                 self.data_columns_from_scratch = []
+
+            #load pregenerated data for datasets that can use it
+            if len(self.data_columns_with_pregenerated) > 0:
+                # Process pre-generated data, one dataset at a time
+                self.load_pregenerated_random_enrichment()
 
             # Add pre-generated data to random enrichment
             self.add_pregenerated_to_random_enrichment()
@@ -1039,7 +1177,7 @@ class KinaseActivity:
         #self.add_pregenerated_to_random_enrichment()
 
 
-    def calculate_random_enrichment(self, num_random_experiments, selection_type='KSTAR_NUM_COMPENDIA_CLASS', save_random_experiments=False, PROCESSES=1):
+    def calculate_random_enrichment(self, num_random_experiments, selection_type='KSTAR_NUM_COMPENDIA_CLASS', save_random_experiments=False, save_new_random_activities=False, PROCESSES=1):
         """
         Calculate the kinase activities for each random experiment and discard the resulting random experiment unless save_random_experiments is set to True.
 
@@ -1066,8 +1204,14 @@ class KinaseActivity:
         """
         Change to calculate_random_enrichment to immediately calculate the kinase activities for each random experiment and discard the resulting random experiment.
         """
+        #if save_new_random_activities is True, make sure that pregenerated paths are setup
+        if save_new_random_activities and not hasattr(self, 'custom_pregenerated_path'):
+            raise ValueError("If save_new_random_activities is set to True, custom_pregenerated_path must be known. Run self.check_pregenerated() first to setup pregenerated paths.")
+        
+
         self.logger.info("Running Randomization Pipeline")
         self.num_random_experiments = num_random_experiments
+        #grab sites filtered by compendia bias
         filtered_compendia = getFilteredCompendia(phospho_type=self.phospho_type, selection_type=selection_type)
 
         if PROCESSES > 1:
@@ -1099,9 +1243,10 @@ class KinaseActivity:
                     activities_list = activities_list + result
 
 
-                if self.save_new_precompute:
+                if save_new_random_activities and self.dataset_sizes[col] >= self.min_dataset_size_for_pregenerated:
+                    self.save_new_pregenerated = save_new_random_activities
                     activities_list_df = pd.concat(activities_list).reset_index(drop=True)
-                    self.save_new_precomputed_random_enrichment(activities_list_df, col)
+                    self.save_new_pregenerated_random_activities(activities_list_df, col)
                 combined_activities_list.extend(activities_list)
 
             # save data
@@ -1134,9 +1279,9 @@ class KinaseActivity:
                     activities_list.append(act)
 
                 # if want to save new precomputed data for each experiment
-                if self.save_new_precompute:
+                if self.save_new_pregenerated and self.dataset_sizes[col] >= self.min_dataset_size_for_pregenerated:
                     activities_list_df = pd.concat(activities_list).reset_index(drop=True)
-                    self.save_new_precomputed_random_enrichment(activities_list_df, col)
+                    self.save_new_pregenerated_random_enrichment(activities_list_df, col)
                 combined_activities_list.extend(activities_list)
 
                 # combine all random activities
@@ -1225,7 +1370,8 @@ class KinaseActivity:
         else:
             self.random_enrichment = self.random_enrichment
 
-    def save_new_pregenerated_random_enrichment(self, activities_list_df, col):
+
+    def save_new_pregenerated_random_activities(self, activities_list_df, col):
         """
         Save the new precomputed random enrichment activities to a file.
 
@@ -1242,42 +1388,32 @@ class KinaseActivity:
         -------
         None
         """
-        run_info_content = self.get_run_information_content()
-        size = self.evidence_binary[col].sum()
-
         # Determine the compendia directory based on phospho_type and class counts
-        compendia_class_counts = self.get_compendia_distribution(self.evidence_binary, [col])
-        compendia_paths = {
-            ('Y', True): 'compendia_0_0_1_30_2_70',
-            ('Y', False): 'compendia_0_5_1_50_2_45',
-            ('ST', None): 'compendia_0_0_1_30_2_70'
-        }
+        #get real experiment characteristics
+        high_study_bias_perc = int(self.compendia_distribution[col][2])
+        size = self.dataset_sizes[col]
 
-        key = (self.phospho_type, compendia_class_counts[col][2] > 60 if self.phospho_type == 'Y' else None)
-        if key not in compendia_paths:
-            raise ValueError("Invalid phospho_type or compendia class counts")
 
-        compendia_file_path = os.path.join(str(self.directory_for_save_precompute), str(self.phospho_type), str(self.network_hash),
-                                           str(compendia_paths[key]))
-        os.makedirs(compendia_file_path, exist_ok=True)
+        pregen_subdirectory = self.get_pregenerated_subdirectory(size, high_study_bias_perc)
+        custom_exp_path = os.path.join(self.custom_pregenerated_path, pregen_subdirectory)
 
-        # Save activities to file
-        file_name = f"{size}.tsv"
-        file_path = os.path.join(compendia_file_path, file_name)
 
         #if path does not exist, create it
-        if not os.path.exists(file_path):
-            os.makedirs(os.path.dirname(file_path))
+        if not os.path.exists(custom_exp_path):
+            os.makedirs(custom_exp_path)
 
-        pd.DataFrame(activities_list_df).to_csv(file_path, index=True, sep='\t')
+
+        save_random_enrichment(activities_list_df, custom_exp_path)
+        file_path = os.path.join(custom_exp_path, 'random_enrichment.tsv')
         self.logger.info(f"New precomputed random enrichment data for {col} saved to {file_path}")
 
-        # Save run information content
-        run_info_save_path = os.path.join(self.directory_for_save_precompute, self.phospho_type, self.network_hash,
-                                          "RUN_INFORMATION.txt")
-        with open(run_info_save_path, 'w') as file:
-            file.write(run_info_content)
-        self.logger.info(f"RUN_INFORMATION.txt saved to {run_info_save_path}")
+        # Save run information content, if not already present
+        run_info_save_path = os.path.join(self.custom_pregenerated_path, "RUN_INFORMATION.txt")
+        if not os.path.exists(run_info_save_path):
+            run_info_file = os.path.join(self.network_directory, "RUN_INFORMATION.txt")
+            shutil.copyfile(run_info_file, run_info_save_path)
+
+            self.logger.info(f"RUN_INFORMATION.txt copied to {run_info_save_path}")
 
     def get_run_information_content(self):
         """
@@ -1289,16 +1425,11 @@ class KinaseActivity:
 
         Returns
         -------
-        str
-            Contents of RUN_INFORMATION.txt if found.
-            'RUN_INFORMATION.txt file not found.' if the file doesn't exist.
+        Contents of RUN_INFORMATION.txt if found.
+        'RUN_INFORMATION.txt file not found.' if the file doesn't exist.
 
-        Raises
-        ------
-        ValueError
-            If phospho_type is not 'Y' or 'ST'.
         """
-        base_path = config.NETWORK_DIR
+        base_path = self.network_directory
         if self.phospho_type == 'Y':
             run_info_path = os.path.join(base_path, 'Y', "RUN_INFORMATION.txt")
         elif self.phospho_type == 'ST':
@@ -1328,12 +1459,11 @@ class KinaseActivity:
         network_directory : str
             Path to the directory containing network files.
         """
-        network_directory = os.path.join(config.NETWORK_SUBDIR[self.phospho_type], 'INDIVIDUAL_NETWORKS/')
-
-        for filename in os.listdir(network_directory):
+        individual_network_dir = os.path.join(self.network_directory, 'INDIVIDUAL_NETWORKS')
+        for filename in os.listdir(individual_network_dir):
             net_num = filename.split('_')[1]
             if filename.endswith('.tsv'):
-                file_path = os.path.join(network_directory, filename)
+                file_path = os.path.join(individual_network_dir, filename)
                 network = pd.read_csv(file_path, sep='\t')
                 #restrict to specified kinases if provided
                 self.add_network(net_num, network)
@@ -1457,7 +1587,7 @@ class KinaseActivity:
         else:
             for col in self.data_columns:
                 # check how many non_nan sites there (if less than N, set n to be equal to number of sites available)
-                num_sites_available = evidence_binary.dropna().shape[0]
+                num_sites_available = evidence_binary[col].count()
                 if num_sites_available >= evidence_size:
                     n = evidence_size
                 else:
@@ -1497,6 +1627,8 @@ class KinaseActivity:
             Pass this value in as a list, if seeking to calculate on fewer than all available data columns
         threshold : float
             threshold value used to filter rows
+        evidence_size : int or None
+            the number of sites to use for prediction for each sample. If a value is provided, this will override the threshold, and will instead obtain the N sites with the greatest abundance within each sample (or lowest if greater=False).
         agg : {'count', 'mean'}
             method to use when aggregating duplicate substrate-sites.
             'count' combines multiple representations and adds if values are non-NaN
@@ -1509,15 +1641,10 @@ class KinaseActivity:
         PROCESSES : int
             number of processes to use for multiprocessing
 
-        Returns
-        -------
-        activities : dict
-            key : experiment
-            value : pd DataFrame
-                network : network name, from networks key
-                kinase : kinase examined
-                frequency : number of times kinase was seen in subgraph of evidence and network
-                kinase_activity : hypergeometric kinase activity
+        New attributes
+        --------------
+        activities : pd.DataFrame
+            All hypergeometric activities for each sample, network, and kinase combination
 
         """
 
@@ -1700,21 +1827,12 @@ class KinaseActivity:
 
     def calculate_Mann_Whitney_activities_sig(self, PROCESSES=1):
         """
-        For a kinact_dict, where random generation and activity has already been run for the phospho_types of interest,
-        this will calculate the Mann-Whitney U test for comparing the array of p-values for real data
-        to those of random data, across the number of networks used.
-        It will also calculate the false positive rate for a pvalue, given observations of a random bootstrapping analysis
+        If random enrichment has already occurred, calculate the Mann-Whitney U test for comparing the array of p-values for real data to those of random data, across the number of networks used. It will also calculate the false positive rate for a pvalue by treating one of the randome experiments as 'real' and calculating how many random experiments have a more significant pvalue than the 'real' experiment.
 
         Parameters
         ----------
-        kinact_dict: dictionary
-            A dictionary of kinact objects, with keys 'Y' and/or 'ST'
-        log: logger
-            Logger for logging activity messages
-        phospho_types: {['Y', 'ST'], ['Y'], ['ST']}
-            Which substrate/kinaset-type to run activity for: Both ['Y, 'ST'] (default), Tyrosine ['Y'], or Serine/Threonine ['ST']
-        number_sig_trials: int
-            Maximum number of significant trials to run
+        PROCESSES : int
+            Number of processes to use for multiprocessing
 
         Returns
         -------
@@ -1722,6 +1840,8 @@ class KinaseActivity:
         """
         if not isinstance(self.random_enrichment, pd.DataFrame):
             raise ValueError("Random activities do not exist, please run kstar_activity.randomized_analysis")
+        elif self.random_enrichment.empty:
+            raise ValueError("Random activities not properly generated, please run KinaseActivity.get_random_activities()")
 
 
         #initialize output dataframes
@@ -1744,6 +1864,7 @@ class KinaseActivity:
             self.logger.info("MW Working on %s: " % (exp))
             pval_arr = []
             fpr_arr = []
+            rand_stats = []
             #if using pregenerated data, load pregenerated fpr stats for FPR calculation
             if exp in self.data_columns_with_pregenerated:
                 pregenerated_fpr_stats_path = os.path.join(self.selected_pregenerated_paths[exp], 'fpr_stats.tsv')
@@ -1756,34 +1877,49 @@ class KinaseActivity:
                 pregenerated_fpr_stats = None
 
             if PROCESSES > 1 or pregenerated_fpr_stats is not None:  #note: its slower to multiprocess without pregenerated data due to overhead, so just use single processor
-                #setup partial function for unchanging parameters
-                #partial_func = partial(calculate_MannWhitney_one_experiment_one_kinase, real_grouped, random_grouped, exp)
-                #create list of pregenerated stats to pass
-                #if pregenerated_fpr_stats is not None:
-                #    pregenerated_fpr_stats_list = [pregenerated_fpr_stats[kin] for kin in self.kinases]
                 #split dataframe ahead of time for each kinase
                 real_enrichment_exp_list = [real_grouped.loc[(exp, kinase)] for kinase in self.kinases]
                 random_enrichment_exp_list = [random_grouped.loc[(exp, kinase)] for kinase in self.kinases]
                 pregenerated_fpr_stats_list = [pregenerated_fpr_stats[kinase] for kinase in self.kinases] if pregenerated_fpr_stats is not None else [None for _ in self.kinases]
                 #iterate through kinases in parallel
                 with concurrent.futures.ProcessPoolExecutor(max_workers=PROCESSES) as executor:
-                    for pval, fpr in executor.map(calculate_MannWhitney_one_experiment_one_kinase, real_enrichment_exp_list, random_enrichment_exp_list, pregenerated_fpr_stats_list):
+                    for pval, fpr, tmp_stats in executor.map(calculate_MannWhitney_one_experiment_one_kinase, real_enrichment_exp_list, random_enrichment_exp_list, pregenerated_fpr_stats_list):
                         pval_arr.append(pval)
                         fpr_arr.append(fpr)
+                        rand_stats.append(tmp_stats)
+                            
             else:
                 for kinase in self.kinases:
                     tmp_real_grouped = real_grouped.loc[(exp, kinase)]
                     tmp_random_grouped = random_grouped.loc[(exp, kinase)]
                     pregenerated_fpr_stats_kinase = pregenerated_fpr_stats.get(kinase, None) if pregenerated_fpr_stats is not None else None
                     
-                    pval, fpr = calculate_MannWhitney_one_experiment_one_kinase(tmp_real_grouped, tmp_random_grouped, pregenerated_fpr_stats=pregenerated_fpr_stats_kinase)
+                    pval, fpr, tmp_stats = calculate_MannWhitney_one_experiment_one_kinase(tmp_real_grouped, tmp_random_grouped, pregenerated_fpr_stats=pregenerated_fpr_stats_kinase)
                     pval_arr.append(pval)
                     fpr_arr.append(fpr)
+                    rand_stats.append(tmp_stats)
+                
 
             self.activities_mann_whitney[exp] = pval_arr
             self.fpr_mann_whitney[exp] = fpr_arr
+            if self.save_new_pregenerated and self.dataset_sizes[exp] >= self.min_dataset_size_for_pregenerated:
 
-    def get_param_dict(self):
+                #get save directory
+                pregen_subdirectory = self.get_pregenerated_subdirectory(
+                    self.dataset_sizes[exp], 
+                    int(self.compendia_distribution[exp][2])
+                )
+                custom_exp_path = os.path.join(self.custom_pregenerated_path, pregen_subdirectory)
+
+                #convert to dataframe
+                rand_stats = {kinase: stats for kinase, stats in zip(self.kinases, rand_stats)}
+                rand_stats = pd.DataFrame.from_dict(rand_stats)
+                #save
+                rand_stats.to_csv(os.path.join(custom_exp_path, 'fpr_stats.tsv'), sep='\t', index=False)
+                self.logger.info(f"New pregenerated FPR stats for {exp} saved to {os.path.join(custom_exp_path, 'fpr_stats.tsv')}")
+
+
+    def get_param_dict(self, params_to_ignore = ['network_sizes', 'pregenerated_experiments_path', 'mann_whitney']):
         """
         Get a dictionary of important parameters needed to reinstantiate the KSTAR object
         """
@@ -1791,12 +1927,19 @@ class KinaseActivity:
         #iterate through attributes and save those needed to reinstantiate object
         for attr in vars(self):
             #check for basic types only
-            if isinstance(getattr(self, attr), (int, float, str, bool, type(None))):
+            if attr in params_to_ignore:
+                pass
+            elif isinstance(getattr(self, attr), (int, float, str, bool, type(None))):
                 params[attr] = getattr(self, attr)
 
             elif isinstance(getattr(self, attr), list):
                 #make sure list is of basic types
-                if all(isinstance(i, (int, float, str, bool, type(None))) for i in getattr(self, attr)):
+                if all(isinstance(i, (int, float, str, bool)) for i in getattr(self, attr)):
+                    params[attr] = getattr(self, attr)
+
+            elif isinstance(getattr(self, attr), dict):
+                #make sure dict is of basic types
+                if all(isinstance(k, str) and isinstance(v, (int, float, str, bool, type(None))) for k,v in getattr(self, attr).items()):
                     params[attr] = getattr(self, attr)
         return params
 
@@ -1941,6 +2084,12 @@ def load_random_enrichment(file):
     rand_dataset_enrichment = pd.read_csv(file, delimiter='\t')
     rand_dataset_enrichment = rand_dataset_enrichment.melt(id_vars=['network', 'KSTAR_KINASE'], var_name='data', value_name='kinase_activity')
     return rand_dataset_enrichment
+
+def save_random_enrichment(rand_enrichment, odir):
+    #reformat to reduce memory usage
+    tmp_pivot = rand_enrichment.pivot(columns='data', index=['network', 'KSTAR_KINASE'], values='kinase_activity').reset_index()
+    #save to file
+    tmp_pivot.to_csv(f"{odir}/random_enrichment.tsv", sep='\t', index = False)
 
 
 def calculate_hypergeometric_single_network(evidence, network, network_size, network_id):
@@ -2169,7 +2318,7 @@ def calculate_MannWhitney_one_experiment_one_kinase(real_activities_grouped_one_
     else:
         randomStats = calculate_fpr_Mann_Whitney(random_kinase_activity_array)
     fpr_value = calculate_fpr.single_pvalue_fpr(randomStats, p_value)
-    return p_value, fpr_value
+    return p_value, fpr_value, randomStats
 
 
 """
@@ -2179,8 +2328,7 @@ Methods for running KSTAR pipeline
 """
 
 
-def enrichment_analysis(experiment, odir, name='experiment', phospho_types=['Y', 'ST'], data_columns=None, agg='mean',
-                        threshold=1.0, evidence_size=None, greater=True, min_evidence_size=0, PROCESSES=1, **kwargs):
+def enrichment_analysis(experiment, odir, name='experiment', phospho_types=['Y', 'ST'], data_columns=None, agg='mean',threshold=1.0, evidence_size=None, greater=True, min_evidence_size=0, allow_column_loss = True, kinases=None, PROCESSES=1, **kwargs):
     """
     Function to establish a kstar KinaseActivity object from an experiment with an activity log
     add the networks, calculate, aggregate, and summarize the hypergeometric enrichment into a final activity object. Should be followed by
@@ -2226,6 +2374,10 @@ def enrichment_analysis(experiment, odir, name='experiment', phospho_types=['Y',
         activity summary (see summarize_activities)
 
     """
+    #make sure either threshold or evidence_size is provided
+    if threshold is None and evidence_size is None:
+        raise ValueError("Either threshold or evidence_size must be provided to run enrichment_analysis.")
+    
     #check to make sure threshold and evidence_size are properly formatted
     if isinstance(threshold, dict):
         for pt in phospho_types:
@@ -2238,8 +2390,20 @@ def enrichment_analysis(experiment, odir, name='experiment', phospho_types=['Y',
         for pt in phospho_types:
             if pt not in evidence_size:
                 raise ValueError("When providing evidence_size as a dictionary, it must include keys for all phospho_types being run.")
-    else:
+    elif evidence_size is None or isinstance(evidence_size, int):
         evidence_size = {pt: evidence_size for pt in phospho_types}
+    else:
+        raise TypeError("evidence_size must be provided as an int or as a dictionary with keys for all phospho_types being run.")
+
+    if isinstance(kinases, dict):
+        for pt in phospho_types:
+            if pt not in kinases:
+                raise ValueError("When providing evidence_size as a dictionary, it must include keys for all phospho_types being run.")
+    else:
+        kinases = {pt: kinases for pt in phospho_types}
+
+    if not isinstance(greater, bool):
+        raise TypeError("greater parameter must be a boolean value of True or False.")
 
     #make sure odir exists
     if not os.path.exists(odir):
@@ -2247,8 +2411,14 @@ def enrichment_analysis(experiment, odir, name='experiment', phospho_types=['Y',
     
     kinact_dict = {}
     # For each phosphoType of interest, establish a kinase activity object on a filtered dataset and run, aggregate, and summarize activity
-    if not isinstance(phospho_types, list):
-        raise ValueError("phospho_types must be a list containing 'Y' and/or 'ST' (['Y', 'ST'], ['Y'], or ['ST'])")
+    if phospho_types is None:
+        raise TypeError("phospho_types must be provided as a list containing 'Y' and/or 'ST' (['Y', 'ST'], ['Y'], or ['ST'])")
+    elif not isinstance(phospho_types, list):
+        raise TypeError("phospho_types must be provided as a list containing 'Y' and/or 'ST' (['Y', 'ST'], ['Y'], or ['ST'])")
+    elif len(phospho_types) == 0:
+        raise ValueError("phospho_types must contain at least one of 'Y' or 'ST'")
+
+    
     for phospho_type in phospho_types:
         # filter the experiment (log how many are of that type)
         if phospho_type == 'ST':
@@ -2261,16 +2431,33 @@ def enrichment_analysis(experiment, odir, name='experiment', phospho_types=['Y',
 
         else:
             raise ValueError("ERROR: Did not recognize phosphoType %s, which should only include 'Y' or 'ST' " % (phospho_type))
+        
+        #make sure there are any sites of that type
+        if experiment_sub.shape[0] == 0:
+            print(f"No phosphorylation sites of type {phospho_type} found in dataset, skipping kinase activity calculations for this phospho_type.")
+            continue
+
         #initialize KinaseActivity object
-        kinact = KinaseActivity(experiment_sub, odir = odir, name = name, data_columns=data_columns, phospho_type=phospho_type, **kwargs)
+
+        kinact = KinaseActivity(experiment_sub, odir = odir, name = name, data_columns=data_columns, phospho_type=phospho_type, kinases=kinases[phospho_type], **kwargs)
+        #make sure thresholding parameters are valid (unless evidence_size is provided)
+        if evidence_size[phospho_type] is None:
+            good_params = kinact.check_valid_threshold(threshold = threshold[phospho_type], greater = greater, agg = agg, min_evidence_size = min_evidence_size, allow_column_loss=allow_column_loss)
+            if not good_params:
+                print(f"Skipping kinase activity calculations for {phospho_type} kinases due to no data columns with sufficient evidence after thresholding. Please consider adjusting threshold.")
+                continue
+
         #perform hypergeometric enrichment across all networks
         kinact.calculate_kinase_activities(agg=agg, threshold=threshold[phospho_type], evidence_size=evidence_size[phospho_type], greater=greater, min_evidence_size=min_evidence_size, PROCESSES=PROCESSES)
         kinact_dict[phospho_type] = kinact
+
+        
+    if len(kinact_dict) == 0:
+        raise ValueError("No KinaseActivity objects were successfully created. Please check your input experiment and parameters.")
+
     return kinact_dict
 
-def randomized_analysis(kinact_dict, num_random_experiments=150, use_pregen_data = None,
-                        save_new_random_activities = None, pregenerated_experiments_path = None,
-                        custom_pregenerated_dir = None, pregenerated_only = False, save_random_experiments = None, PROCESSES = 1):
+def randomized_analysis(kinact_dict, **kwargs):
     """
     Perform randomized analysis on kinase activity data.
 
@@ -2278,43 +2465,35 @@ def randomized_analysis(kinact_dict, num_random_experiments=150, use_pregen_data
     ----------
     kinact_dict : dict
         Dictionary containing kinase activity data.
-    log : Logger object
-        Logger to record the progress and any issues during the randomization pipeline.
-    num_random_experiments : int, optional
-        Number of random experiments to generate, by default 150.
-    use_pregen_data : bool, optional
-        Whether to use pre-generated data, by default False.
-    save_new_precompute : bool, optional
-        Whether to save new precomputed data, by default None.
-    pregenerated_experiments_path : str, optional
-        Path to the directory containing pre-generated experiments, by default None.
-    directory_for_save_precompute : str, optional
-        Directory to save new precomputed data, by default None.
-    network_hash : str, optional
-        Hash of the network used, by default None.
-    save_random_experiments : bool, optional
-        Whether to save the generated random experiments, by default None.
-    PROCESSES : int, optional
-        Number of processes to use for parallel computation, by default 1.
+    kwargs : keyword arguments
+        Additional keyword arguments for random activity generation passed to KinaseActivity.get_random_activities method.
+
+        These can include:
+        num_random_experiments : int, optional
+            Number of random experiments to generate, by default 150.
+        use_pregen_data : bool, optional
+            Whether to use pre-generated data, by default False.
+        max_diff_from_pregenerated : float, optional
+            Maximum fractional difference allowed from pre-generated data, by default 0.25.
+        min_dataset_size_for_pregenerated : int, optional
+            Minimum dataset size to use pre-generated data, by default 150.
+        default_pregen_only : bool, optional
+            Whether to only use default pre-generated data (and not any activities in custom path), by default False.
+        require_pregenerated : bool, optional
+            Whether to require pre-generated data, by default False. This will ensure fast performance, but may result in some data columns being dropped
+        custom_pregenerated_path : str, optional
+            Directory to save new precomputed data, by default None.
+        save_random_experiments : bool, optional
+            Whether to save the generated random experiments, by default None.
+        save_new_random_activities : bool, optional
+            Whether to save new precomputed data, by default None.
+        PROCESSES : int, optional
+            Number of processes to use for parallel computation, by default 1.
 
     Returns
     -------
     None
     """
-    # Validate input parameters
-    if not isinstance(use_pregen_data, bool) and use_pregen_data is not None:
-        raise ValueError("use_pregen_data must be True or False")
-    if not isinstance(save_new_random_activities, bool) and save_new_random_activities is not None:
-        raise ValueError("save_new_random_activities must be True or False")
-    if not isinstance(pregenerated_experiments_path, str) and pregenerated_experiments_path is not None:
-        raise ValueError("pregenerated_experiments_path must be a string")
-    if save_new_random_activities:
-        #will want to chang
-        if not isinstance(custom_pregenerated_dir, str) and custom_pregenerated_dir is not None:
-            raise ValueError("When save_new_precompute is True, directory_for_save_precompute must be provided as a non-empty string")
-
-
-
     for phospho_type, kinact in kinact_dict.items():
         #if network_hash is None:
         #    if phospho_type == 'Y':
@@ -2324,8 +2503,7 @@ def randomized_analysis(kinact_dict, num_random_experiments=150, use_pregen_data
         #if not re.fullmatch(r'[a-fA-F0-9]{64}', network_hash):
         #    raise ValueError("network_hash must be a valid SHA-256 hash")
     
-        kinact.get_random_activities(num_random_experiments, use_pregenerated_random_activities=use_pregen_data,save_new_random_activities = save_new_random_activities, custom_pregenerated_path=custom_pregenerated_dir,
-                                           pregenerated_only=pregenerated_only, save_random_experiments=save_random_experiments, PROCESSES=PROCESSES)
+        kinact.get_random_activities(**kwargs)
         # Ensure `random_experiments` is stored in `kinact_dict`
         #kinact_dict[phospho_type].random_experiments = kinact.random_experiments
 
@@ -2340,17 +2518,14 @@ def Mann_Whitney_analysis(kinact_dict, PROCESSES=1):
     ----------
     kinact_dict: dictionary
         A dictionary of kinact objects, with keys 'Y' and/or 'ST'
-    log: logger
-        Logger for logging activity messages
-    number_sig_trials: int
-        Maximum number of significant trials to run
+    PROCESSES: int
+        number of processes to use for parallel computation, by default 1.
     """
 
     for phospho_type, kinact in kinact_dict.items():
         kinact.calculate_Mann_Whitney_activities_sig(PROCESSES=PROCESSES)
 
-def run_kstar_analysis(experiment, odir, name='experiment', phospho_types=['Y', 'ST'], data_columns=None,
-                        threshold=1.0, evidence_size=None, greater=True, save_output=True,PROCESSES=1, **kwargs):
+def run_kstar_analysis(experiment, odir, name='experiment', phospho_types=['Y', 'ST'], data_columns=None, threshold=1.0, evidence_size=None, greater=True, save_output=True,PROCESSES=1, **kwargs):
     """
     Given a mapped experiment, run the KSTAR analysis pipeline.
 
@@ -2378,23 +2553,34 @@ def run_kstar_analysis(experiment, odir, name='experiment', phospho_types=['Y', 
         Whether to use greater comparison
     PROCESSES: int
         Number of processes to use
+    **kwargs
+        Additional keyword arguments for enrichment_analysis, randomized_analysis, and save_kstar functions.
 
     """
+    #find relevant kwargs
+    enrichment_kwargs = helpers.extract_relevant_kwargs(enrichment_analysis, **kwargs)
+    randomized_kwargs = helpers.extract_relevant_kwargs(KinaseActivity.get_random_activities, **kwargs)
+    save_kwargs = helpers.extract_relevant_kwargs(save_kstar, **kwargs)
+    identified_kwargs = set(enrichment_kwargs.keys()).union(set(randomized_kwargs.keys())).union(set(save_kwargs.keys()))
+
+    #throw error if any unexpected kwargs are provided
+    unexpected_kwargs = set(kwargs.keys()).difference(identified_kwargs)
+    if len(unexpected_kwargs) > 0:
+        raise ValueError(f"Unexpected keyword arguments provided: {', '.join(unexpected_kwargs)}. Please check the function parameters for enrichment_analysis, randomized_analysis, and save_kstar.")
+    
     #start enrichment analysis
     print('Starting kinase-substrate enrichment analysis...')
-    enrichment_kwargs = helpers.extract_relevant_kwargs(enrichment_analysis, **kwargs)
     kinact_dict = enrichment_analysis(experiment, odir = odir, name = name, phospho_types = phospho_types, threshold = threshold, data_columns=data_columns, greater = greater, evidence_size=evidence_size, PROCESSES = PROCESSES, **enrichment_kwargs)
     #
     print('Starting calculation of random activities...')
-    randomized_kwargs = helpers.extract_relevant_kwargs(randomized_analysis, **kwargs)
     randomized_analysis(kinact_dict, PROCESSES=PROCESSES, **randomized_kwargs)
     #
     print('Comparing kinase-substrate enrichment from the real experiment to random experiments...')
     Mann_Whitney_analysis(kinact_dict, PROCESSES = PROCESSES)
 
+
     if save_output:
         print(f'Saving KSTAR analysis results in {odir}/RESULTS/')
-        save_kwargs = helpers.extract_relevant_kwargs(save_kstar, **kwargs)
         save_kstar(kinact_dict, name, odir, **save_kwargs)
 
     print('Done.')
@@ -2443,17 +2629,7 @@ def save_kstar(kinact_dict, name, odir, minimal = True, param_format = 'json'):
         kinact = kinact_dict[phospho_type]
         name_out = f"{name}_{phospho_type}"
 
-        param_temp = {}
-        #iterate through attributes and save those needed to reinstantiate object
-        for attr in vars(kinact):
-            #check for basic types only
-            if isinstance(getattr(kinact, attr), (int, float, str, bool, type(None))):
-                param_temp[attr] = getattr(kinact, attr)
-
-            elif isinstance(getattr(kinact, attr), list):
-                #make sure list is of basic types
-                if all(isinstance(i, (int, float, str, bool, type(None))) for i in getattr(kinact, attr)):
-                    param_temp[attr] = getattr(kinact, attr)
+        param_temp = kinact.get_param_dict()
 
         kinact.evidence_binary.to_csv(f"{odir}/RESULTS/{name_out}_binarized_experiment.tsv", sep='\t', index=False)
 
@@ -2481,6 +2657,9 @@ def save_kstar(kinact_dict, name, odir, minimal = True, param_format = 'json'):
             json.dump(param_dict, json_file, indent=4)
     else:
         raise ValueError("param_format must be either 'pickle' or 'json'")
+    
+def save_kstar_slim(kinact_dict, name, odir):
+    raise DeprecationWarning("save_kstar_slim is deprecated, please use save_kstar with minimal=True instead.")
 
 def load_param_dict(name, odir):
     """
@@ -2508,7 +2687,7 @@ def load_param_dict(name, odir):
     return param_dict
     
 
-def from_kstar_slim(name, odir):
+def from_kstar(name, odir):
     """
     Given the name and output directory of a saved kstar analyis, load the parameters and minimum dataframes needed for reinstantiating a kinact object
     This minimum list will allow you to repeat normalization or mann whitney at a different false positive rate threshold and plot results.
