@@ -26,22 +26,40 @@ class OrientationError(Exception):
         return self.message
     
 
-def plot_jaci_between_samples(evidence,samples,title='', ax = None, **kwargs):
+def plot_jaci_between_samples(evidence,samples,title='', ax = None, annot = True, cluster = False, **kwargs):
     """
     This function creates a heatmap based on jaccard index of phosphopeptide identities
-    Arg:
-    y_mapped_dataset: a dataset that has been mapped to KSTAR (if applicable, batch specific)
-    samples: a list of data columns 
-    title: desired title for the heatmap
-    Output:
-    a heatmap showing the similarity of phosphopeptide identities across samples
+
+    Parameters
+    ----------
+    evidence : pandas DataFrame
+        binarized dataframe indicating presence/absence of phosphopeptides in samples
+    samples : list
+        list of sample column names in the evidence dataframe to use for calculating jaccard index
+    title : str, optional
+        title of the heatmap
+    ax : matplotlib Axes instance, optional
+        axes to plot heatmap on. If None, new figure and axes created
+    annot : bool, optional
+        whether to annotate heatmap with jaccard index values
+    cluster : bool, optional
+        whether to cluster samples based on jaccard index before plotting heatmap
+    **kwargs : additional keyword arguments
+        additional keyword arguments to pass to seaborn heatmap function
     """
     jaccard_matrix = helpers.jaci_matrix_between_samples(evidence,samples)
+
+    if cluster:
+        #cluster row and columns of jaccard matrix
+        linkage_matrix = linkage(jaccard_matrix, method='average', metric='euclidean')
+        dendro = dendrogram(linkage_matrix, no_plot=True)
+        clustered_order = dendro['leaves']
+        jaccard_matrix = jaccard_matrix.iloc[clustered_order, clustered_order]
 
     if ax is None:
         fig, ax = plt.subplots(figsize=(5, 5))
 
-    sns.heatmap(jaccard_matrix, annot=True,fmt='.2f', cbar_kws={'label': 'Jaccard Index'}, vmin=0, vmax=1, ax=ax, **kwargs)
+    sns.heatmap(jaccard_matrix, annot=annot,fmt='.2f', cbar_kws={'label': 'Jaccard Index'}, vmin=0, vmax=1, ax=ax, **kwargs)
     ax.set_xticklabels(ax.get_xticklabels(), rotation = 35, ha = 'right')
     ax.set_yticklabels(ax.get_yticklabels(), rotation = 0)
     ax.set_title(title)  
@@ -201,13 +219,14 @@ class DotPlot:
         """
         Set colors for the plot based on significance or false positive rate.
         """
-        if self.binary_sig:
-            #create binary dataframe that indicates significance based on provided fpr cutoff.
-            if self.inclusive_alpha:
-                self.significance = (self.fpr <= self.alpha) * 1
-            else:
-                self.significance = (self.fpr < self.alpha) * 1
+        #create binary dataframe that indicates significance based on provided fpr cutoff.
+        if self.inclusive_alpha:
+            self.significance = (self.fpr <= self.alpha) * 1
+        else:
+            self.significance = (self.fpr < self.alpha) * 1
 
+        #define the colors to use when plotting (either gradient or binary)
+        if self.binary_sig:
             #set colors to significance dataframe
             self.colors = self.significance
             if labelmap is None:
@@ -743,7 +762,7 @@ class DotPlot:
         return fig, axes, nrows, ncols, dots_ax
 
 
-    def make_complete_dotplot(self, kinases_to_plot=None, cluster_samples = False, cluster_kinases = False, sort_kinases_by = None, sort_samples_by = None, binary_evidence = None, context = None, significant_kinases_only = True, **kwargs):
+    def make_complete_dotplot(self, kinases_to_plot=None, cluster_samples = False, cluster_kinases = False, sort_kinases_by = None, sort_samples_by = None, binary_evidence = None, context = None, significant_kinases_only = True, show_xtick_labels = True, **kwargs):
         """
         Master function for creating a comprehensive dotplot visualization, which automatically creates any necessary subplots
 
@@ -765,6 +784,8 @@ class DotPlot:
             Binary evidence dataframe from KSTAR analysis. If provided, will calculate the number of sites used as evidence in each sample and plot this.
         context : pd.DataFrame or None, optional
             Context dataframe providing additional sample information for plotting. If provided, must include an 'id_column' for unique sample identifiers and list 'context_columns' for context information.
+        show_xtick_labels : bool, optional
+            Whether to show x-axis tick labels in the dotplot.
         **kwargs : 
             Additional keyword arguments passed to plotting functions, like matplotlib.pyplot.scatter, DotPlot.context, DotPlot.dotplot, DotPlot.cluster, and DotPlot.evidence_count
         """
@@ -888,6 +909,9 @@ class DotPlot:
 
 
         self.dotplot(ax=dots_ax, **dotplot_kwargs)
+        if not show_xtick_labels:
+            dots_ax.set_xticks([])
+        
 
 
 
@@ -917,7 +941,7 @@ class KSTAR_PDF(fpdf.FPDF):
         if header is None:
             header = data.columns
         # Column widths
-        self.set_font('Arial', 'B', 10)
+        self.set_font('Helvetica', 'B', 10)
         
         # Header
         for i, header_item in enumerate(header):
@@ -927,10 +951,11 @@ class KSTAR_PDF(fpdf.FPDF):
                 self.cell(column_widths[i], row_height, header_item, 1)
             else:
                 raise ValueError('column_widths must be an integer or a list of integers')
+
         self.ln(row_height)
         
         # Data
-        self.set_font('Arial', '', 10)
+        self.set_font('Helvetica', '', 10)
         for i, row in data.iterrows():
             for i, item in enumerate(row):
                 if isinstance(column_widths, int):
@@ -947,8 +972,8 @@ class KSTAR_PDF(fpdf.FPDF):
 
     def summary_page(self):
         self.add_page()
-        # Arial bold 15
-        self.set_font('Arial', 'B', 15)
+        # Helvetica bold 15
+        self.set_font('Helvetica', 'B', 15)
         # Move to the right
         self.cell(80)
         self.cell(20, 10, f'Summary of KSTAR Run ({self.param_dict["phospho_type"]})', 0, 0, 'C')
@@ -956,30 +981,30 @@ class KSTAR_PDF(fpdf.FPDF):
         #report parameters used
         self.ln(10)
         if self.param_dict is not None:
-            self.set_font('Arial', 'B', 14)
+            self.set_font('Helvetica', 'B', 14)
             self.cell(0, 5, 'Parameters Used:', 0, 1, 'L')
             self.ln(5)
             #iterate through parameters and print them
             for key, value in self.param_dict.items():
-                if isinstance(value, (bool, float, int, str)) and key not in ['network_check', 'network_directory', 'pregenerated_experiments_path', 'mann_whitney']:
-                    self.set_font('Arial', 'B', 10)
+                if isinstance(value, (bool, float, int, str)) and key not in ['network_check', 'network_directory', 'pregenerated_experiments_path', 'mann_whitney', 'kinases', 'randomized']:
+                    self.set_font('Helvetica', 'B', 10)
                     #set cell width to 
-                    self.cell(w=53, h=4, txt=f'{key}: ', border=0, ln=0, align='R')
-                    self.set_font('Arial', '', 10)
-                    self.cell(w=0, h=4, txt=f'{value}', border=0, ln=1, align='L')
+                    self.cell(w=53, h=4, text=f'{key}: ', border=0, new_x='RIGHT', new_y='TOP', align='R')
+                    self.set_font('Helvetica', '', 10)
+                    self.cell(w=0, h=4, txt=f'{value}', border=0, new_x='LMARGIN', new_y='NEXT', align='L')
             self.ln(10)
         
         # Summary statistics
-        self.set_font('Arial', 'B', 14)
-        self.cell(w=0, h=4, txt='Summary Statistics:', border=0, ln=1, align='L')
+        self.set_font('Helvetica', 'B', 14)
+        self.cell(w=0, h=4, txt='Summary Statistics:', border=0, new_x='LMARGIN', new_y='NEXT', align='L')
         self.ln(5)
-        self.set_font('Arial', '', 10)
+        self.set_font('Helvetica', '', 10)
         num_samples = self.activities.shape[1]
         num_kinases = self.activities.shape[0]
-        self.cell(w=0, h=4, txt=f'Number of Samples/Columns Analyzed: {num_samples}', border=0, ln=1, align='L')
-        self.cell(w=0, h=4, txt=f'Number of Kinases Analyzed: {num_kinases}', border=0, ln=1, align='L')
+        self.cell(w=0, h=4, txt=f'Number of Samples/Columns Analyzed: {num_samples}', border=0, new_x='LMARGIN', new_y='NEXT', align='L')
+        self.cell(w=0, h=4, txt=f'Number of Kinases Analyzed: {num_kinases}', border=0, new_x='LMARGIN', new_y='NEXT', align='L')
         significant_kinases = (self.fpr < 0.05).any(axis = 1).sum()
-        self.cell(w=0, h=4, txt=f'Number of Kinases with significant activity in at least one sample: {significant_kinases}', border=0, ln=1, align='L')
+        self.cell(w=0, h=4, txt=f'Number of Kinases with significant activity in at least one sample: {significant_kinases}', border=0, new_x='LMARGIN', new_y='NEXT', align='L')
         self.ln(10)
         self.top_kinases_table()
         
@@ -1004,35 +1029,37 @@ class KSTAR_PDF(fpdf.FPDF):
             phospho_type = None
             include_recommendations = False
 
-        dot.make_complete_dotplot(cluster_kinases = True, binary_evidence = self.binarized_experiment, significant_kinases_only=True, phospho_type=phospho_type, include_recommendations=include_recommendations)
+        show_xtick_labels = True if num_samples <=50 else False
+        dot.make_complete_dotplot(cluster_kinases = True, binary_evidence = self.binarized_experiment, significant_kinases_only=True, phospho_type=phospho_type, include_recommendations=include_recommendations, show_xtick_labels=show_xtick_labels)
+
         
         plt.savefig(os.path.join(self.odir, "FIGURES", f"{self.name}_{self.phospho_type}_dotplot.png"), bbox_inches='tight', transparent=True, dpi=300)
         plt.close()
 
     def dotplot_page(self, regenerate_plots = False):
         self.add_page()
-        # Arial bold 15
-        self.set_font('Arial', 'B', 15)
+        # Helvetica bold 15
+        self.set_font('Helvetica', 'B', 15)
         # Move to the right
         self.cell(80)
-        self.cell(w=30, h=10, txt=f'KSTAR Dotplot', border=0, ln=1, align='C')
+        self.cell(w=30, h=10, txt=f'KSTAR Dotplot', border=0, new_x='LMARGIN', new_y='NEXT', align='C')
         phospho_type = self.param_dict['phospho_type']
 
         #add indicators of where to find the dotplot figure and underlying data
-        self.set_font('Arial', 'I', 8)
+        self.set_font('Helvetica', 'I', 8)
                 #try including data
         #if embed_files:
         #    phospho_type = self.param_dict['phospho_type']
         #    self.file_attachment_annotation(x=3, y=self.get_y(), w=5, h=4, file_path=os.path.join(self.odir, "FIGURES", f"{self.name}_dotplot.png"))
-        self.cell(w=5, h=4, txt=f'The KSTAR dotplot can be found in output directory under "{os.path.join("FIGURES", f"{self.name}_dotplot.png")}".', border=0, ln=1, align='L')
+        self.cell(w=5, h=4, txt=f'The KSTAR dotplot can be found in output directory under "{os.path.join("FIGURES", f"{self.name}_dotplot.png")}".', border=0, new_x='LMARGIN', new_y='NEXT', align='L')
         #if embed_files:
         #    phospho_type = self.param_dict['phospho_type']
         #    self.file_attachment_annotation(x=3, y=self.get_y(), w=5, h=4, file_path=os.path.join(self.odir, "RESULTS", f"{self.name}_{phospho_type}_mann_whitney_activities.tsv"))
-        self.cell(w=0, h=4, txt=f'Raw activity scores (dot size) in the output directory under "{os.path.join("RESULTS", f"{self.name}_{phospho_type}_mann_whitney_activities.tsv")}".', border=0, ln=1, align='L')
+        self.cell(w=0, h=4, txt=f'Raw activity scores (dot size) in the output directory under "{os.path.join("RESULTS", f"{self.name}_{phospho_type}_mann_whitney_activities.tsv")}".', border=0, new_x='LMARGIN', new_y='NEXT', align='L')
         #if embed_files:
         #    phospho_type = self.param_dict['phospho_type']
         #    self.file_attachment_annotation(x=3, y=self.get_y(), w=5, h=4, file_path=os.path.join(self.odir, "RESULTS", f"{self.name}_{phospho_type}_mann_whitney_fpr.tsv"))
-        self.cell(w=0, h=4, txt=f'False positive rates (significance) can be found in "{os.path.join("RESULTS", f"{self.name}_{phospho_type}_mann_whitney_fpr.tsv")}".', border=0, ln=1, align='L')
+        self.cell(w=0, h=4, txt=f'False positive rates (significance) can be found in "{os.path.join("RESULTS", f"{self.name}_{phospho_type}_mann_whitney_fpr.tsv")}".', border=0, new_x='LMARGIN', new_y='NEXT', align='L')
 
         #create and add dotplot to page
         if not os.path.exists(os.path.join(self.odir, "FIGURES", f"{self.name}_{self.phospho_type}_dotplot.png")) or regenerate_plots:
@@ -1041,30 +1068,39 @@ class KSTAR_PDF(fpdf.FPDF):
 
         #add link to kstar plotting tool
         self.ln(10)
-        self.set_font('Arial', 'B', 12)
-        self.cell(w=0, h=5, txt='Want to customize the dotplot? Visit the KSTAR plotting tool linked here:', border=0, ln=1, align='L', link='https://proteomescout.research.virginia.edu/kstar/')
+        self.set_font('Helvetica', 'B', 12)
+        self.set_y(-30)
+        self.cell(w=0, h=5, txt='Want to customize the dotplot? Visit the KSTAR plotting tool linked here:', border=0, new_x='LMARGIN', new_y='NEXT', align='L', link='https://proteomescout.research.virginia.edu/kstar/')
 
     def evidence_count_plot(self, data_columns):
         #get evidence counts
         data_columns = self.activities.columns.tolist()
+        num_samples = len(data_columns)
         num_sizes = self.binarized_experiment[data_columns].sum()
         #remove 'data:' from column names for plotting
         num_sizes.index = [col.replace('data:','') for col in num_sizes.index]
 
         #make figure
-        fig, ax = plt.subplots(figsize = (7,3))
-        ax.barh(y = num_sizes.index, width = num_sizes.values, color = 'gray', edgecolor='black', height = 1)
+        fig, ax = plt.subplots(figsize = (7,3.5))
+        ax.barh(y = num_sizes.index, width = num_sizes.values, color = 'gray', edgecolor='black', height = 1, lw = 0.5)
         ax.set_xlabel('Number of Sites Used as Evidence')
         ax.set_ylabel('Column')
 
-        #annotate bars with counts
-        for i, v in enumerate(num_sizes.values):
-            ax.text(v + 0.5, i, str(int(v)), color='black', va='center', ha = 'left')
+        #adjust y-axis label size based on number of samples
+        if num_samples > 20 and num_samples <= 40:
+            ax.tick_params(axis = 'y', labelsize=6)
+        elif num_samples > 40:
+            ax.set_yticks([])
+        
+        if num_samples <= 35:
+            #annotate bars with counts
+            for i, v in enumerate(num_sizes.values):
+                ax.text(v + 0.5, i, str(int(v)), color='black', va='center', ha = 'left', fontsize=7)
 
         #add vertical line for median evidence size
         median_size = np.median(num_sizes.values)
         ax.axvline(median_size, color = 'red', linestyle = 'dashed', linewidth = 1, label = f'Median Evidence Size ({int(median_size)})')
-        ax.legend()
+        ax.legend(loc = (0, 1.05))
 
         #remove top and right spines
         ax.spines['top'].set_visible(False)
@@ -1076,9 +1112,29 @@ class KSTAR_PDF(fpdf.FPDF):
 
     def evidence_overlap_plot(self, data_columns):
         fig, ax = plt.subplots(figsize = (7,3.5))
-        ax = plot_jaci_between_samples(self.binarized_experiment, data_columns, ax = ax, annot_kws={"size": 6})
-        ax.tick_params(axis = 'x', labelsize=8)
-        ax.tick_params(axis = 'y', labelsize=8)
+        if len(data_columns) <= 20:
+            annot = True
+            xticklabels = 1
+            yticklabels = 1
+            xticksize = 9
+            yticksize = 9
+        elif len(data_columns) <= 40:
+            annot = False
+            xticklabels = 1
+            yticklabels = 1
+            xticksize = 6
+            yticksize = 6
+        else:
+            annot = False
+            xticklabels = False
+            yticklabels = False
+            xticksize = 6
+            yticksize = 6
+
+        ax = plot_jaci_between_samples(self.binarized_experiment, data_columns, ax = ax, annot_kws={"size": 6}, cluster = True, linewidths = 0.1, linecolor = 'black', annot=annot, xticklabels = xticklabels, yticklabels = yticklabels)
+
+        ax.tick_params(axis = 'x', labelsize=xticksize)
+        ax.tick_params(axis = 'y', labelsize=yticksize)
         plt.savefig(os.path.join(self.odir, "FIGURES", f"{self.name}_{self.phospho_type}_evidence_overlap.png"), bbox_inches='tight', transparent=True, dpi=300)
         plt.close()
 
@@ -1092,24 +1148,24 @@ class KSTAR_PDF(fpdf.FPDF):
             self.evidence_overlap_plot(data_columns)
 
         self.add_page()
-        self.set_font('Arial', 'B', 15)
+        self.set_font('Helvetica', 'B', 15)
         self.cell(80)
-        self.cell(w=30, h=10, txt='Evidence Characteristics', border=0, ln=1, align='C')
+        self.cell(w=30, h=10, txt='Evidence Characteristics', border=0, new_x='LMARGIN', new_y='NEXT', align='C')
 
         #add indicators of where to find the dotplot figure and underlying data
-        self.set_font('Arial', 'I', 8)
-        self.cell(w=0, h=4, txt=f'The evidence barplot can be found at {os.path.join(self.odir, "FIGURES", f"{self.name}_{self.phospho_type}_evidence_count.png")}.', border=0, ln=1, align='L')
-        self.cell(w=0, h=4, txt=f'The sites used as evidence can be found at {os.path.join(self.odir, "RESULTS", f"{self.name}_{self.phospho_type}_binarized_experiment.tsv")}.', border=0, ln=1, align='L')
+        self.set_font('Helvetica', 'I', 8)
+        self.cell(w=0, h=4, txt=f'The evidence barplot can be found at {os.path.join(self.odir, "FIGURES", f"{self.name}_{self.phospho_type}_evidence_count.png")}.', border=0, new_x='LMARGIN', new_y='NEXT', align='L')
+        self.cell(w=0, h=4, txt=f'The sites used as evidence can be found at {os.path.join(self.odir, "RESULTS", f"{self.name}_{self.phospho_type}_binarized_experiment.tsv")}.', border=0, new_x='LMARGIN', new_y='NEXT', align='L')
 
         #plot evidence sizes as a barplot
         self.ln(10)
-        self.set_font('Arial', 'B', 12)
+        self.set_font('Helvetica', 'B', 12)
         self.cell(0, 10, 'Evidence Sizes Across Samples:', 0, 1, 'L')
         self.image(os.path.join(self.odir, "FIGURES", f"{self.name}_{self.phospho_type}_evidence_count.png"), x = 10, y = self.get_y(), w = 180)
 
         #plot evidence overlap as a heatmap
-        self.ln(900)
-        self.set_font('Arial', 'B', 12)
+        self.ln(115)
+        self.set_font('Helvetica', 'B', 12)
         self.cell(0, 10, 'Evidence Overlap Between Samples (By Jaccard Index):', 0, 1, 'L')
         self.image(os.path.join(self.odir, "FIGURES", f"{self.name}_{self.phospho_type}_evidence_overlap.png"), x = 10, y = self.get_y(), w = 180)
 
@@ -1143,8 +1199,8 @@ class KSTAR_PDF(fpdf.FPDF):
         """
         # Position at 1.5 cm from bottom
         self.set_y(-15)
-        # Arial italic 8
-        self.set_font('Arial', 'I', 8)
+        # Helvetica italic 8
+        self.set_font('Helvetica', 'I', 8)
         # Page number
         self.cell(0, 10, 'Page ' + str(self.page_no()) + '/{nb}', 0, 0, 'C')
 

@@ -470,7 +470,7 @@ class Pruner:
         network_desc : str, optional
             description of the network used during pruning. Recommended, but not required
         """
-        with open(f"{self.network_dir}/RUN_INFORMATION.txt", "w") as info_file:
+        with open(f"{self.save_dir}/RUN_INFORMATION.txt", "w") as info_file:
             info_file.write("*************************************************\n")
             info_file.write(f"Pruning Information for {self.network_name}\n")
             info_file.write("*************************************************\n")
@@ -532,7 +532,7 @@ class Pruner:
             self.report_info("Pregenerating random activities based on generated pruned networks")
             self.pregenerate_random_activities(PROCESSES = PROCESSES)
 
-def run_pruning(weighted_network, network_name, odir, phospho_type, kinase_size, site_limit, num_networks, use_compendia = True, generate_activities = True, network_file_used = None, network_desc = None, restart = False, logger = None, network_dir = None, PROCESSES = 1):
+def run_pruning(weighted_network, network_name, odir, phospho_type, kinase_size, site_limit, num_networks, use_compendia = True, generate_activities = True, network_file_used = None, network_desc = None, restart = False, logger = None, PROCESSES = 1):
     """
     Run the pruning algorithm from start to finish, including pregenerating random activities based on generated networks
 
@@ -548,11 +548,11 @@ def run_pruning(weighted_network, network_name, odir, phospho_type, kinase_size,
         phospho_type(s) to use when building pruned networks
     """
     print('Initializing Pruner Class\n')
-    pruner = Pruner(network = weighted_network, network_name = network_name, phospho_type = phospho_type, logger = None, network_dir = odir, logger = logger, network_dir = network_dir)
+    pruner = Pruner(network = weighted_network, network_name = network_name, phospho_type = phospho_type, network_dir = odir, logger = logger)
     print('Generating Pruned Networks\n')
     pruner = pruner.run(kinase_size=kinase_size, site_limit=site_limit, num_networks=num_networks, use_compendia=use_compendia, generate_activities=generate_activities, network_file_used=network_file_used, network_desc=network_desc, restart=restart, PROCESSES=PROCESSES)
     print('Pruning Complete\n')
-    pruner
+    return pruner
 
 
 """
