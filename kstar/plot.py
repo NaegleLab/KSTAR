@@ -830,8 +830,6 @@ class DotPlot:
             include_context = 0
             number_contexts = 0
 
-        fig, axes, nrows, ncols, dots_ax = self.setup_figure(cluster_samples=cluster_samples, cluster_kinases=cluster_kinases, include_evidence=include_evidence, include_context=include_context, number_contexts=number_contexts)
-
 
         if kinases_to_plot:
             kinases_to_drop = [kin for kin in self.values.index if kin not in kinases_to_plot]
@@ -850,6 +848,15 @@ class DotPlot:
                 insignificant_kinases = [kin for kin in kinases_to_plot if kin not in self.values.index and kin not in unrecognized_kinases]
                 if insignificant_kinases:
                     print(f"Warning: The following kinases were requested but not significant and will be ignored: {insignificant_kinases}. Set significant_kinases_only=False to include them.")
+
+        if cluster_kinases and self.values.shape[0] <= 1:
+            cluster_kinases = False
+            print("Warning: Cannot cluster kinases when only one kinase is present.")
+        if cluster_samples and self.values.shape[1] <= 1:
+            cluster_samples = False
+            print("Warning: Cannot cluster samples when only one sample is present.")
+
+        fig, axes, nrows, ncols, dots_ax = self.setup_figure(cluster_samples=cluster_samples, cluster_kinases=cluster_kinases, include_evidence=include_evidence, include_context=include_context, number_contexts=number_contexts)
 
         #sort by kinase, if provided
         if sort_kinases_by is not None and not cluster_kinases:
@@ -886,6 +893,7 @@ class DotPlot:
             ax = axes[0,1] if cluster_kinases else axes[0]
             self.cluster(orientation = 'top', ax = ax, method='ward', **cluster_kwargs)
             axes[0,0].axis('off')
+
 
         if context is not None:
             row = 0 + cluster_samples
@@ -1014,7 +1022,12 @@ class KSTAR_PDF(fpdf.FPDF):
         #calculate number of samples and kinases to size figure appropriately
         num_samples = self.activities.shape[1]
         num_kinases = (self.fpr < 0.05).any(axis = 1).sum()
-        fig_height = 0.2 * num_kinases if 0.2 * num_kinases < 12 else 12
+        if num_kinases*0.2 < 3:
+            fig_height = 3
+        elif num_kinases*0.2 >= 12:
+            fig_height = 12
+        else:
+            fig_height = 0.2 * num_kinases
         #fig_width = 0.5 * num_samples if 0.5 * num_samples < 8 else 8
         fig_width = 8
 
@@ -1131,7 +1144,10 @@ class KSTAR_PDF(fpdf.FPDF):
             xticksize = 6
             yticksize = 6
 
-        ax = plot_jaci_between_samples(self.binarized_experiment, data_columns, ax = ax, annot_kws={"size": 6}, cluster = True, linewidths = 0.1, linecolor = 'black', annot=annot, xticklabels = xticklabels, yticklabels = yticklabels)
+        if self.activities.shape[1] > 2:
+            ax = plot_jaci_between_samples(self.binarized_experiment, data_columns, ax = ax, annot_kws={"size": 6}, cluster = True, linewidths = 0.1, linecolor = 'black', annot=annot, xticklabels = xticklabels, yticklabels = yticklabels)
+        else:
+            ax = plot_jaci_between_samples(self.binarized_experiment, data_columns, ax = ax, annot_kws={"size": 6}, cluster = False, linewidths = 0.1, linecolor = 'black', annot=annot, xticklabels = xticklabels, yticklabels = yticklabels)
 
         ax.tick_params(axis = 'x', labelsize=xticksize)
         ax.tick_params(axis = 'y', labelsize=yticksize)

@@ -336,7 +336,7 @@ class ExperimentMapper:
                 f.write('\nMapping success statistics:\n')
                 if 'site' in self.columns:
                     mapped_sites, all_sites = self.get_number_missed_sites()
-                    f.write(f"Mapped Sites: {len(mapped_sites)}/{len(all_sites)} sites mapped ({len(mapped_sites)/len(all_sites)*100:.2f}%).\n")
+                    f.write(f"Mapped Sites: {mapped_sites}/{all_sites} sites mapped ({mapped_sites/all_sites*100:.2f}%).\n")
                 if 'peptide' in self.columns:
                     mapped_peptides, all_peptides = self.get_number_missed_peptides()
                     f.write(f"Mapped Peptides: {mapped_peptides}/{all_peptides} peptides mapped ({mapped_peptides/all_peptides*100:.2f}%).\n")

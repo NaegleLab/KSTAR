@@ -1954,7 +1954,7 @@ class KinaseActivity:
         """
         #construct param_dict
         param_dict = self.get_param_dict()
-        summary_pdf = KSTAR_PDF(activities = self.activities_mann_whitney, fpr = self.fpr_mann_whitney, odir = self.odir, name = self.name, binarized_experiment = self.evidence_binary, param_dict = param_dict)
+        summary_pdf = KSTAR_PDF(activities = self.activities_mann_whitney, fpr = self.fpr_mann_whitney, odir = self.odir + f'/RESULTS/{self.phospho_type}/', name = self.name, binarized_experiment = self.evidence_binary, param_dict = param_dict)
         summary_pdf.generate(regenerate_plots = regenerate_plots)
 
     def make_dotplot(self, include_evidence_sizes=True, **kwargs):
@@ -1972,7 +1972,7 @@ class KinaseActivity:
         init_kwargs = helpers.extract_relevant_kwargs(DotPlot.__init__, **kwargs)
         other_kwargs = {k:v for k,v in kwargs.items() if k not in init_kwargs}
         #initialize dotplot
-        dotplot = DotPlot(activities = self.activities_mann_whitney, fpr = self.fpr_mann_whitney, **init_kwargs)
+        dotplot = DotPlot(values = self.activities_mann_whitney, fpr = self.fpr_mann_whitney, **init_kwargs)
         #make dotplot
         if include_evidence_sizes:
             dotplot.make_complete_dotplot(binary_evidence=self.evidence_binary, include_recommendations=True, phospho_type = self.phospho_type, **other_kwargs)
@@ -2591,7 +2591,7 @@ def run_kstar_analysis(experiment, odir, name='experiment', phospho_types=['Y', 
 
 
 
-def save_kstar(kinact_dict, name, odir, minimal = True, param_format = 'json'):
+def save_kstar(kinact_dict, name, odir, minimal = True, ftype = 'tsv', param_format = 'json'):
     """
     Having performed kinase activities (run_kstar_analyis), save each of the important dataframes, minimizing the memory storage needed to get back
     to a rebuilt version for plotting results and analysis. For each phospho_type in the kinact_dict, at a minimum, this will save the binarized evidence, mann whitney activities and fpr dataframes, and parameters used during run. If you would like to save all files (hypergeometric and random enrichment intermediate files), set minimal = False.
@@ -2609,6 +2609,8 @@ def save_kstar(kinact_dict, name, odir, minimal = True, param_format = 'json'):
         Outputdirectory to save files and pickle to
     minimal: bool
         Whether to save only minimal files or all intermediate files
+    ftype: {'tsv', 'csv'}
+        Format to save dataframes in, either tsv or csv
     param_format: {'pickle', 'json'}
         Format to save parameter dictionary in, either pickle or json. Json is recommended for easier human readability
     
@@ -2631,27 +2633,41 @@ def save_kstar(kinact_dict, name, odir, minimal = True, param_format = 'json'):
 
         param_temp = kinact.get_param_dict()
 
-        kinact.evidence_binary.to_csv(f"{odir}/RESULTS/{name_out}_binarized_experiment.tsv", sep='\t', index=False)
+        if ftype == 'tsv':
+            kinact.evidence_binary.to_csv(f"{odir}/RESULTS/{phospho_type}/{name_out}_binarized_experiment.tsv", sep='\t', index=False)
+        elif ftype == 'csv':
+            kinact.evidence_binary.to_csv(f"{odir}/RESULTS/{phospho_type}/{name_out}_binarized_experiment.csv", index=False)
 
         if hasattr(kinact, 'activities_mann_whitney'):
             param_temp['mann_whitney'] = True
-            kinact.activities_mann_whitney.to_csv(f"{odir}/RESULTS/{name_out}_mann_whitney_activities.tsv", sep='\t',
-                                                  index=True)
-            kinact.fpr_mann_whitney.to_csv(f"{odir}/RESULTS/{name_out}_mann_whitney_fpr.tsv", sep='\t', index=True)
+            if ftype == 'tsv':
+                kinact.activities_mann_whitney.to_csv(f"{odir}/RESULTS/{phospho_type}/{name_out}_mann_whitney_activities.tsv", sep='\t',
+                                                    index=True)
+                kinact.fpr_mann_whitney.to_csv(f"{odir}/RESULTS/{phospho_type}/{name_out}_mann_whitney_fpr.tsv", sep='\t', index=True)
+            elif ftype == 'csv':
+                kinact.activities_mann_whitney.to_csv(f"{odir}/RESULTS/{phospho_type}/{name_out}_mann_whitney_activities.csv", index=True)
+                kinact.fpr_mann_whitney.to_csv(f"{odir}/RESULTS/{phospho_type}/{name_out}_mann_whitney_fpr.csv", index=True)
 
         param_dict[phospho_type] = param_temp
 
         #if indicated, save additional files (this is really just the hypergeometric and random enrichment intermediate files)
         if not minimal:
-            kinact.real_enrichment.to_csv(f"{odir}/RESULTS/{name_out}_hypergeometric_enrichment.tsv", sep='\t')
-            if hasattr(kinact, 'random_experiments') and kinact.random_experiments is not None:
-                kinact.random_experiments.to_csv(f"{odir}/RESULTS/{name_out}_random_experiments.tsv", sep='\t', index=False)
-            if hasattr(kinact, 'random_enrichment'):
-                kinact.random_enrichment.to_csv(f"{odir}/RESULTS/{name_out}_random_enrichment.tsv", sep='\t')
+            if ftype == 'tsv':
+                kinact.real_enrichment.to_csv(f"{odir}/RESULTS/{phospho_type}/{name_out}_hypergeometric_enrichment.tsv", sep='\t')
+                if hasattr(kinact, 'random_experiments') and kinact.random_experiments is not None:
+                    kinact.random_experiments.to_csv(f"{odir}/RESULTS/{phospho_type}/{name_out}_random_experiments.tsv", sep='\t', index=False)
+                if hasattr(kinact, 'random_enrichment'):
+                    kinact.random_enrichment.to_csv(f"{odir}/RESULTS/{phospho_type}/{name_out}_random_enrichment.tsv", sep='\t')
+            elif ftype == 'csv':
+                kinact.real_enrichment.to_csv(f"{odir}/RESULTS/{phospho_type}/{name_out}_hypergeometric_enrichment.csv")
+                if hasattr(kinact, 'random_experiments') and kinact.random_experiments is not None:
+                    kinact.random_experiments.to_csv(f"{odir}/RESULTS/{phospho_type}/{name_out}_random_experiments.csv", index=False)
+                if hasattr(kinact, 'random_enrichment'):
+                    kinact.random_enrichment.to_csv(f"{odir}/RESULTS/{phospho_type}/{name_out}_random_enrichment.csv")
 
     # save the parameters in a pickle or json file for reinstantiating object information
     if param_format == 'pickle':
-        pickle.dump(param_dict, open(f"{odir}/RESULTS/{name}_{phospho_type}_params.p", "wb"))
+        pickle.dump(param_dict, open(f"{odir}/RESULTS/{name}_params.p", "wb"))
     elif param_format == 'json':
         with open(f"{odir}/RESULTS/{name}_params.json", 'w') as json_file:
             json.dump(param_dict, json_file, indent=4)
@@ -2687,7 +2703,7 @@ def load_param_dict(name, odir):
     return param_dict
     
 
-def from_kstar(name, odir):
+def from_kstar(name, odir, ftype = 'tsv'):
     """
     Given the name and output directory of a saved kstar analyis, load the parameters and minimum dataframes needed for reinstantiating a kinact object
     This minimum list will allow you to repeat normalization or mann whitney at a different false positive rate threshold and plot results.
@@ -2708,11 +2724,17 @@ def from_kstar(name, odir):
     kinact_dict = {}
     for phospho_type in param_dict.keys():
         params = param_dict[phospho_type]
+        print(f"Loading data for phospho_type: {phospho_type}")
         name_out = f"{name}_{phospho_type}"
 
 
         # check that the minimum file set exists so we can use binary_evidence file as the experiment
-        evidence_binary = pd.read_csv(f"{odir}/RESULTS/{name_out}_binarized_experiment.tsv", sep='\t')
+        if ftype == 'tsv':
+            evidence_binary = pd.read_csv(f"{odir}/RESULTS/{phospho_type}/{name_out}_binarized_experiment.tsv", sep='\t')
+        elif ftype == 'csv':
+            evidence_binary = pd.read_csv(f"{odir}/RESULTS/{phospho_type}/{name_out}_binarized_experiment.csv")
+        else:
+            raise ValueError("ftype must be either 'tsv' or 'csv'")
         #grab additional parameters needed to reinstate object
         #network_dir = params.get('network_directory', None)
         #network_name = params.get('network_name', None)
@@ -2725,10 +2747,17 @@ def from_kstar(name, odir):
         kinact.evidence_binary = evidence_binary
 
         # read mann_whitney and load
-        kinact.activities_mann_whitney = pd.read_csv(f"{odir}/RESULTS/{name_out}_mann_whitney_activities.tsv",
-                                                        sep='\t', index_col=config.KSTAR_KINASE)
-        kinact.fpr_mann_whitney = pd.read_csv(f"{odir}/RESULTS/{name_out}_mann_whitney_fpr.tsv", sep='\t',
-                                                index_col=config.KSTAR_KINASE)
+        if ftype == 'tsv':
+            kinact.activities_mann_whitney = pd.read_csv(f"{odir}/RESULTS/{phospho_type}/{name_out}_mann_whitney_activities.tsv",
+                                                            sep='\t', index_col=config.KSTAR_KINASE)
+            kinact.fpr_mann_whitney = pd.read_csv(f"{odir}/RESULTS/{phospho_type}/{name_out}_mann_whitney_fpr.tsv", sep='\t',
+                                                    index_col=config.KSTAR_KINASE)
+        elif ftype == 'csv':
+            kinact.activities_mann_whitney = pd.read_csv(f"{odir}/RESULTS/{phospho_type}/{name_out}_mann_whitney_activities.csv",
+                                                            index_col=config.KSTAR_KINASE)
+            kinact.fpr_mann_whitney = pd.read_csv(f"{odir}/RESULTS/{phospho_type}/{name_out}_mann_whitney_fpr.csv", index_col=config.KSTAR_KINASE)
+        else:
+            raise ValueError("ftype must be either 'tsv' or 'csv'")
         #params.pop('mann_whitney', None)
 
 
