@@ -84,15 +84,16 @@ SAVE_NEW_RANDOM_ACTIVITIES = config_data['save_new_random_activities']
 SAVE_RANDOM_EXPERIMENTS = config_data['save_random_experiments']
 
 ######### static configuration (user cannot change) ################
-RESOURCE_URL = 'https://ndownloader.figshare.com/files/28762653'  # location of corresponding release of data
-NETWORK_URL = 'https://ndownloader.figshare.com/files/52178324'
+RESOURCE_URL = 'https://figshare.com/ndownloader/files/60883930'  # location of corresponding release of data
+NETWORK_URL = 'https://figshare.com/ndownloader/files/60883384'
+
+
 
 # COLUMN NAMES USED FOR KSTAR
 KSTAR_ACCESSION = 'KSTAR_ACCESSION'
 KSTAR_PEPTIDE = 'KSTAR_PEPTIDE'
 KSTAR_SITE = 'KSTAR_SITE'
 KSTAR_KINASE = 'KSTAR_KINASE'
-
 
 
 ############### Configuration setup ####################
@@ -278,10 +279,18 @@ def install_resource_files():
 
 
 def install_network_files(target_dir=None):
-    """Retrieves Network files that are the companion for this version release from FigShare, unzips them to the specified directory."""
+    """Retrieves Network files that are the companion for this version release from FigShare, unzips them to the specified directory.
+    
+    Parameters
+    ----------
+    target_dir : str, optional
+        Directory to install network files to. If None, defaults to within package location ({KSTAR_DIR}/NETWORKS/)
 
+    """
     print("Requesting network file")
     r = requests.get(NETWORK_URL, allow_redirects=True)
+    if r.status_code != 200:
+        raise RuntimeError(f"Failed to download network file: HTTP {r.status_code}")
 
     # Use target_dir if provided, otherwise default to KSTAR_DIR
     install_dir = target_dir if target_dir else KSTAR_DIR
@@ -290,18 +299,19 @@ def install_network_files(target_dir=None):
     # Create target directory if it doesn't exist
     os.makedirs(install_dir, exist_ok=True)
 
-    open(outputFile, 'wb').write(r.content)
+    with open(outputFile, 'wb') as f:
+        f.write(r.content)
 
-    t = tarfile.open(outputFile, 'r')
+    # extract tarball
+    with tarfile.open(outputFile, 'r:gz') as t:
+        print(f"Extracting {outputFile}")
+        t.extractall(install_dir)
 
-    print(f"Extracting {outputFile}")
-    t.extractall(install_dir)
-    t.close()
-        # remove tar file
+    # remove tar file
     os.remove(outputFile)
 
     #update network directory
-    update_configuration(network_dir=f"{install_dir}/NETWORKS/NetworKIN", y_network_name='Default', st_network_name='Default')
+    update_configuration(network_dir=f"{install_dir}/NETWORKS/", y_network_name='Default', st_network_name='Default')
 
 
 

@@ -25,6 +25,10 @@ from kstar.random_experiments import generate_random_experiments, calculate_fpr
 from kstar.plot import DotPlot, KSTAR_PDF, plot_jaci_between_samples
 
 
+class DatasetSizeError(Exception):
+    """Raised when dataset size is too small for analysis"""
+    pass
+
 class KinaseActivity:
     """
     Kinase Activity calculates the estimated activity of kinases given an experiment using hypergeometric distribution.
@@ -291,7 +295,7 @@ class KinaseActivity:
 
         #make sure there is at least one data column
         if len(new_data_columns) == 0:
-            raise ValueError("ERROR: No valid data columns found after filtering evidence. Please check that data columns are in evidence and that evidence has at least one point of evidence per data column after filtering if threshold is set.")
+            raise DatasetSizeError(f"No valid data columns found after filtering evidence, as no columns have more than the requested minimum evidence size after thresholding ({min_evidence_size} sites). Please check that data columns are in evidence and that threshold is appropriate.")
         self.data_columns = new_data_columns
 
     def set_data_columns(self, data_columns=None):
@@ -481,7 +485,8 @@ class KinaseActivity:
                 if n < len(self.data_columns):
                     warning_threshold = range_values[i]
                     break
-            print(f"Warning: Some data columns were removed due to lack of evidence at thresholds greater than {warning_threshold}.")
+            direction = 'greater' if greater else 'less'
+            print(f"Warning: Some data columns were removed due to lack of evidence at thresholds {direction} than {warning_threshold}.")
 
 
         
@@ -524,7 +529,8 @@ class KinaseActivity:
                 threshold += step
                 evidence_binary = self.create_binary_evidence(agg=agg, threshold=threshold, greater=greater, drop_empty_columns=False)
                 jaci = helpers.jaci_matrix_between_samples(evidence_binary, self.data_columns)
-                ave_jaci = jaci[jaci != 1].agg(pick_best_by).agg(pick_best_by)
+                #calculate average jaccard similarity excluding self-comparisons
+                ave_jaci = helpers.agg_jaccard(jaci, pick_best_by)
         else:
             threshold = max_threshold + step
             ave_jaci = 1
@@ -532,7 +538,7 @@ class KinaseActivity:
                 threshold -= step
                 evidence_binary = self.create_binary_evidence(agg=agg, threshold=threshold, greater=greater, drop_empty_columns=False)
                 jaci = helpers.jaci_matrix_between_samples(evidence_binary, self.data_columns)
-                ave_jaci = jaci[jaci != 1].agg(pick_best_by).agg(pick_best_by)
+                ave_jaci = helpers.agg_jaccard(jaci, pick_best_by)
 
         return threshold, ave_jaci
 
@@ -591,7 +597,7 @@ class KinaseActivity:
 
         return threshold, evidence_size
     
-    def get_allowable_threshold(self, greater = True, agg='mean', min_evidence_size = 20):
+    def get_allowable_threshold(self, greater = True, agg='mean', min_evidence_size = 20, allow_column_loss = False):
         """
         Determine the minimum/maximum threshold that still results in all data columns having evidence
 
@@ -609,22 +615,37 @@ class KinaseActivity:
         allowable threshold: float
             maximum or minimum threshold that still results in all data columns having evidence (or at least one if min_evidence_size = None)
         """
+        min_evidence_size = min_evidence_size if min_evidence_size is not None else 0
         #aggregate evidence by site (same as is done in create_binary_evidence)
         agg_evidence = self.evidence.groupby([config.KSTAR_ACCESSION, config.KSTAR_SITE])[self.data_columns].agg(agg).reset_index()
         if greater:
-            if min_evidence_size == 0:
+            if min_evidence_size == 0 and allow_column_loss:
+                #set allowable threshold to maximum value in data columns (value that would cause no evidence to be found in any column)
+                allowable_threshold = agg_evidence[self.data_columns].max().max()
+            elif min_evidence_size == 0 and not allow_column_loss:
                 #if no minimum evidence size, set allowable threshold to largest value that still results in at least one evidence point per data column
                 allowable_threshold = agg_evidence[self.data_columns].max().min()
             elif min_evidence_size > 0:
                 #identify the nth largest value in each data column, where n = min_evidence_size
                 nth_largest_values = []
+                dropped_columns = []
                 for col in self.data_columns:
                     sorted_values = agg_evidence[col].dropna().sort_values(ascending=False).reset_index(drop=True)
                     if len(sorted_values) >= min_evidence_size:
                         nth_largest = sorted_values.iloc[min_evidence_size - 1]
+                        nth_largest_values.append(nth_largest)
                     else:
-                        nth_largest = sorted_values.iloc[-1]
-                    nth_largest_values.append(nth_largest)
+                        dropped_columns.append(col)
+
+                #make sure there is at least one column with enough evidence
+                if len(nth_largest_values) == 0:
+                    raise DatasetSizeError(f"No columns met the minimum evidence size requirement of {min_evidence_size} sites.")
+                if not allow_column_loss and len(dropped_columns) > 0:
+                    raise DatasetSizeError(f"The following data columns do not have enough evidence to meet the minimum evidence size requirement of {min_evidence_size}: {', '.join(dropped_columns)}. Please lower the min_evidence_size parameter or set allow_column_loss = True to allow for some data columns to be removed from analysis.")
+            
+                elif len(dropped_columns) > 0:
+                    self.report_warning(f"Warning: The following data columns do not have enough evidence to meet the minimum evidence size requirement of {min_evidence_size} and will be ignored when calculating allowable threshold: {', '.join(dropped_columns)}.")
+
                 #set smallest of these values as the allowable threshold
                 allowable_threshold = min(nth_largest_values)
             elif min_evidence_size is None:
@@ -636,13 +657,23 @@ class KinaseActivity:
             elif min_evidence_size > 0:
                 #identify the nth smallest value in each data column, where n = min_evidence_size
                 nth_smallest_values = []
+                dropped_columns = []
                 for col in self.data_columns:
                     sorted_values = agg_evidence[col].dropna().sort_values(ascending=True).reset_index(drop=True)
                     if len(sorted_values) >= min_evidence_size:
                         nth_smallest = sorted_values.iloc[min_evidence_size - 1]
+                        nth_smallest_values.append(nth_smallest)
                     else:
-                        nth_smallest = sorted_values.iloc[-1]
-                    nth_smallest_values.append(nth_smallest)
+                        dropped_columns.append(col)
+
+
+                #make sure there is at least one column with enough evidence
+                if len(nth_smallest_values) == 0:
+                    raise DatasetSizeError(f"No columns met the minimum evidence size requirement of {min_evidence_size} sites.")
+                elif not allow_column_loss and len(dropped_columns) > 0:
+                    raise DatasetSizeError(f"The following data columns do not have enough evidence to meet the minimum evidence size requirement of {min_evidence_size} sites: {', '.join(dropped_columns)}. Please lower the min_evidence_size parameter or set allow_column_loss = True to allow for some data columns to be removed from analysis.")
+                elif len(dropped_columns) > 0:
+                    self.report_warning(f"Warning: The following data columns do not have enough evidence to meet the minimum evidence size requirement of {min_evidence_size} sites and will be ignored when calculating allowable threshold: {', '.join(dropped_columns)}.")
                 allowable_threshold = max(nth_smallest_values)
             elif min_evidence_size is None:
                 #set allowable threshold to minimum value in data columns
@@ -700,7 +731,7 @@ class KinaseActivity:
         #if not allowing column loss, check that provided min/max thresholds will not result in any data columns being lost
         if not allow_column_loss:
             #determine the minimum/maximum threshold that still results in all data columns having evidence, based on min_evidence_size
-            allowable_threshold = self.get_allowable_threshold(greater=greater, min_evidence_size=min_evidence_size)
+            allowable_threshold = self.get_allowable_threshold(greater=greater, min_evidence_size=min_evidence_size, allow_column_loss=allow_column_loss)
             #raise errors or warnings if provided min/max thresholds are outside of allowable range
             if greater:
                 if allowable_threshold < min_threshold:
@@ -743,6 +774,8 @@ class KinaseActivity:
                 recommended_threshold = round(max(threshold_by_size, threshold_by_similarity), 2)
             else:
                 recommended_threshold = round(min(threshold_by_size, threshold_by_similarity), 2)
+
+            #check if recommended thresholds are 
         elif consider_size:
             recommended_threshold = threshold_by_size
         elif consider_similarity:

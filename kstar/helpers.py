@@ -319,4 +319,21 @@ def jaci_matrix_between_samples(evidence, samples=None):
 	jaccard_matrix.index = [s.replace("data:", "") for s in samples]
 	return jaccard_matrix
 
+def agg_jaccard(jaccard_matrix, agg='max'):
+	"""
+	Given a jaccard similarity matrix between samples, calculate the aggregate jaccard similarity excluding self-comparisons
+
+	Parameters
+	----------
+	jaccard_matrix: pd.DataFrame
+		jaccard similarity matrix between samples, created using jaci_matrix_between_samples()
+	agg: str
+		aggregation method to use, either 'max' or 'mean'
+	"""
+	#calculate average jaccard similarity excluding self-comparisons
+	jaci = jaccard_matrix.melt(ignore_index=False).reset_index()
+	jaci = jaci[jaci['index'] != jaci['variable']]
+	agg_jaci = jaci['value'].agg(agg)
+	return agg_jaci
+
 

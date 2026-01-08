@@ -188,7 +188,7 @@ def get_id_mapping_results_stream(url):
     )
     return decode_results(request, file_format, compressed)
 
-def convert_id(df, accession_col, from_id = 'UniProtKB_AC-ID', to_id = 'UniProtKB-SwissProt', taxonID = 9606):
+def convert_id(df, accession_col, from_id = 'UniProtKB_AC-ID', to_id = 'UniProtKB-Swiss-Prot', taxonID = 9606):
     """
     Given a dataset and the location of the accession column, use uniprot mapping services to convert from one type of id to another
 
