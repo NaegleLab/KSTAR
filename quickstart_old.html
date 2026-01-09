@@ -1,0 +1,676 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="./" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Getting Started &#8212; KSTAR 1.1.0 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/sphinx-book-theme.css?v=eba8b062" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="_static/documentation_options.js?v=051bfb12"></script>
+    <script src="_static/doctools.js?v=9bcbadda"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'quickstart_old';</script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">KSTAR 1.1.0 documentation</p>
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">Overview:</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="Overview/Overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Overview/Dependencies.html">Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Overview/data_prep.html">Preparing your Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Overview/ways_to_run.html">Options for Running KSTAR</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Overview/KSTAR.html">KSTAR Reference</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Galaxy Tutorial:</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="Galaxy/Running_KSTAR.html">Run KSTAR on Galaxy</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Python Tutorial (Just the Basics):</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="Tutorial/quickstart.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Tutorial/Map_Datasets.html">Map Dataset to Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Tutorial/Activity_Calculation.html">Predict Kinase Activities</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="Tutorial/plotting_tutorial.html">Plotting/Analysis</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="Tutorial/SummaryPDF.html">Summary PDFs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Tutorial/DotPlot.html">DotPlots</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Tutorial/Additional_Analysis.html">Additional Analyses</a></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Example Vignettes:</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="Examples/Examples.html">Analysis Examples</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="Examples/EGF_184A1_WolfYadlin2007.html">EGF Stimulation of 184A1 Cells (Wolf Yadlin, 2007)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Examples/EGF_HER2_WolfYadlin2006.html">EGF and HRG Stimulation of ERBB2 Overexpressing HMEC Cells (Wolf Yadlin 2006)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Examples/TCR_Analysis.html">TCR Activation (Chylek, 2014)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Examples/BCR-ABL_Analysis.html">BCR-ABL inhibition by dasatinib in K562 cells (Asmussen, 2014)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Examples/AKT_Inhib_Analysis.html">Inhibition of AKT by Five Different Inhibitors in Breast Cancer (Weichmann, 2021)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Examples/Vemurafenib_Analysis.html">Paradoxical Activation of MAP-ERK pathway upon BRAF inhibition (Kubiniok, 2017)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Examples/CPTAC_Analysis.html">Analysis of CPTAC Breast Cancer Patient Samples (Mertens 2016)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Examples/PDX_Analysis.html">Analysis of PDX Tumor Samples (Huang 2017)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Examples/Microbiopsy_Analysis.html">Analysis of HER2 Positive Patients using Microbiopsies (Satpathy 2021)</a></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Advanced Python Usage:</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="Advanced/Pruning.html">Network Generation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Advanced/Pregenerated_Experiments.html">Pregenerated Random actiivities</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Advanced/Parallel/parallel.html">KSTAR in Parallel</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Advanced/faq.html">Frequently Asked Questions</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-source-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Source repositories">
+    <i class="fab fa-github"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="https://github.com/NaegleLab/KSTAR" target="_blank"
+   class="btn btn-sm btn-source-repository-button dropdown-item"
+   title="Source repository"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="btn__text-container">Repository</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li><a href="https://github.com/NaegleLab/KSTAR/issues/new?title=Issue%20on%20page%20%2Fquickstart_old.html&body=Your%20issue%20content%20here." target="_blank"
+   class="btn btn-sm btn-source-issues-button dropdown-item"
+   title="Open an issue"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="btn__text-container">Open issue</span>
+</a>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="_sources/quickstart_old.md" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.md</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>Getting Started</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#installation">Installation</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pip">Pip</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#conda-forge">Conda Forge</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tarball">Tarball</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#git">Git</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#configuring-your-kstar-environment">Configuring your KSTAR environment</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#download-networks">Download Networks</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#for-kstar-version-1-0-4-and-newer">for KSTAR version 1.0.4 and newer</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#for-kstar-version-0-5-3-and-older">for KSTAR version 0.5.3 and older</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#if-using-self-generated-networks">If Using Self-generated Networks</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#configure-kstar-to-point-to-the-correct-network-directory">Configure KSTAR to point to the correct network directory</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#verify-that-kstar-environment-is-ready">Verify that KSTAR environment is ready</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#follow-the-provided-tutorial">Follow the provided tutorial</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#updating-default-configuration">Updating Default Configuration</a></li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="getting-started">
+<h1>Getting Started<a class="headerlink" href="#getting-started" title="Link to this heading">#</a></h1>
+<p>Here, we have provided a quick start guide that will allow you to get up and running quickly, especially if you wish to simply use the
+same pruned networks as utilized in the KSTAR paper.</p>
+<section id="installation">
+<h2>Installation<a class="headerlink" href="#installation" title="Link to this heading">#</a></h2>
+<p>KSTAR can be installed via <code class="docutils literal notranslate"><span class="pre">pip</span></code>, <code class="docutils literal notranslate"><span class="pre">conda</span></code>, tarball, and directly from the Git repository. We recommend using conda forge to install the scientific packages <code class="docutils literal notranslate"><span class="pre">conda</span> <span class="pre">install</span> <span class="pre">conda-forge</span></code> before installing KSTAR.</p>
+<section id="pip">
+<h3>Pip<a class="headerlink" href="#pip" title="Link to this heading">#</a></h3>
+<p>To install via pip, execute <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">kstar</span></code>.</p>
+</section>
+<section id="conda-forge">
+<h3>Conda Forge<a class="headerlink" href="#conda-forge" title="Link to this heading">#</a></h3>
+<p>Please note: the conda-forge build of KSTAR is now required. Versions up to and including 1.0.3 are
+deprecated. Install the latest package from conda-forge: <a class="reference external" href="https://anaconda.org/conda-forge/kstar">Conda-Forge KSTAR</a>.</p>
+<p>To install via conda-forge, execute <code class="docutils literal notranslate"><span class="pre">conda</span> <span class="pre">install</span> <span class="pre">-c</span> <span class="pre">conda-forge</span> <span class="pre">kstar</span></code>.</p>
+</section>
+<section id="tarball">
+<h3>Tarball<a class="headerlink" href="#tarball" title="Link to this heading">#</a></h3>
+<p>To install via a tarball, head over to the <a class="reference external" href="https://github.com/NaegleLab/KSTAR/releases">Releases page</a> and download the latest stable tar release.</p>
+<p>Afterwards, navigate to your downloads directory and execute the following commands, substituting <version> for the release’s version number:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">tar</span> <span class="o">-</span><span class="n">xvf</span> <span class="n">KSTAR</span><span class="o">-&lt;</span><span class="n">version</span><span class="o">&gt;.</span><span class="n">tar</span><span class="o">.</span><span class="n">gz</span>
+<span class="n">cd</span> <span class="n">KSTAR</span><span class="o">-&lt;</span><span class="n">version</span><span class="o">&gt;</span>
+<span class="n">python</span> <span class="n">setup</span><span class="o">.</span><span class="n">py</span> <span class="n">install</span>
+</pre></div>
+</div>
+</section>
+<section id="git">
+<h3>Git<a class="headerlink" href="#git" title="Link to this heading">#</a></h3>
+<p>If you want to try out the latest commit, you can install directly from the Git repository by executing the following commands:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">clone</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">NaegleLab</span><span class="o">/</span><span class="n">KSTAR</span>
+<span class="n">cd</span> <span class="n">KSTAR</span>
+<span class="n">python</span> <span class="n">setup</span><span class="o">.</span><span class="n">py</span> <span class="n">install</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="configuring-your-kstar-environment">
+<h2>Configuring your KSTAR environment<a class="headerlink" href="#configuring-your-kstar-environment" title="Link to this heading">#</a></h2>
+<p>After installing KSTAR, all necessary resource files (reference proteome and phosphoproteome) and networks (either downloaded from
+FigShare or generated with the Pruner class) will need to be downloaded and configured so that KSTAR can find these files.</p>
+<section id="download-networks">
+<h3>Download Networks<a class="headerlink" href="#download-networks" title="Link to this heading">#</a></h3>
+<section id="for-kstar-version-1-0-4-and-newer">
+<h4>for KSTAR version 1.0.4 and newer<a class="headerlink" href="#for-kstar-version-1-0-4-and-newer" title="Link to this heading">#</a></h4>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1">#For KSTAR versions 1.0.4 and newer, KSTAR will automatically download the network files using the code below.</span>
+<span class="c1">#Please specifiy your working directory for the targer_dir parameter. Example directory shown below.  </span>
+<span class="n">config</span><span class="o">.</span><span class="n">install_network_files</span><span class="p">(</span><span class="n">target_dir</span><span class="o">=</span><span class="s2">&quot;/Users/naeglelab/Documents/KSTAR&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="for-kstar-version-0-5-3-and-older">
+<h4>for KSTAR version 0.5.3 and older<a class="headerlink" href="#for-kstar-version-0-5-3-and-older" title="Link to this heading">#</a></h4>
+<p>Note: If you are using KSTAR version 0.5.3 or older, please use the guide below to download the networks.</p>
+<p>In addition to the resource files above, KSTAR also requires heuristically pruned kinase-substrate graphs used for activity calculation.
+Pre-generated networks are available for download, which were generated based on NetworKIN. You may also generate your own networks if preferred.</p>
+<p>If using the published networks:</p>
+<ol class="arabic simple">
+<li><p>Go to <a class="reference external" href="https://figshare.com/articles/dataset/NETWORKS/14944305">Network Figshare</a></p></li>
+<li><p>Download the networks, decompress/unzip the files, and store in easily accessible folder.</p></li>
+</ol>
+</section>
+<section id="if-using-self-generated-networks">
+<h4>If Using Self-generated Networks<a class="headerlink" href="#if-using-self-generated-networks" title="Link to this heading">#</a></h4>
+<ol class="arabic simple">
+<li><p>Identify and download the weighted kinase-substrate prediction graph you would like to use for network generation. This should include weighted edges indicating the likelihood that a kinase phosphorylates a particular substrate, and should include predictions for all sites in the phosphoproteome.</p></li>
+<li><p>Follow the tutorial for network generation to produce pruned networks from your weighted network (found in Tutorial section of this documentation).</p></li>
+<li><p>Store the generated networks in an easily accessible location. Individual network files should be placed in a directory within the network directory in a folder titled ‘INDIVIDUAL_NETWORKS’.</p></li>
+</ol>
+</section>
+</section>
+<section id="configure-kstar-to-point-to-the-correct-network-directory">
+<h3>Configure KSTAR to point to the correct network directory<a class="headerlink" href="#configure-kstar-to-point-to-the-correct-network-directory" title="Link to this heading">#</a></h3>
+<p>*skip if you used <code class="docutils literal notranslate"><span class="pre">install_network_files()</span></code> function</p>
+<p>Once the networks have been downloaded/generated, the last step is to tell KSTAR where to find these networks. Use the <em>update_network_directory()</em> function in config.py to tell config where the network directory is located. On install, KSTAR is set to look in the ‘./NETWORKS/NetworKIN’.</p>
+<p>The python code used should look similar to below:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">kstar</span><span class="w"> </span><span class="kn">import</span> <span class="n">config</span>
+
+<span class="c1">#update network directory: If KSTAR does not find this directory + necessary files, it will notify you</span>
+<span class="n">config</span><span class="o">.</span><span class="n">update_network_directory</span><span class="p">(</span><span class="s1">&#39;/path/to/NETWORKS_folder/&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="verify-that-kstar-environment-is-ready">
+<h3>Verify that KSTAR environment is ready<a class="headerlink" href="#verify-that-kstar-environment-is-ready" title="Link to this heading">#</a></h3>
+<p>To check to make sure the previous steps all worked as desired, run <em>check_configuration()</em>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">kstar</span><span class="w"> </span><span class="kn">import</span> <span class="n">config</span>
+
+<span class="n">config</span><span class="o">.</span><span class="n">check_configuration</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>This will indicate whether you are ready to generate kinase activity predictions or not. If you are not, it will tell you what steps still need to
+be performed.</p>
+</section>
+</section>
+<section id="follow-the-provided-tutorial">
+<h2>Follow the provided tutorial<a class="headerlink" href="#follow-the-provided-tutorial" title="Link to this heading">#</a></h2>
+<p>That is all you need to do to set up your KSTAR environment (if working with large datasets where memory/time is a concern, see ‘KSTAR in Parallel’, as set up is slightly different). We recommend working through the tutorial in the following section to get an idea of the KSTAR workflow, either with the example dataset provided in our supplementary data figshare or with your own dataset of interest. You will only need to follow the ‘Network Generation’ section if you would like to use your own networks for analysis, otherwise go straight to ‘Activity Prediction’.</p>
+</section>
+<section id="updating-default-configuration">
+<h2>Updating Default Configuration<a class="headerlink" href="#updating-default-configuration" title="Link to this heading">#</a></h2>
+<p>If desired, you can alter a number of default options used by KSTAR. To update these, you can use the <code class="docutils literal notranslate"><span class="pre">config.update_configuration</span></code> function. Most of these are related to how to handle pregenerated random experiments, which were introduced in KSTARv1.0.4:</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Config Parameter</p></th>
+<th class="head"><p>Global Name</p></th>
+<th class="head"><p>Description</p></th>
+<th class="head"><p>Default Value</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>network_dir</p></td>
+<td><p>NETWORK_DIR</p></td>
+<td><p>where all network files/random experiments are stored</p></td>
+<td><p>./NETWORKS/</p></td>
+</tr>
+<tr class="row-odd"><td><p>y_network_name</p></td>
+<td><p>NETWORK_NAME[‘Y’]</p></td>
+<td><p>default name of tyrosine network within NETWORK_DIR to use</p></td>
+<td><p>Default</p></td>
+</tr>
+<tr class="row-even"><td><p>st_network_name</p></td>
+<td><p>NETWORK_NAME[‘ST’]</p></td>
+<td><p>default name of serine/threonine network within NETWORK_DIR to use</p></td>
+<td><p>Default</p></td>
+</tr>
+<tr class="row-odd"><td><p>use_pregenerated_random_activities</p></td>
+<td><p>USE_PREGENERATED_RANDOM_ACTIVITIES</p></td>
+<td><p>boolean, whether to use pregenerated random activities</p></td>
+<td><p>True</p></td>
+</tr>
+<tr class="row-even"><td><p>save_random_experiments</p></td>
+<td><p>SAVE_RANDOM_EXPERIMENTS</p></td>
+<td><p>boolean, whether to save random experiments when generated</p></td>
+<td><p>False</p></td>
+</tr>
+<tr class="row-odd"><td><p>save_new_random_activities</p></td>
+<td><p>SAVE_NEW_RANDOM_ACTIVITIES</p></td>
+<td><p>boolean, whether to save random activities when generated from scratch</p></td>
+<td><p>False</p></td>
+</tr>
+<tr class="row-even"><td><p>custom_pregenerated_activities_dir</p></td>
+<td><p>CUSTOM_RANDOM_ACTIVITIES_DIR</p></td>
+<td><p>file path to where new random activities are stored and accessed in future runs</p></td>
+<td><p>None</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+</section>
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#installation">Installation</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pip">Pip</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#conda-forge">Conda Forge</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tarball">Tarball</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#git">Git</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#configuring-your-kstar-environment">Configuring your KSTAR environment</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#download-networks">Download Networks</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#for-kstar-version-1-0-4-and-newer">for KSTAR version 1.0.4 and newer</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#for-kstar-version-0-5-3-and-older">for KSTAR version 0.5.3 and older</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#if-using-self-generated-networks">If Using Self-generated Networks</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#configure-kstar-to-point-to-the-correct-network-directory">Configure KSTAR to point to the correct network directory</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#verify-that-kstar-environment-is-ready">Verify that KSTAR environment is ready</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#follow-the-provided-tutorial">Follow the provided tutorial</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#updating-default-configuration">Updating Default Configuration</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By Naegle Lab
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2020, Naegle Lab.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

@@ -1,99 +1,727 @@
 
 <!DOCTYPE html>
 
-<html lang="en">
+
+<html lang="en" data-content_root="./" >
+
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>KSTAR &#8212; KSTAR 1 documentation</title>
-    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="_static/classic.css" />
-    
-    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-    <script src="_static/jquery.js"></script>
-    <script src="_static/underscore.js"></script>
-    <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
-    <script src="_static/doctools.js"></script>
+    <title>KSTAR &#8212; KSTAR 1.1.0 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/sphinx-book-theme.css?v=eba8b062" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="_static/documentation_options.js?v=051bfb12"></script>
+    <script src="_static/doctools.js?v=9bcbadda"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-    
+    <script>DOCUMENTATION_OPTIONS.pagename = 'index';</script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Overview" href="Overview.html" /> 
-  </head><body>
-    <div class="related" role="navigation" aria-label="related navigation">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="genindex.html" title="General Index"
-             accesskey="I">index</a></li>
-        <li class="right" >
-          <a href="py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-        <li class="right" >
-          <a href="Overview.html" title="Overview"
-             accesskey="N">next</a> |</li>
-        <li class="nav-item nav-item-0"><a href="#">KSTAR 1 documentation</a> &#187;</li>
-        <li class="nav-item nav-item-this"><a href="">KSTAR</a></li> 
-      </ul>
-    </div>  
+    <link rel="next" title="Overview" href="Overview/Overview.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
 
-    <div class="document">
-      <div class="documentwrapper">
-        <div class="bodywrapper">
-          <div class="body" role="main">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="#">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">KSTAR 1.1.0 documentation</p>
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">Overview:</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="Overview/Overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Overview/Dependencies.html">Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Overview/data_prep.html">Preparing your Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Overview/ways_to_run.html">Options for Running KSTAR</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Galaxy Tutorial:</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="Galaxy/Running_KSTAR.html">Run KSTAR on Galaxy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Galaxy/Analyzing_Results.html">Analyze Results</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Python Tutorial (Just the Basics):</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="Tutorial/quickstart.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Tutorial/Map_Datasets.html">Map Dataset to Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Tutorial/Activity_Calculation.html">Predict Kinase Activities</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="Tutorial/plotting_tutorial.html">Plotting/Analysis</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="Tutorial/SummaryPDF.html">Summary PDFs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Tutorial/DotPlot.html">DotPlots</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Tutorial/Additional_Analysis.html">Additional Analyses</a></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Example Vignettes:</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="Examples/Examples.html">Analysis Examples</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="Examples/EGF_184A1_WolfYadlin2007.html">EGF Stimulation of 184A1 Cells (Wolf Yadlin, 2007)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Examples/EGF_HER2_WolfYadlin2006.html">EGF and HRG Stimulation of ERBB2 Overexpressing HMEC Cells (Wolf Yadlin 2006)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Examples/TCR_Analysis.html">TCR Activation (Chylek, 2014)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Examples/BCR-ABL_Analysis.html">BCR-ABL inhibition by dasatinib in K562 cells (Asmussen, 2014)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Examples/AKT_Inhib_Analysis.html">Inhibition of AKT by Five Different Inhibitors in Breast Cancer (Weichmann, 2021)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Examples/Vemurafenib_Analysis.html">Paradoxical Activation of MAP-ERK pathway upon BRAF inhibition (Kubiniok, 2017)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Examples/CPTAC_Analysis.html">Analysis of CPTAC Breast Cancer Patient Samples (Mertens 2016)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Examples/PDX_Analysis.html">Analysis of PDX Tumor Samples (Huang 2017)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Examples/Microbiopsy_Analysis.html">Analysis of HER2 Positive Patients using Microbiopsies (Satpathy 2021)</a></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Advanced Python Usage:</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="Overview/KSTAR.html">KSTAR Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Advanced/Configuration.html">Updating Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Advanced/Pruning.html">Network Generation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Advanced/Pregenerated_Experiments.html">Pregenerated Random actiivities</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Advanced/Parallel/parallel.html">KSTAR in Parallel</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Advanced/faq.html">Frequently Asked Questions</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-source-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Source repositories">
+    <i class="fab fa-github"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="https://github.com/NaegleLab/KSTAR" target="_blank"
+   class="btn btn-sm btn-source-repository-button dropdown-item"
+   title="Source repository"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="btn__text-container">Repository</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li><a href="https://github.com/NaegleLab/KSTAR/issues/new?title=Issue%20on%20page%20%2Findex.html&body=Your%20issue%20content%20here." target="_blank"
+   class="btn btn-sm btn-source-issues-button dropdown-item"
+   title="Open an issue"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="btn__text-container">Open issue</span>
+</a>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="_sources/index.rst" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.rst</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>KSTAR</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
             
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#">KSTAR</a><ul class="visible nav section-nav flex-column">
+</ul>
+</li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#indices-and-tables">Indices and tables</a></li>
+</ul>
+
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
   <section id="kstar">
-<h1>KSTAR<a class="headerlink" href="#kstar" title="Permalink to this heading"></a></h1>
+<h1>KSTAR<a class="headerlink" href="#kstar" title="Link to this heading">#</a></h1>
 <div class="toctree-wrapper compound">
-<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Overview:</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="Overview.html">Overview</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Dependencies.html">Dependencies</a></li>
-<li class="toctree-l1"><a class="reference internal" href="KSTAR.html">KSTAR</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="KSTAR.html#module-kstar.config">The “Config” Module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="KSTAR.html#the-prune-module">The “Prune” Module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="KSTAR.html#the-experimentmapper-class">The “ExperimentMapper” class</a></li>
-<li class="toctree-l2"><a class="reference internal" href="KSTAR.html#the-kinaseactivity-class">The “KinaseActivity” class</a></li>
-<li class="toctree-l2"><a class="reference internal" href="KSTAR.html#the-dotplot-class">The “DotPlot” class</a></li>
-<li class="toctree-l2"><a class="reference internal" href="KSTAR.html#supporting-functions">Supporting Functions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Overview/Overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Overview/Dependencies.html">Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Overview/data_prep.html">Preparing your Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Overview/ways_to_run.html">Options for Running KSTAR</a></li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Galaxy Tutorial:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="Galaxy/Running_KSTAR.html">Run KSTAR on Galaxy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Galaxy/Analyzing_Results.html">Analyze Results</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="Galaxy/Analyzing_Results.html#downloading-results-from-galaxy">Downloading Results from Galaxy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Galaxy/Analyzing_Results.html#inspect-the-summary-pdf-file">Inspect the summary PDF file</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Galaxy/Analyzing_Results.html#plotting-the-results">Plotting the Results</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Galaxy/Analyzing_Results.html#additional-analysis-in-python">Additional Analysis in Python</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Getting Started</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="quickstart.html#installation">Installation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="quickstart.html#configuring-your-kstar-environment">Configuring your KSTAR environment</a></li>
-<li class="toctree-l2"><a class="reference internal" href="quickstart.html#follow-the-provided-tutorial">Follow the provided tutorial</a></li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Python Tutorial (Just the Basics):</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="Tutorial/quickstart.html">Getting Started</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="Tutorial/quickstart.html#installation">Installation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="Tutorial/quickstart.html#pip">Pip</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Tutorial/quickstart.html#conda-forge">Conda Forge</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Tutorial/quickstart.html#tarball">Tarball</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Tutorial/quickstart.html#git">Git</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="Tutorial/tutorial.html">Tutorial</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="Tutorial/tutorial.html#network-generation">Network Generation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="Tutorial/tutorial.html#activity-prediction">Activity Prediction</a></li>
-<li class="toctree-l2"><a class="reference internal" href="Tutorial/tutorial.html#plotting">Plotting</a></li>
-<li class="toctree-l2"><a class="reference internal" href="Tutorial/tutorial.html#additional-analyses">Additional Analyses</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Tutorial/quickstart.html#configuring-your-kstar-environment">Configuring your KSTAR environment</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="Tutorial/quickstart.html#download-networks">Download Networks</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="Tutorial/quickstart.html#for-kstar-version-1-0-4-and-newer">for KSTAR version 1.0.4 and newer</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Tutorial/quickstart.html#for-kstar-version-0-5-3-and-older">for KSTAR version 0.5.3 and older</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Tutorial/quickstart.html#if-using-self-generated-networks">If Using Self-generated Networks</a></li>
 </ul>
 </li>
+<li class="toctree-l3"><a class="reference internal" href="Tutorial/quickstart.html#configure-kstar-to-point-to-the-correct-network-directory">Configure KSTAR to point to the correct network directory</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="Tutorial/quickstart.html#verify-that-kstar-environment-is-ready">Verify that KSTAR environment is ready</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Tutorial/quickstart.html#follow-the-provided-tutorial">Follow the provided tutorial</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="Tutorial/Map_Datasets.html">Map Dataset to Reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="Tutorial/Map_Datasets.html#Download-and-Process-Dataset-of-Interest">Download and Process Dataset of Interest</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Tutorial/Map_Datasets.html#Map-the-Dataset-to-Reference">Map the Dataset to Reference</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Tutorial/Map_Datasets.html#Save-Mapping-Results">Save Mapping Results</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="Tutorial/Activity_Calculation.html">Predict Kinase Activities</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="Tutorial/Activity_Calculation.html#Determine-Thresholds">Determine Thresholds</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Tutorial/Activity_Calculation.html#KSTAR-Run-with-Default-Parameters">KSTAR Run with Default Parameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Tutorial/Activity_Calculation.html#Saving-KSTAR-Results">Saving KSTAR Results</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Tutorial/Activity_Calculation.html#Other-Considerations">Other Considerations</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="Tutorial/Activity_Calculation.html#Using-Pregenerated-Experiments-(or-Not)">Using Pregenerated Experiments (or Not)</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="Tutorial/plotting_tutorial.html">Plotting/Analysis</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="Tutorial/SummaryPDF.html">Summary PDFs</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="Tutorial/SummaryPDF.html#Creating-the-PDF">Creating the PDF</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Tutorial/SummaryPDF.html#Resulting-PDF-Files">Resulting PDF Files</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="Tutorial/DotPlot.html">DotPlots</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="Tutorial/DotPlot.html#With-Interactive-Web-App">With Interactive Web App</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Tutorial/DotPlot.html#In-Python">In Python</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="Tutorial/DotPlot.html#Load-KSTAR-Results">Load KSTAR Results</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Tutorial/DotPlot.html#Plot-Results">Plot Results</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="Tutorial/Additional_Analysis.html">Additional Analyses</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="Tutorial/Additional_Analysis.html#Load-results-and-other-necessary-data-(networks,-binary-evidence,-etc.)">Load results and other necessary data (networks, binary evidence, etc.)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Tutorial/Additional_Analysis.html#Identify-relevant-phosphorylation-sites-for-a-kinase-of-interest">Identify relevant phosphorylation sites for a kinase of interest</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Tutorial/Additional_Analysis.html#Exploring-Network-and-Experiment-Coverage-of-Phosphorylation-Sites">Exploring Network and Experiment Coverage of Phosphorylation Sites</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="Tutorial/Additional_Analysis.html#Number-of-unique-phosphorylation-sites-in-network(s)">Number of unique phosphorylation sites in network(s)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Tutorial/Additional_Analysis.html#Distribution-of-Study-Bias-in-Phosphoproteome-and-in-Experiments">Distribution of Study Bias in Phosphoproteome and in Experiments</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Tutorial/Additional_Analysis.html#Coverage-of-Experiment-by-Kinase-Substrate-Network">Coverage of Experiment by Kinase-Substrate Network</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Tutorial/Additional_Analysis.html#Similarity-between-kinases-in-network">Similarity between kinases in network</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Example Vignettes:</span></p>
+<ul>
 <li class="toctree-l1"><a class="reference internal" href="Examples/Examples.html">Analysis Examples</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="Examples/Examples.html#activation-of-kinases-in-controlled-cell-lines">Activation of Kinases in Controlled Cell Lines</a></li>
-<li class="toctree-l2"><a class="reference internal" href="Examples/Examples.html#inhibition-of-kinases-in-controlled-cell-lines">Inhibition of Kinases in Controlled Cell Lines</a></li>
-<li class="toctree-l2"><a class="reference internal" href="Examples/Examples.html#profiling-her2-therapy-response-in-breast-cancer">Profiling HER2 therapy response in Breast Cancer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Examples/Examples.html#activation-of-kinases-in-controlled-cell-lines">Activation of Kinases in Controlled Cell Lines</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="Examples/EGF_184A1_WolfYadlin2007.html">EGF Stimulation of 184A1 Cells (Wolf Yadlin, 2007)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="Examples/EGF_184A1_WolfYadlin2007.html#Agglomerative-clustering-of-kinases">Agglomerative clustering of kinases</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Examples/EGF_184A1_WolfYadlin2007.html#Agglomerative-clustering-of-only-significant-kinases">Agglomerative clustering of only significant kinases</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="Parallel/parallel.html">KSTAR in Parallel</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="Parallel/parallel.html#option-1-running-kstar-using-multiprocessing">Option 1: Running KSTAR using Multiprocessing</a></li>
-<li class="toctree-l2"><a class="reference internal" href="Parallel/parallel.html#option-2-running-large-datasets-with-nextflow">Option 2: Running Large Datasets with Nextflow</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Examples/EGF_HER2_WolfYadlin2006.html">EGF and HRG Stimulation of ERBB2 Overexpressing HMEC Cells (Wolf Yadlin 2006)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="Examples/EGF_HER2_WolfYadlin2006.html#Plot-all-samples-and-kinases">Plot all samples and kinases</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Examples/EGF_HER2_WolfYadlin2006.html#Plot-just-EGF-HMEC-data-for-comparison-to-MRM-experiment">Plot just EGF HMEC data for comparison to MRM experiment</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Examples/EGF_HER2_WolfYadlin2006.html#Reshape-results-and-plot-to-compare-kinase-between-conditions">Reshape results and plot to compare kinase between conditions</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="faq.html">Frequently Asked Questions</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="faq.html#data-preparation">Data Preparation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="faq.html#choosing-parameter-values">Choosing Parameter Values</a></li>
-<li class="toctree-l2"><a class="reference internal" href="faq.html#interpreting-results">Interpreting Results</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Examples/TCR_Analysis.html">TCR Activation (Chylek, 2014)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="Examples/TCR_Analysis.html#Agglomerative-clustering-of-kinases">Agglomerative clustering of kinases</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Examples/TCR_Analysis.html#Agglomerative-clustering-of-all-significant-kinases">Agglomerative clustering of all significant kinases</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="Examples/Examples.html#inhibition-of-kinases-in-controlled-cell-lines">Inhibition of Kinases in Controlled Cell Lines</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="Examples/BCR-ABL_Analysis.html">BCR-ABL inhibition by dasatinib in K562 cells (Asmussen, 2014)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="Examples/BCR-ABL_Analysis.html#Plot-kinases-sorted-by-activity-pre-treatment">Plot kinases sorted by activity pre-treatment</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Examples/BCR-ABL_Analysis.html#Plot-kinases-sorted-by-activity-pre-treatment,-but-with-only-significant-kinases">Plot kinases sorted by activity pre-treatment, but with only significant kinases</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="Examples/AKT_Inhib_Analysis.html">Inhibition of AKT by Five Different Inhibitors in Breast Cancer (Weichmann, 2021)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="Examples/AKT_Inhib_Analysis.html#Plot-and-cluster-kinase-activities">Plot and cluster kinase activities</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Examples/AKT_Inhib_Analysis.html#Plot-and-cluster-kinase-activities,-but-with-only-significant-kinases">Plot and cluster kinase activities, but with only significant kinases</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="Examples/Vemurafenib_Analysis.html">Paradoxical Activation of MAP-ERK pathway upon BRAF inhibition (Kubiniok, 2017)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="Examples/Vemurafenib_Analysis.html#Shared-agglomerative-clustering-of-kinases-for-both-Colo205-and-HCT116-cells">Shared agglomerative clustering of kinases for both Colo205 and HCT116 cells</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Examples/Vemurafenib_Analysis.html#Shared-agglomerative-clustering-of-significant-kinases-for-both-Colo205-and-HCT116-cells">Shared agglomerative clustering of significant kinases for both Colo205 and HCT116 cells</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="Examples/Examples.html#profiling-her2-therapy-response-in-breast-cancer">Profiling HER2 therapy response in Breast Cancer</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="Examples/CPTAC_Analysis.html">Analysis of CPTAC Breast Cancer Patient Samples (Mertens 2016)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="Examples/CPTAC_Analysis.html#Plot-using-agglomerative-clustering-on-both-kinases-and-patients,-and-add-context-to-each-sample">Plot using agglomerative clustering on both kinases and patients, and add context to each sample</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Examples/CPTAC_Analysis.html#Plot-ERBB2-activities-with-each-samples-associated-HER2-status">Plot ERBB2 activities with each samples associated HER2 status</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Examples/CPTAC_Analysis.html#Measure-the-number-of-cross-predictions-between-HER2-status-and-HER2/ERBB2-activity">Measure the number of cross-predictions between HER2-status and HER2/ERBB2 activity</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="Examples/PDX_Analysis.html">Analysis of PDX Tumor Samples (Huang 2017)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="Examples/PDX_Analysis.html#Plot-all-samples-and-all-kinases,-with-HER2-status-context">Plot all samples and all kinases, with HER2 status context</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Examples/PDX_Analysis.html#Plot-all-samples-and-all-significant-kinases,-with-HER2-status-context">Plot all samples and all significant kinases, with HER2 status context</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="Examples/Microbiopsy_Analysis.html">Analysis of HER2 Positive Patients using Microbiopsies (Satpathy 2021)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="Examples/Microbiopsy_Analysis.html#Agglomerative-clustering-of-all-patients-and-kinases,-with-context">Agglomerative clustering of all patients and kinases, with context</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Examples/Microbiopsy_Analysis.html#Agglomerative-clustering-of-all-patients-and-all-significant-kinases,-with-context">Agglomerative clustering of all patients and all significant kinases, with context</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Examples/Microbiopsy_Analysis.html#Plot-only-pre-treatment-samples-and-provide-treatment-response-context">Plot only pre-treatment samples and provide treatment response context</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Examples/Microbiopsy_Analysis.html#Plot-specific-kinases-for-each-patient-(all-samples)">Plot specific kinases for each patient (all samples)</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Advanced Python Usage:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="Overview/KSTAR.html">KSTAR Reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="Overview/KSTAR.html#module-kstar.config">The “Config” Module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="Overview/KSTAR.html#kstar.config.check_configuration"><code class="docutils literal notranslate"><span class="pre">check_configuration()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="Overview/KSTAR.html#kstar.config.find_available_networks"><code class="docutils literal notranslate"><span class="pre">find_available_networks()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="Overview/KSTAR.html#kstar.config.install_network_files"><code class="docutils literal notranslate"><span class="pre">install_network_files()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="Overview/KSTAR.html#kstar.config.update_configuration"><code class="docutils literal notranslate"><span class="pre">update_configuration()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="Overview/KSTAR.html#kstar.config.update_network_directory"><code class="docutils literal notranslate"><span class="pre">update_network_directory()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="Overview/KSTAR.html#the-prune-module">The “Prune” Module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="Overview/KSTAR.html#the-pruner-class">The “Pruner” Class</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="Overview/KSTAR.html#kstar.prune.Pruner"><code class="docutils literal notranslate"><span class="pre">Pruner</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="Overview/KSTAR.html#module-kstar.prune">Functions to Perform Pruning</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="Overview/KSTAR.html#kstar.prune.run_pruning"><code class="docutils literal notranslate"><span class="pre">run_pruning()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="Overview/KSTAR.html#the-experimentmapper-class">The “ExperimentMapper” class</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="Overview/KSTAR.html#kstar.mapping.ExperimentMapper"><code class="docutils literal notranslate"><span class="pre">ExperimentMapper</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="Overview/KSTAR.html#kstar.mapping.ExperimentMapper.align_sites"><code class="docutils literal notranslate"><span class="pre">ExperimentMapper.align_sites()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="Overview/KSTAR.html#kstar.mapping.ExperimentMapper.get_experiment"><code class="docutils literal notranslate"><span class="pre">ExperimentMapper.get_experiment()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="Overview/KSTAR.html#kstar.mapping.ExperimentMapper.get_number_missed_peptides"><code class="docutils literal notranslate"><span class="pre">ExperimentMapper.get_number_missed_peptides()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="Overview/KSTAR.html#kstar.mapping.ExperimentMapper.get_number_missed_sites"><code class="docutils literal notranslate"><span class="pre">ExperimentMapper.get_number_missed_sites()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="Overview/KSTAR.html#kstar.mapping.ExperimentMapper.get_reason_for_unmapped"><code class="docutils literal notranslate"><span class="pre">ExperimentMapper.get_reason_for_unmapped()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="Overview/KSTAR.html#kstar.mapping.ExperimentMapper.get_sequence"><code class="docutils literal notranslate"><span class="pre">ExperimentMapper.get_sequence()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="Overview/KSTAR.html#kstar.mapping.ExperimentMapper.save_experiment"><code class="docutils literal notranslate"><span class="pre">ExperimentMapper.save_experiment()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="Overview/KSTAR.html#kstar.mapping.ExperimentMapper.set_data_columns"><code class="docutils literal notranslate"><span class="pre">ExperimentMapper.set_data_columns()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="Overview/KSTAR.html#functions-for-activity-calculation">Functions for Activity Calculation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="Overview/KSTAR.html#the-kinaseactivity-class">The “KinaseActivity” class</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="Overview/KSTAR.html#kstar.calculate.KinaseActivity"><code class="docutils literal notranslate"><span class="pre">KinaseActivity</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="Overview/KSTAR.html#module-kstar.calculate">Master Functions for Running KSTAR Pipeline</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="Overview/KSTAR.html#kstar.calculate.Mann_Whitney_analysis"><code class="docutils literal notranslate"><span class="pre">Mann_Whitney_analysis()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="Overview/KSTAR.html#kstar.calculate.enrichment_analysis"><code class="docutils literal notranslate"><span class="pre">enrichment_analysis()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="Overview/KSTAR.html#kstar.calculate.randomized_analysis"><code class="docutils literal notranslate"><span class="pre">randomized_analysis()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="Overview/KSTAR.html#kstar.calculate.run_kstar_analysis"><code class="docutils literal notranslate"><span class="pre">run_kstar_analysis()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="Overview/KSTAR.html#module-0">Functions for Saving and Loading KSTAR results</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="Overview/KSTAR.html#kstar.calculate.from_kstar"><code class="docutils literal notranslate"><span class="pre">from_kstar()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="Overview/KSTAR.html#kstar.calculate.from_kstar_nextflow"><code class="docutils literal notranslate"><span class="pre">from_kstar_nextflow()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="Overview/KSTAR.html#kstar.calculate.save_kstar"><code class="docutils literal notranslate"><span class="pre">save_kstar()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="Overview/KSTAR.html#plotting-analysis-functions">Plotting/Analysis Functions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="Overview/KSTAR.html#the-dotplot-class">The “DotPlot” class</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="Overview/KSTAR.html#kstar.plot.DotPlot"><code class="docutils literal notranslate"><span class="pre">DotPlot</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="Overview/KSTAR.html#the-kstar-pdf-class">The “KSTAR_PDF” class</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="Overview/KSTAR.html#kstar.plot.KSTAR_PDF"><code class="docutils literal notranslate"><span class="pre">KSTAR_PDF</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="Overview/KSTAR.html#module-kstar.analysis.interactions">Downstream Analysis Modules</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="Overview/KSTAR.html#kstar.analysis.interactions.getSubstrateInfluence"><code class="docutils literal notranslate"><span class="pre">getSubstrateInfluence()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="Overview/KSTAR.html#kstar.analysis.interactions.getSubstrateInfluence_inExperiment"><code class="docutils literal notranslate"><span class="pre">getSubstrateInfluence_inExperiment()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="Overview/KSTAR.html#kstar.analysis.coverage.averageUniqueSubstrates_KSTAR"><code class="docutils literal notranslate"><span class="pre">averageUniqueSubstrates_KSTAR()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="Overview/KSTAR.html#kstar.analysis.coverage.experimentCoverage"><code class="docutils literal notranslate"><span class="pre">experimentCoverage()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="Overview/KSTAR.html#kstar.analysis.coverage.getStudyBiasDistribution_InExperiment"><code class="docutils literal notranslate"><span class="pre">getStudyBiasDistribution_InExperiment()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="Overview/KSTAR.html#kstar.analysis.coverage.getStudyBiasDistribution_InPhosphoproteome"><code class="docutils literal notranslate"><span class="pre">getStudyBiasDistribution_InPhosphoproteome()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="Overview/KSTAR.html#kstar.analysis.coverage.getStudyBiasDistribution_InSample"><code class="docutils literal notranslate"><span class="pre">getStudyBiasDistribution_InSample()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="Overview/KSTAR.html#kstar.analysis.coverage.numUniqueSubstrates"><code class="docutils literal notranslate"><span class="pre">numUniqueSubstrates()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="Overview/KSTAR.html#kstar.analysis.coverage.sampleCoverage"><code class="docutils literal notranslate"><span class="pre">sampleCoverage()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="Overview/KSTAR.html#kstar.analysis.kinase_MI.kinase_mutual_information"><code class="docutils literal notranslate"><span class="pre">kinase_mutual_information()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="Overview/KSTAR.html#kstar.analysis.kinase_MI.plot_kinase_heatmap"><code class="docutils literal notranslate"><span class="pre">plot_kinase_heatmap()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="Overview/KSTAR.html#module-kstar.dataset_processing.peptides">Dataset Processing Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Overview/KSTAR.html#module-kstar.helpers">Other Helper Functions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="Overview/KSTAR.html#kstar.helpers.agg_jaccard"><code class="docutils literal notranslate"><span class="pre">agg_jaccard()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="Overview/KSTAR.html#kstar.helpers.calculate_jaccard_by_binary"><code class="docutils literal notranslate"><span class="pre">calculate_jaccard_by_binary()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="Overview/KSTAR.html#kstar.helpers.calculate_jaccard_by_sets"><code class="docutils literal notranslate"><span class="pre">calculate_jaccard_by_sets()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="Overview/KSTAR.html#kstar.helpers.convert_acc_to_uniprot"><code class="docutils literal notranslate"><span class="pre">convert_acc_to_uniprot()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="Overview/KSTAR.html#kstar.helpers.get_logger"><code class="docutils literal notranslate"><span class="pre">get_logger()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="Overview/KSTAR.html#kstar.helpers.jaci_matrix_between_samples"><code class="docutils literal notranslate"><span class="pre">jaci_matrix_between_samples()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="Overview/KSTAR.html#kstar.helpers.parse_network_information"><code class="docutils literal notranslate"><span class="pre">parse_network_information()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="Overview/KSTAR.html#kstar.helpers.process_fasta_file"><code class="docutils literal notranslate"><span class="pre">process_fasta_file()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="Overview/KSTAR.html#kstar.helpers.string_to_boolean"><code class="docutils literal notranslate"><span class="pre">string_to_boolean()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="Advanced/Configuration.html">Updating Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Advanced/Pruning.html">Network Generation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="Advanced/Pruning.html#download-pre-generated-networks">Download pre-generated networks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Advanced/Pruning.html#generate-your-own-networks">Generate your own networks</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="Advanced/Pruning.html#required-format-of-weighted-kinase-substrate-network">Required format of weighted kinase-substrate network</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Advanced/Pruning.html#determining-pruning-parameters-to-use">Determining Pruning Parameters to Use</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Advanced/Pruning.html#run-pruning">Run pruning</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="Advanced/Pruning.html#within-python-interpreter-ide">Within python interpreter/IDE</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Advanced/Pruning.html#run-pruning-from-the-command-line">Run pruning from the command line</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="Advanced/Pregenerated_Experiments.html">Pregenerated Random actiivities</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="Advanced/Pregenerated_Experiments.html#adjusting-pregenerated-experiments-use">Adjusting Pregenerated Experiments Use</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Advanced/Pregenerated_Experiments.html#generating-additional-pregenerated-experiments">Generating Additional Pregenerated Experiments</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="Advanced/Pregenerated_Experiments.html#automatically-during-kstar-activity-calculation">Automatically during KSTAR activity Calculation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Advanced/Pregenerated_Experiments.html#manually-with-the-pregenerate-module">Manually with the pregenerate module</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="Advanced/Parallel/parallel.html">KSTAR in Parallel</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="Advanced/Parallel/parallel.html#option-1-running-kstar-using-multiprocessing">Option 1: Running KSTAR using Multiprocessing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Advanced/Parallel/parallel.html#option-2-running-large-datasets-with-nextflow">Option 2: Running Large Datasets with Nextflow</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="Advanced/Parallel/parallel.html#requirements">Requirements</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Advanced/Parallel/parallel.html#installation">Installation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Advanced/Parallel/parallel.html#setting-up-kstar-for-nextflow">Setting up KSTAR for Nextflow</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="Advanced/Parallel/parallel.html#download-resource-files">Download Resource Files</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Advanced/Parallel/parallel.html#downloading-or-generating-networks-used-in-kstar">Downloading or Generating Networks used in KSTAR</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Advanced/Parallel/parallel.html#mapping-datasets">Mapping datasets</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="Advanced/Parallel/parallel.html#running-nextflow">Running nextflow</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="Advanced/Parallel/parallel.html#output-of-a-nextflow-run">Output of a nextflow run</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Advanced/Parallel/parallel.html#running-nextflow-on-singularity">Running nextflow on Singularity</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="Advanced/faq.html">Frequently Asked Questions</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="Advanced/faq.html#data-preparation">Data Preparation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Advanced/faq.html#choosing-parameter-values">Choosing Parameter Values</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Advanced/faq.html#interpreting-results">Interpreting Results</a></li>
 </ul>
 </li>
 </ul>
 </div>
 </section>
 <section id="indices-and-tables">
-<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this heading"></a></h1>
+<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Link to this heading">#</a></h1>
 <ul class="simple">
 <li><p><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></p></li>
 <li><p><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></p></li>
@@ -102,72 +730,98 @@
 </section>
 
 
-            <div class="clearer"></div>
-          </div>
-        </div>
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="right-next"
+       href="Overview/Overview.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Overview</p>
       </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
-        <div class="sphinxsidebarwrapper">
-  <div>
-    <h3><a href="#">Table of Contents</a></h3>
-    <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="Overview.html">Overview</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Dependencies.html">Dependencies</a></li>
-<li class="toctree-l1"><a class="reference internal" href="KSTAR.html">KSTAR</a></li>
-<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Getting Started</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Tutorial/tutorial.html">Tutorial</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Examples/Examples.html">Analysis Examples</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Parallel/parallel.html">KSTAR in Parallel</a></li>
-<li class="toctree-l1"><a class="reference internal" href="faq.html">Frequently Asked Questions</a></li>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#">KSTAR</a><ul class="visible nav section-nav flex-column">
+</ul>
+</li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#indices-and-tables">Indices and tables</a></li>
 </ul>
 
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By Naegle Lab
+</p>
+
   </div>
-  <div>
-    <h4>Next topic</h4>
-    <p class="topless"><a href="Overview.html"
-                          title="next chapter">Overview</a></p>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2020, Naegle Lab.
+      <br/>
+    
+  </p>
+
   </div>
-  <div role="note" aria-label="source link">
-    <h3>This Page</h3>
-    <ul class="this-page-menu">
-      <li><a href="_sources/index.rst.txt"
-            rel="nofollow">Show Source</a></li>
-    </ul>
-   </div>
-<div id="searchbox" style="display: none" role="search">
-  <h3 id="searchlabel">Quick search</h3>
-    <div class="searchformwrapper">
-    <form class="search" action="search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
-      <input type="submit" value="Go" />
-    </form>
-    </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
 </div>
-<script>document.getElementById('searchbox').style.display = "block"</script>
-        </div>
-      </div>
-      <div class="clearer"></div>
+          </footer>
+        
+
+      </main>
     </div>
-    <div class="related" role="navigation" aria-label="related navigation">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="genindex.html" title="General Index"
-             >index</a></li>
-        <li class="right" >
-          <a href="py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-        <li class="right" >
-          <a href="Overview.html" title="Overview"
-             >next</a> |</li>
-        <li class="nav-item nav-item-0"><a href="#">KSTAR 1 documentation</a> &#187;</li>
-        <li class="nav-item nav-item-this"><a href="">KSTAR</a></li> 
-      </ul>
-    </div>
-    <div class="footer" role="contentinfo">
-        &#169; Copyright 2020, Naegle Lab.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.0.2.
-    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+  </footer>
   </body>
 </html>

@@ -1,0 +1,134 @@
+# Network Generation
+
+## Download pre-generated networks
+
+We have provided pre-pruned networks that can be downloaded [here](https://figshare.com/articles/dataset/NETWORKS/14944305). If choosing to use these networks, you can go straight to [activity calculation](Activity_Calculation.ipynb) and skip the remainder of this section.
+
+## Generate your own networks
+
+The prune class and accompanying functions were created for generating the ensemble of pruned networks used by KSTAR from any weighted kinase-substrate network (we recommend NetworKIN/KinomeXplorer). Pruning can either be run within a python environment/interpreter, or they can be run using a bash script from the command line.
+
+### Required format of weighted kinase-substrate network
+
+The weighted network (such as one obtained from NetworKIN) should be in a matrix format, containing 3+ columns: 
+- site_col: Uniprot Accession of the protein
+- acc_col: phosphorylation site number
+- Each additional column should be labeled by the associated kinase and contain the probability of that kinase phosphorylate each substrate.
+
+Here is a small example of such a matrix:
+| substrate_acc | site | ABL1 | ABL2 | ACVR2A |
+|---------------|------|------|------|--------|
+| A0AV02 | Y107 | 0.2054 | 0.1582 | |
+| A0AV02 | T485 | | | |
+| A0AV02 | S488 | | | 0.2836 |
+
+For an example of a weighted kinase-substrate network that can be used during pruning, see the [KinPred figshare](https://figshare.com/articles/dataset/Final_Data_-_Matrix_of_kinase_substrate_edge_weights_by_predictor/12749324). These networks are also available for use if you would like to use different pruning parameters from those used in the KSTAR publication.
+
+### Determining Pruning Parameters to Use
+
+Before generating pruned networks, you would need to define the properties of the pruned networks, namely the number of substrates each kinase will be connected to (kinase_size) and the maximum number of kinases a single substrate can provide evidence for (site_limit). Within the pruner class, we have provided a function, called getRecommendedKinaseSize(), designed to help guide this selection and avoid parameter values that will result in an impossible network configuration given your weighted network.
+
+For this function, you must provide a value for the site_limit parameter. Lower values will be more restrictive and lead to fewer shared substrates between kinases, but will also reduce the total number of substrates that a kinase can be connected to in the network. For NetworKIN weighted network used in the KSTAR publication, we used a 'site_limit' of 10 for tyrosine kinases and 20 for serine threonine kinases. 
+
+To check for recommended parameter values, first load necessary information and initialize pruner class:
+```python
+#load necesary packages
+from kstar.prune import Pruner
+from kstar import config, helpers
+
+#load network and initialize logger
+network_file = f'{config.NETWORK_DIR}/network_file_name.csv'
+network = pd.read_csv(network_file)
+network_name = 'test' #name to use when saving network file/how network will be accessed/identified in the future
+
+#intialize pruner
+pruner = prune.Pruner(network, network_name, phospho_type = 'Y', acc_col = 'substrate_acc', site_col = 'site')
+```
+Then get recommendations for a particular 'site_limit' value:
+
+```python
+pruner.getRecommendedKinaseSize(site_limit)
+```
+
+Once you have decided on the final parameters, you can also validate your choice:
+```python
+pruner.checkParameters(kinase_size, site_limit)
+```
+
+### Run pruning
+
+#### Within python interpreter/IDE
+
+If wanting to run pruning in python, follow these steps:
+1. Import necessary packages
+2. Load the weighted kinase-substrate network. This should contain a column with Uniprot accession IDs for each substrate,
+the residue/site number of each substrate, and score columns containing the weight/likelihood of interaction
+between the given kinase and substrate. The pruning class should be told where to find the accession and 
+site columns (via acc_col and site_col parameters). You can also indicate the columns that do not contain
+the kinase-substrate weights via the netcols_todrop parameter. If this is set to None, KSTAR will automatically
+drop all non-numeric columns.
+3. Set all necessary parameters. The recommended parameters for tyrosine kinases in NetworKIN are shown in the code
+snippet below.
+3. Run the pruning algorithm via the master 'run_pruning()' function.
+4. Save the networks and run information.
+
+```python
+#load necesary packages
+import pandas as pd
+from kstar.prune import run_pruning, save_pruning, save_run_information
+from kstar import config, helpers
+
+#Load networks and define parameters used during the pruning run
+network_file = f'{config.NETWORK_DIR}/network_file_name.csv'
+network = pd.read_csv(network_file)
+
+
+#set other parameters 
+phospho_type = 'Y'    #type of phosphomodification to generate networks for ('Y', 'ST')
+kinase_size = 2000     #minimum number of substrates all kinases must be connected to
+site_limit = 10       #maximum number of kinases a particular substrate can be connected to
+num_networks = 50     #number of pruned networks to generate
+network_name = 'example'
+use_compendia = True  #indicates whether kinases are forced to be connected to the same substrate study bias distribution
+acc_col = 'substrate_acc' # column that contains Uniprot Accession ID of each substrate in the weighted network
+site_col = 'site' # column that contains residue and site number of each substrate in the weighted network
+netcols_todrop = None
+odir = f"./prune/results/" #where the final pruned networks should be saved
+PROCESSES = 4		#number of cores to use (> 1 for multiprocessing)
+
+#whether to also pregenerate random activities from new networks
+generate_activities = True
+
+#meta data to store in RUN_INFORMATION.txt (optional)
+network_file_used = network_file
+network_desc = 'example pruned networks for tutorial'
+
+
+#run and save pruning
+pruner = run_pruning(network, network_name = network_name, odir = odir, 
+				phospho_type = phospho_type, kinase_size = kinase_size, 
+				site_limit = site_limit, num_networks = num_networks, 
+				use_compendia = use_compendia, acc_col = acc_col, site_col = site_col, 
+				netcols_todrop = netcols_todrop, generate_activities = generate_activities,
+				network_desc = network_desc, network_file_used = network_file_used,
+				PROCESSES = PROCESSES)
+```
+
+#### Run pruning from the command line
+
+It is also possible to run the pruning procedure from start to finish, including saving the results and run info, from the command line. 
+A bash script like the one below can be used to run prune.py and input the necessary parameters. 
+```
+export KSTAR_DIR = /repo_loc/KSTAR/
+cd $KSTAR_DIR
+
+python /kstar/prune.py \
+--network_file /RESOURCE_FILES/NetworKIN/NetworKIN_2020-02-26_all_matrix.csv \
+--output_directory /prune/results/ \
+--phospho_type Y \
+--kinase_size  2000 \
+--site_limit 10 \
+--num_networks 50 \
+--network_name example \
+--use_compendia yes 
+```

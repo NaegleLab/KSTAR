@@ -1,0 +1,1001 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>DotPlots &#8212; KSTAR 1.1.0 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/sphinx-book-theme.css?v=eba8b062" />
+    <link rel="stylesheet" type="text/css" href="../_static/nbsphinx-code-cells.css?v=2aa19091" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="../_static/documentation_options.js?v=051bfb12"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'Tutorial/DotPlot';</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Additional Analyses" href="Additional_Analysis.html" />
+    <link rel="prev" title="Summary PDFs" href="SummaryPDF.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">KSTAR 1.1.0 documentation</p>
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">Overview:</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../Overview/Overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Overview/Dependencies.html">Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Overview/data_prep.html">Preparing your Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Overview/ways_to_run.html">Options for Running KSTAR</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Overview/KSTAR.html">KSTAR Reference</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Galaxy Tutorial:</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../Galaxy/Running_KSTAR.html">Run KSTAR on Galaxy</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Python Tutorial (Just the Basics):</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Map_Datasets.html">Map Dataset to Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Activity_Calculation.html">Predict Kinase Activities</a></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="plotting_tutorial.html">Plotting/Analysis</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="SummaryPDF.html">Summary PDFs</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">DotPlots</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Additional_Analysis.html">Additional Analyses</a></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Example Vignettes:</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../Examples/Examples.html">Analysis Examples</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../Examples/EGF_184A1_WolfYadlin2007.html">EGF Stimulation of 184A1 Cells (Wolf Yadlin, 2007)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Examples/EGF_HER2_WolfYadlin2006.html">EGF and HRG Stimulation of ERBB2 Overexpressing HMEC Cells (Wolf Yadlin 2006)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Examples/TCR_Analysis.html">TCR Activation (Chylek, 2014)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Examples/BCR-ABL_Analysis.html">BCR-ABL inhibition by dasatinib in K562 cells (Asmussen, 2014)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Examples/AKT_Inhib_Analysis.html">Inhibition of AKT by Five Different Inhibitors in Breast Cancer (Weichmann, 2021)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Examples/Vemurafenib_Analysis.html">Paradoxical Activation of MAP-ERK pathway upon BRAF inhibition (Kubiniok, 2017)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Examples/CPTAC_Analysis.html">Analysis of CPTAC Breast Cancer Patient Samples (Mertens 2016)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Examples/PDX_Analysis.html">Analysis of PDX Tumor Samples (Huang 2017)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Examples/Microbiopsy_Analysis.html">Analysis of HER2 Positive Patients using Microbiopsies (Satpathy 2021)</a></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Advanced Python Usage:</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../Advanced/Pruning.html">Network Generation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Advanced/Pregenerated_Experiments.html">Pregenerated Random actiivities</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Advanced/Parallel/parallel.html">KSTAR in Parallel</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Advanced/faq.html">Frequently Asked Questions</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-source-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Source repositories">
+    <i class="fab fa-github"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="https://github.com/NaegleLab/KSTAR" target="_blank"
+   class="btn btn-sm btn-source-repository-button dropdown-item"
+   title="Source repository"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="btn__text-container">Repository</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li><a href="https://github.com/NaegleLab/KSTAR/issues/new?title=Issue%20on%20page%20%2FTutorial/DotPlot.html&body=Your%20issue%20content%20here." target="_blank"
+   class="btn btn-sm btn-source-issues-button dropdown-item"
+   title="Open an issue"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="btn__text-container">Open issue</span>
+</a>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../_sources/Tutorial/DotPlot.ipynb" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.ipynb</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>DotPlots</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#With-Interactive-Web-App">With Interactive Web App</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#In-Python">In Python</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#Load-KSTAR-Results">Load KSTAR Results</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#Plot-Results">Plot Results</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#Plot-the-base-dotplot">Plot the base dotplot</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#Change-the-axis-labels-and-sort-kinases-based-on-activity">Change the axis labels and sort kinases based on activity</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#Remove-kinases-that-never-show-significant-activity">Remove kinases that never show significant activity</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#More-complex-plots">More complex plots</a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#Cluster-the-kinase-activities">Cluster the kinase activities</a></li>
+</ul>
+</li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#Add-context-to-dotplot">Add context to dotplot</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#Plot-dotplot-with-the-false-positive-rate-indicated-by-hue">Plot dotplot with the false positive rate indicated by hue</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#Indicate-evidence-size-for-sample">Indicate evidence size for sample</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="DotPlots">
+<h1>DotPlots<a class="headerlink" href="#DotPlots" title="Link to this heading">#</a></h1>
+<p>KSTAR results are best visualized with a DotPlot, which indicates degree of activity by the size of a dot and significance by its colors. This notebook outlines how to create these plots, either with our web app or directly in python.</p>
+<section id="With-Interactive-Web-App">
+<h2>With Interactive Web App<a class="headerlink" href="#With-Interactive-Web-App" title="Link to this heading">#</a></h2>
+<p>To help with the visualization of the data, we have created an interactive web app for plotting KSTAR activities, which will take the generated ‘experiment_name_mann_whitney_activities.tsv’ and ‘experiment_name_mann_whitney_fpr.tsv’ files as input. The web app can be accessed at the following link: <a class="reference external" href="https://proteomescout.research.virginia.edu/kstar/">KSTAR Plotting Tool</a>. This app is still in early stages of development, so please feel free to submit tickets for feature requests or any bugs
+that you encounter at the github repository: <a class="reference external" href="https://github.com/srcrowl/KSTAR_Plotting_Tool">KSTAR Plotting Tool Github</a>.</p>
+</section>
+<section id="In-Python">
+<h2>In Python<a class="headerlink" href="#In-Python" title="Link to this heading">#</a></h2>
+<p>Alternatively, if you would like greater flexibility in plotting the data, you can craft your own plots within python using the DotPlot class (same as used in the web app).</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">#import necessary packages</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kstar.plot</span><span class="w"> </span><span class="kn">import</span> <span class="n">DotPlot</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">kstar</span><span class="w"> </span><span class="kn">import</span> <span class="n">calculate</span>
+
+<span class="n">odir</span> <span class="o">=</span> <span class="s1">&#39;./example&#39;</span>
+<span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;example_run&#39;</span>
+<span class="n">phosphomod</span> <span class="o">=</span> <span class="s1">&#39;Y&#39;</span>
+</pre></div>
+</div>
+</div>
+<section id="Load-KSTAR-Results">
+<h3>Load KSTAR Results<a class="headerlink" href="#Load-KSTAR-Results" title="Link to this heading">#</a></h3>
+<p>To load a kstar save, use the ‘from_kstar’ function</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">#Load kstar_slim save</span>
+<span class="n">kinact_dict</span> <span class="o">=</span> <span class="n">calculate</span><span class="o">.</span><span class="n">from_kstar</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">odir</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>If nextflow was used (see Running Large Datasets with Nextflow), there is a seperate function that will allow you to load in results from nextflow into a kinase_dict object:</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">kinact_dict</span> <span class="o">=</span> <span class="n">calculate</span><span class="o">.</span><span class="n">from_kstar_nextflow</span><span class="p">(</span><span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;example_run&#39;</span><span class="p">,</span><span class="n">odir</span> <span class="o">=</span> <span class="s1">&#39;example_run&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>Lastly, you may only be concerned about the predicted activities and false positive rates. If that is the case, load these directly with pandas:</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">results</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">odir</span><span class="si">}</span><span class="s2">/RESULTS/</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">_Y_mann_whitney_activities.tsv&quot;</span><span class="p">,</span> <span class="n">sep</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\t</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">index_col</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span>
+<span class="n">fpr</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">odir</span><span class="si">}</span><span class="s2">/RESULTS/</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">_Y_mann_whitney_fpr.tsv&quot;</span><span class="p">,</span> <span class="n">sep</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\t</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">index_col</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Plot-Results">
+<h3>Plot Results<a class="headerlink" href="#Plot-Results" title="Link to this heading">#</a></h3>
+<p>Kinase activities predicted by KSTAR can be visualized using a specialized plot called a dotplot. In these plots, the size of each “dot” is dictated by the -log10(p-value) and the color is dicated by the false positive rate (significance).</p>
+<section id="Plot-the-base-dotplot">
+<h4>Plot the base dotplot<a class="headerlink" href="#Plot-the-base-dotplot" title="Link to this heading">#</a></h4>
+<p>In the most simple case, we can plot all kinases and samples with activity predictions, sorted in the same order as the provided activities/fpr dataframe. First, we need to extract the activity and false positive rate from the kinact_dict object, and pass those to the dotplot class.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">#if using kinase_dict object, extract results and fpr values</span>
+<span class="n">activities</span> <span class="o">=</span> <span class="n">kinact_dict</span><span class="p">[</span><span class="s1">&#39;Y&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">activities_mann_whitney</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+<span class="n">fpr</span> <span class="o">=</span> <span class="n">kinact_dict</span><span class="p">[</span><span class="s1">&#39;Y&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">fpr_mann_whitney</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+<span class="c1">#instantiate the dotplot object</span>
+<span class="n">dots</span> <span class="o">=</span> <span class="n">DotPlot</span><span class="p">(</span><span class="n">activities</span><span class="p">,</span>
+               <span class="n">fpr</span><span class="p">,</span>
+               <span class="n">figsize</span> <span class="o">=</span> <span class="p">(</span><span class="mi">4</span><span class="p">,</span><span class="mi">10</span><span class="p">))</span>
+
+<span class="c1">#generate the dotplot</span>
+<span class="n">dots</span><span class="o">.</span><span class="n">dotplot</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+&lt;Axes: &gt;
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/Tutorial_DotPlot_13_1.png" src="../_images/Tutorial_DotPlot_13_1.png" />
+</div>
+</div>
+</section>
+<section id="Change-the-axis-labels-and-sort-kinases-based-on-activity">
+<h4>Change the axis labels and sort kinases based on activity<a class="headerlink" href="#Change-the-axis-labels-and-sort-kinases-based-on-activity" title="Link to this heading">#</a></h4>
+<p>In many cases, you may wish to plot different axis labels for each experiment or use different naming conventions then those that are defaults in NetworKIN. To adjust, you can manually update the results and fpr dataframe prior to creating the dotplot object. Or, you can pass in dictionaries to the dotplot object that will adjust the axis labels accordingly without changing the original activities/fpr dataframes.</p>
+<p>In this example, the x-axis labels are a bit wordy. Let’s simplify it to just include the numeric time value. In addition, we would like to change the kinase labels so that kinases like KDR (VEGFR2) are indicated by their more well known name.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">#create the xlabel dict to remove &#39;data&#39; and &#39;time&#39; from x-axis labels</span>
+<span class="n">x_label_dict</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">activities</span><span class="o">.</span><span class="n">columns</span><span class="p">)):</span>
+    <span class="n">x_label_dict</span><span class="p">[</span><span class="n">activities</span><span class="o">.</span><span class="n">columns</span><span class="p">[</span><span class="n">i</span><span class="p">]]</span> <span class="o">=</span> <span class="n">activities</span><span class="o">.</span><span class="n">columns</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;:&#39;</span><span class="p">)[</span><span class="mi">2</span><span class="p">]</span>
+
+<span class="n">x_label_dict</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+{&#39;data:time:5&#39;: &#39;5&#39;,
+ &#39;data:time:15&#39;: &#39;15&#39;,
+ &#39;data:time:30&#39;: &#39;30&#39;,
+ &#39;data:time:60&#39;: &#39;60&#39;}
+</pre></div></div>
+</div>
+<p>In addition, we would like to change the kinase labels so that kinases like KDR (VEGFR2) are indicated by their more well known name.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">#set preferred kinase names (make a kinase_dict)</span>
+<span class="n">kinase_dict</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="n">kinase_map</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s1">&#39;globalKinaseMap.csv&#39;</span><span class="p">,</span> <span class="n">index_col</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">kinase</span> <span class="ow">in</span> <span class="n">activities</span><span class="o">.</span><span class="n">index</span><span class="p">:</span>
+    <span class="n">kinase_dict</span><span class="p">[</span><span class="n">kinase</span><span class="p">]</span> <span class="o">=</span> <span class="n">kinase_map</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">kinase</span><span class="p">,</span><span class="s1">&#39;Preferred Name&#39;</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<p>Any sorting of the results needs to be done before instantiating the dotplot. Only the activities dataframe needs to be updated, the fpr dataframe will be automatically updated in order to match the activities dataframe.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">#sort the data by the activities at the 30 second timepoint</span>
+<span class="n">activities</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">by</span> <span class="o">=</span> <span class="s1">&#39;data:time:30&#39;</span><span class="p">,</span> <span class="n">inplace</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span>
+<span class="c1">#reorder axis labels to be in time order</span>
+<span class="n">activities</span> <span class="o">=</span> <span class="n">activities</span><span class="p">[[</span><span class="s1">&#39;data:time:5&#39;</span><span class="p">,</span><span class="s1">&#39;data:time:15&#39;</span><span class="p">,</span><span class="s1">&#39;data:time:30&#39;</span><span class="p">,</span> <span class="s1">&#39;data:time:60&#39;</span><span class="p">]]</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">#reinstantiate the dotplot object</span>
+<span class="n">dots</span> <span class="o">=</span> <span class="n">DotPlot</span><span class="p">(</span><span class="n">activities</span><span class="p">,</span>
+               <span class="n">fpr</span><span class="p">,</span>
+               <span class="n">x_label_dict</span> <span class="o">=</span> <span class="n">x_label_dict</span><span class="p">,</span>
+               <span class="n">kinase_dict</span> <span class="o">=</span> <span class="n">kinase_dict</span><span class="p">,</span>
+               <span class="n">figsize</span> <span class="o">=</span> <span class="p">(</span><span class="mi">4</span><span class="p">,</span><span class="mi">10</span><span class="p">),</span>
+               <span class="n">legend_title</span> <span class="o">=</span> <span class="s1">&#39;-log10(p-value)&#39;</span><span class="p">)</span>
+
+<span class="c1">#plot</span>
+<span class="n">dots</span><span class="o">.</span><span class="n">dotplot</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+&lt;Axes: &gt;
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/Tutorial_DotPlot_20_1.png" src="../_images/Tutorial_DotPlot_20_1.png" />
+</div>
+</div>
+</section>
+<section id="Remove-kinases-that-never-show-significant-activity">
+<h4>Remove kinases that never show significant activity<a class="headerlink" href="#Remove-kinases-that-never-show-significant-activity" title="Link to this heading">#</a></h4>
+<p>In many cases, there will be kinases that do not show significant activity in any of the experiments. It can be advantageous to remove these kinases in order to simplify the plot.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">#drop kinases with that are not significant for any of the samples (fpr &lt;= alpha).</span>
+<span class="n">dots</span><span class="o">.</span><span class="n">drop_kinases_with_no_significance</span><span class="p">()</span>
+
+<span class="c1">#generate the dotplot</span>
+<span class="n">dots</span><span class="o">.</span><span class="n">dotplot</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+&lt;Axes: &gt;
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/Tutorial_DotPlot_22_1.png" src="../_images/Tutorial_DotPlot_22_1.png" />
+</div>
+</div>
+<p>Specific kinases can also be removed prior to plotting. For example, say we were less interested in the activity in EPHA kinases. We can tell the dotplot object to remove these kinases specifically.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">#drop kinases that are not of interest. For example, we may not be interested in visualizing EPHA kinases.</span>
+<span class="n">eph</span> <span class="o">=</span> <span class="p">[</span><span class="n">kin</span> <span class="k">for</span> <span class="n">kin</span> <span class="ow">in</span> <span class="n">activities</span><span class="o">.</span><span class="n">index</span> <span class="k">if</span> <span class="s1">&#39;EPHA&#39;</span> <span class="ow">in</span> <span class="n">kin</span> <span class="ow">or</span> <span class="s1">&#39;EPHB&#39;</span> <span class="ow">in</span> <span class="n">kin</span><span class="p">]</span>
+<span class="n">dots</span><span class="o">.</span><span class="n">drop_kinases</span><span class="p">(</span><span class="n">eph</span><span class="p">)</span>
+
+<span class="c1">#generate the dotplot</span>
+<span class="n">dots</span><span class="o">.</span><span class="n">dotplot</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+&lt;Axes: &gt;
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/Tutorial_DotPlot_24_1.png" src="../_images/Tutorial_DotPlot_24_1.png" />
+</div>
+</div>
+</section>
+<section id="More-complex-plots">
+<h4>More complex plots<a class="headerlink" href="#More-complex-plots" title="Link to this heading">#</a></h4>
+<p>In addition to the base dotplot, we can also cluster kinases/samples, add additional context, and plot evidence sizes. For this, it’s recommended to use the <code class="docutils literal notranslate"><span class="pre">DotPlot.make_complete_dotplot()</span></code> function. See the next sections for examples</p>
+<section id="Cluster-the-kinase-activities">
+<h5>Cluster the kinase activities<a class="headerlink" href="#Cluster-the-kinase-activities" title="Link to this heading">#</a></h5>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">dots</span><span class="o">.</span><span class="n">make_complete_dotplot</span><span class="p">(</span><span class="n">significant_kinases_only</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                           <span class="n">cluster_kinases</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/Tutorial_DotPlot_27_0.png" src="../_images/Tutorial_DotPlot_27_0.png" />
+</div>
+</div>
+<p>Notice that clustering the kinase activities resorted the y-axis, undoing the sorting from earlier.</p>
+</section>
+</section>
+<section id="Add-context-to-dotplot">
+<h4>Add context to dotplot<a class="headerlink" href="#Add-context-to-dotplot" title="Link to this heading">#</a></h4>
+<p>In some cases you may want to add additional context to the dotplot that indicates significant characteristics about each sample. These could include things like pre vs. post-treatment, normal vs. tumor sample, subtype of cancer, etc.</p>
+<p>To do so, you need to create a new dataframe, which contains a row for each sample in the dotplot (with an id column indicating the sample), and columns for each layer of context you want to be added. In the below example, we will add “Context 1” to the plot, which is either true or false. “Context 2” has multiple different options indicated by a number.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">#create context dataframe which indicates different information about each sample</span>
+<span class="n">context</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s1">&#39;Sample&#39;</span><span class="p">:</span> <span class="n">activities</span><span class="o">.</span><span class="n">columns</span><span class="p">,</span> <span class="s1">&#39;Context 1&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;Yes&#39;</span><span class="p">,</span><span class="s1">&#39;Yes&#39;</span><span class="p">,</span><span class="s1">&#39;No&#39;</span><span class="p">,</span><span class="s1">&#39;No&#39;</span><span class="p">],</span> <span class="s1">&#39;Context 2&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;0&#39;</span><span class="p">,</span><span class="s1">&#39;1&#39;</span><span class="p">,</span><span class="s1">&#39;2&#39;</span><span class="p">,</span><span class="s1">&#39;3&#39;</span><span class="p">]})</span>
+<span class="n">context</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>Sample</th>
+      <th>Context 1</th>
+      <th>Context 2</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>data:time:5</td>
+      <td>Yes</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>data:time:15</td>
+      <td>Yes</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>data:time:30</td>
+      <td>No</td>
+      <td>2</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>data:time:60</td>
+      <td>No</td>
+      <td>3</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+<p>Next to plot, with the context information above, setup your subplots as before, but this time, make sure to add another subplot row above the dotplot, which will contain the context strip.</p>
+<p>We can then use the ‘context’ function to add context dots for each sample by passing the context dataframe to the <code class="docutils literal notranslate"><span class="pre">make_complete_dotplot()</span></code> function. The following parameters need to be included:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">context</span></code>: dataframe containing context info</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">id_column</span></code>: column containing sample names</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">context_columns</span></code>: list of column names that have specific context information (can be multiple)</p></li>
+</ul>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">dots</span><span class="o">.</span><span class="n">make_complete_dotplot</span><span class="p">(</span><span class="n">significant_kinases_only</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                           <span class="n">cluster_kinases</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                           <span class="n">context</span> <span class="o">=</span> <span class="n">context</span><span class="p">,</span> <span class="n">id_column</span> <span class="o">=</span> <span class="s1">&#39;Sample&#39;</span><span class="p">,</span> <span class="n">context_columns</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Context 1&#39;</span><span class="p">,</span><span class="s1">&#39;Context 2&#39;</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/Tutorial_DotPlot_34_0.png" src="../_images/Tutorial_DotPlot_34_0.png" />
+</div>
+</div>
+</section>
+<section id="Plot-dotplot-with-the-false-positive-rate-indicated-by-hue">
+<h4>Plot dotplot with the false positive rate indicated by hue<a class="headerlink" href="#Plot-dotplot-with-the-false-positive-rate-indicated-by-hue" title="Link to this heading">#</a></h4>
+<p>In some cases, the binary coloring of significance can make certain kinases appear less significant than they really are, with false positive rates hovering around 0.05. As such, it may be of interest to encode the false positive rate using a gradient hue instead. This is easy to accomplish in the dotplot class, as this is controlled by the binary_sig parameter.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><br/><span></span><span class="c1">#reinstantiate the dotplot object, this time with binary_sig set to False</span>
+<span class="n">dots</span> <span class="o">=</span> <span class="n">DotPlot</span><span class="p">(</span><span class="n">activities</span><span class="p">,</span>
+               <span class="n">fpr</span><span class="p">,</span>
+               <span class="n">binary_sig</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="c1">#change this parameter</span>
+               <span class="n">x_label_dict</span> <span class="o">=</span> <span class="n">x_label_dict</span><span class="p">,</span>
+               <span class="n">kinase_dict</span> <span class="o">=</span> <span class="n">kinase_dict</span><span class="p">,</span>
+               <span class="n">legend_title</span> <span class="o">=</span> <span class="s1">&#39;-log10(p-value)&#39;</span><span class="p">)</span>
+
+<span class="c1">#repeat the same processing steps as before</span>
+<span class="n">dots</span><span class="o">.</span><span class="n">make_complete_dotplot</span><span class="p">(</span><span class="n">significant_kinases_only</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                           <span class="n">cluster_kinases</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                           <span class="n">context</span> <span class="o">=</span> <span class="n">context</span><span class="p">,</span> <span class="n">id_column</span> <span class="o">=</span> <span class="s1">&#39;Sample&#39;</span><span class="p">,</span> <span class="n">context_columns</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Context 1&#39;</span><span class="p">,</span><span class="s1">&#39;Context 2&#39;</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/Tutorial_DotPlot_37_0.png" src="../_images/Tutorial_DotPlot_37_0.png" />
+</div>
+</div>
+</section>
+<section id="Indicate-evidence-size-for-sample">
+<h4>Indicate evidence size for sample<a class="headerlink" href="#Indicate-evidence-size-for-sample" title="Link to this heading">#</a></h4>
+<p>It can sometimes be useful to understand how many phosphorylation sites were used as evidence for each sample, as samples with too few sites may produce unhelpful/unreliable predictions. We have provided functionality to indicate the number of sites used for each sample, as well as indicate when sample size may be too low for reliable predictions. There are two versions of this annotation to choose from:</p>
+<ul class="simple">
+<li><p>Bars: bar plot indicating size, with recommended evidence sizes shown as horizontal lines, and samples with too few sites appearing as faint gray bars.</p></li>
+<li><p>dots: dots with increasing size for increasing number of sites used, with the dot colored based on whether their is sufficient evidence for prediction.</p></li>
+</ul>
+<p>In order to add this layer of information, we need to know the binary evidence used, so load this in, either from kinact_dict or directly from file.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">binary_evidence</span> <span class="o">=</span> <span class="n">kinact_dict</span><span class="p">[</span><span class="s1">&#39;Y&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">evidence_binary</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+<span class="c1">#reinstantiate the dotplot object</span>
+<span class="n">dots</span> <span class="o">=</span> <span class="n">DotPlot</span><span class="p">(</span><span class="n">activities</span><span class="p">,</span>
+               <span class="n">fpr</span><span class="p">,</span>
+               <span class="n">figsize</span> <span class="o">=</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span>
+               <span class="n">x_label_dict</span> <span class="o">=</span> <span class="n">x_label_dict</span><span class="p">,</span>
+               <span class="n">kinase_dict</span> <span class="o">=</span> <span class="n">kinase_dict</span><span class="p">,</span>
+               <span class="n">legend_title</span> <span class="o">=</span> <span class="s1">&#39;-log10(p-value)&#39;</span><span class="p">)</span>
+
+
+<span class="c1">###### Bars Version #######</span>
+
+<span class="c1">#repeat the same processing steps as before</span>
+<span class="n">dots</span><span class="o">.</span><span class="n">make_complete_dotplot</span><span class="p">(</span><span class="n">kinases_to_plot</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;LCK&#39;</span><span class="p">,</span> <span class="s1">&#39;TYK2&#39;</span><span class="p">,</span> <span class="s1">&#39;KIT&#39;</span><span class="p">],</span>
+                           <span class="n">binary_evidence</span> <span class="o">=</span> <span class="n">binary_evidence</span><span class="p">,</span>
+                           <span class="n">plot_type</span> <span class="o">=</span> <span class="s1">&#39;bars&#39;</span><span class="p">,</span>
+                           <span class="n">include_recommendations</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+                           <span class="n">phospho_type</span> <span class="o">=</span> <span class="s1">&#39;Y&#39;</span><span class="p">)</span>
+
+<span class="c1">###### Dots Version ######</span>
+
+<span class="c1">#plot evidence size</span>
+<span class="n">dots</span><span class="o">.</span><span class="n">make_complete_dotplot</span><span class="p">(</span><span class="n">kinases_to_plot</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;LCK&#39;</span><span class="p">,</span> <span class="s1">&#39;TYK2&#39;</span><span class="p">,</span> <span class="s1">&#39;KIT&#39;</span><span class="p">],</span>
+                           <span class="n">binary_evidence</span><span class="o">=</span> <span class="n">binary_evidence</span><span class="p">,</span>
+                           <span class="n">plot_type</span> <span class="o">=</span> <span class="s1">&#39;dots&#39;</span><span class="p">,</span>
+                           <span class="n">include_recommendations</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+                           <span class="n">phospho_type</span> <span class="o">=</span> <span class="s1">&#39;Y&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/Tutorial_DotPlot_39_0.png" src="../_images/Tutorial_DotPlot_39_0.png" />
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/Tutorial_DotPlot_39_1.png" src="../_images/Tutorial_DotPlot_39_1.png" />
+</div>
+</div>
+</section>
+</section>
+</section>
+</section>
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="SummaryPDF.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Summary PDFs</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="Additional_Analysis.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Additional Analyses</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#With-Interactive-Web-App">With Interactive Web App</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#In-Python">In Python</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#Load-KSTAR-Results">Load KSTAR Results</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#Plot-Results">Plot Results</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#Plot-the-base-dotplot">Plot the base dotplot</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#Change-the-axis-labels-and-sort-kinases-based-on-activity">Change the axis labels and sort kinases based on activity</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#Remove-kinases-that-never-show-significant-activity">Remove kinases that never show significant activity</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#More-complex-plots">More complex plots</a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#Cluster-the-kinase-activities">Cluster the kinase activities</a></li>
+</ul>
+</li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#Add-context-to-dotplot">Add context to dotplot</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#Plot-dotplot-with-the-false-positive-rate-indicated-by-hue">Plot dotplot with the false positive rate indicated by hue</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#Indicate-evidence-size-for-sample">Indicate evidence size for sample</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By Naegle Lab
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2020, Naegle Lab.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

@@ -1,0 +1,932 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Map Dataset to Reference &#8212; KSTAR 1.1.0 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/sphinx-book-theme.css?v=eba8b062" />
+    <link rel="stylesheet" type="text/css" href="../_static/nbsphinx-code-cells.css?v=2aa19091" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="../_static/documentation_options.js?v=051bfb12"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'Tutorial/Map_Datasets';</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Predict Kinase Activities" href="Activity_Calculation.html" />
+    <link rel="prev" title="Getting Started" href="quickstart.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">KSTAR 1.1.0 documentation</p>
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">Overview:</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../Overview/Overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Overview/Dependencies.html">Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Overview/data_prep.html">Preparing your Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Overview/ways_to_run.html">Options for Running KSTAR</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Overview/KSTAR.html">KSTAR Reference</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Galaxy Tutorial:</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../Galaxy/Running_KSTAR.html">Run KSTAR on Galaxy</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Python Tutorial (Just the Basics):</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Getting Started</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Map Dataset to Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Activity_Calculation.html">Predict Kinase Activities</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="plotting_tutorial.html">Plotting/Analysis</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="SummaryPDF.html">Summary PDFs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="DotPlot.html">DotPlots</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Additional_Analysis.html">Additional Analyses</a></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Example Vignettes:</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../Examples/Examples.html">Analysis Examples</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../Examples/EGF_184A1_WolfYadlin2007.html">EGF Stimulation of 184A1 Cells (Wolf Yadlin, 2007)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Examples/EGF_HER2_WolfYadlin2006.html">EGF and HRG Stimulation of ERBB2 Overexpressing HMEC Cells (Wolf Yadlin 2006)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Examples/TCR_Analysis.html">TCR Activation (Chylek, 2014)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Examples/BCR-ABL_Analysis.html">BCR-ABL inhibition by dasatinib in K562 cells (Asmussen, 2014)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Examples/AKT_Inhib_Analysis.html">Inhibition of AKT by Five Different Inhibitors in Breast Cancer (Weichmann, 2021)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Examples/Vemurafenib_Analysis.html">Paradoxical Activation of MAP-ERK pathway upon BRAF inhibition (Kubiniok, 2017)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Examples/CPTAC_Analysis.html">Analysis of CPTAC Breast Cancer Patient Samples (Mertens 2016)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Examples/PDX_Analysis.html">Analysis of PDX Tumor Samples (Huang 2017)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Examples/Microbiopsy_Analysis.html">Analysis of HER2 Positive Patients using Microbiopsies (Satpathy 2021)</a></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Advanced Python Usage:</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../Advanced/Pruning.html">Network Generation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Advanced/Pregenerated_Experiments.html">Pregenerated Random actiivities</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Advanced/Parallel/parallel.html">KSTAR in Parallel</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Advanced/faq.html">Frequently Asked Questions</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-source-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Source repositories">
+    <i class="fab fa-github"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="https://github.com/NaegleLab/KSTAR" target="_blank"
+   class="btn btn-sm btn-source-repository-button dropdown-item"
+   title="Source repository"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="btn__text-container">Repository</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li><a href="https://github.com/NaegleLab/KSTAR/issues/new?title=Issue%20on%20page%20%2FTutorial/Map_Datasets.html&body=Your%20issue%20content%20here." target="_blank"
+   class="btn btn-sm btn-source-issues-button dropdown-item"
+   title="Open an issue"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="btn__text-container">Open issue</span>
+</a>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../_sources/Tutorial/Map_Datasets.ipynb" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.ipynb</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>Map Dataset to Reference</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Download-and-Process-Dataset-of-Interest">Download and Process Dataset of Interest</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Map-the-Dataset-to-Reference">Map the Dataset to Reference</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Save-Mapping-Results">Save Mapping Results</a></li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="Map-Dataset-to-Reference">
+<h1>Map Dataset to Reference<a class="headerlink" href="#Map-Dataset-to-Reference" title="Link to this heading">#</a></h1>
+<section id="Download-and-Process-Dataset-of-Interest">
+<h2>Download and Process Dataset of Interest<a class="headerlink" href="#Download-and-Process-Dataset-of-Interest" title="Link to this heading">#</a></h2>
+<p>Prior to predicting kinase activities, datasets need to be mapped to KinPred to obtain the Uniprot ID, phosphosite, and the +/-7 peptide sequence that will be used by KSTAR to identify which kinases are associated with each phosphosite. In order to map kinase activities, the dataframe containing phosphoproteomic data should contain each peptides Uniprot accession, as well as either the site number or peptide sequence. If the peptide sequence is used, it should be formatted with only the
+phosphorylated peptides being lowercased. For example, if a peptide sequence is annotated with ‘(ph)’ in front of the phosphorylated amino acid, you would need to remove the ‘(ph)’ from the sequence and lowercase the phosphorylated amino acid. So, the peptide sequence SGLAYCPND(ph)YHQLFSPR would become SGLAYCPNDyHQLFSPR.</p>
+<p>It is recommended to use the peptide sequence rather than the site number when possible, as this is more likely to be found in the most recent version of KinPred. An example of the processed dataset can be seen below, which is a trimmed, processed, and mapped version of the dataset published publically (Chylek, 2014). You can download this data from the original publication below or the pre-mapped version at <a class="reference external" href="https://figshare.com/articles/dataset/KSTAR_Supplementary_Data/14919726">FigShare</a>.</p>
+<p>Reference: L. A. Chylek, V. Akimov, J. Dengjel, K. T. G. Rigbolt, B. Hu, W. S. Hlavacek, and B. Blagoev. Phosphorylation Site Dynamics of Early T-cell Receptor Signaling. PLoS ONE, 9(8):e104240,</p>
+<ol class="arabic simple" start="2014">
+<li></li>
+</ol>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">#import KSTAR and other necesary packages</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+
+<span class="c1">#load data</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s1">&#39;example.tsv&#39;</span><span class="p">,</span> <span class="n">index_col</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">sep</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\t</span><span class="s1">&#39;</span><span class="p">)</span>
+<span class="n">df</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>query_accession</th>
+      <th>mod_sites</th>
+      <th>peptide</th>
+      <th>data:time:5</th>
+      <th>data:time:15</th>
+      <th>data:time:30</th>
+      <th>data:time:60</th>
+      <th>KSTAR_ACCESSION</th>
+      <th>KSTAR_PEPTIDE</th>
+      <th>KSTAR_SITE</th>
+    </tr>
+    <tr>
+      <th>MS_id</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>7605136</th>
+      <td>Q9P2D3-1</td>
+      <td>Y1104</td>
+      <td>EAAEVCEyAMSLAK</td>
+      <td>-0.01</td>
+      <td>-0.28</td>
+      <td>-0.03</td>
+      <td>-0.27</td>
+      <td>Q9P2D3</td>
+      <td>EAAEVCEyAMSLAK</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>7605137</th>
+      <td>A0FGR8-6</td>
+      <td>Y845</td>
+      <td>NLIAFSEDGSDPyVR</td>
+      <td>0.26</td>
+      <td>0.27</td>
+      <td>0.04</td>
+      <td>0.05</td>
+      <td>A0FGR8</td>
+      <td>NLIAFSEDGSDPyVR</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>7605138</th>
+      <td>Q5T4S7-2</td>
+      <td>Y5156</td>
+      <td>HNDMPIyEAADK</td>
+      <td>0.31</td>
+      <td>-0.15</td>
+      <td>0.01</td>
+      <td>-0.23</td>
+      <td>Q5T4S7</td>
+      <td>HNDMPIyEAADK</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>7605139</th>
+      <td>Q16181-1</td>
+      <td>Y30</td>
+      <td>NLEGyVGFANLPNQVYR</td>
+      <td>-0.14</td>
+      <td>-0.19</td>
+      <td>0.07</td>
+      <td>0.15</td>
+      <td>Q16181</td>
+      <td>NLEGyVGFANLPNQVYR</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>7605140</th>
+      <td>Q16181-1</td>
+      <td>Y41</td>
+      <td>NLEGYVGFANLPNQVyR</td>
+      <td>-0.14</td>
+      <td>-0.09</td>
+      <td>0.04</td>
+      <td>-0.06</td>
+      <td>Q16181</td>
+      <td>NLEGYVGFANLPNQVyR</td>
+      <td>NaN</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+<p>Notice that all data columns in the dataset have ‘data:’ in front of them. This is how KSTAR will identify which columns to use when making evidence decisions. This can be done manually prior to mapping, or will be done by KSTAR automatically once you indicate which columns you would like to use as evidence.</p>
+</section>
+<section id="Map-the-Dataset-to-Reference">
+<h2>Map the Dataset to Reference<a class="headerlink" href="#Map-the-Dataset-to-Reference" title="Link to this heading">#</a></h2>
+<p>Before running KSTAR, you need to map your dataset to the reference phosphoproteome used by KSTAR to ensure site positions agree with the kinase-substrate information. First, we need to indicate where to save the mapped data and the name you would like to use for output files:</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">#define the directory where mapped dataset and run information will be saved.</span>
+<span class="n">odir</span> <span class="o">=</span> <span class="s1">&#39;./example&#39;</span>
+<span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;example_run&#39;</span>
+</pre></div>
+</div>
+</div>
+<p>Next, you need to indicate where to find columns containing peptide-specific information. Construct a dictionary which indicates the columns where KSTAR can find information about each phosphopeptide. This should include:</p>
+<ul class="simple">
+<li><p><em>accession_id</em>: the UniProt accession corresponding to the identified peptide.</p></li>
+</ul>
+<p>and either:</p>
+<ul class="simple">
+<li><p><em>peptide</em>: amino acid sequence with phosphorylation sites lowercased</p></li>
+<li><p><em>site</em>: modified amino acid + modification location, such as Y11</p></li>
+</ul>
+<p>It is recommended to use the peptide sequence when possible.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">#setup mapping columns: since we only have peptide column in the example data, we will use that column (and not provide a site column)</span>
+<span class="n">accession_col</span> <span class="o">=</span> <span class="s1">&#39;query_accession&#39;</span>
+<span class="n">peptide_col</span> <span class="o">=</span> <span class="s1">&#39;peptide&#39;</span>
+<span class="n">mapDict</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;accession_id&#39;</span><span class="p">:</span><span class="s1">&#39;query_accession&#39;</span><span class="p">,</span> <span class="s1">&#39;peptide&#39;</span><span class="p">:</span><span class="s1">&#39;peptide&#39;</span><span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">kstar</span><span class="w"> </span><span class="kn">import</span> <span class="n">mapping</span>
+<span class="c1">#map dataset and record process in the logger</span>
+<span class="n">exp_mapper</span> <span class="o">=</span> <span class="n">mapping</span><span class="o">.</span><span class="n">ExperimentMapper</span><span class="p">(</span><span class="n">experiment</span> <span class="o">=</span> <span class="n">df</span><span class="p">,</span>
+                                      <span class="n">columns</span> <span class="o">=</span> <span class="n">mapDict</span><span class="p">,</span>
+                                      <span class="n">odir</span> <span class="o">=</span> <span class="n">odir</span><span class="p">,</span>
+                                      <span class="n">name</span> <span class="o">=</span> <span class="n">name</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Warning: Could not find network directory as specified in configuration file. If you have not downloaded networks, please do so using config.install_network_files(). If using your own networks, please update the configuration file using config.update_configuration() to point to correct directory and network name
+Processing provided accessions...
+Aligning peptides/sites to reference sequences...
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+Mapping peptides/sites to reference sequences: 100%|███████████████████████████████████████████████████| 689/689 [00:00&lt;00:00, 2078.42it/s]
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Mapping complete.
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+
+</pre></div></div>
+</div>
+<p>If you look at the ExperimentMapper class, you will find that five new columns have been added to the original dataset, which allows for easy mapping to KSTAR networks used in activity prediction.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">exp_mapper</span><span class="o">.</span><span class="n">experiment</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>query_accession</th>
+      <th>mod_sites</th>
+      <th>peptide</th>
+      <th>data:time:5</th>
+      <th>data:time:15</th>
+      <th>data:time:30</th>
+      <th>data:time:60</th>
+      <th>KSTAR_ACCESSION</th>
+      <th>KSTAR_PEPTIDE</th>
+      <th>KSTAR_SITE</th>
+      <th>KSTAR_NUM_COMPENDIA</th>
+      <th>KSTAR_NUM_COMPENDIA_CLASS</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>Q9P2D3-1</td>
+      <td>Y1104</td>
+      <td>EAAEVCEyAMSLAK</td>
+      <td>-0.01</td>
+      <td>-0.28</td>
+      <td>-0.03</td>
+      <td>-0.27</td>
+      <td>Q9P2D3</td>
+      <td>EAAEVCEyAMSLAKN</td>
+      <td>Y1104</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>A0FGR8-6</td>
+      <td>Y845</td>
+      <td>NLIAFSEDGSDPyVR</td>
+      <td>0.26</td>
+      <td>0.27</td>
+      <td>0.04</td>
+      <td>0.05</td>
+      <td>A0FGR8</td>
+      <td>SEDGSDPyVRMYLLP</td>
+      <td>Y824</td>
+      <td>2</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>Q5T4S7-2</td>
+      <td>Y5156</td>
+      <td>HNDMPIyEAADK</td>
+      <td>0.31</td>
+      <td>-0.15</td>
+      <td>0.01</td>
+      <td>-0.23</td>
+      <td>Q5T4S7</td>
+      <td>RHNDMPIyEAADKAL</td>
+      <td>Y5135</td>
+      <td>1</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>Q16181-1</td>
+      <td>Y30</td>
+      <td>NLEGyVGFANLPNQVYR</td>
+      <td>-0.14</td>
+      <td>-0.19</td>
+      <td>0.07</td>
+      <td>0.15</td>
+      <td>Q16181</td>
+      <td>QQKNLEGyVGFANLP</td>
+      <td>Y30</td>
+      <td>5</td>
+      <td>2</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>Q16181-1</td>
+      <td>Y41</td>
+      <td>NLEGYVGFANLPNQVyR</td>
+      <td>-0.14</td>
+      <td>-0.09</td>
+      <td>0.04</td>
+      <td>-0.06</td>
+      <td>Q16181</td>
+      <td>ANLPNQVyRKSVKRG</td>
+      <td>Y41</td>
+      <td>1</td>
+      <td>1</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+<p>These additional columns have the following meaning:</p>
+<ol class="arabic simple">
+<li><p><em>KSTAR_ACCESSION</em>: Uniprot accession id corresponding to reviewed protein sequence, focusing only on the canonical isoforms of each protein.</p></li>
+<li><p><em>KSTAR_PEPTIDE</em>: Peptide sequence containing a single phosphorylation site, including the 7 amino acids both before and after the modified residue.</p></li>
+<li><p><em>KSTAR_SITE</em>: Location of modified residue in the protein</p></li>
+<li><p><em>KSTAR_NUM_COMPENDIA</em>: The number of different phosphoproteome compendia that modification site is identified in, used as an indicator of the study bias of each modification site. For this purpose, PhosphoSitePlus, PhosphoELM, HPRD, ______, and ProteomeScout were profiled.</p></li>
+<li><p><em>KSTAR_NUM_COMPENDIA_CLASS</em>: Same as 4, but sites are grouped into smaller classes based on study bias (0 is &lt;1 compendia, 1 is 1-3 compendia, 2 is &gt;3 compendia)</p></li>
+</ol>
+</section>
+<section id="Save-Mapping-Results">
+<h2>Save Mapping Results<a class="headerlink" href="#Save-Mapping-Results" title="Link to this heading">#</a></h2>
+<p>You can save the result using the <code class="docutils literal notranslate"><span class="pre">save_experiment()</span></code> function. This will save the following files in a MAPPED_DATA directory:</p>
+<ul class="simple">
+<li><p><em>name_mapped.csv</em>: dataset mapped to reference phosphoproteome, to be used for activity prediction</p></li>
+<li><p><em>name_mapping_stats.txt</em>: summary of how successful mapping process was</p></li>
+<li><p><em>name_missed_sites.csv</em>: dataframe of all sites that were removed from the dataset and the reason</p></li>
+</ul>
+<p>Looking at the mapping_stats.txt file is a good check to make sure the data was effectively mapped:</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">exp_mapper</span><span class="o">.</span><span class="n">save_experiment</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<p>You can either inspect the mapping_stats.txt file directly or load it into python to look at results</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">#load mapped data</span>
+<span class="n">stats_file</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">odir</span><span class="si">}</span><span class="s2">/MAPPED_DATA/</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">_mapping_stats.txt&quot;</span>
+<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">stats_file</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Site counts per data column after mapping:
+
+Phospho type: Y
+data:time:5 -&gt; 663
+data:time:15 -&gt; 663
+data:time:30 -&gt; 663
+data:time:60 -&gt; 663
+
+Phospho type: ST
+data:time:5 -&gt; 1
+data:time:15 -&gt; 1
+data:time:30 -&gt; 1
+data:time:60 -&gt; 1
+
+Mapping success statistics:
+Mapped Peptides: 653/653 peptides mapped (100.00%).
+
+Reasons for unmapped sites/peptides:
+
+See ./example/MAPPED_DATA/example_run_removed_sites.csv for details on removed sites/peptides.
+
+</pre></div></div>
+</div>
+<p>You are now ready to proceed to activity calculation</p>
+</section>
+</section>
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="quickstart.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Getting Started</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="Activity_Calculation.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Predict Kinase Activities</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Download-and-Process-Dataset-of-Interest">Download and Process Dataset of Interest</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Map-the-Dataset-to-Reference">Map the Dataset to Reference</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Save-Mapping-Results">Save Mapping Results</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By Naegle Lab
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2020, Naegle Lab.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>
