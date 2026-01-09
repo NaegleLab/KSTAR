@@ -926,7 +926,22 @@ class DotPlot:
 
 class KSTAR_PDF(fpdf.FPDF):
     """
-    Class to generate a PDF report from KSTAR analysis results.
+    Class to generate a PDF report from KSTAR analysis results, built on fdpf2 module
+
+    Parameters
+    ----------
+    activities : pandas DataFrame
+        DataFrame of mann whitney kinase activities
+    fpr : pandas DataFrame
+        DataFrame of false positive rates corresponding to activities
+    odir : str
+        Output directory for saving the PDF report
+    name : str
+        Name of the experiment/run, used for file naming
+    binarized_experiment : pandas DataFrame
+        Binarized experiment indicating which sites were used as evidence in each column
+    param_dict : dict
+        Dictionary of parameters used in the KSTAR run
     """
     def __init__(self, activities, fpr, odir, name, binarized_experiment, param_dict):
         super().__init__()
@@ -946,6 +961,21 @@ class KSTAR_PDF(fpdf.FPDF):
             os.makedirs(os.path.join(self.odir, "FIGURES"))
 
     def table(self, data, header = None,column_widths = 40, row_height = 5):
+        """
+        Builds a table in the PDF
+
+        Parameters
+        ----------
+        data : pandas DataFrame
+            DataFrame containing the data to be included in the table
+        header : list, optional
+            List of header names for the table columns. If None, uses DataFrame column names.
+        column_widths : int or list, optional
+            Width of each column in the table. If an integer is provided, all columns will have
+            the same width. If a list is provided, it should contain the width for each column.
+        row_height : int, optional
+            Height of each row in the table.
+        """
         if header is None:
             header = data.columns
         # Column widths
@@ -979,6 +1009,9 @@ class KSTAR_PDF(fpdf.FPDF):
 
 
     def summary_page(self):
+        """
+        Create a PDF page that indicates the parameters used in the KSTAR run and the key kinases identified for each column
+        """
         self.add_page()
         # Helvetica bold 15
         self.set_font('Helvetica', 'B', 15)
@@ -1018,6 +1051,9 @@ class KSTAR_PDF(fpdf.FPDF):
         
 
     def create_dotplot(self):
+        """
+        Generate a standard activity dotplot for use in the PDF report
+        """
         print('generating dotplot figure...')
         #calculate number of samples and kinases to size figure appropriately
         num_samples = self.activities.shape[1]
@@ -1050,6 +1086,14 @@ class KSTAR_PDF(fpdf.FPDF):
         plt.close()
 
     def dotplot_page(self, regenerate_plots = False):
+        """
+        Create a PDF page that includes the KSTAR dotplot figure and information on where to find the figure and underlying data in the output directory
+
+        Parameters
+        ----------
+        regenerate_plots : bool, optional
+            Whether to regenerate the dotplot figure even if it already exists in the output directory
+        """
         self.add_page()
         # Helvetica bold 15
         self.set_font('Helvetica', 'B', 15)
@@ -1086,6 +1130,14 @@ class KSTAR_PDF(fpdf.FPDF):
         self.cell(w=0, h=5, txt='Want to customize the dotplot? Visit the KSTAR plotting tool linked here:', border=0, new_x='LMARGIN', new_y='NEXT', align='L', link='https://proteomescout.research.virginia.edu/kstar/')
 
     def evidence_count_plot(self, data_columns):
+        """
+        Creates a barplot showing the number of sites used as evidence in each column of the experiment
+
+        Parameters
+        ----------
+        data_columns : list
+            List of column names in the experiment to include in the plot
+        """
         #get evidence counts
         data_columns = self.activities.columns.tolist()
         num_samples = len(data_columns)
@@ -1124,6 +1176,14 @@ class KSTAR_PDF(fpdf.FPDF):
         plt.close()
 
     def evidence_overlap_plot(self, data_columns):
+        """
+        Creates a heatmap showing the Jaccard index of evidence overlap between columns in the experiment
+
+        Parameters
+        ----------
+        data_columns : list
+            List of column names in the experiment to include in the plot
+        """
         fig, ax = plt.subplots(figsize = (7,3.5))
         if len(data_columns) <= 20:
             annot = True
@@ -1155,6 +1215,14 @@ class KSTAR_PDF(fpdf.FPDF):
         plt.close()
 
     def evidence_page(self, regenerate_plots = False):
+        """
+        Create a PDF page that includes the total number of sites used as evidence for each column and the jaccard similarity of evidence between columns
+
+        Parameters
+        ----------
+        regenerate_plots : bool, optional
+            Whether to regenerate the evidence plots even if they already exist in the output directory
+        """
         data_columns = self.activities.columns.tolist()
         
         if not os.path.exists(os.path.join(self.odir, "FIGURES", f"{self.name}_{self.phospho_type}_evidence_count.png")) or regenerate_plots:
@@ -1188,6 +1256,10 @@ class KSTAR_PDF(fpdf.FPDF):
 
 
     def top_kinases_table(self):
+        """
+        Constructs a table of the top 5 most active significant kinases per sample and adds it to the PDF page
+
+        """
         #construct table of top kinases per sample
         data_columns = self.activities.columns
         num_sig_list = []
@@ -1221,6 +1293,14 @@ class KSTAR_PDF(fpdf.FPDF):
         self.cell(0, 10, 'Page ' + str(self.page_no()) + '/{nb}', 0, 0, 'C')
 
     def generate(self, regenerate_plots = False):
+        """
+        Generates the PDF report by creating each page in sequence and saving the final PDF to the output directory
+        
+        Parameters
+        ----------
+        regenerate_plots : bool, optional
+            Whether to regenerate all plots even if they already exist in the output directory
+        """
         #make figure directory if it does not exist
         if not os.path.exists(os.path.join(self.odir, 'FIGURES')):
             os.makedirs(os.path.join(self.odir, 'FIGURES'))

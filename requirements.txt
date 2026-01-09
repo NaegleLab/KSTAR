@@ -1,8 +1,11 @@
 # To ensure app dependencies are ported from your virtual environment/host machine into your container, run 'pip freeze > requirements.txt' in the terminal to overwrite this file
-numpy==1.26.*
-pandas==2.1.*
-scipy==1.11.*
-matplotlib==3.8.*
-seaborn==0.13.*
-requests==2.31.*
+matplotlib-base>=3.8
+numpy>=1.26
+pandas>=2.1
+python>=3.9
+scipy>=1.11
+seaborn>=0.13
+fpdf2>=2.5
+requests
+tqdm
 

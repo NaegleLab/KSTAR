@@ -1,5 +1,5 @@
 {% set name = "kstar" %}
-{% set version = "1.0.4" %}
+{% set version = "1.1.0" %}
 {% set python_min = "3.9" %}
 
 package:
@@ -8,7 +8,7 @@ package:
 
 source:
   url: https://pypi.org/packages/source/{{ name[0] }}/{{ name }}/kstar-{{ version }}.tar.gz
-  sha256: 5c439ac4c6873cec8beb53684c12847448456c57b6ff8edfbdfe87ec5ff6dd4e
+  sha256: 4e485bd0fe3f223536e06ce19e4846919ffaed6ff7da19ca5391e01283ece06d
 
 build:
   number: 0
@@ -20,20 +20,22 @@ requirements:
     - pip
     - python >=3.9
   run:
-    - biopython ==1.78.*
-    - matplotlib-base ==3.8.*
-    - numpy ==1.26.*
-    - pandas ==2.1.*
-    - python >=3.9
-    - requests ==2.31.*
-    - scipy ==1.11.*
-    - seaborn ==0.13.*
+    - matplotlib-base>=3.8
+    - numpy>=1.26
+    - pandas>=2.1
+    - python>=3.9
+    - scipy>=1.11
+    - seaborn>=0.13
+    - fpdf2>=2.5
+    - requests
+    - tqdm
 
 test:
   imports:
     - kstar
     - kstar.random_experiments
     - kstar.analysis
+    - kstar.dataset_processing
   commands:
     - pip check
   requires:
