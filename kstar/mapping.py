@@ -3,6 +3,8 @@ import pandas as pd
 from collections import defaultdict
 import re
 import os
+
+import tqdm
 import numpy as np
 from kstar import config, helpers
 
@@ -24,8 +26,12 @@ class ExperimentMapper:
     columns: dict
         Dictionary with mappings of the experiment dataframe column names for the required names 'accession_id', 'peptide', or 'site'. 
         One of 'peptide' or 'site' is required. 
+    name: str
+        Name of experiment, used for logging and output file names
+    odir: str
+        Output directory where mapped data and logs will be saved
     logger: Logger object
-        used for logging when peptides cannot be matched and when a site location changes
+        used for logging when peptides cannot be matched and when a site location changes. If None, a logger will be created in the output directory.
     sequences: dict
         Dictionary of sequences. Key : accession. Value : protein sequence. 
         Default is imported from kstar.config
@@ -55,19 +61,44 @@ class ExperimentMapper:
     """ 
     #for documentation purposes convert non required parameters to kwargs
     #def __init__(self, experiment, columns, logger, *kwargs): 
-    def __init__(self, experiment, columns, logger, sequences=config.HUMAN_REF_SEQUENCES, compendia=config.HUMAN_REF_COMPENDIA, window = 7, data_columns = None): 
+    def __init__(self, experiment, columns, odir='./', name = 'experiment', window = 7, data_columns = None, logger = None, sequences=None, compendia=None): 
         self.experiment = experiment
-        self.sequences = sequences
-        self.compendia = compendia
+        self.sequences = sequences if sequences is not None else config.HUMAN_REF_SEQUENCES
+        self.compendia = compendia if compendia is not None else config.HUMAN_REF_COMPENDIA
+        self.name = name
+        self.odir = odir
+
+        #set up logger
+        #if directory doesn't exist yet, create it
+        if not os.path.exists(f"{odir}/MAPPED_DATA"):
+            os.mkdir(f"{odir}/MAPPED_DATA")
+
+        if logger is not None:
+            self.logger = logger
+        else:
+            self.logger = helpers.get_logger(f"mapping_{name}", f"{odir}/MAPPED_DATA/mapping_{name}.log")
+
+
         def set_accession_id(accession):
             acc = accession.split('-')
             if len(acc) > 1:
                 acc = acc[:-1]
             return '-'.join(acc)
-
+        
+        print('Processing provided accessions...')
         if 'accession_id' not in columns.keys():
             raise ValueError('ExperimentMapper requires accession_id as a dictionary key')
         else:
+            #check if accession column has NaN values
+            if self.experiment[columns['accession_id']].isna().any():
+                self.logger.warning("NaN values found in accession ID column. These rows will be removed during mapping.")
+                self.experiment = self.experiment.dropna(subset=[columns['accession_id']]).copy()
+            
+            #check if accession column has multiple accessions separated by ';'. If so, separate into unique rows
+            if self.experiment[columns['accession_id']].str.contains(';').any():
+                self.logger.warning("Multiple accession IDs found in some rows. These will be split into multiple rows for mapping.")
+                self.experiment[columns['accession_id']] = self.experiment[columns['accession_id']].str.split(';')
+                self.experiment = self.experiment.explode(columns['accession_id']).reset_index(drop=True).copy()
             self.experiment[config.KSTAR_ACCESSION] = self.experiment[columns['accession_id']].apply(set_accession_id) 
 
         if 'peptide' not in columns.keys() and 'site' not in columns.keys():
@@ -76,15 +107,50 @@ class ExperimentMapper:
         self.experiment[config.KSTAR_PEPTIDE] = self.experiment[columns['peptide']] if 'peptide' in columns.keys() else None
         self.experiment[config.KSTAR_SITE] = self.experiment[columns['site']] if 'site' in columns.keys() else None
 
-        self.logger = logger
         self.set_data_columns(data_columns)
+
+        #initialize dataframe to record sites that could not be mapped
+        self.not_mapped = pd.DataFrame()
+
+        #identify cases where accession ids in experiment are not found in resource files
+        accession_not_found = self.experiment[~self.experiment[config.KSTAR_ACCESSION].isin(self.compendia[config.KSTAR_ACCESSION])].copy()
+        accession_not_found['Error'] = 'Accession not present in reference'
+        self.not_mapped = pd.concat([self.not_mapped, accession_not_found], ignore_index=True)
+
+        #keep only those accessions that are found in compendia
+        self.experiment = self.experiment[self.experiment[config.KSTAR_ACCESSION].isin(self.compendia[config.KSTAR_ACCESSION])]
+        print('Aligning peptides/sites to reference sequences...')
+        #align peptides/sites to reference sequences
         self.align_sites(window)
 
         compendia = self.compendia[[config.KSTAR_ACCESSION, config.KSTAR_SITE, 'KSTAR_NUM_COMPENDIA', 'KSTAR_NUM_COMPENDIA_CLASS']]
-        self.experiment = pd.merge(self.experiment, compendia, how = 'inner', on = [config.KSTAR_ACCESSION, config.KSTAR_SITE] )
+
+        #before merging, check if experiment already has compendia columns. If so, drop them and report in logger
+        if 'KSTAR_NUM_COMPENDIA' in self.experiment.columns or 'KSTAR_NUM_COMPENDIA_CLASS' in self.experiment.columns:
+            self.logger.warning("Experiment already contains mapped columns, mapping may have already been run on this file. These will be overwritten during mapping.")
+            self.experiment.drop(columns = ['KSTAR_NUM_COMPENDIA', 'KSTAR_NUM_COMPENDIA_CLASS'], inplace = True, errors='ignore')
+
+        #add site and compendia information
+        self.experiment = pd.merge(self.experiment, compendia, how = 'left', on = [config.KSTAR_ACCESSION, config.KSTAR_SITE] )
+
+        not_found = self.experiment[self.experiment['KSTAR_NUM_COMPENDIA'].isna()].copy()
+        not_found['Error'] = 'Site not found in compendia'
+        if len(not_found) > 0:
+            self.logger.warning(f"{len(not_found)} sites not found in compendia during mapping.")
+            self.not_mapped = pd.concat([self.not_mapped, not_found], ignore_index=True)
+            self.not_mapped = self.not_mapped.drop(columns = ['KSTAR_NUM_COMPENDIA', 'KSTAR_NUM_COMPENDIA_CLASS'], errors='ignore')
+
+        #grab those with compendia evidence
+        self.experiment = self.experiment[~self.experiment['KSTAR_NUM_COMPENDIA'].isna()]
+
         #after merge, NUM_COMPENDIA/CLASS as become a float, likely due to mismatches, so assume those evidences are 0
         self.experiment['KSTAR_NUM_COMPENDIA'] = self.experiment['KSTAR_NUM_COMPENDIA'].fillna(0.0).astype(int)
         self.experiment['KSTAR_NUM_COMPENDIA_CLASS'] = self.experiment['KSTAR_NUM_COMPENDIA_CLASS'].fillna(0.0).astype(int)
+
+        #save columns attribute
+        self.columns = columns
+
+        print('Mapping complete.')
 
     def set_data_columns(self, data_columns):
         """
@@ -137,7 +203,7 @@ class ExperimentMapper:
 
         self.experiment = expand_peptide(self.experiment, config.KSTAR_PEPTIDE)
 
-        for index, row in self.experiment.iterrows():
+        for index, row in tqdm.tqdm(self.experiment.iterrows(), desc = 'Mapping peptides/sites to reference sequences', total = len(self.experiment)):
             sequence = self.get_sequence(row[config.KSTAR_ACCESSION])
             if sequence is not None:
                 # If peptide provided then find site
@@ -180,8 +246,111 @@ class ExperimentMapper:
                 self.logger.warning(f"SEQUENCE NOT FOUND : {row[config.KSTAR_ACCESSION]}")
                 self.experiment.loc[index, config.KSTAR_SITE] = None
                 self.experiment.loc[index, config.KSTAR_PEPTIDE] = None
+
+        #record missed peptides
+        missed_peptides = self.experiment[self.experiment[config.KSTAR_PEPTIDE].isna()].copy()
+        missed_peptides['Error'] = 'Could not map peptide/site to reference sequence'
+        if len(missed_peptides) > 0:
+            self.logger.warning(f"{len(missed_peptides)} missed peptides during mapping.")
+            
+            self.not_mapped = pd.concat([self.not_mapped, missed_peptides], ignore_index=True)
+
+
+        #remove missed peptides from experiment, and drop any duplicates
         self.experiment.dropna(axis = 'rows', subset = [config.KSTAR_ACCESSION, config.KSTAR_SITE, config.KSTAR_PEPTIDE], inplace = True)
         self.experiment.drop_duplicates(inplace=True)
+
+    def get_number_missed_peptides(self):
+        """
+        Returns number of missed peptides
+        """
+        if 'peptide' not in self.columns:
+            raise ValueError('ExperimentMapper was not provided a peptide columns, so cannot report the number of original peptides that were not mapped. Use `get_number_missed_sites` instead.')
+        
+        #get unique peptides that were mapped or unmapped
+        mapped_peptides = self.experiment.groupby([config.KSTAR_ACCESSION, self.columns['peptide']]).size().shape[0]
+        unmapped_peptides = self.not_mapped.groupby([config.KSTAR_ACCESSION, self.columns['peptide']]).size().shape[0]
+        #combine both mapped and unmapped peptides to get total unique peptides from original experiment
+        all_peptides = mapped_peptides + unmapped_peptides
+        
+        return mapped_peptides, all_peptides
+    
+    def get_number_missed_sites(self):
+        """
+        Returns number of missed sites
+        """
+        if 'site' not in self.columns:
+            raise ValueError('ExperimentMapper was not provided a site columns, so cannot report the number of original sites that were not mapped. Use `get_number_missed_peptides` instead.')
+        
+        #get unique sites that were mapped or unmapped
+        mapped_sites = self.experiment[[config.KSTAR_ACCESSION, config.KSTAR_SITE]].drop_duplicates()
+        unmapped_sites = self.not_mapped[[config.KSTAR_ACCESSION, config.KSTAR_SITE]].drop_duplicates()
+        #combine both mapped and unmapped peptides to get total unique peptides from original experiment
+        all_sites = pd.concat([mapped_sites, unmapped_sites], ignore_index=True).drop_duplicates()
+        
+        return len(mapped_sites), len(all_sites)
+    
+    def get_reason_for_unmapped(self):
+        """
+        Returns dataframe of unmapped sites with reasons for being unmapped
+
+        Returns
+        -------
+        errors : pandas Series
+            Series with counts of each error type
+        perc : pandas Series
+            Series with percentage of each error type
+        """
+        errors = self.not_mapped.groupby('Error').size().reset_index(name='Error Counts')
+        perc = (errors['Error Counts'] / len(self.not_mapped.dropna(subset = 'Error'))) * 100
+        return errors, perc
+
+    def save_experiment(self, return_stats = True, return_lost_sites = True):
+        """
+        Given a completed mapping process, save the resulting experiment and reporting files (if desired) to the output directory.
+
+        Parameters
+        ----------
+        return_stats : bool
+            Whether to save a mapping statistics file. Default is True.
+        return_lost_sites : bool    
+            Whether to save csv file containing any sites/peptides that were removed during the mapping process. Default is True.
+        """
+        self.experiment.to_csv(f"{self.odir}/MAPPED_DATA/{self.name}_mapped.csv", index = False)
+
+        #report
+        if return_lost_sites:
+            self.not_mapped.to_csv(f"{self.odir}/MAPPED_DATA/{self.name}_removed_sites.csv", index = False)
+
+        if return_stats:
+            with open(f"{self.odir}/MAPPED_DATA/{self.name}_mapping_stats.txt", 'w') as f:
+                #get number of sites in each data column in experiment
+                f.write('Site counts per data column after mapping:\n')
+                for phospho_type in ['Y', 'ST']:
+                    f.write(f"\nPhospho type: {phospho_type}\n")
+                    for data_col in self.data_columns:
+                        num_sites = self.experiment.loc[self.experiment[config.KSTAR_SITE].str.startswith(tuple(phospho_type)), [config.KSTAR_ACCESSION, config.KSTAR_SITE, data_col]].dropna().drop_duplicates()
+                        f.write(f"{data_col} -> {len(num_sites)}\n")
+                    
+
+                f.write('\nMapping success statistics:\n')
+                if 'site' in self.columns:
+                    mapped_sites, all_sites = self.get_number_missed_sites()
+                    f.write(f"Mapped Sites: {mapped_sites}/{all_sites} sites mapped ({mapped_sites/all_sites*100:.2f}%).\n")
+                if 'peptide' in self.columns:
+                    mapped_peptides, all_peptides = self.get_number_missed_peptides()
+                    f.write(f"Mapped Peptides: {mapped_peptides}/{all_peptides} peptides mapped ({mapped_peptides/all_peptides*100:.2f}%).\n")
+
+                f.write('\nReasons for unmapped sites/peptides:\n')
+                errors, perc = self.get_reason_for_unmapped()
+                for i, row in errors.iterrows():
+                    f.write(f"{row['Error']}: {row['Error Counts']} ({perc.iloc[i]:.2f}%)\n")
+
+                f.write(f"\nSee {self.odir}/MAPPED_DATA/{self.name}_removed_sites.csv for details on removed sites/peptides.\n")
+
+
+
+        
 
 
 def expand_peptide(df, peptide_column):
@@ -436,20 +605,3 @@ def get_aligned_peptide(site, sequence, window):
         return peptide
     return None
 
-def run_mapping(experiment, odir, name, map_columns, window=7, data_columns=None):
-    if not os.path.exists(f"{odir}/MAPPED_DATA"): 
-        os.mkdir(f"{odir}/MAPPED_DATA")   
-    mapping_log = helpers.get_logger(f"mapping_{name}", f"{odir}/MAPPED_DATA/mapping_{name}.log")
-    exp_mapper = ExperimentMapper(
-        experiment = experiment,
-        sequences = config.HUMAN_REF_SEQUENCES, 
-        columns = map_columns, 
-        logger = mapping_log, 
-        compendia = config.HUMAN_REF_COMPENDIA, 
-        window = window, 
-        data_columns = data_columns)
-     
-    experiment = exp_mapper.experiment 
-    experiment.to_csv(f"{odir}/MAPPED_DATA/{name}_mapped.tsv", sep = '\t', index = False)
-    
-    return experiment

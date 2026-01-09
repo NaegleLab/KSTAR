@@ -4,7 +4,7 @@ import pickle
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-from kstar import config
+from kstar import config, helpers
 
 def numUniqueSubstrates(networks, acc_col = 'KSTAR_ACCESSION', site_col = 'KSTAR_SITE'):
     """
@@ -33,7 +33,7 @@ def numUniqueSubstrates(networks, acc_col = 'KSTAR_ACCESSION', site_col = 'KSTAR
         net_substrates = np.unique(networks[acc_col]+'_'+networks[site_col])
     return len(net_substrates)
     
-def averageUniqueSubstrates_KSTAR(mod_types = ['Y','ST']):
+def averageUniqueSubstrates_KSTAR(networks = None):
     """
     Calculate the average number of unique substrates covered by each KSTAR pruned network
     
@@ -48,19 +48,36 @@ def averageUniqueSubstrates_KSTAR(mod_types = ['Y','ST']):
         indicates the average number of substrates across all pruned networks for indicated modification types
         
     """
+    #if networks are not provided, load default KSTAR networks
+    if networks is None:
+        networks = {}
+        for ptype in ['Y', 'ST']:
+            networks[ptype] = helpers.load_networks_from_directory(
+                network_directory=config.NETWORK_DIR,
+                network_name=config.NETWORK_NAME[ptype],
+                phospho_type=ptype
+            )
     averageSub = {}
-    for mod in mod_types:
-        numSubstrates = []
-        if mod == 'Y':
-            networks = pickle.load(open(config.NETWORK_Y_PICKLE, 'rb'))
+    if isinstance(networks, dict):
+        #if networks provided as dict with mods as keys
+        if 'Y' in networks or 'ST' in networks:
+            for mod in networks.keys():
+                numSubstrates = []
+                mod_networks = networks[mod]
+                for nname in mod_networks.keys():
+                    net = mod_networks[nname]
+                    numSubstrates.append(numUniqueSubstrates(net))
+                
+                averageSub[mod] = np.mean(numSubstrates)
         else:
-            networks = pickle.load(open(config.NETWORK_ST_PICKLE, 'rb'))
+            numSubstrates = []
+            for nname in networks.keys():
+                net = networks[nname]
+                numSubstrates.append(numUniqueSubstrates(net))
+            averageSub['all'] = np.mean(numSubstrates)
+    else:
+        raise TypeError('networks should be provided as a dictionary of pruned networks')
         
-        for nname in networks.keys():
-            net = networks[nname]
-            numSubstrates.append(numUniqueSubstrates(net))
-        
-        averageSub[mod] = np.mean(numSubstrates)
         
     return averageSub
     
@@ -85,9 +102,9 @@ def getStudyBiasDistribution_InPhosphoproteome(mod_type = 'Y', ax = None, figsiz
     """
     #get compendia info specific to modification type
     if mod_type == 'Y':
-        comp = config.HUMAN_REF_COMPENDIA[config.HUMAN_REF_COMPENDIA['type'] == 'Y']
+        comp = config.HUMAN_REF_COMPENDIA[config.HUMAN_REF_COMPENDIA[config.KSTAR_SITE].str.startswith('Y')]
     elif mod_type == 'ST':
-        comp = config.HUMAN_REF_COMPENDIA[config.HUMAN_REF_COMPENDIA['type'] != 'Y']
+        comp = config.HUMAN_REF_COMPENDIA[config.HUMAN_REF_COMPENDIA[config.KSTAR_SITE].str.startswith(tuple('ST'))]
     else:
         raise ValueError("mod_type must be either 'Y' or 'ST'")
     #make histogram, return corresponding data if requested
@@ -209,7 +226,7 @@ def experimentCoverage(experiment, networks, mod = 'Y', exp_cols = ['KSTAR_ACCES
     else:
         print(f"No phosphorylation sites of type '{mod}' found in experiment")
         return np.nan
-    return fraction_of_sites_covered
+
             
 def sampleCoverage(binary_experiment, data_col, networks, mod = 'Y', exp_cols = ['KSTAR_ACCESSION', 'KSTAR_SITE'], net_cols = ['KSTAR_ACCESSION', 'KSTAR_SITE']):
     """

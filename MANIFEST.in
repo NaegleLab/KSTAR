@@ -1,1 +1,2 @@
-include kstar/directories.txt
+include kstar/configuration.json
+include kstar/RESOURCE_FILES/*

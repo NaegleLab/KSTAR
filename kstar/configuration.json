@@ -1,0 +1,9 @@
+{
+    "network_directory": "./kstar/NETWORKS/",
+    "Y_network_name": "Default",
+    "ST_network_name": "Default",
+    "save_random_experiments": false,
+    "use_pregenerated_random_activities": true,
+    "save_new_random_activities": false,
+    "custom_pregenerated_experiments_dir": null
+}

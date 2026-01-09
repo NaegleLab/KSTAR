@@ -32,8 +32,11 @@ def getSubstrateInfluence(networks, kinase, substrate_subset = None):
             net_trim = net_trim[keep]
         
         #loop through each substrate in network and add to num_network dict if present
-        for sub in net_trim['KSTAR_SUBSTRATE']:
-            num_networks[sub] += 1
+        if net_trim.shape[0] == 0:
+            continue
+        else:
+            for sub in net_trim['KSTAR_SUBSTRATE']:
+                num_networks[sub] += 1
         
     return pd.Series(num_networks, dtype = float, name = f'Number of Networks connected to {kinase}').sort_values(ascending = False)
     

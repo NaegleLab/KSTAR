@@ -3,7 +3,7 @@ import multiprocessing
 import itertools
 import argparse
 import os
-from kstar import config
+from kstar import config 
 
 #%%
 #%%
@@ -56,9 +56,8 @@ def build_random_experiments(binary_evidence, compendia, num_random_experiments,
         Dataframe of random experiments with NaN where phosphorylation sites are not selected, and 1 if they are for that experiment
     """
     #check parameters
-    if selection_type != 'KSTAR_NUM_COMPENDIA':
-        if selection_type != 'KSTAR_NUM_COMPENDIA_CLASS':
-            raise ValueError('selection_type must be either KSTAR_NUM_COMPENDIA or KSTAR_NUM_COMPENDIA_CLASS')
+    if selection_type != 'KSTAR_NUM_COMPENDIA' and selection_type != 'KSTAR_NUM_COMPENDIA_CLASS':
+        raise ValueError('selection_type must be either KSTAR_NUM_COMPENDIA or KSTAR_NUM_COMPENDIA_CLASS')
 
     experiment = binary_evidence
     if phosphorylation_event == 'ST':
