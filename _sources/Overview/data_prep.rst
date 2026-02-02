@@ -1,3 +1,5 @@
+.. _data_prep:
+
 Preparing your Data
 ===================
 
