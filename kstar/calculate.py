@@ -10,17 +10,16 @@ import pandas as pd
 import numpy as np
 import scipy.stats as stats
 import multiprocessing
+import numbers
 
 import seaborn as sns
 import matplotlib.pyplot as plt
 import concurrent.futures
-from functools import partial
 
 from tqdm import tqdm
 from datetime import datetime
-from itertools import repeat
 from collections import defaultdict
-from kstar import config, helpers, mapping
+from kstar import config, helpers
 from kstar.random_experiments import generate_random_experiments, calculate_fpr
 from kstar.plot import DotPlot, KSTAR_PDF, plot_jaci_between_samples
 
@@ -230,7 +229,7 @@ class KinaseActivity:
         #get available pregenerated sizes
         #self.pregenerated_sizes = self.check_file_sizes_for_pregenerated()
 
-    def report_warning(self, message):
+    def _report_warning(self, message):
         """
         Reports a warning message to both the logger and standard output
 
@@ -242,7 +241,10 @@ class KinaseActivity:
         print("WARNING:", message)
         self.logger.warning(message)
 
-    def check_valid_threshold(self, threshold=None, greater = True, agg ='mean', min_evidence_size=0, allow_column_loss = True):
+    def _check_single_threshold(self, threshold=None, greater = True, agg ='mean', min_evidence_size=0, allow_column_loss = True):
+        if not isinstance(threshold, numbers.Number):
+            return False
+        
         evidence = self.evidence.groupby([config.KSTAR_ACCESSION, config.KSTAR_SITE])[self.data_columns].agg(agg)
         binary_evidence = evidence >= threshold if greater else evidence <= threshold
         num_sites = binary_evidence.sum()
@@ -252,6 +254,38 @@ class KinaseActivity:
             return True
         else:
             return False
+
+    def check_valid_threshold(self, threshold=None, greater = True, agg ='mean', min_evidence_size=0, allow_column_loss = True):
+        """
+        Given a threshold value or a list of threshold values, make sure that at least one threshold(s) result in at least one data column having evidence (or all data columns if allow_column_loss = False)
+        
+        Parameters
+        ----------
+        threshold: float or list
+            cutoff for inclusion as evidence for prediction. If greater = True, sites with quantification greater than the threshold are used as evidence.
+        greater: bool
+            whether to use sites greater (True) or less (False) than the threshold
+        agg: str
+            how to combine sites with multiple instances in experiment
+        min_evidence_size: int
+            minimum number of sites required for a data column to be considered for activity calculation
+        allow_column_loss: bool
+            whether to allow some data columns to have no evidence (True) or require all data columns to have evidence (False)
+        """
+        if isinstance(threshold, list):
+            for t in threshold:
+                is_valid = self._check_single_threshold(t, greater, agg, min_evidence_size, allow_column_loss)
+                #remove invalid thresholds from list
+                if not is_valid:
+                    threshold.remove(t)
+
+            if len(threshold) == 0:
+                return False
+            else:
+                return True
+        else:
+            is_valid =self._check_single_threshold(threshold, greater, agg, min_evidence_size, allow_column_loss)
+            return is_valid
         
 
 
@@ -271,26 +305,32 @@ class KinaseActivity:
         for col in self.data_columns:
             if col in self.evidence.columns:
                 if self.threshold is not None:
+                    if isinstance(self.threshold, list):
+                        #use smallest threshold if multiple provided (largest if self.greater = False)
+                        threshold = min(self.threshold) if self.greater else max(self.threshold)
+                    else:
+                        threshold = self.threshold
+
                     if self.greater:
-                        if len(evidence[evidence[col] >= self.threshold]) > min_evidence_size:
+                        if len(evidence[evidence[col] >= threshold]) > min_evidence_size:
                             new_data_columns.append(col)
                         else:
-                            self.report_warning(f"{col} does not have sufficient evidence, and will not be used.")
+                            self._report_warning(f"{col} does not have sufficient evidence, and will not be used.")
                             self.dropped_columns.append(col)
                     else:
-                        if len(evidence[evidence[col] <= self.threshold]) > min_evidence_size:
+                        if len(evidence[evidence[col] <= threshold]) > min_evidence_size:
                             new_data_columns.append(col)
                         else:
-                            self.report_warning(f"{col} does not have sufficient evidence, and will not be used.")
+                            self._report_warning(f"{col} does not have sufficient evidence, and will not be used.")
                             self.dropped_columns.append(col)
                 else:
                     if ~evidence[col].isna().all():
                         new_data_columns.append(col)
                     else:
-                        self.report_warning(f"{col} does not have any evidence, and will not be used.")
+                        self._report_warning(f"{col} does not have any evidence, and will not be used.")
                         self.dropped_columns.append(col)
             else:
-                self.report_warning(f"{col} not in evidence, and will not be used.")
+                self._report_warning(f"{col} not in evidence, and will not be used.")
                 self.dropped_columns.append(col)
 
         #make sure there is at least one data column
@@ -312,7 +352,20 @@ class KinaseActivity:
                 if col.startswith('data:'):
                     self.data_columns.append(col)
         else:
-            self.data_columns = data_columns
+            #make sure inputted data columns are in evidence (check if any have 'data:') in front, if not add it
+            final_data_columns = []
+            for col in data_columns:
+                if col in self.evidence.columns:
+                    final_data_columns.append(col)
+                elif 'data:' + col in self.evidence.columns:
+                    final_data_columns.append('data:' + col)
+                else:
+                    self._report_warning(f"{col} not found in evidence, and will not be used as a data column.")
+
+            if len(final_data_columns) == 0:
+                raise KeyError("Could not find any of the inputted data columns in the evidence dataframe. Please check that the data columns are in the evidence dataframe and try again.")
+
+            self.data_columns = final_data_columns
             #print(self.data_columns)
         self.check_data_columns()
 
@@ -374,7 +427,7 @@ class KinaseActivity:
         if return_evidence_sizes:
             return num_sites
         
-    def test_threshold_range(self, min_threshold, max_threshold, step=0.1, agg = 'mean', greater = True, min_evidence_size = 0, desired_evidence_size = None, show_recommended = False):
+    def test_threshold_range(self, min_threshold, max_threshold, step=0.1, agg = 'mean', greater = True, min_evidence_size = 0, desired_evidence_size = None, desired_similarity = None, show_recommended = False):
         """
         Given a range of threshold values, calculate the distribution of evidence sizes (i.e. number of sites used in prediction for each sample in the experiment) and Jaccard similarity between samples at each threshold
 
@@ -394,6 +447,8 @@ class KinaseActivity:
             minimum number of sites required for a data column to be considered for activity calculation
         desired_evidence_size: int or None
             target evidence size to use for plotting. If None, will use 150 for phospho_type 'Y' and 1500 for phospho_type 'ST'
+        desired_similarity: float or None
+            target similarity to use for plotting. If None, will use 0.6 for phospho_type 'Y' and 0.7 for phospho_type 'ST'
         show_recommended: bool
             whether to show recommended evidence size and similarity lines on the plots
         """
@@ -447,7 +502,8 @@ class KinaseActivity:
         #set desired evidence size if not provided (for plotting)
         if desired_evidence_size is None:
             desired_evidence_size = {'Y':150, 'ST':1500}[self.phospho_type]
-        recommended_similarity = 0.6
+        if desired_similarity is None:
+            desired_similarity = 0.6
         
         #setup figure
         if len(self.data_columns) <= 1:
@@ -473,7 +529,7 @@ class KinaseActivity:
             sim_ax.plot(plt_range, average_jac, linestyle = '-', c = 'black', label = 'Average Jaccard Similarity')
             sim_ax.plot(plt_range, max_jac, linestyle = ':', c = 'black', label = 'Maximum Jaccard Similarity')
             if show_recommended:
-                sim_ax.axhline(y=recommended_similarity, color='red', linestyle='-', alpha = 0.5, label = 'Recommended Maximum Similarity')
+                sim_ax.axhline(y=desired_similarity, color='red', linestyle='-', alpha = 0.5, label = 'Target Maximum Similarity')
             sim_ax.set_xlabel('Threshold')
             sim_ax.set_ylabel('Jaccard Similarity')
             sim_ax.legend(loc = (0, 1.05))
@@ -644,7 +700,7 @@ class KinaseActivity:
                     raise DatasetSizeError(f"The following data columns do not have enough evidence to meet the minimum evidence size requirement of {min_evidence_size}: {', '.join(dropped_columns)}. Please lower the min_evidence_size parameter or set allow_column_loss = True to allow for some data columns to be removed from analysis.")
             
                 elif len(dropped_columns) > 0:
-                    self.report_warning(f"Warning: The following data columns do not have enough evidence to meet the minimum evidence size requirement of {min_evidence_size} and will be ignored when calculating allowable threshold: {', '.join(dropped_columns)}.")
+                    self._report_warning(f"Warning: The following data columns do not have enough evidence to meet the minimum evidence size requirement of {min_evidence_size} and will be ignored when calculating allowable threshold: {', '.join(dropped_columns)}.")
 
                 #set smallest of these values as the allowable threshold
                 allowable_threshold = min(nth_largest_values)
@@ -673,7 +729,7 @@ class KinaseActivity:
                 elif not allow_column_loss and len(dropped_columns) > 0:
                     raise DatasetSizeError(f"The following data columns do not have enough evidence to meet the minimum evidence size requirement of {min_evidence_size} sites: {', '.join(dropped_columns)}. Please lower the min_evidence_size parameter or set allow_column_loss = True to allow for some data columns to be removed from analysis.")
                 elif len(dropped_columns) > 0:
-                    self.report_warning(f"Warning: The following data columns do not have enough evidence to meet the minimum evidence size requirement of {min_evidence_size} sites and will be ignored when calculating allowable threshold: {', '.join(dropped_columns)}.")
+                    self._report_warning(f"Warning: The following data columns do not have enough evidence to meet the minimum evidence size requirement of {min_evidence_size} sites and will be ignored when calculating allowable threshold: {', '.join(dropped_columns)}.")
                 allowable_threshold = max(nth_smallest_values)
             elif min_evidence_size is None:
                 #set allowable threshold to minimum value in data columns
@@ -998,7 +1054,7 @@ class KinaseActivity:
 
         self.default_pregen_only = default_pregen_only
         if not default_pregen_only and custom_pregen_dir is None:
-            #self.report_warning("Warning: custom_pregen_dir is not provided, so will only using default pregenerated data.")
+            #self._report_warning("Warning: custom_pregen_dir is not provided, so will only using default pregenerated data.")
             self.default_pregen_only = True
             self.custom_pregenerated_path = None
             if not os.path.exists(self.pregenerated_experiments_path):
@@ -1007,7 +1063,7 @@ class KinaseActivity:
                 self.network_check = True
 
         elif default_pregen_only and custom_pregen_dir is not None:
-            self.report_warning("Warning: custom_pregen_dir is provided but default_pregen_only is set to True. Ignoring custom pregenerated directory and only using default pregenerated data.")
+            self._report_warning("Warning: custom_pregen_dir is provided but default_pregen_only is set to True. Ignoring custom pregenerated directory and only using default pregenerated data.")
             self.custom_pregenerated_path = None
             #make sure default pregenerated path exists
             if not os.path.exists(self.pregenerated_experiments_path):
@@ -1024,9 +1080,9 @@ class KinaseActivity:
             #check if custom pregenerated directory exists
             if not os.path.exists(custom_pregenerated_path):
                 if not save_new_random_activities:
-                    self.report_warning(f'Found provided pregenerated directory ({custom_pregen_dir}), but it does not contain a subdirectory for this network. Will only use default pregenerated data. To save new pregenerated data to this directory, set save_new_random_activities = True.')
+                    self._report_warning(f'Found provided pregenerated directory ({custom_pregen_dir}), but it does not contain a subdirectory for this network. Will only use default pregenerated data. To save new pregenerated data to this directory, set save_new_random_activities = True.')
                 else:
-                    self.report_warning(f'Provided pregenerated directory ({custom_pregen_dir}) does not contain a subdirectory for this network. Creating new pregenerated directory at {custom_pregenerated_path} to save new random activities.')
+                    self._report_warning(f'Provided pregenerated directory ({custom_pregen_dir}) does not contain a subdirectory for this network. Creating new pregenerated directory at {custom_pregenerated_path} to save new random activities.')
                     #add run information to custom pregenerated directory
                     os.makedirs(custom_pregenerated_path)
                     #copy run information file from network directory
@@ -1102,7 +1158,7 @@ class KinaseActivity:
 
             
 
-    def get_random_activities(self, num_random_experiments=150, use_pregenerated_random_activities=None, default_pregen_only = False, save_new_random_activities=None,  custom_pregenerated_path=None, save_random_experiments=None, require_pregenerated = False, max_diff_from_pregenerated=0.25, min_dataset_size_for_pregenerated=150, PROCESSES=1):
+    def get_random_activities(self, num_random_experiments=150, use_pregenerated_random_activities=None, default_pregen_only = False, save_new_random_activities=None,  custom_pregenerated_path=None, save_random_experiments=None, require_pregenerated = False, max_diff_from_pregenerated=0.25, min_dataset_size_for_pregenerated=150, show_taskbar = True, PROCESSES=1):
         """
         Generate random experiments and calculate kinase activities.Either uses pre-generated activity lists or
         generates new random experiments based on the provided parameters.
@@ -1153,7 +1209,7 @@ class KinaseActivity:
 
         self.require_pregenerated = require_pregenerated
         if self.require_pregenerated and not self.use_pregen_data:
-            self.report_warning("require_pregenerated is set to True but use_pregen_data is set to False. Setting use_pregen_data to True.")
+            self._report_warning("require_pregenerated is set to True but use_pregen_data is set to False. Setting use_pregen_data to True.")
             self.use_pregen_data = True
 
         if self.use_pregen_data:
@@ -1177,7 +1233,7 @@ class KinaseActivity:
 
                 self.logger.info(f"Generating random experiments for: {', '.join(self.data_columns_from_scratch)}")
                 self.calculate_random_enrichment(num_random_experiments, selection_type='KSTAR_NUM_COMPENDIA_CLASS',
-                    save_random_experiments = save_random_experiments, save_new_random_activities = save_new_random_activities, PROCESSES=PROCESSES
+                    save_random_experiments = save_random_experiments, save_new_random_activities = save_new_random_activities, show_taskbar=show_taskbar, PROCESSES=PROCESSES
                 )
             elif len(self.data_columns_with_pregenerated) == 0 and self.require_pregenerated:
                 raise ValueError("No datasets had appropriate pregenerated random enrichment to use. Please set require_pregenerated to False to calculate random activities from scratch for datasets without matched pregenerated data.")
@@ -1202,7 +1258,7 @@ class KinaseActivity:
             self.data_columns_with_pregenerated = []
             self.logger.info(f"Generating random experiments for: {', '.join(self.data_columns)}")
             self.calculate_random_enrichment(num_random_experiments, selection_type='KSTAR_NUM_COMPENDIA_CLASS',
-                save_random_experiments = save_random_experiments, PROCESSES=PROCESSES
+                save_random_experiments = save_random_experiments, show_taskbar=show_taskbar, PROCESSES=PROCESSES
             )
 
 
@@ -1210,7 +1266,7 @@ class KinaseActivity:
         #self.add_pregenerated_to_random_enrichment()
 
 
-    def calculate_random_enrichment(self, num_random_experiments, selection_type='KSTAR_NUM_COMPENDIA_CLASS', save_random_experiments=False, save_new_random_activities=False, PROCESSES=1):
+    def calculate_random_enrichment(self, num_random_experiments, selection_type='KSTAR_NUM_COMPENDIA_CLASS', save_random_experiments=False, save_new_random_activities=False, show_taskbar = True, PROCESSES=1):
         """
         Calculate the kinase activities for each random experiment and discard the resulting random experiment unless save_random_experiments is set to True.
 
@@ -1222,6 +1278,8 @@ class KinaseActivity:
             The type of compendia selection, by default 'KSTAR_NUM_COMPENDIA_CLASS'.
         save_random_experiments : bool, optional
             Whether to save the generated random experiments, by default False.
+        show_taskbar : bool, optional
+            Whether to show a progress bar, by default True.
         PROCESSES : int, optional
             Number of processes to use for parallel computation, by default 1.
 
@@ -1294,7 +1352,7 @@ class KinaseActivity:
             all_rand_experiments = []
             combined_activities_list = []
             rand_exp_numbers = list(range(num_random_experiments))
-            for col in tqdm(self.data_columns_from_scratch, desc="Calculating activities from random experiments for each dataset not using pregenerated random activities"):
+            for col in tqdm(self.data_columns_from_scratch, desc="Calculating activities from random experiments for each dataset not using pregenerated random activities", disable=not show_taskbar):
                 activities_list = []
                 #group evidence by compendia sizes (number of compendia each site is found in)
                 compendia_sizes = self.evidence_binary[self.evidence_binary[col] == 1].groupby(
@@ -1554,7 +1612,7 @@ class KinaseActivity:
 
         Parameters
         ----------
-        threshold : float
+        threshold : float, list
             threshold value used to filter rows
         evidence_size: None or int
             the number of sites to use for prediction for each sample. If a value is provided, this will override the threshold, and will instead obtain the N sites with the greatest abundance within each sample.
@@ -1590,8 +1648,11 @@ class KinaseActivity:
             threshold = None
         elif evidence_size is not None and not isinstance(evidence_size, int):
             raise ValueError("evidence_size must be an integer or None.")
+        elif isinstance(threshold, list):
+            if not all(isinstance(t, numbers.Number) for t in threshold):
+                raise ValueError("All elements in threshold list must be integers or floats.")
         elif not isinstance(threshold, numbers.Number):
-            raise ValueError("Threshold must be an integer or float.")
+            raise ValueError("Threshold must be an integer, float, or list of integers or floats.")
 
         if agg not in ['mean', 'min','max', 'median']:
             raise ValueError("Aggregation method must be one of 'mean', 'min', 'max', or 'median'.")
@@ -1612,11 +1673,35 @@ class KinaseActivity:
         # set the binary evidence for whether a site is included
         evidence_binary = evidence.copy()
         if evidence_size is None:
-            for col in self.data_columns:
-                if greater:
-                    evidence_binary[col] = (evidence_binary[col] >= threshold).astype(int)
-                else:
-                    evidence_binary[col] = (evidence_binary[col] <= threshold).astype(int)
+            if isinstance(threshold, list):
+                #if multiple thresholds are provided, create new columns for each threshold
+                new_data_columns = []
+                for col in self.data_columns:
+                    for thresh in threshold:
+                        new_col = f"{col}_threshold={thresh}"
+                        if greater:
+                            evidence_binary[new_col] = (evidence_binary[col] >= thresh).astype(int)
+                        else:
+                            evidence_binary[new_col] = (evidence_binary[col] <= thresh).astype(int)
+                        new_data_columns.append(new_col)
+
+                #remove original data columns
+                evidence_binary.drop(columns=self.data_columns, inplace=True)
+                if drop_empty_columns:
+                    #remove any columns that have less than min_evidence_size sites
+                    for col in new_data_columns:
+                        if evidence_binary[col].sum() < min_evidence_size:
+                            evidence_binary.drop(columns=col, inplace=True)
+                            new_data_columns.remove(col)
+                
+                self.data_columns = new_data_columns
+
+            else:
+                for col in self.data_columns:
+                    if greater:
+                        evidence_binary[col] = (evidence_binary[col] >= threshold).astype(int)
+                    else:
+                        evidence_binary[col] = (evidence_binary[col] <= threshold).astype(int)
         else:
             for col in self.data_columns:
                 # check how many non_nan sites there (if less than N, set n to be equal to number of sites available)
@@ -1858,14 +1943,17 @@ class KinaseActivity:
         limit_summary = all_limits.groupby('evidence').mean()
         return all_limits, limit_summary
 
-    def calculate_Mann_Whitney_activities_sig(self, PROCESSES=1):
+    def calculate_Mann_Whitney_activities_sig(self, show_taskbar=True, PROCESSES=1):
         """
         If random enrichment has already occurred, calculate the Mann-Whitney U test for comparing the array of p-values for real data to those of random data, across the number of networks used. It will also calculate the false positive rate for a pvalue by treating one of the randome experiments as 'real' and calculating how many random experiments have a more significant pvalue than the 'real' experiment.
 
         Parameters
         ----------
+        show_taskbar : bool
+            whether to show the tqdm taskbar for progress through datasets
         PROCESSES : int
             Number of processes to use for multiprocessing
+        
 
         Returns
         -------
@@ -1893,7 +1981,7 @@ class KinaseActivity:
 
 
         # for every kinase and every dataset, calculate and assemble dataframes of activities and significance values
-        for exp in tqdm(self.data_columns, desc='Calculating final activities with the mann whitney U test'):
+        for exp in tqdm(self.data_columns, desc='Calculating final activities with the mann whitney U test', disable = not show_taskbar):
             self.logger.info("MW Working on %s: " % (exp))
             pval_arr = []
             fpr_arr = []
@@ -2490,7 +2578,7 @@ def enrichment_analysis(experiment, odir, name='experiment', phospho_types=['Y',
 
     return kinact_dict
 
-def randomized_analysis(kinact_dict, **kwargs):
+def randomized_analysis(kinact_dict, show_taskbar = True, **kwargs):
     """
     Perform randomized analysis on kinase activity data.
 
@@ -2535,12 +2623,13 @@ def randomized_analysis(kinact_dict, **kwargs):
         #        network_hash = config.NETWORK_HASH_ST
         #if not re.fullmatch(r'[a-fA-F0-9]{64}', network_hash):
         #    raise ValueError("network_hash must be a valid SHA-256 hash")
-    
-        kinact.get_random_activities(**kwargs)
+
+        kinact.get_random_activities(show_taskbar=show_taskbar, **kwargs)
+        #except Exception as e:
         # Ensure `random_experiments` is stored in `kinact_dict`
         #kinact_dict[phospho_type].random_experiments = kinact.random_experiments
 
-def Mann_Whitney_analysis(kinact_dict, PROCESSES=1):
+def Mann_Whitney_analysis(kinact_dict, show_taskbar=True, PROCESSES=1):
     """
     For a kinact_dict, where random generation and activity has already been run for the phospho_types of interest,
     this will calculate the Mann-Whitney U test for comparing the array of p-values for real data
@@ -2556,9 +2645,9 @@ def Mann_Whitney_analysis(kinact_dict, PROCESSES=1):
     """
 
     for phospho_type, kinact in kinact_dict.items():
-        kinact.calculate_Mann_Whitney_activities_sig(PROCESSES=PROCESSES)
+        kinact.calculate_Mann_Whitney_activities_sig(show_taskbar=show_taskbar, PROCESSES=PROCESSES)
 
-def run_kstar_analysis(experiment, odir, name='experiment', phospho_types=['Y', 'ST'], data_columns=None, threshold=1.0, evidence_size=None, greater=True, save_output=True,PROCESSES=1, **kwargs):
+def run_kstar_analysis(experiment, odir, name='experiment', phospho_types=['Y', 'ST'], data_columns=None, threshold=1.0, evidence_size=None, greater=True, save_output=True, show_taskbar = True, PROCESSES=1, **kwargs):
     """
     Given a mapped experiment, run the KSTAR analysis pipeline.
 
@@ -2606,10 +2695,10 @@ def run_kstar_analysis(experiment, odir, name='experiment', phospho_types=['Y', 
     kinact_dict = enrichment_analysis(experiment, odir = odir, name = name, phospho_types = phospho_types, threshold = threshold, data_columns=data_columns, greater = greater, evidence_size=evidence_size, PROCESSES = PROCESSES, **enrichment_kwargs)
     #
     print('Starting calculation of random activities...')
-    randomized_analysis(kinact_dict, PROCESSES=PROCESSES, **randomized_kwargs)
+    randomized_analysis(kinact_dict, show_taskbar = show_taskbar, PROCESSES=PROCESSES, **randomized_kwargs)
     #
     print('Comparing kinase-substrate enrichment from the real experiment to random experiments...')
-    Mann_Whitney_analysis(kinact_dict, PROCESSES = PROCESSES)
+    Mann_Whitney_analysis(kinact_dict, show_taskbar=show_taskbar, PROCESSES = PROCESSES)
 
 
     if save_output:

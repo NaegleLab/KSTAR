@@ -310,7 +310,8 @@ def format_peptide(peptide, format = 'acceptable', indicator = None, after = Tru
         Reformatted peptide sequence with modified residues as lowercase s, t, or y, and other symbols/annotations removed.
     """
     if format == 'acceptable':
-        return peptide
+        new_pep = check_and_correct_nonphospho(peptide)
+        return new_pep
     elif format == 'centered_uppercase':
         new_pep = fix_centered_uppercase_peptide_seq(peptide)
     elif format == 'annotated':

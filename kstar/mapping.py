@@ -61,7 +61,7 @@ class ExperimentMapper:
     """ 
     #for documentation purposes convert non required parameters to kwargs
     #def __init__(self, experiment, columns, logger, *kwargs): 
-    def __init__(self, experiment, columns, odir='./', name = 'experiment', window = 7, data_columns = None, logger = None, sequences=None, compendia=None): 
+    def __init__(self, experiment, columns, odir='./', name = 'experiment', window = 7, data_columns = None, logger = None, sequences=None, compendia=None, show_taskbar = True): 
         self.experiment = experiment
         self.sequences = sequences if sequences is not None else config.HUMAN_REF_SEQUENCES
         self.compendia = compendia if compendia is not None else config.HUMAN_REF_COMPENDIA
@@ -121,7 +121,7 @@ class ExperimentMapper:
         self.experiment = self.experiment[self.experiment[config.KSTAR_ACCESSION].isin(self.compendia[config.KSTAR_ACCESSION])]
         print('Aligning peptides/sites to reference sequences...')
         #align peptides/sites to reference sequences
-        self.align_sites(window)
+        self.align_sites(window, show_taskbar=show_taskbar)
 
         compendia = self.compendia[[config.KSTAR_ACCESSION, config.KSTAR_SITE, 'KSTAR_NUM_COMPENDIA', 'KSTAR_NUM_COMPENDIA_CLASS']]
 
@@ -189,7 +189,7 @@ class ExperimentMapper:
         return None
 
     
-    def align_sites(self, window = 7):
+    def align_sites(self, window = 7, show_taskbar = True):
         """
         Map the peptide/sites to the common sequence reference and remove and report errors for sites that do not align as expected.
         expMapper.align_sites(window=7). Operates on the experiment dataframe of class.
@@ -203,7 +203,7 @@ class ExperimentMapper:
 
         self.experiment = expand_peptide(self.experiment, config.KSTAR_PEPTIDE)
 
-        for index, row in tqdm.tqdm(self.experiment.iterrows(), desc = 'Mapping peptides/sites to reference sequences', total = len(self.experiment)):
+        for index, row in tqdm.tqdm(self.experiment.iterrows(), desc = 'Mapping peptides/sites to reference sequences', total = len(self.experiment), disable=not show_taskbar):
             sequence = self.get_sequence(row[config.KSTAR_ACCESSION])
             if sequence is not None:
                 # If peptide provided then find site
