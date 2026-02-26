@@ -41,13 +41,13 @@ For galaxy to access the docker image, we need to make it accessible on docker h
 ```
 docker images
 ```
-If it does not begin the name "naeglelab/kstar-galaxy" with the tag "latest", you'll want to update the tag name to match the global repository. Do this below:
+If it does not begin the name "naeglelab/kstar-galaxy" with the tag associated with the current KSTAR version (ex. "1.1.0"), you'll want to update the tag name to match the global repository. Do this below:
 ```
-docker tag kstar-galaxy naeglelab/kstar-galaxy:latest
+docker tag kstar-galaxy naeglelab/kstar-galaxy:1.1.0
 ```
 Then push to docker hub:
 ```
-docker push naeglelab/kstar-galaxy:latest
+docker push naeglelab/kstar-galaxy:1.1.0
 ```
 
 ## Setting up local Galaxy instantiation
@@ -99,4 +99,6 @@ This will let you use Docker images in the requirements tag
 
 
 ## Testing and updating Galaxy app
+
+To test the galaxy app, set up tests with the test tag in the xml file, and add any input/output datasets for the test under a folder called 'test-data' in the same repo. You can then test the tool using `planemo test --docker calculate.xml`, replacing calculate.xml with whatever your xml file is called.
 
