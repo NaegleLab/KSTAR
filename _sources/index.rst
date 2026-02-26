@@ -22,6 +22,7 @@ KSTAR
 
 	Galaxy/Running_KSTAR
 	Galaxy/Analyzing_Results
+	Galaxy/Troubleshooting_Galaxy
 
 .. toctree::
 	:maxdepth: 4

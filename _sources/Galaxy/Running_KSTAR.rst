@@ -3,11 +3,10 @@
 Run KSTAR on Galaxy
 ===================
 
-*NOTE: The galaxy interface for KSTAR is not yet available for users, but will be coming soon! If you have any questions or would like to be notified when it is available please feel free to contact the KSTAR team.*
 
-KSTAR can be run on Galaxy using a dedicated KSTAR tool. This tool allows users to upload their phosphoproteomic data, configure KSTAR parameters, and execute the analysis directly within the Galaxy environment using the default KSTAR networks. 
+KSTAR can be run on Galaxy using a dedicated KSTAR tool. This tool allows users to upload their phosphoproteomic data, configure KSTAR parameters, and execute the analysis directly within the Galaxy environment using the default KSTAR networks. This section will walk you through the process of running KSTAR on Galaxy and interpreting the outputs. If you want to know more about using Galaxy in general, such as how to use workflows to combine multiple tools, see the `Galaxy Documentation <https://hub.usegalaxy.cn/get-started/>`_ for more resources and tutorials.
 
-Before running KSTAR on Galaxy, make sure you have processed your phoshphoproteomic dataset to the appropriate format as described in :ref:`Preparing your Data<data_prep>` section.
+Before running KSTAR on Galaxy, make sure you have processed your phoshphoproteomic dataset to the appropriate format as described in :ref:`Preparing your Data<data_prep>` section. There are some checks in place to ensure that the data is in the correct format, but it is best to prepare your data correctly beforehand to avoid any issues.
 
 Accessing the KSTAR Tool on Galaxy
 ----------------------------------
@@ -18,7 +17,7 @@ Accessing the KSTAR Tool on Galaxy
       :alt: Galaxy Homepage
       :width: 800px
 
-2. Login in to the Galaxy portal. If you do not already have an account, create one by clicking on the "Register" button in the top right corner and following the registration process (this is free).
+2. Log in to the Galaxy portal. If you do not already have an account, create one by clicking on the "Register" button in the top right corner and following the registration process (this is free).
 3. Once logged in, you can find the KSTAR tool by using the search bar on the left-hand side of the screen. Type "KSTAR" into the search bar, and the KSTAR tool should appear in the list of available tools.
 
    .. image:: ./tutorial_images/toolbar.png
@@ -35,7 +34,7 @@ Uploading Your Phosphoproteomic Data
         :alt: Browse and Upload Data, Step 1
         :width: 600px
 
-3. Assuming you would like to upload a local file, click on the "Choose local file" button to browse your computer for the file you wish to upload. Find your file and select it. Once selected, click the "Start" button to begin the upload process. Finally, click the checkmark that appears to confirm the upload.
+3. Assuming you would like to upload a local file, click on the "Choose local file" button to browse your computer for the file you wish to upload. Find your file and select it. Usually, Galaxy does a good job of autodetecting the file format, but you may want to specify it explicitly (must be CSV or tabular/tsv). Once selected, click the "Start" button to begin the upload process. Finally, click the checkmark that appears to confirm the upload.
 
     .. image:: ./tutorial_images/data_upload_2.png
         :alt: Browse and Upload Data, Step 2
@@ -51,23 +50,28 @@ Configuring KSTAR Parameters
 ----------------------------
 
 5. Make sure your uploaded dataset is selected in the "Upload your experiment" dropdown menu.
-6. indicate the column(s) containing your quantitative sample data by selecting the appropriate columns from the "data_columns" dropdown menu. In this example, we will select to predict activity for four samples: "data:time:5", "data:time:15", "data:time:30", and "data:time:60", which are measurements taken at different time points after stimulation.
+6. Indicate the column(s) containing your quantitative sample data by selecting the appropriate columns from the "data_columns" dropdown menu. In this example, we will select to predict activity for four samples: "data:time:5", "data:time:15", "data:time:30", and "data:time:60", which are measurements taken at different time points after stimulation.
 
     .. image:: ./tutorial_images/select_data_columns.png
         :alt: Data Columns Selection
         :width: 600px
 
     Alternatively, if your data columns each begin with the prefix "data:", you can instead select the "Yes" option under "Automatically detect data columns?" to have KSTAR automatically identify these columns for you. We could do this instead of manually selecting the columns in the previous step.
-7. Next, we will indicate where peptide information is located in your dataset, which should include the SwissProt accession ID and the peptide sequence with phosphorylation sites lowercased. Under the "Has your dataset already been mapped to the KSTAR reference phosphoproteome", select "No" so that KSTAR will perform the mapping for you (default option). Then, select the appropriate columns for "accession_id" and "peptide_sequence" from the respective dropdown menus. In this example, we will select "query_accession" for the accession IDs and "peptide" for the peptide sequences.
+7. Next, we will indicate where phosphorylation site information is located in your dataset. To run, KSTAR requires a column containing UniProtKB accessions (ex. 'P01308'). In addition, KSTAR must include at least one of the following columns and will thrown an error if neither are included:
+    
+    - Peptide sequences (ex. 'AGLQyFPVGR'), recommended
+    - Site positions (ex. 'S1234')
+    
+    Select the appropriate columns for "accession_column", "peptide_column", and/or "site_column" from the respective dropdown menus. In this example, we will select "query_accession" for the accession IDs (A) and "peptide" for the peptide sequences (B).
 
     .. image:: ./tutorial_images/mapping_columns.png
         :alt: Mapping Columns Selection
         :width: 600px
-    If you don't have peptide sequences in your dataset but do have site positions (e.g., S1234), you can select the appropriate column for "site_position" instead of "peptide_sequence". KSTAR requires at least one of these two pieces of information to perform the mapping.
+
+    You may also have multiple sites/peptides per row of your dataset. If this is the case, you can specify the delimiter (';', ',', etc.) used to separate these values in your dataset (C).
 
     In the case where you have already mapped your dataset to the KSTAR reference phosphoproteome ("KSTAR_ACCESSION", "KSTAR_SITE" columns are present in the dataset), you can select "Yes" under "Has your dataset already been mapped to the KSTAR reference phosphoproteome" and skip this step.
-7. Indicate the type of kinases you would like to generate predictions for by specifying the phosphotype under "Type of phosphorylation to consider". You can choose from "ST" (Serine/Threonine kinases), "Y" (Tyrosine kinases), or "STY" (both Serine/Threonine and Tyrosine kinases). In this example, we will select "Y" to consider only tyrosine kinases as the example dataset was phosphotyrosine enriched.
-8. Finally, we need to specify what sites should be used as evidence of activity for each sample column. The KSTAR galaxy tool provides several options for this under the "Sites to Use as Evidence". What you choose will be dependent on your experimental design and biological question. Below is a table summarizing the available options:
+7. Next, we need to specify what sites should be used as evidence of activity for each sample column. The KSTAR galaxy tool provides several options for this under the "Sites to Use as Evidence". What you choose will be dependent on your experimental design and biological question. Below is a table summarizing the available options:
 
     +--------------------------------------------------+--------------------------------------------------------+-----------------------------------------------------------------+
     | Option                                           | How Evidence is Identified                             |  Best Use Case                                                  |
@@ -86,6 +90,7 @@ Configuring KSTAR Parameters
     +--------------------------------------------------+--------------------------------------------------------+-----------------------------------------------------------------+
 
     In this example, we will select "Increasing Phosphorylation (Relative to Control)" since we are interested in identifying kinases activated upon stimulation.
+8. Indicate the type of kinases you would like to generate predictions for by specifying the phosphotype under "Type of phosphorylation to consider". You can choose from "ST" (Serine/Threonine kinases), "Y" (Tyrosine kinases), or "STY" (both Serine/Threonine and Tyrosine kinases). In this example, we will select "Y" to consider only tyrosine kinases as the example dataset was phosphotyrosine enriched.
 
 9. Depending on the option you selected in the previous step, you may need to provide additional parameters. For "Increasing Phosphorylation (Relative to Control)", a threshold value is required to determine which sites are considered as evidence (i.e. sites with quantification above this threshold). To do this, you have two options:
 
@@ -106,37 +111,40 @@ Configuring KSTAR Parameters
     .. image:: ./tutorial_images/advanced_evidence_selection.png
         :alt: Advanced Evidence Selection
         :width: 600px
-
-10. Once happy with your parameter selections, click the "Run Tool" button at the bottom of the form. This will submit your KSTAR job to the Galaxy server for processing and you should see five new data boxes appear in the right "History" panel. Depending on the size of your dataset and the current load on the Galaxy server, this may a little bit of time. You can monitor the progress of your job in the "History" panel on the right-hand side of the screen. You might see a couple of things:
+10. Once happy with your parameter selections, click the "Run Tool" button at the bottom of the form. This will submit your KSTAR job to the Galaxy server for processing and you should see 2-4 new data boxes appear in the right "History" panel. Depending on the size of your dataset and the current load on the Galaxy server, this may take a little bit of time. You can monitor the progress of your job in the "History" panel on the right-hand side of the screen. You might see a couple of things:
 
     - If the job is completed successfully, it will be marked with a green checkmark.
-    - If the job is still running, it will be marked with a spinning wheel and be yellow.
-    - If the job is pending, it will be marked with a clock icon and be gray.
-    - If the job fails for some reason, it will be marked with a red "X". You can inspect the error message by clicking on the dataset
+    - If the job is still running, the Run Info box will be marked with a spinning wheel and be yellow.
+    - If the job fails for some unexpected reason, it will be marked with a red "X". You can inspect the error message by clicking on the dataset. If you encounter an error, inspect the errors file under the Run Info box for more details and check our guide on troubleshooting issues. If you are unable to resolve the issue, please feel free to contact the KSTAR team for assistance or add an issue on the `KSTAR Galaxy github repository <https://github.com/NaegleLab/KSTAR_Galaxy>`_.
 
 
 KSTAR Outputs
 ----------------
 
-Once the KSTAR job is complete, you will see five new datasets in your History panel:
+Once the KSTAR job is complete, you will see two to four new dataset collections in your History panel:
 
-1. **RunParameters**: A summary of the parameters used for this KSTAR run, in json format
-2. **KSTAR Log**: A log file containing information about the KSTAR run, including any warnings or errors encountered during processing
-3. **Mapping Data**: collection of data including the original dataset mapped to the KSTAR reference phosphoproteome. If you had already mapped your data, this will be empty.
-    - mapped_experiment.csv/.tsv: The original dataset with additional columns for KSTAR_ACCESSION and KSTAR_SITE
-    - mapping_stats.txt: Summary statistics about the mapping process (number of sites mapped or lost etc.)
+1. **Run Info**: General run information
+    - **params**: json file with all parameters used for the KSTAR run
+    - **errors**: text file with any warnings or errors encountered during processing (will be empty if the run completed without any issues)
+    - **log**: text file with a list of all output files generated by KSTAR during the run
+2. **Mapping Data**: collection of data including the original dataset mapped to the KSTAR reference phosphoproteome. If you had already mapped your data, this will not be present.
+    - mapped_experiment: The original dataset with additional columns for KSTAR_ACCESSION and KSTAR_SITE
+    - mapping_stats: Summary statistics about the mapping process (number of sites mapped or lost etc.)
+    - removed_sites: rows/sites that were removed during the mapping process and the reason for their removal
 4. **Tyr_Kinase_Outputs**: The main output of KSTAR for tyrosine kinases. Will be empty if you selected ST phosphotype.
-    - y_binarized_experiment.csv/.tsv: The binarized evidence matrix used for KSTAR activity calculation, indicating which sites were used as evidence for each sample column
-    - y_activities.csv/.tsv: The predicted kinase activity scores for each sample column
-    - y_fpr.csv/.tsv: The false positive rates associated with each kinase activity prediction
-    - y_summary_pdf.csv/.tsv: A short three page summary of KSTAR results, including parameters, top kinases, dotplot, and evidence characteristics
-    - y_dotplot.png: A dotplot visualization of kinase activities across samples
+    - experiment_Y_binarized_experiment: The binarized evidence matrix used for KSTAR activity calculation, indicating which sites were used as evidence for each sample column
+    - experiment_Y_mann_whitney_activities: The predicted kinase activity scores for each sample column
+    - experiment_Y_mann_whitney_fpr: The false positive rates associated with each kinase activity prediction
+    - experiment_Y_summary_pdf: A short three page summary of KSTAR results, including parameters, top kinases, dotplot, and evidence characteristics
+    - Y_threshold_plot: if you chose to use a threshold for evidence selection, this plot will show the number of sites and similarity between columns at different threshold values to help you understand the threshold selection process
+    - Y_failures: indicates whether activity prediction succeeded, failed completely, or was able to predict activity for only some columns
 5. **SerThr_Kinase_Outputs**: The main output of KSTAR for serine/threonine kinases. Will be empty if you selected Y phosphotype.
-    - y_binarized_experiment.csv/.tsv: The binarized evidence matrix used for KSTAR activity calculation, indicating which sites were used as evidence for each sample column
-    - y_activities.csv/.tsv: The predicted kinase activity scores for each sample column
-    - y_fpr.csv/.tsv: The false positive rates associated with each kinase activity prediction
-    - y_summary_pdf.csv/.tsv: A short three page summary of KSTAR results, including parameters, top kinases, dotplot, and evidence characteristics
-    - y_dotplot.png: A dotplot visualization of kinase activities across samples
+    - experiment_ST_binarized_experiment: The binarized evidence matrix used for KSTAR activity calculation, indicating which sites were used as evidence for each sample column
+    - experiment_ST_mann_whitney_activities: The predicted kinase activity scores for each sample column
+    - experiment_ST_mann_whitney_fpr: The false positive rates associated with each kinase activity prediction
+    - experiment_ST_summary_pdf: A short three page summary of KSTAR results, including parameters, top kinases, dotplot, and evidence characteristics
+    - ST_threshold_plot: if you chose to use a threshold for evidence selection, this plot will show the number of sites and similarity between columns at different threshold values to help you understand the threshold selection process
+    - ST_failures: indicates whether activity prediction succeeded, failed completely, or was able to predict activity for only some columns
 
 You can download any or all of these datasets by clicking on the data and selecting the "Download" option from the pop-up menu.
 

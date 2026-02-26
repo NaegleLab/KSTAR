@@ -6,7 +6,7 @@ Options for Running KSTAR
    .. admonition:: On Galaxy Web Server (Coming Soon!)
       :class: sphinx-feature
 
-      Run KSTAR without any coding necessary using the `Galaxy web server`_. This is the recommended option for non-coding users, but has fewer options for downstream analysis. See the :ref:`linked tutorial<kstar-galaxy>` for more details. This option is not currently available, but will be coming soon!
+      Run KSTAR without any coding necessary using the `Galaxy web server`_. This is the recommended option for non-coding users, but has fewer options for downstream analysis. See the :ref:`linked tutorial<kstar-galaxy>` for more details.
 
    .. admonition:: In Python
       :class: sphinx-feature

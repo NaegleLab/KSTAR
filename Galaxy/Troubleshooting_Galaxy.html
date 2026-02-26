@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Analyze Results &#8212; KSTAR 1.1.0 documentation</title>
+    <title>Troubleshooting the KSTAR Tool &#8212; KSTAR 1.1.0 documentation</title>
   
   
   
@@ -41,11 +41,11 @@
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'Galaxy/Analyzing_Results';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'Galaxy/Troubleshooting_Galaxy';</script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Troubleshooting the KSTAR Tool" href="Troubleshooting_Galaxy.html" />
-    <link rel="prev" title="Run KSTAR on Galaxy" href="Running_KSTAR.html" />
+    <link rel="next" title="Getting Started" href="../Tutorial/quickstart.html" />
+    <link rel="prev" title="Analyze Results" href="Analyzing_Results.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   </head>
@@ -159,8 +159,8 @@
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Galaxy Tutorial:</span></p>
 <ul class="current nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="Running_KSTAR.html">Run KSTAR on Galaxy</a></li>
-<li class="toctree-l1 current active"><a class="current reference internal" href="#">Analyze Results</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Troubleshooting_Galaxy.html">Troubleshooting the KSTAR Tool</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Analyzing_Results.html">Analyze Results</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Troubleshooting the KSTAR Tool</a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Python Tutorial (Just the Basics):</span></p>
 <ul class="nav bd-sidenav">
@@ -268,7 +268,7 @@
       
       
       
-      <li><a href="https://github.com/NaegleLab/KSTAR/issues/new?title=Issue%20on%20page%20%2FGalaxy/Analyzing_Results.html&body=Your%20issue%20content%20here." target="_blank"
+      <li><a href="https://github.com/NaegleLab/KSTAR/issues/new?title=Issue%20on%20page%20%2FGalaxy/Troubleshooting_Galaxy.html&body=Your%20issue%20content%20here." target="_blank"
    class="btn btn-sm btn-source-issues-button dropdown-item"
    title="Open an issue"
    data-bs-placement="left" data-bs-toggle="tooltip"
@@ -298,7 +298,7 @@
       
       
       
-      <li><a href="../_sources/Galaxy/Analyzing_Results.rst" target="_blank"
+      <li><a href="../_sources/Galaxy/Troubleshooting_Galaxy.rst" target="_blank"
    class="btn btn-sm btn-download-source-button dropdown-item"
    title="Download source file"
    data-bs-placement="left" data-bs-toggle="tooltip"
@@ -369,7 +369,9 @@ document.write(`
   </button>
 `);
 </script>
-
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
 </div></div>
       
     </div>
@@ -380,11 +382,31 @@ document.write(`
               
 
 <div id="jb-print-docs-body" class="onlyprint">
-    <h1>Analyze Results</h1>
+    <h1>Troubleshooting the KSTAR Tool</h1>
     <!-- Table of contents -->
     <div id="print-main-content">
         <div id="jb-print-toc">
             
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#critical-errors-no-activities-predicted">Critical Errors (no activities predicted)</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#memory-error-killed-job">Memory Error/Killed Job</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#parameter-error-exit-code-2">Parameter Error (Exit Code 2)</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#dataset-error-exit-code-3">Dataset Error (Exit Code 3)</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#mapping-error-exit-code-4">Mapping Error (Exit Code 4)</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#threshold-evidence-check-error">Threshold/Evidence Check Error</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#non-critical-warnings-activities-predicted-but-potential-issues-with-results">Non-Critical Warnings (activities predicted, but potential issues with results))</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#poor-mapping-to-reference-phosphoproteome">Poor Mapping to Reference Phosphoproteome</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#dropped-columns-due-to-improper-evidence-size">Dropped Columns due to Improper Evidence Size</a></li>
+</ul>
+</li>
+</ul>
+            </nav>
         </div>
     </div>
 </div>
@@ -394,16 +416,76 @@ document.write(`
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section id="analyze-results">
-<h1>Analyze Results<a class="headerlink" href="#analyze-results" title="Link to this heading">#</a></h1>
-<p>Once you have completed your KSTAR run on Galaxy (see <a class="reference internal" href="Running_KSTAR.html"><span class="doc">Running_KSTAR</span></a>), you will want to analyze the results. This guide will walk you through the steps necessary to do so.</p>
-<p>First, you can do a quick inspection of your results by looking at the summary PDF files. You may also want to check the error log (in the Run Info collection) to ensure that there were no major issues during processing. Warnings don’t necessarily mean there is a problem with your results, but you should inspect them to make sure they are not indicative of a larger issue. For more details on potential warnings and errors, see our guide on troubleshooting issues.</p>
-<p>For additional downstream analysis and visualization of your KSTAR results, you can:</p>
-<ul class="simple">
-<li><p>Use the KSTAR plotting tools available at the ProteomeScout repository: <a class="reference external" href="https://proteomescout.research.virginia.edu/kstar/">KSTAR Plotting tool</a></p></li>
-<li><p>Download your KSTAR results and analyze them in Python using the KSTAR Python package (see <span class="xref std std-doc">Analyzing_Results</span> for more details)</p></li>
-<li><p>Export your KSTAR results to other tools available on Galaxy for further analysis (e.g., clustering, heatmaps, etc.)</p></li>
-</ul>
+  <section id="troubleshooting-the-kstar-tool">
+<h1>Troubleshooting the KSTAR Tool<a class="headerlink" href="#troubleshooting-the-kstar-tool" title="Link to this heading">#</a></h1>
+<section id="critical-errors-no-activities-predicted">
+<h2>Critical Errors (no activities predicted)<a class="headerlink" href="#critical-errors-no-activities-predicted" title="Link to this heading">#</a></h2>
+<section id="memory-error-killed-job">
+<h3>Memory Error/Killed Job<a class="headerlink" href="#memory-error-killed-job" title="Link to this heading">#</a></h3>
+<p>Large datasets may cause the tool to exceed memory limits for running on the Galaxy server, which will cause tool to be killed and fail. If you encounter this, we recommend splitting up your data columns into separate csv/tsv files and running in batch (data columns are run independently, so this will not effect results).</p>
+</section>
+<section id="parameter-error-exit-code-2">
+<h3>Parameter Error (Exit Code 2)<a class="headerlink" href="#parameter-error-exit-code-2" title="Link to this heading">#</a></h3>
+<p>This error is typically due to an issue with the parameters selected for the KSTAR run and will cause tool failure. The most common parameter issues are:
+- Not selecting at least one data column
+- Not selecting the appropriate columns for mapping (at least one of “site_column” or “peptide_column” must be selected</p>
+<p>Usually, this error is an easy fix and just requires going back to the KSTAR tool form and adjusting the parameters.</p>
+</section>
+<section id="dataset-error-exit-code-3">
+<h3>Dataset Error (Exit Code 3)<a class="headerlink" href="#dataset-error-exit-code-3" title="Link to this heading">#</a></h3>
+<p>This error is caused by issues with the uploaded dataset and will usually cause tool failure. These can be broken into two categories:</p>
+<ol class="arabic simple">
+<li><p>Issues with the dataset format (e.g. peptides or sites not in the correct format)</p></li>
+<li><p>Too few sites in the dataset to generate a KSTAR run. This is most common for tyrosine kinase runs (especially for global phosphoproteomics). If you encounter this error, we don’t recommend running KSTAR on this dataset as the results will likely not be meaningful given the small number of sites. If you want to run KSTAR on this dataset anyway, this is possible to do so via python (see <span class="xref std std-doc">Python Quickstart</span> for more details).</p></li>
+</ol>
+</section>
+<section id="mapping-error-exit-code-4">
+<h3>Mapping Error (Exit Code 4)<a class="headerlink" href="#mapping-error-exit-code-4" title="Link to this heading">#</a></h3>
+<p>This error is caused by issues during the mapping process, most commonly resulting from a large number of unmapped sites. This can be similar to the dataset error of too few sites, but in this case the issue is that the sites were not able to be mapped to the KSTAR reference phosphoproteome. This is most commonly due to incorrect accessions (not human SwissProt IDs) or incorrect peptide/site formats not caught during argument processing. If you encounter this error, we recommend inspecting the mapping stats file to see how many sites were mapped vs. lost during the mapping process, and the reasons for this.</p>
+</section>
+<section id="threshold-evidence-check-error">
+<h3>Threshold/Evidence Check Error<a class="headerlink" href="#threshold-evidence-check-error" title="Link to this heading">#</a></h3>
+<p>If you encounter an error related to thresholding, this is likely due to the fact that the there are either too few or too many sites used as evidence. Below shows the bounds for the number of sites used as evidence for the Galaxy tool:</p>
+<blockquote>
+<div><div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Modification</p></th>
+<th class="head"><p>Min. Sites</p></th>
+<th class="head"><p>Max Sites</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Tyrosine</p></td>
+<td><p>50</p></td>
+<td><p>1000</p></td>
+</tr>
+<tr class="row-odd"><td><p>Serine/Threonine</p></td>
+<td><p>500</p></td>
+<td><p>20000</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div></blockquote>
+<p>If using a threshold, take a look at the threshold plot provided in the KSTAR outputs to see the impact of different thresholds. You want to choose a threshold that still maintains greater than 50 sites (for Y) and greater than 500 (for ST) to have enough information for activity calculation.</p>
+<p>If using either the Top N, Bottom N, or All sites option, make sure to select a top N value that is less than the maximum number of sites allowed (1000 for Y and 20000 for ST).</p>
+</section>
+</section>
+<section id="non-critical-warnings-activities-predicted-but-potential-issues-with-results">
+<h2>Non-Critical Warnings (activities predicted, but potential issues with results))<a class="headerlink" href="#non-critical-warnings-activities-predicted-but-potential-issues-with-results" title="Link to this heading">#</a></h2>
+<p>It’s possible that activities are calculated, but some warnings are present in the error log. These warnings may be indicative of potential issues with the results, but not necessarily. We recommend inspecting these warnings to see if they are indicative of a larger issue with the results.</p>
+<p>Below are some things to be on the lookout for:</p>
+<section id="poor-mapping-to-reference-phosphoproteome">
+<h3>Poor Mapping to Reference Phosphoproteome<a class="headerlink" href="#poor-mapping-to-reference-phosphoproteome" title="Link to this heading">#</a></h3>
+<p>The tool will raise an warning if less than 70% of sites/peptides are successfully mapped to the reference phosphoproteome (i.e. matching phosphosite was found in our reference), even if the tool doesn’t fail. If you see warnings about poor mapping to the reference phosphoproteome, this may be indicative of an issue with your dataset (e.g. incorrect accessions or site formats). This is not necessarily a problem – for example, if your data includes non-SwissProt UniProt IDs (i.e non-reviewed entries), these will be dropped from your data. This should not effect results and is fine.</p>
+<p>We recommend inspecting the mapping stats file to see how many sites were mapped vs. lost during the mapping process, and the reasons for this. If you have very poor mapping to the reference phosphoproteome, we don’t recommend using these results as they will likely not be meaningful.</p>
+</section>
+<section id="dropped-columns-due-to-improper-evidence-size">
+<h3>Dropped Columns due to Improper Evidence Size<a class="headerlink" href="#dropped-columns-due-to-improper-evidence-size" title="Link to this heading">#</a></h3>
+<p>In some cases, you may not have all of your data columns included in the final KSTAR run. If the number of sites used as evidence for a particular sample column is too small (less than 50 for Y and less than 500 for ST), that column will be dropped from the run and a warning will be raised. If this is a problem, you may consider adjusting your evidence selection (e.g. using a less stringent threshold or using the Top N sites option instead) to include more sites as evidence and avoid excluding your sample columns from the run.</p>
+<p><em>Note: if using automatic thresholding, KSTAR will prioritize using a threshold value that does not drop any columns, but in some cases this may not be possible due to few sites in that column. In this case, KSTAR will pick a threshold that achieves the desired evidence size, even this means dropping some columns.</em></p>
+</section>
+</section>
 </section>
 
 
@@ -418,20 +500,20 @@ document.write(`
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="Running_KSTAR.html"
+       href="Analyzing_Results.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">Run KSTAR on Galaxy</p>
+        <p class="prev-next-title">Analyze Results</p>
       </div>
     </a>
     <a class="right-next"
-       href="Troubleshooting_Galaxy.html"
+       href="../Tutorial/quickstart.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">Troubleshooting the KSTAR Tool</p>
+        <p class="prev-next-title">Getting Started</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -441,6 +523,33 @@ document.write(`
             </div>
             
             
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#critical-errors-no-activities-predicted">Critical Errors (no activities predicted)</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#memory-error-killed-job">Memory Error/Killed Job</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#parameter-error-exit-code-2">Parameter Error (Exit Code 2)</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#dataset-error-exit-code-3">Dataset Error (Exit Code 3)</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#mapping-error-exit-code-4">Mapping Error (Exit Code 4)</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#threshold-evidence-check-error">Threshold/Evidence Check Error</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#non-critical-warnings-activities-predicted-but-potential-issues-with-results">Non-Critical Warnings (activities predicted, but potential issues with results))</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#poor-mapping-to-reference-phosphoproteome">Poor Mapping to Reference Phosphoproteome</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#dropped-columns-due-to-improper-evidence-size">Dropped Columns due to Improper Evidence Size</a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+</div></div>
               
             
           </div>
