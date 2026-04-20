@@ -1212,14 +1212,14 @@ class KinaseActivity:
             self._report_warning("require_pregenerated is set to True but use_pregen_data is set to False. Setting use_pregen_data to True.")
             self.use_pregen_data = True
 
+        #initialize other parameters
+        self.save_new_pregenerated = save_new_random_activities if save_new_random_activities is not None else config.SAVE_NEW_RANDOM_ACTIVITIES
         if self.use_pregen_data:
             #make sure pregenerated data exists and matches network
             self.check_pregenerated(default_pregen_only=default_pregen_only, custom_pregen_dir=custom_pregenerated_path)
 
-            #initialize other parameters
-            self.save_new_pregenerated = save_new_random_activities if save_new_random_activities is not None else config.SAVE_NEW_RANDOM_ACTIVITIES
-            
 
+            
 
             # Prepare for pregenerated data by determining which datasets can use pregenerated data
             self.setup_pregenerated(max_diff_from_pregenerated=max_diff_from_pregenerated, min_dataset_size_for_pregenerated=min_dataset_size_for_pregenerated)
