@@ -524,6 +524,54 @@ def format_peptide_from_df(df, peptide_col, new_peptide_col = None, autodetect =
 
     return df
 
+def check_single_peptide_format(peptide):
+    """
+    Given a single peptide sequence, check that it only contains letters and that any modified residues are denoted by lowercase s, t, or y. This is the expected format for peptides to be used in downstream analysis, so this function can be used to validate that formatting has been done correctly.
+    """
+    #make sure only letters are used and that only lowercased letters are S, T, or Y
+    if not isinstance(peptide, str):
+        return False
+    
+    if not peptide.isalpha():
+        return False
+    
+    modified_residues = [res for res in peptide if res.islower()]
+    if not all(res in ['s', 't', 'y'] for res in modified_residues):
+        return False
+    
+    return True
+
+def check_peptide_format(peptide, separator = ';'):
+    #make sure only letters are used and that only lowercased letters are S, T, or Y
+    if not isinstance(peptide, str):
+        return False
+    
+    #separate multiple peptides if separator is present and check each one
+    if separator in peptide:
+        peptides = peptide.split(separator)
+        return all(check_single_peptide_format(p.strip()) for p in peptides)
+    else:
+        return check_single_peptide_format(peptide)
+    
+def check_site_format(site):
+    #check site format (e.g., S123)
+    if not isinstance(site, str):
+        return False
+    
+    if len(site) < 2:
+        return False
+    
+    residue = site[0]
+    position = site[1:]
+
+    if residue not in ['S', 'T', 'Y']:
+        return False
+    
+    if not position.isdigit():
+        return False
+    
+    return True
+
 
 
 class PeptideSequenceError(Exception):

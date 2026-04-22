@@ -7,13 +7,12 @@ import os
 import tqdm
 import numpy as np
 from kstar import config, helpers
-
+from kstar.dataset_processing import peptides
 
 
 class ExperimentMapper:
     """
     Given an experiment object and reference sequences, map the phosphorylation sites to the common reference.
-    Inputs
 
     Parameters
     ----------
@@ -61,12 +60,15 @@ class ExperimentMapper:
     """ 
     #for documentation purposes convert non required parameters to kwargs
     #def __init__(self, experiment, columns, logger, *kwargs): 
-    def __init__(self, experiment, columns, odir='./', name = 'experiment', window = 7, data_columns = None, logger = None, sequences=None, compendia=None, show_taskbar = True): 
+    def __init__(self, experiment, columns, odir='./', name = 'experiment', window = 7, data_columns = None, logger = None, sequences=None, compendia=None, show_taskbar = True, pep_format_separator = ';'): 
         self.experiment = experiment
         self.sequences = sequences if sequences is not None else config.HUMAN_REF_SEQUENCES
         self.compendia = compendia if compendia is not None else config.HUMAN_REF_COMPENDIA
         self.name = name
         self.odir = odir
+
+        if 'peptide' not in columns.keys() and 'site' not in columns.keys():
+            raise ValueError('ExperimentMapper requires either site or peptide as keys in dictionary')
 
         #set up logger
         #if directory doesn't exist yet, create it
@@ -77,6 +79,7 @@ class ExperimentMapper:
             self.logger = logger
         else:
             self.logger = helpers.get_logger(f"mapping_{name}", f"{odir}/MAPPED_DATA/mapping_{name}.log")
+
 
 
         def set_accession_id(accession):
@@ -101,8 +104,38 @@ class ExperimentMapper:
                 self.experiment = self.experiment.explode(columns['accession_id']).reset_index(drop=True).copy()
             self.experiment[config.KSTAR_ACCESSION] = self.experiment[columns['accession_id']].apply(set_accession_id) 
 
-        if 'peptide' not in columns.keys() and 'site' not in columns.keys():
-            raise ValueError('ExperimentMapper requires either site or peptide as keys in dictionary')
+        if 'peptide' in columns.keys():
+            #check if peptide column has NaN values
+            if self.experiment[columns['peptide']].isna().any():
+                self.logger.warning("NaN values found in peptide column. These rows will be removed during mapping.")
+                self.experiment = self.experiment.dropna(subset=[columns['peptide']]).copy()
+
+            #check format
+            pep_check = self.experiment[columns['peptide']].apply(lambda x: peptides.check_peptide_format(x, pep_format_separator)).all()
+            if not pep_check and 'site' not in columns.keys():
+                raise peptides.PeptideSequenceFormat('Peptide column provided but not in the correct format (modified residues should be lowercase and only S, T, Y should be modified, no special characters). Please check the format of the peptide column. To reformat peptides, you can use the kstar.dataset_processing.peptides module.')
+            else:
+                self._report_warning('Some peptides are not in the correct format (modified residues should be lowercase and only S, T, Y should be modified, no special characters). Please check the format of the peptide column. To reformat peptides, you can use the kstar.dataset_processing.peptides module.')            
+            
+            #separate if multiple peptides are present in a cell
+            if self.experiment[columns['peptide']].str.contains(pep_format_separator).any():
+                self.logger.warning("Multiple peptides found in some rows. These will be split into multiple rows for mapping.")
+                self.experiment[columns['peptide']] = self.experiment[columns['peptide']].str.split(pep_format_separator)
+                self.experiment = self.experiment.explode(columns['peptide']).reset_index(drop=True).copy()
+        else:
+            pep_check = False
+
+        
+        
+        if 'site' in columns.keys():
+            #check to make sure site column is in correct format
+            site_check = self.experiment[columns['site']].apply(lambda x: peptides.check_site_format(x)).all()
+
+        if not pep_check and not site_check:
+            raise peptides.PeptideSequenceFormat('Peptide/site columns provided but are not in the correct format. Please make sure that the peptide column has modified residues in lowercase and only S, T, Y are modified, and that the site column is in the format S/T/Y<pos>, e.g. Y15 or S345. Only one is required, but peptide is recommended for more accurate mapping to reference. To reformat peptides/sites, you can use the kstar.dataset_processing.peptides module.')
+
+
+       
 
         self.experiment[config.KSTAR_PEPTIDE] = self.experiment[columns['peptide']] if 'peptide' in columns.keys() else None
         self.experiment[config.KSTAR_SITE] = self.experiment[columns['site']] if 'site' in columns.keys() else None
@@ -151,6 +184,18 @@ class ExperimentMapper:
         self.columns = columns
 
         print('Mapping complete.')
+
+    def _report_warning(self, message):
+        """
+        Reports a warning message to both the logger and standard output
+
+        Parameters
+        ----------
+        message : str
+            warning message to report
+        """
+        print("WARNING:", message)
+        self.logger.warning(message)
 
     def set_data_columns(self, data_columns):
         """
@@ -202,6 +247,9 @@ class ExperimentMapper:
         """
 
         self.experiment = expand_peptide(self.experiment, config.KSTAR_PEPTIDE)
+        if len(self.experiment) == 0:
+            raise peptides.PeptideSequenceError("No peptides to map after expanding peptides, meaning that KSTAR did not find any lowercased residues that should indicate the location of phosphorylation sites in the sequence. Please check the format of the peptide column to make sure modified residues are correctly denoted. To reformat peptides, you can use kstar.dataset_processing.peptides module.")
+
 
         for index, row in tqdm.tqdm(self.experiment.iterrows(), desc = 'Mapping peptides/sites to reference sequences', total = len(self.experiment), disable=not show_taskbar):
             sequence = self.get_sequence(row[config.KSTAR_ACCESSION])
@@ -350,6 +398,32 @@ class ExperimentMapper:
 
 
 
+def check_single_peptide_format(peptide):
+    #make sure only letters are used and that only lowercased letters are S, T, or Y
+    if not isinstance(peptide, str):
+        return False
+    
+    if not peptide.isalpha():
+        return False
+    
+    modified_residues = [res for res in peptide if res.islower()]
+    if not all(res in ['s', 't', 'y'] for res in modified_residues):
+        return False
+    
+    return True
+
+
+def check_peptide_format(peptide, separator = ';'):
+    #make sure only letters are used and that only lowercased letters are S, T, or Y
+    if not isinstance(peptide, str):
+        return False
+    
+    #separate multiple peptides if separator is present and check each one
+    if separator in peptide:
+        peptides = peptide.split(separator)
+        return all(check_single_peptide_format(p.strip()) for p in peptides)
+    else:
+        return check_single_peptide_format(peptide)
         
 
 
