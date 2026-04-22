@@ -2927,7 +2927,7 @@ def Mann_Whitney_analysis(kinact_dict, show_taskbar=True, PROCESSES=1):
     for phospho_type, kinact in kinact_dict.items():
         kinact.calculate_Mann_Whitney_activities_sig(show_taskbar=show_taskbar, PROCESSES=PROCESSES)
 
-def run_kstar_analysis_deprecated(experiment, odir, name='experiment', phospho_types=['Y', 'ST'], data_columns=None, threshold=1.0, evidence_size=None, greater=True, save_output=True, show_taskbar = True, PROCESSES=1, **kwargs):
+def run_kstar_analysis_deprecated(experiment, odir, name='experiment', phospho_types=['Y', 'ST'], data_columns=None, threshold=1.0, evidence_size=None, greater=True, agg = 'mean',save_output=True, show_taskbar = True, PROCESSES=1, **kwargs):
     """
     Given a mapped experiment, run the KSTAR analysis pipeline.
 
@@ -2990,9 +2990,65 @@ def run_kstar_analysis_deprecated(experiment, odir, name='experiment', phospho_t
     print('Done.')
     return kinact_dict
 
+def check_parameters(odir, phospho_types=['Y', 'ST'], kinases = None, data_columns=None, threshold=1.0, evidence_size=None, greater=True,  **kwargs):
+    #find relevant kwargs
+    init_kwargs = helpers.extract_relevant_kwargs(KinaseActivity.__init__, **kwargs)
+    run_kwargs = helpers.extract_relevant_kwargs(KinaseActivity.run_kstar, **kwargs)
 
+    save_kwargs = helpers.extract_relevant_kwargs(save_kstar, **kwargs)
+    identified_kwargs = set(run_kwargs.keys()).union(set(save_kwargs.keys())).union(set(init_kwargs.keys()))
+
+    #throw error if any unexpected kwargs are provided
+    unexpected_kwargs = set(kwargs.keys()).difference(identified_kwargs)
+    if len(unexpected_kwargs) > 0:
+        raise ValueError(f"Unexpected keyword arguments provided: {', '.join(unexpected_kwargs)}. Please check the function parameters for KinaseActivity initialization, run_kstar, and save_kstar.")
     
-def run_kstar_analysis(experiment, odir, name='experiment', phospho_types=['Y', 'ST'], data_columns=None, threshold=1.0, evidence_size=None, greater=True, save_output=True, show_taskbar = True, PROCESSES=1, **kwargs):
+    # Make sure phospho_types is properly formatted
+    if phospho_types is None:
+        raise TypeError("phospho_types must be provided as a list containing 'Y' and/or 'ST' (['Y', 'ST'], ['Y'], or ['ST'])")
+    elif not isinstance(phospho_types, list):
+        raise TypeError("phospho_types must be provided as a list containing 'Y' and/or 'ST' (['Y', 'ST'], ['Y'], or ['ST'])")
+    elif len(phospho_types) == 0:
+        raise ValueError("phospho_types must contain at least one of 'Y' or 'ST'")
+
+    #make sure either threshold or evidence_size is provided
+    if threshold is None and evidence_size is None:
+        raise ValueError("Either threshold or evidence_size must be provided to run enrichment_analysis.")
+    
+    #check to make sure threshold and evidence_size are properly formatted
+    if isinstance(threshold, dict):
+        for pt in phospho_types:
+            if pt not in threshold:
+                raise ValueError("When providing threshold as a dictionary, it must include keys for all phospho_types being run.")
+    else:
+        threshold = {pt: threshold for pt in phospho_types}
+    
+    if isinstance(evidence_size, dict):
+        for pt in phospho_types:
+            if pt not in evidence_size:
+                raise ValueError("When providing evidence_size as a dictionary, it must include keys for all phospho_types being run.")
+    elif evidence_size is None or isinstance(evidence_size, int):
+        evidence_size = {pt: evidence_size for pt in phospho_types}
+    else:
+        raise TypeError("evidence_size must be provided as an int or as a dictionary with keys for all phospho_types being run.")
+    
+    if isinstance(kinases, dict):
+        for pt in phospho_types:
+            if pt not in kinases:
+                raise ValueError("When providing kinases as a dictionary, it must include keys for all phospho_types being run.")
+    else:
+        kinases = {pt: kinases for pt in phospho_types}
+    
+    if not isinstance(greater, bool):
+        raise TypeError("greater parameter must be a boolean value of True or False.")
+
+    #make sure odir exists
+    if not os.path.exists(odir):
+        raise ValueError(f"Output directory {odir} does not exist. Please create it before running enrichment_analysis.")
+
+    return threshold, evidence_size, kinases, init_kwargs, run_kwargs, save_kwargs
+    
+def run_kstar_analysis(experiment, odir, name='experiment', phospho_types=['Y', 'ST'], kinases = None, data_columns=None, threshold=1.0, evidence_size=None, greater=True, agg = 'mean', min_evidence_size = 0, allow_column_loss=True, save_output=True, show_taskbar = True, PROCESSES=1, **kwargs):
     """
     Given a mapped experiment, run the KSTAR analysis pipeline.
 
@@ -3006,41 +3062,69 @@ def run_kstar_analysis(experiment, odir, name='experiment', phospho_types=['Y', 
         Name of the experiment
     phospho_types: list
         List of phospho types to analyze
-    network_dir: string
-        Directory containing network data
+    kinases: list or dict
+        List of kinases to analyze, or dictionary with keys for each phospho_type and values as lists of kinases to analyze for each phospho_type. If None, will run on all kinases in the network.
     data_columns: list
         Columns to use from the data
     agg: string
         Aggregation method
-    threshold: float
-        Threshold for analysis
+    threshold: float, list, or dict
+        Threshold cutoff for determining evidence for each column. Can be provided as a single float value, a list of float values, or dictionary with keys for each phospho_type (if you want to use different thresholds for each phosphotype)
     evidence_size: int
-        Size of evidence
+        Number of phosphosites to use as evidence for analysis, which will overide thresholding if provided. Can be provided as a single int value, a list of int values, or dictionary with keys for each phospho_type (if you want to use different evidence sizes for each phosphotype)
     greater: bool
-        Whether to use greater comparison
+        Whether to use sites with values greater than or equal to the threshold (True, default) or less than or equal to the threshold (False) as evidence. If using evidence_size, this will determine whether to take the top N sites with values greater than or equal to the threshold (True) or less than or equal to the threshold (False)
+    agg: string
+        Method for aggregating quantification values for duplicate site entries in the datset
+    min_evidence_size: int
+        Minimum size of evidence required to run kinase activity analysis on a column
+    allow_column_loss: bool
+        Whether to allow columns to be removed if they do not fit desired criteria after evidence selection
     PROCESSES: int
         Number of processes to use
     **kwargs
-        Additional keyword arguments for enrichment_analysis, randomized_analysis, and save_kstar functions.
+        Additional keyword arguments for KinaseActivity initialization, run, and save.
 
     """
-    #find relevant kwargs
-    run_kwargs = helpers.extract_relevant_kwargs(KinaseActivity.run_kstar, **kwargs)
-
-    save_kwargs = helpers.extract_relevant_kwargs(save_kstar, **kwargs)
-    identified_kwargs = set(run_kwargs.keys()).union(set(save_kwargs.keys()))
-
-    #throw error if any unexpected kwargs are provided
-    unexpected_kwargs = set(kwargs.keys()).difference(identified_kwargs)
-    if len(unexpected_kwargs) > 0:
-        raise ValueError(f"Unexpected keyword arguments provided: {', '.join(unexpected_kwargs)}. Please check the function parameters for enrichment_analysis, randomized_analysis, and save_kstar.")
-
+    threshold, evidence_size, kinases, init_kwargs, run_kwargs, save_kwargs = check_parameters(odir=odir, phospho_types=phospho_types, kinases=kinases, threshold=threshold, evidence_size=evidence_size, greater=greater, **kwargs)
+    
+ 
     #run kstar
     kinact_dict = {}
     for phospho_type in phospho_types:
-        kinact = KinaseActivity(experiment, odir = odir, name = name, phospho_type = phospho_type, data_columns = data_columns)
-        kinact.run_kstar(threshold=threshold, evidence_size=evidence_size, greater=greater,show_taskbar=show_taskbar, PROCESSES=PROCESSES, **run_kwargs)
+         # filter the experiment (log how many are of that type)
+        if phospho_type == 'ST':
+            experiment_sub = experiment[
+                (experiment.KSTAR_SITE.str.contains('S')) | (experiment.KSTAR_SITE.str.contains('T'))]
+        #    log.info("Running Serine/Threonine Kinase Activity Analysis")
+        elif phospho_type == 'Y':
+            experiment_sub = experiment[(experiment.KSTAR_SITE.str.contains('Y'))]
+        #    log.info("Running Tyrosine Kinase Activity Analysis")
+        else:
+            raise ValueError("ERROR: Did not recognize phosphoType %s, which should only include 'Y' or 'ST' " % (phospho_type))
+        
+        #make sure there are any sites of that type
+        if experiment_sub.shape[0] == 0:
+            print(f"No phosphorylation sites of type {phospho_type} found in dataset, skipping kinase activity calculations for this phospho_type.")
+            continue
+
+        #initialize KinaseActivity object
+
+        kinact = KinaseActivity(experiment_sub, odir = odir, name = name, data_columns=data_columns, phospho_type=phospho_type, kinases=kinases[phospho_type], **init_kwargs)
+        #make sure thresholding parameters are valid (unless evidence_size is provided)
+        if evidence_size[phospho_type] is None:
+            good_params = kinact.check_valid_threshold(threshold = threshold[phospho_type], greater = greater, agg = agg, min_evidence_size = min_evidence_size, allow_column_loss=allow_column_loss)
+            if not good_params:
+                print(f"Skipping kinase activity calculations for {phospho_type} kinases due to no data columns with sufficient evidence after thresholding. Please consider adjusting threshold.")
+                continue
+
+
+
+        kinact.run_kstar(threshold=threshold[phospho_type], evidence_size=evidence_size[phospho_type], greater=greater,show_taskbar=show_taskbar, PROCESSES=PROCESSES, **run_kwargs)
         kinact_dict[phospho_type] = kinact
+
+    if len(kinact_dict) == 0:
+        raise ValueError("No KinaseActivity objects were successfully created. Please check your input experiment and parameters.")
 
     if save_output:
         print(f'Saving KSTAR analysis results in {odir}/RESULTS/')
