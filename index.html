@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>KSTAR &#8212; KSTAR 1.1.0 documentation</title>
+    <title>KSTAR &#8212; KSTAR 1.1.1 documentation</title>
   
   
   
@@ -36,7 +36,7 @@
 <link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
   <script src="_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
 
-    <script src="_static/documentation_options.js?v=051bfb12"></script>
+    <script src="_static/documentation_options.js?v=bee7790f"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
@@ -134,7 +134,7 @@
   
   
   
-    <p class="title logo__title">KSTAR 1.1.0 documentation</p>
+    <p class="title logo__title">KSTAR 1.1.1 documentation</p>
   
 </a></div>
         <div class="sidebar-primary-item">
@@ -156,6 +156,7 @@
 <li class="toctree-l1"><a class="reference internal" href="Overview/Dependencies.html">Dependencies</a></li>
 <li class="toctree-l1"><a class="reference internal" href="Overview/data_prep.html">Preparing your Data</a></li>
 <li class="toctree-l1"><a class="reference internal" href="Overview/ways_to_run.html">Options for Running KSTAR</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Overview/KSTAR.html">KSTAR Reference</a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Galaxy Tutorial:</span></p>
 <ul class="nav bd-sidenav">
@@ -192,11 +193,11 @@
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Advanced Python Usage:</span></p>
 <ul class="nav bd-sidenav">
-<li class="toctree-l1"><a class="reference internal" href="Overview/KSTAR.html">KSTAR Reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="Advanced/Configuration.html">Updating Configuration</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Advanced/Pruning.html">Network Generation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Advanced/Pregenerated_Experiments.html">Pregenerated Random actiivities</a></li>
 <li class="toctree-l1"><a class="reference internal" href="Advanced/Parallel/parallel.html">KSTAR in Parallel</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Advanced/Pruning.html">Network Generation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Advanced/nonhuman_data.html">KSTAR with Non-Human Datasets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Advanced/Pregenerated_Experiments.html">Pregenerated Random Activities</a></li>
 <li class="toctree-l1"><a class="reference internal" href="Advanced/faq.html">Frequently Asked Questions</a></li>
 </ul>
 
@@ -414,10 +415,117 @@ document.write(`
 <div class="toctree-wrapper compound">
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Overview:</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="Overview/Overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Overview/Overview.html">Overview</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="Overview/Overview.html#kstar-algorithm">KSTAR Algorithm</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Overview/Overview.html#steps-of-a-kstar-run">Steps of a KSTAR Run</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="Overview/Dependencies.html">Dependencies</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Overview/data_prep.html">Preparing your Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Overview/data_prep.html">Preparing your Data</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="Overview/data_prep.html#requirements-for-input-data">Requirements for Input Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Overview/data_prep.html#preparing-your-data-for-kstar-analysis">Preparing your Data for KSTAR analysis</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="Overview/data_prep.html#reformatting-peptide-sequences">Reformatting Peptide Sequences</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Overview/data_prep.html#converting-ids-to-uniprot-accessions">Converting IDs to UniProt accessions</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="Overview/data_prep.html#faq">FAQ</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="Overview/ways_to_run.html">Options for Running KSTAR</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Overview/KSTAR.html">KSTAR Reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="Overview/KSTAR.html#module-kstar.config">The “Config” Module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="Overview/KSTAR.html#kstar.config.check_configuration"><code class="docutils literal notranslate"><span class="pre">check_configuration()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="Overview/KSTAR.html#kstar.config.find_available_networks"><code class="docutils literal notranslate"><span class="pre">find_available_networks()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="Overview/KSTAR.html#kstar.config.install_network_files"><code class="docutils literal notranslate"><span class="pre">install_network_files()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="Overview/KSTAR.html#kstar.config.update_configuration"><code class="docutils literal notranslate"><span class="pre">update_configuration()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="Overview/KSTAR.html#kstar.config.update_network_directory"><code class="docutils literal notranslate"><span class="pre">update_network_directory()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="Overview/KSTAR.html#the-prune-module">The “Prune” Module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="Overview/KSTAR.html#the-pruner-class">The “Pruner” Class</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="Overview/KSTAR.html#kstar.prune.Pruner"><code class="docutils literal notranslate"><span class="pre">Pruner</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="Overview/KSTAR.html#module-kstar.prune">Functions to Perform Pruning</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="Overview/KSTAR.html#kstar.prune.run_pruning"><code class="docutils literal notranslate"><span class="pre">run_pruning()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="Overview/KSTAR.html#the-experimentmapper-class">The “ExperimentMapper” class</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="Overview/KSTAR.html#kstar.mapping.ExperimentMapper"><code class="docutils literal notranslate"><span class="pre">ExperimentMapper</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="Overview/KSTAR.html#kstar.mapping.ExperimentMapper.align_sites"><code class="docutils literal notranslate"><span class="pre">ExperimentMapper.align_sites()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="Overview/KSTAR.html#kstar.mapping.ExperimentMapper.get_experiment"><code class="docutils literal notranslate"><span class="pre">ExperimentMapper.get_experiment()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="Overview/KSTAR.html#kstar.mapping.ExperimentMapper.get_number_missed_peptides"><code class="docutils literal notranslate"><span class="pre">ExperimentMapper.get_number_missed_peptides()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="Overview/KSTAR.html#kstar.mapping.ExperimentMapper.get_number_missed_sites"><code class="docutils literal notranslate"><span class="pre">ExperimentMapper.get_number_missed_sites()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="Overview/KSTAR.html#kstar.mapping.ExperimentMapper.get_reason_for_unmapped"><code class="docutils literal notranslate"><span class="pre">ExperimentMapper.get_reason_for_unmapped()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="Overview/KSTAR.html#kstar.mapping.ExperimentMapper.get_sequence"><code class="docutils literal notranslate"><span class="pre">ExperimentMapper.get_sequence()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="Overview/KSTAR.html#kstar.mapping.ExperimentMapper.save_experiment"><code class="docutils literal notranslate"><span class="pre">ExperimentMapper.save_experiment()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="Overview/KSTAR.html#kstar.mapping.ExperimentMapper.set_data_columns"><code class="docutils literal notranslate"><span class="pre">ExperimentMapper.set_data_columns()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="Overview/KSTAR.html#functions-for-activity-calculation">Functions for Activity Calculation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="Overview/KSTAR.html#the-kinaseactivity-class">The “KinaseActivity” class</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="Overview/KSTAR.html#kstar.calculate.KinaseActivity"><code class="docutils literal notranslate"><span class="pre">KinaseActivity</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="Overview/KSTAR.html#module-kstar.calculate">Master Functions for Running KSTAR Pipeline</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="Overview/KSTAR.html#kstar.calculate.Mann_Whitney_analysis"><code class="docutils literal notranslate"><span class="pre">Mann_Whitney_analysis()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="Overview/KSTAR.html#kstar.calculate.enrichment_analysis"><code class="docutils literal notranslate"><span class="pre">enrichment_analysis()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="Overview/KSTAR.html#kstar.calculate.randomized_analysis"><code class="docutils literal notranslate"><span class="pre">randomized_analysis()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="Overview/KSTAR.html#kstar.calculate.run_kstar_analysis"><code class="docutils literal notranslate"><span class="pre">run_kstar_analysis()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="Overview/KSTAR.html#module-0">Functions for Saving and Loading KSTAR results</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="Overview/KSTAR.html#kstar.calculate.from_kstar"><code class="docutils literal notranslate"><span class="pre">from_kstar()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="Overview/KSTAR.html#kstar.calculate.from_kstar_nextflow"><code class="docutils literal notranslate"><span class="pre">from_kstar_nextflow()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="Overview/KSTAR.html#kstar.calculate.save_kstar"><code class="docutils literal notranslate"><span class="pre">save_kstar()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="Overview/KSTAR.html#plotting-analysis-functions">Plotting/Analysis Functions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="Overview/KSTAR.html#the-dotplot-class">The “DotPlot” class</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="Overview/KSTAR.html#kstar.plot.DotPlot"><code class="docutils literal notranslate"><span class="pre">DotPlot</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="Overview/KSTAR.html#the-kstar-pdf-class">The “KSTAR_PDF” class</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="Overview/KSTAR.html#kstar.plot.KSTAR_PDF"><code class="docutils literal notranslate"><span class="pre">KSTAR_PDF</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="Overview/KSTAR.html#module-kstar.analysis.interactions">Downstream Analysis Modules</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="Overview/KSTAR.html#kstar.analysis.interactions.getSubstrateInfluence"><code class="docutils literal notranslate"><span class="pre">getSubstrateInfluence()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="Overview/KSTAR.html#kstar.analysis.interactions.getSubstrateInfluence_inExperiment"><code class="docutils literal notranslate"><span class="pre">getSubstrateInfluence_inExperiment()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="Overview/KSTAR.html#kstar.analysis.coverage.averageUniqueSubstrates_KSTAR"><code class="docutils literal notranslate"><span class="pre">averageUniqueSubstrates_KSTAR()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="Overview/KSTAR.html#kstar.analysis.coverage.experimentCoverage"><code class="docutils literal notranslate"><span class="pre">experimentCoverage()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="Overview/KSTAR.html#kstar.analysis.coverage.getStudyBiasDistribution_InExperiment"><code class="docutils literal notranslate"><span class="pre">getStudyBiasDistribution_InExperiment()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="Overview/KSTAR.html#kstar.analysis.coverage.getStudyBiasDistribution_InPhosphoproteome"><code class="docutils literal notranslate"><span class="pre">getStudyBiasDistribution_InPhosphoproteome()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="Overview/KSTAR.html#kstar.analysis.coverage.getStudyBiasDistribution_InSample"><code class="docutils literal notranslate"><span class="pre">getStudyBiasDistribution_InSample()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="Overview/KSTAR.html#kstar.analysis.coverage.numUniqueSubstrates"><code class="docutils literal notranslate"><span class="pre">numUniqueSubstrates()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="Overview/KSTAR.html#kstar.analysis.coverage.sampleCoverage"><code class="docutils literal notranslate"><span class="pre">sampleCoverage()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="Overview/KSTAR.html#kstar.analysis.kinase_MI.kinase_mutual_information"><code class="docutils literal notranslate"><span class="pre">kinase_mutual_information()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="Overview/KSTAR.html#kstar.analysis.kinase_MI.plot_kinase_heatmap"><code class="docutils literal notranslate"><span class="pre">plot_kinase_heatmap()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="Overview/KSTAR.html#module-kstar.dataset_processing.peptides">Dataset Processing Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Overview/KSTAR.html#module-kstar.helpers">Other Helper Functions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="Overview/KSTAR.html#kstar.helpers.agg_jaccard"><code class="docutils literal notranslate"><span class="pre">agg_jaccard()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="Overview/KSTAR.html#kstar.helpers.calculate_jaccard_by_binary"><code class="docutils literal notranslate"><span class="pre">calculate_jaccard_by_binary()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="Overview/KSTAR.html#kstar.helpers.calculate_jaccard_by_sets"><code class="docutils literal notranslate"><span class="pre">calculate_jaccard_by_sets()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="Overview/KSTAR.html#kstar.helpers.convert_acc_to_uniprot"><code class="docutils literal notranslate"><span class="pre">convert_acc_to_uniprot()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="Overview/KSTAR.html#kstar.helpers.get_logger"><code class="docutils literal notranslate"><span class="pre">get_logger()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="Overview/KSTAR.html#kstar.helpers.jaci_matrix_between_samples"><code class="docutils literal notranslate"><span class="pre">jaci_matrix_between_samples()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="Overview/KSTAR.html#kstar.helpers.parse_network_information"><code class="docutils literal notranslate"><span class="pre">parse_network_information()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="Overview/KSTAR.html#kstar.helpers.process_fasta_file"><code class="docutils literal notranslate"><span class="pre">process_fasta_file()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="Overview/KSTAR.html#kstar.helpers.string_to_boolean"><code class="docutils literal notranslate"><span class="pre">string_to_boolean()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
 </div>
 <div class="toctree-wrapper compound">
@@ -464,7 +572,6 @@ document.write(`
 <li class="toctree-l3"><a class="reference internal" href="Tutorial/quickstart.html#download-networks">Download Networks</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="Tutorial/quickstart.html#for-kstar-version-1-0-4-and-newer">for KSTAR version 1.0.4 and newer</a></li>
 <li class="toctree-l4"><a class="reference internal" href="Tutorial/quickstart.html#for-kstar-version-0-5-3-and-older">for KSTAR version 0.5.3 and older</a></li>
-<li class="toctree-l4"><a class="reference internal" href="Tutorial/quickstart.html#if-using-self-generated-networks">If Using Self-generated Networks</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="Tutorial/quickstart.html#configure-kstar-to-point-to-the-correct-network-directory">Configure KSTAR to point to the correct network directory</a></li>
@@ -590,124 +697,7 @@ document.write(`
 <div class="toctree-wrapper compound">
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Advanced Python Usage:</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="Overview/KSTAR.html">KSTAR Reference</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="Overview/KSTAR.html#module-kstar.config">The “Config” Module</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="Overview/KSTAR.html#kstar.config.check_configuration"><code class="docutils literal notranslate"><span class="pre">check_configuration()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="Overview/KSTAR.html#kstar.config.find_available_networks"><code class="docutils literal notranslate"><span class="pre">find_available_networks()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="Overview/KSTAR.html#kstar.config.install_network_files"><code class="docutils literal notranslate"><span class="pre">install_network_files()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="Overview/KSTAR.html#kstar.config.update_configuration"><code class="docutils literal notranslate"><span class="pre">update_configuration()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="Overview/KSTAR.html#kstar.config.update_network_directory"><code class="docutils literal notranslate"><span class="pre">update_network_directory()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="Overview/KSTAR.html#the-prune-module">The “Prune” Module</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="Overview/KSTAR.html#the-pruner-class">The “Pruner” Class</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="Overview/KSTAR.html#kstar.prune.Pruner"><code class="docutils literal notranslate"><span class="pre">Pruner</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="Overview/KSTAR.html#module-kstar.prune">Functions to Perform Pruning</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="Overview/KSTAR.html#kstar.prune.run_pruning"><code class="docutils literal notranslate"><span class="pre">run_pruning()</span></code></a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="Overview/KSTAR.html#the-experimentmapper-class">The “ExperimentMapper” class</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="Overview/KSTAR.html#kstar.mapping.ExperimentMapper"><code class="docutils literal notranslate"><span class="pre">ExperimentMapper</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="Overview/KSTAR.html#kstar.mapping.ExperimentMapper.align_sites"><code class="docutils literal notranslate"><span class="pre">ExperimentMapper.align_sites()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="Overview/KSTAR.html#kstar.mapping.ExperimentMapper.get_experiment"><code class="docutils literal notranslate"><span class="pre">ExperimentMapper.get_experiment()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="Overview/KSTAR.html#kstar.mapping.ExperimentMapper.get_number_missed_peptides"><code class="docutils literal notranslate"><span class="pre">ExperimentMapper.get_number_missed_peptides()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="Overview/KSTAR.html#kstar.mapping.ExperimentMapper.get_number_missed_sites"><code class="docutils literal notranslate"><span class="pre">ExperimentMapper.get_number_missed_sites()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="Overview/KSTAR.html#kstar.mapping.ExperimentMapper.get_reason_for_unmapped"><code class="docutils literal notranslate"><span class="pre">ExperimentMapper.get_reason_for_unmapped()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="Overview/KSTAR.html#kstar.mapping.ExperimentMapper.get_sequence"><code class="docutils literal notranslate"><span class="pre">ExperimentMapper.get_sequence()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="Overview/KSTAR.html#kstar.mapping.ExperimentMapper.save_experiment"><code class="docutils literal notranslate"><span class="pre">ExperimentMapper.save_experiment()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="Overview/KSTAR.html#kstar.mapping.ExperimentMapper.set_data_columns"><code class="docutils literal notranslate"><span class="pre">ExperimentMapper.set_data_columns()</span></code></a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="Overview/KSTAR.html#functions-for-activity-calculation">Functions for Activity Calculation</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="Overview/KSTAR.html#the-kinaseactivity-class">The “KinaseActivity” class</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="Overview/KSTAR.html#kstar.calculate.KinaseActivity"><code class="docutils literal notranslate"><span class="pre">KinaseActivity</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="Overview/KSTAR.html#module-kstar.calculate">Master Functions for Running KSTAR Pipeline</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="Overview/KSTAR.html#kstar.calculate.Mann_Whitney_analysis"><code class="docutils literal notranslate"><span class="pre">Mann_Whitney_analysis()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="Overview/KSTAR.html#kstar.calculate.enrichment_analysis"><code class="docutils literal notranslate"><span class="pre">enrichment_analysis()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="Overview/KSTAR.html#kstar.calculate.randomized_analysis"><code class="docutils literal notranslate"><span class="pre">randomized_analysis()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="Overview/KSTAR.html#kstar.calculate.run_kstar_analysis"><code class="docutils literal notranslate"><span class="pre">run_kstar_analysis()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="Overview/KSTAR.html#module-0">Functions for Saving and Loading KSTAR results</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="Overview/KSTAR.html#kstar.calculate.from_kstar"><code class="docutils literal notranslate"><span class="pre">from_kstar()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="Overview/KSTAR.html#kstar.calculate.from_kstar_nextflow"><code class="docutils literal notranslate"><span class="pre">from_kstar_nextflow()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="Overview/KSTAR.html#kstar.calculate.save_kstar"><code class="docutils literal notranslate"><span class="pre">save_kstar()</span></code></a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="Overview/KSTAR.html#plotting-analysis-functions">Plotting/Analysis Functions</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="Overview/KSTAR.html#the-dotplot-class">The “DotPlot” class</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="Overview/KSTAR.html#kstar.plot.DotPlot"><code class="docutils literal notranslate"><span class="pre">DotPlot</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="Overview/KSTAR.html#the-kstar-pdf-class">The “KSTAR_PDF” class</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="Overview/KSTAR.html#kstar.plot.KSTAR_PDF"><code class="docutils literal notranslate"><span class="pre">KSTAR_PDF</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="Overview/KSTAR.html#module-kstar.analysis.interactions">Downstream Analysis Modules</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="Overview/KSTAR.html#kstar.analysis.interactions.getSubstrateInfluence"><code class="docutils literal notranslate"><span class="pre">getSubstrateInfluence()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="Overview/KSTAR.html#kstar.analysis.interactions.getSubstrateInfluence_inExperiment"><code class="docutils literal notranslate"><span class="pre">getSubstrateInfluence_inExperiment()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="Overview/KSTAR.html#kstar.analysis.coverage.averageUniqueSubstrates_KSTAR"><code class="docutils literal notranslate"><span class="pre">averageUniqueSubstrates_KSTAR()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="Overview/KSTAR.html#kstar.analysis.coverage.experimentCoverage"><code class="docutils literal notranslate"><span class="pre">experimentCoverage()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="Overview/KSTAR.html#kstar.analysis.coverage.getStudyBiasDistribution_InExperiment"><code class="docutils literal notranslate"><span class="pre">getStudyBiasDistribution_InExperiment()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="Overview/KSTAR.html#kstar.analysis.coverage.getStudyBiasDistribution_InPhosphoproteome"><code class="docutils literal notranslate"><span class="pre">getStudyBiasDistribution_InPhosphoproteome()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="Overview/KSTAR.html#kstar.analysis.coverage.getStudyBiasDistribution_InSample"><code class="docutils literal notranslate"><span class="pre">getStudyBiasDistribution_InSample()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="Overview/KSTAR.html#kstar.analysis.coverage.numUniqueSubstrates"><code class="docutils literal notranslate"><span class="pre">numUniqueSubstrates()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="Overview/KSTAR.html#kstar.analysis.coverage.sampleCoverage"><code class="docutils literal notranslate"><span class="pre">sampleCoverage()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="Overview/KSTAR.html#kstar.analysis.kinase_MI.kinase_mutual_information"><code class="docutils literal notranslate"><span class="pre">kinase_mutual_information()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="Overview/KSTAR.html#kstar.analysis.kinase_MI.plot_kinase_heatmap"><code class="docutils literal notranslate"><span class="pre">plot_kinase_heatmap()</span></code></a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="Overview/KSTAR.html#module-kstar.dataset_processing.peptides">Dataset Processing Functions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="Overview/KSTAR.html#module-kstar.helpers">Other Helper Functions</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="Overview/KSTAR.html#kstar.helpers.agg_jaccard"><code class="docutils literal notranslate"><span class="pre">agg_jaccard()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="Overview/KSTAR.html#kstar.helpers.calculate_jaccard_by_binary"><code class="docutils literal notranslate"><span class="pre">calculate_jaccard_by_binary()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="Overview/KSTAR.html#kstar.helpers.calculate_jaccard_by_sets"><code class="docutils literal notranslate"><span class="pre">calculate_jaccard_by_sets()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="Overview/KSTAR.html#kstar.helpers.convert_acc_to_uniprot"><code class="docutils literal notranslate"><span class="pre">convert_acc_to_uniprot()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="Overview/KSTAR.html#kstar.helpers.get_logger"><code class="docutils literal notranslate"><span class="pre">get_logger()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="Overview/KSTAR.html#kstar.helpers.jaci_matrix_between_samples"><code class="docutils literal notranslate"><span class="pre">jaci_matrix_between_samples()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="Overview/KSTAR.html#kstar.helpers.parse_network_information"><code class="docutils literal notranslate"><span class="pre">parse_network_information()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="Overview/KSTAR.html#kstar.helpers.process_fasta_file"><code class="docutils literal notranslate"><span class="pre">process_fasta_file()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="Overview/KSTAR.html#kstar.helpers.string_to_boolean"><code class="docutils literal notranslate"><span class="pre">string_to_boolean()</span></code></a></li>
-</ul>
-</li>
-</ul>
-</li>
 <li class="toctree-l1"><a class="reference internal" href="Advanced/Configuration.html">Updating Configuration</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Advanced/Pruning.html">Network Generation</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="Advanced/Pruning.html#download-pre-generated-networks">Download pre-generated networks</a></li>
-<li class="toctree-l2"><a class="reference internal" href="Advanced/Pruning.html#generate-your-own-networks">Generate your own networks</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="Advanced/Pruning.html#required-format-of-weighted-kinase-substrate-network">Required format of weighted kinase-substrate network</a></li>
-<li class="toctree-l3"><a class="reference internal" href="Advanced/Pruning.html#determining-pruning-parameters-to-use">Determining Pruning Parameters to Use</a></li>
-<li class="toctree-l3"><a class="reference internal" href="Advanced/Pruning.html#run-pruning">Run pruning</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="Advanced/Pruning.html#within-python-interpreter-ide">Within python interpreter/IDE</a></li>
-<li class="toctree-l4"><a class="reference internal" href="Advanced/Pruning.html#run-pruning-from-the-command-line">Run pruning from the command line</a></li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="Advanced/Pregenerated_Experiments.html">Pregenerated Random actiivities</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="Advanced/Pregenerated_Experiments.html#adjusting-pregenerated-experiments-use">Adjusting Pregenerated Experiments Use</a></li>
-<li class="toctree-l2"><a class="reference internal" href="Advanced/Pregenerated_Experiments.html#generating-additional-pregenerated-experiments">Generating Additional Pregenerated Experiments</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="Advanced/Pregenerated_Experiments.html#automatically-during-kstar-activity-calculation">Automatically during KSTAR activity Calculation</a></li>
-<li class="toctree-l3"><a class="reference internal" href="Advanced/Pregenerated_Experiments.html#manually-with-the-pregenerate-module">Manually with the pregenerate module</a></li>
-</ul>
-</li>
-</ul>
-</li>
 <li class="toctree-l1"><a class="reference internal" href="Advanced/Parallel/parallel.html">KSTAR in Parallel</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="Advanced/Parallel/parallel.html#option-1-running-kstar-using-multiprocessing">Option 1: Running KSTAR using Multiprocessing</a></li>
 <li class="toctree-l2"><a class="reference internal" href="Advanced/Parallel/parallel.html#option-2-running-large-datasets-with-nextflow">Option 2: Running Large Datasets with Nextflow</a><ul>
@@ -724,6 +714,34 @@ document.write(`
 <li class="toctree-l4"><a class="reference internal" href="Advanced/Parallel/parallel.html#running-nextflow-on-singularity">Running nextflow on Singularity</a></li>
 </ul>
 </li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="Advanced/Pruning.html">Network Generation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="Advanced/Pruning.html#download-pre-generated-networks">Download pre-generated networks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Advanced/Pruning.html#generate-your-own-networks">Generate your own networks</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="Advanced/Pruning.html#required-format-of-weighted-kinase-substrate-network">Required format of weighted kinase-substrate network</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Advanced/Pruning.html#determining-pruning-parameters-to-use">Determining Pruning Parameters to Use</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Advanced/Pruning.html#run-pruning">Run pruning</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="Advanced/Pruning.html#within-python-interpreter-ide">Within python interpreter/IDE</a></li>
+<li class="toctree-l4"><a class="reference internal" href="Advanced/Pruning.html#run-pruning-from-the-command-line">Run pruning from the command line</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="Advanced/nonhuman_data.html">KSTAR with Non-Human Datasets</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="Advanced/nonhuman_data.html#convert-ids-peptide-sequence-to-human-homologs-with-ptmorer">Convert IDs/peptide sequence to human homologs with PTMoreR</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Advanced/nonhuman_data.html#run-kstar-as-normal">Run KSTAR as normal</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="Advanced/Pregenerated_Experiments.html">Pregenerated Random Activities</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="Advanced/Pregenerated_Experiments.html#adjusting-pregenerated-experiments-use">Adjusting Pregenerated Experiments Use</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Advanced/Pregenerated_Experiments.html#generating-additional-pregenerated-experiments">Generating Additional Pregenerated Experiments</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="Advanced/Pregenerated_Experiments.html#automatically-during-kstar-activity-calculation">Automatically during KSTAR activity Calculation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Advanced/Pregenerated_Experiments.html#manually-with-the-pregenerate-module">Manually with the pregenerate module</a></li>
 </ul>
 </li>
 </ul>

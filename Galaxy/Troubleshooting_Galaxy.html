@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Troubleshooting the KSTAR Tool &#8212; KSTAR 1.1.0 documentation</title>
+    <title>Troubleshooting the KSTAR Tool &#8212; KSTAR 1.1.1 documentation</title>
   
   
   
@@ -36,7 +36,7 @@
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
   <script src="../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
 
-    <script src="../_static/documentation_options.js?v=051bfb12"></script>
+    <script src="../_static/documentation_options.js?v=bee7790f"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
@@ -133,7 +133,7 @@
   
   
   
-    <p class="title logo__title">KSTAR 1.1.0 documentation</p>
+    <p class="title logo__title">KSTAR 1.1.1 documentation</p>
   
 </a></div>
         <div class="sidebar-primary-item">
@@ -155,6 +155,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../Overview/Dependencies.html">Dependencies</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../Overview/data_prep.html">Preparing your Data</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../Overview/ways_to_run.html">Options for Running KSTAR</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Overview/KSTAR.html">KSTAR Reference</a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Galaxy Tutorial:</span></p>
 <ul class="current nav bd-sidenav">
@@ -191,11 +192,11 @@
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Advanced Python Usage:</span></p>
 <ul class="nav bd-sidenav">
-<li class="toctree-l1"><a class="reference internal" href="../Overview/KSTAR.html">KSTAR Reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../Advanced/Configuration.html">Updating Configuration</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../Advanced/Pruning.html">Network Generation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../Advanced/Pregenerated_Experiments.html">Pregenerated Random actiivities</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../Advanced/Parallel/parallel.html">KSTAR in Parallel</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Advanced/Pruning.html">Network Generation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Advanced/nonhuman_data.html">KSTAR with Non-Human Datasets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Advanced/Pregenerated_Experiments.html">Pregenerated Random Activities</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../Advanced/faq.html">Frequently Asked Questions</a></li>
 </ul>
 
@@ -437,6 +438,7 @@ document.write(`
 <ol class="arabic simple">
 <li><p>Issues with the dataset format (e.g. peptides or sites not in the correct format)</p></li>
 <li><p>Too few sites in the dataset to generate a KSTAR run. This is most common for tyrosine kinase runs (especially for global phosphoproteomics). If you encounter this error, we don’t recommend running KSTAR on this dataset as the results will likely not be meaningful given the small number of sites. If you want to run KSTAR on this dataset anyway, this is possible to do so via python (see <span class="xref std std-doc">Python Quickstart</span> for more details).</p></li>
+<li><p>Too many sites in the dataset to generate a KSTAR run (no matched random activities). The max is 1000 sites for tyrosine runs and 20000 sites for serine/threonine runs. If you encounter this error, we recommend adjusting your evidence selection (e.g. using a more stringent threshold or using the Top N sites) option instead to include fewer sites as evidence and avoid this error. If you want to run KSTAR on this dataset anyway, this is possible to do so via python (see <span class="xref std std-doc">Python Quickstart</span> for more details).</p></li>
 </ol>
 </section>
 <section id="mapping-error-exit-code-4">

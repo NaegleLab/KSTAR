@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Preparing your Data &#8212; KSTAR 1.1.0 documentation</title>
+    <title>Preparing your Data &#8212; KSTAR 1.1.1 documentation</title>
   
   
   
@@ -36,7 +36,7 @@
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
   <script src="../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
 
-    <script src="../_static/documentation_options.js?v=051bfb12"></script>
+    <script src="../_static/documentation_options.js?v=bee7790f"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
@@ -133,7 +133,7 @@
   
   
   
-    <p class="title logo__title">KSTAR 1.1.0 documentation</p>
+    <p class="title logo__title">KSTAR 1.1.1 documentation</p>
   
 </a></div>
         <div class="sidebar-primary-item">
@@ -155,11 +155,13 @@
 <li class="toctree-l1"><a class="reference internal" href="Dependencies.html">Dependencies</a></li>
 <li class="toctree-l1 current active"><a class="current reference internal" href="#">Preparing your Data</a></li>
 <li class="toctree-l1"><a class="reference internal" href="ways_to_run.html">Options for Running KSTAR</a></li>
+<li class="toctree-l1"><a class="reference internal" href="KSTAR.html">KSTAR Reference</a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Galaxy Tutorial:</span></p>
 <ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="../Galaxy/Running_KSTAR.html">Run KSTAR on Galaxy</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../Galaxy/Analyzing_Results.html">Analyze Results</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Galaxy/Troubleshooting_Galaxy.html">Troubleshooting the KSTAR Tool</a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Python Tutorial (Just the Basics):</span></p>
 <ul class="nav bd-sidenav">
@@ -190,11 +192,11 @@
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Advanced Python Usage:</span></p>
 <ul class="nav bd-sidenav">
-<li class="toctree-l1"><a class="reference internal" href="KSTAR.html">KSTAR Reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../Advanced/Configuration.html">Updating Configuration</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../Advanced/Pruning.html">Network Generation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../Advanced/Pregenerated_Experiments.html">Pregenerated Random actiivities</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../Advanced/Parallel/parallel.html">KSTAR in Parallel</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Advanced/Pruning.html">Network Generation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Advanced/nonhuman_data.html">KSTAR with Non-Human Datasets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Advanced/Pregenerated_Experiments.html">Pregenerated Random Activities</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../Advanced/faq.html">Frequently Asked Questions</a></li>
 </ul>
 
@@ -368,7 +370,9 @@ document.write(`
   </button>
 `);
 </script>
-
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
 </div></div>
       
     </div>
@@ -384,6 +388,20 @@ document.write(`
     <div id="print-main-content">
         <div id="jb-print-toc">
             
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#requirements-for-input-data">Requirements for Input Data</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#preparing-your-data-for-kstar-analysis">Preparing your Data for KSTAR analysis</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#reformatting-peptide-sequences">Reformatting Peptide Sequences</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#converting-ids-to-uniprot-accessions">Converting IDs to UniProt accessions</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#faq">FAQ</a></li>
+</ul>
+            </nav>
         </div>
     </div>
 </div>
@@ -395,18 +413,121 @@ document.write(`
                   
   <section id="preparing-your-data">
 <span id="data-prep"></span><h1>Preparing your Data<a class="headerlink" href="#preparing-your-data" title="Link to this heading">#</a></h1>
-<p>As input, KSTAR uses processed phosphoproteomic data in the form of a pandas DataFrame. KSTAR can be run on any phosphoproteomics pipeline (DDA, DIA, targeted, etc.) or quantification type.</p>
-<p>This dataset must contain the following information:</p>
+<section id="requirements-for-input-data">
+<h2>Requirements for Input Data<a class="headerlink" href="#requirements-for-input-data" title="Link to this heading">#</a></h2>
+<p>KSTAR can be run on any phosphoproteomics pipeline (DDA, DIA, targeted, etc.) or quantification type. As input, KSTAR uses processed phosphoproteomic data in the form of a pandas dataFrame with the following columns:</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Column(s) Description</p></th>
+<th class="head"><p>Required</p></th>
+<th class="head"><p>Example Value</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>UniProt Accession</p></td>
+<td><p>Yes</p></td>
+<td><p>P00533</p></td>
+</tr>
+<tr class="row-odd"><td><p>Sample data/quantification</p></td>
+<td><p>Yes</p></td>
+<td><p>0.5</p></td>
+</tr>
+<tr class="row-even"><td><p>Peptide Sequence</p></td>
+<td><p>Recommended, required if site position not provided</p></td>
+<td><p>AENAEyLRVAPQS</p></td>
+</tr>
+<tr class="row-odd"><td><p>Site Position</p></td>
+<td><p>If peptide sequence not provided</p></td>
+<td><p>Y1197</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>KSTAR expects a specific format for the peptide sequence (lowercased residue indicating the phosphorylated residue) and site position (residue followed by position). If your data is not in this format, you can use some of KSTAR’s built-in functions to reformat these into the expected format. See the next section for more details on how to prepare your data for KSTAR analysis.</p>
+</div>
+</section>
+<section id="preparing-your-data-for-kstar-analysis">
+<h2>Preparing your Data for KSTAR analysis<a class="headerlink" href="#preparing-your-data-for-kstar-analysis" title="Link to this heading">#</a></h2>
+<p>Before running KSTAR, go through the following checklist to see if your data is ready for KSTAR analysis</p>
 <ul class="simple">
-<li><p><strong>accession_id</strong>: The UniProt accession ID of the protein containing the phosphosite.</p></li>
-<li><p><strong>data_columns</strong>: One or more columns containing quantitative data for each phosphopeptide/site. These columns should be numeric and can represent any quantitative measure, such as intensity, fold change, or log2 fold change, binary, etc.</p></li>
+<li><p>[ ] Do all IDs convert to UniProt accessions?</p></li>
+<li><p>[ ] Does your data have at least one column with peptide sequences or site positions?</p></li>
+<li><p>[ ] If using, do the peptide sequences look correct, with the phosphorylated residue shown as a lowercase letter?</p></li>
+<li><p>[ ] Does each row contain only one peptide sequence or site position?</p></li>
+<li><p>[ ] Do the site positions look correct, with the format of a single letter followed by a number (e.g., Y1197)?</p></li>
+<li><p>[ ] Do the data columns only contain numeric values (for example, log fold change, intensity, etc.)?</p></li>
 </ul>
-<p>and must contain at least one of the following:</p>
+<p>If the answer is yes to all these questions, your good to proceed to KSTAR activity calculation! If not, you can use some of KSTAR’s built-in functions to help you prepare your data for KSTAR analysis. See the next sections for more details on how to prepare your data for KSTAR analysis.</p>
+<section id="reformatting-peptide-sequences">
+<h3>Reformatting Peptide Sequences<a class="headerlink" href="#reformatting-peptide-sequences" title="Link to this heading">#</a></h3>
+<p>KSTAR requires peptide sequences with the phosphorylated residue shown as a lowercase letter (e.g., ACDEsGHIK). If your peptides use a different format, use <code class="xref py py-func docutils literal notranslate"><span class="pre">format_peptide_from_df()</span></code> to convert them. This function detects and reformats peptide sequences automatically.</p>
+<p>Before running, ensure each row contains only one peptide. If not, split multiple peptides into separate rows first.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">kstar.dataset_processing.peptides</span><span class="w"> </span><span class="kn">import</span> <span class="n">format_peptide_from_df</span>
+
+<span class="c1">#split multiple peptides in a single row into individual rows</span>
+<span class="n">peptide_sep</span> <span class="o">=</span> <span class="s1">&#39;;&#39;</span>
+<span class="n">df</span><span class="p">[</span><span class="n">peptide_column</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">peptide_column</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">peptide_sep</span><span class="p">)</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">explode</span><span class="p">(</span><span class="n">peptide_column</span><span class="p">)</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="c1">#format peptides</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">format_peptide_from_df</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">peptide_column</span><span class="o">=</span><span class="s1">&#39;peptide_sequence&#39;</span><span class="p">,</span> <span class="n">separator</span><span class="o">=</span><span class="s1">&#39;;&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>This will add new columns to the dataframe with the reformatted peptide sequence (‘Formatted Peptide’), as well as the detected format of the original peptide sequence (‘Detected Peptide Format’).</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Please compare the original and reformatted peptide sequences to ensure that the function is working as expected. If there are any issues with the reformatted peptide sequences, you may need to investigate the original peptide format further and reformat these manually.</p>
+</div>
+</section>
+<section id="converting-ids-to-uniprot-accessions">
+<h3>Converting IDs to UniProt accessions<a class="headerlink" href="#converting-ids-to-uniprot-accessions" title="Link to this heading">#</a></h3>
+<p>To convert from other ID types to UniProt accessions, use the <code class="xref py py-func docutils literal notranslate"><span class="pre">automatic_id_conversion()</span></code> function. This function will automatically identify the most common ID type used in the dataset, and convert these to UniProt accessions.</p>
+<p>To run this function, run the below code, specifying the column containing the IDs and any separators used if multiple IDs are present in a single row</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">kstar.dataset_processing.accessions</span><span class="w"> </span><span class="kn">import</span> <span class="n">automatic_id_conversion</span>
+
+<span class="n">df</span><span class="p">,</span> <span class="n">missed</span> <span class="o">=</span> <span class="n">automatic_id_conversion</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">id_column</span><span class="o">=</span><span class="s1">&#39;accession_id&#39;</span><span class="p">,</span> <span class="n">separator</span><span class="o">=</span><span class="s1">&#39;;&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>This will return a new dataframe with the converted UniProt accessions, as well as a list of any IDs that could not be converted.</p>
+<p>The following types of IDs are currently supported for conversion:</p>
 <ul class="simple">
-<li><p><strong>site_position</strong>: The residue and position of the phosphorylated residue within the protein sequence (for example, Y1197)</p></li>
-<li><p><strong>peptide_sequence</strong>: The peptide sequence containing the phosphorylated residue, with the phosphorylated residue indicated by a lowercase letter (for example, ACDEsGHIK for a phosphorylated serine)</p></li>
+<li><p>UniProt entry name (for example, “EGFR_HUMAN”)</p></li>
+<li><p>Ensembl gene, transcript, or protein IDs (for example, “ENSG00000146648”, “ENST00000275493”, “ENSP00000275493”)</p></li>
+<li><p>RefSeq mRNA or protein IDs (for example, “NM_005228”, “NP_005219”)</p></li>
+<li><p>GI numbers (for example, “gi|123456789”)</p></li>
+<li><p>CCDS IDs (for example, “CCDS12345”)</p></li>
+<li><p>Gene symbols (for example, “EGFR”)</p></li>
+<li><p>UniParc IDs (for example, “UPI0000000001”)</p></li>
+<li><p>UniRef IDs</p></li>
 </ul>
-<p>Before proceeding, ensure that your data is in this format (correct ID type, correct site notation or peptide format, and numeric data columns). If your data is not in this format, please reformat it accordingly before running KSTAR.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>If your dataset contains a large number of IDs that cannot be converted, you may want to investigate these further to see if they can be manually converted or if they indicate an issue with the dataset. KSTAR will not be able to make predictions for any sites associated with IDs that cannot be converted to UniProt accessions.</p>
+</div>
+</section>
+</section>
+<section id="faq">
+<h2>FAQ<a class="headerlink" href="#faq" title="Link to this heading">#</a></h2>
+<ul>
+<li><p>What if I have a different type of data, such as protein-level data or non-phosphoproteomic data?</p>
+<blockquote>
+<div><p>KSTAR is designed for phosphoproteomic data, and the activity predictions are based on the presence of specific phosphosites. If you have protein-level data or non-phosphoproteomic data, KSTAR may not be the best tool for your analysis.</p>
+</div></blockquote>
+</li>
+<li><p>Can a peptide sequence have multiple phosphorylated residues?</p>
+<blockquote>
+<div><p>Yes, a peptide sequence can have multiple phosphorylated residues. However, for KSTAR analysis, each row should contain only one peptide sequence.</p>
+</div></blockquote>
+</li>
+<li><p>What if I have nonhuman UniProt accessions?</p>
+<blockquote>
+<div><p>KSTAR is primarily designed for human data, and the activity predictions are based on human kinase-substrate relationships. If you have non-human UniProt data, you may need to convert these to their human homologs before running KSTAR analysis. See the <a class="reference internal" href="../Advanced/nonhuman_data.html"><span class="doc">tutorial for converting non-human data for use with KSTAR</span></a> for more details on how to do this.</p>
+</div></blockquote>
+</li>
+</ul>
+</section>
 </section>
 
 
@@ -444,6 +565,27 @@ document.write(`
             </div>
             
             
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#requirements-for-input-data">Requirements for Input Data</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#preparing-your-data-for-kstar-analysis">Preparing your Data for KSTAR analysis</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#reformatting-peptide-sequences">Reformatting Peptide Sequences</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#converting-ids-to-uniprot-accessions">Converting IDs to UniProt accessions</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#faq">FAQ</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
               
             
           </div>

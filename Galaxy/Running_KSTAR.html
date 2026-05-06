@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Run KSTAR on Galaxy &#8212; KSTAR 1.1.0 documentation</title>
+    <title>Run KSTAR on Galaxy &#8212; KSTAR 1.1.1 documentation</title>
   
   
   
@@ -36,7 +36,7 @@
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
   <script src="../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
 
-    <script src="../_static/documentation_options.js?v=051bfb12"></script>
+    <script src="../_static/documentation_options.js?v=bee7790f"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
@@ -45,7 +45,7 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Analyze Results" href="Analyzing_Results.html" />
-    <link rel="prev" title="Options for Running KSTAR" href="../Overview/ways_to_run.html" />
+    <link rel="prev" title="KSTAR Reference" href="../Overview/KSTAR.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   </head>
@@ -133,7 +133,7 @@
   
   
   
-    <p class="title logo__title">KSTAR 1.1.0 documentation</p>
+    <p class="title logo__title">KSTAR 1.1.1 documentation</p>
   
 </a></div>
         <div class="sidebar-primary-item">
@@ -155,6 +155,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../Overview/Dependencies.html">Dependencies</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../Overview/data_prep.html">Preparing your Data</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../Overview/ways_to_run.html">Options for Running KSTAR</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Overview/KSTAR.html">KSTAR Reference</a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Galaxy Tutorial:</span></p>
 <ul class="current nav bd-sidenav">
@@ -191,11 +192,11 @@
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Advanced Python Usage:</span></p>
 <ul class="nav bd-sidenav">
-<li class="toctree-l1"><a class="reference internal" href="../Overview/KSTAR.html">KSTAR Reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../Advanced/Configuration.html">Updating Configuration</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../Advanced/Pruning.html">Network Generation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../Advanced/Pregenerated_Experiments.html">Pregenerated Random actiivities</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../Advanced/Parallel/parallel.html">KSTAR in Parallel</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Advanced/Pruning.html">Network Generation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Advanced/nonhuman_data.html">KSTAR with Non-Human Datasets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Advanced/Pregenerated_Experiments.html">Pregenerated Random Activities</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../Advanced/faq.html">Frequently Asked Questions</a></li>
 </ul>
 
@@ -409,8 +410,11 @@ document.write(`
                   
   <section id="run-kstar-on-galaxy">
 <span id="kstar-galaxy"></span><h1>Run KSTAR on Galaxy<a class="headerlink" href="#run-kstar-on-galaxy" title="Link to this heading">#</a></h1>
-<p>KSTAR can be run on Galaxy using a dedicated KSTAR tool. This tool allows users to upload their phosphoproteomic data, configure KSTAR parameters, and execute the analysis directly within the Galaxy environment using the default KSTAR networks. This section will walk you through the process of running KSTAR on Galaxy and interpreting the outputs. If you want to know more about using Galaxy in general, such as how to use workflows to combine multiple tools, see the <a class="reference external" href="https://hub.usegalaxy.cn/get-started/">Galaxy Documentation</a> for more resources and tutorials.</p>
-<p>Before running KSTAR on Galaxy, make sure you have processed your phoshphoproteomic dataset to the appropriate format as described in <a class="reference internal" href="../Overview/data_prep.html#data-prep"><span class="std std-ref">Preparing your Data</span></a> section. There are some checks in place to ensure that the data is in the correct format, but it is best to prepare your data correctly beforehand to avoid any issues.</p>
+<p>KSTAR can be run on Galaxy using a dedicated KSTAR tool. This tool allows users to upload their phosphoproteomic data, configure KSTAR parameters, and execute the analysis directly within the Galaxy environment using the default KSTAR networks. This section will walk you through the process of running KSTAR on Galaxy and interpreting the outputs.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>If you want to know more about using Galaxy in general, such as how to use workflows to combine multiple tools, see the <a class="reference external" href="https://hub.usegalaxy.cn/get-started/">Galaxy Documentation</a> for more resources and tutorials.</p>
+</div>
 <section id="accessing-the-kstar-tool-on-galaxy">
 <h2>Accessing the KSTAR Tool on Galaxy<a class="headerlink" href="#accessing-the-kstar-tool-on-galaxy" title="Link to this heading">#</a></h2>
 <ol class="arabic">
@@ -418,8 +422,8 @@ document.write(`
 <a class="reference internal image-reference" href="../_images/homepage.png"><img alt="Galaxy Homepage" src="../_images/homepage.png" style="width: 800px;" />
 </a>
 </li>
-<li><p>Log in to the Galaxy portal. If you do not already have an account, create one by clicking on the “Register” button in the top right corner and following the registration process (this is free).</p></li>
-<li><p>Once logged in, you can find the KSTAR tool by using the search bar on the left-hand side of the screen. Type “KSTAR” into the search bar, and the KSTAR tool should appear in the list of available tools.</p>
+<li><p>(optional) Log in to the Galaxy portal. If you do not already have an account, create one by clicking on the “Register” button in the top right corner and following the registration process (this is free).</p></li>
+<li><p>You can find the KSTAR tool by using the search bar on the left-hand side of the screen. Type “KSTAR” into the search bar, and the KSTAR tool should appear in the list of available tools.</p>
 <a class="reference internal image-reference" href="../_images/toolbar.png"><img alt="Galaxy Homepage" src="../_images/toolbar.png" style="width: 200px;" />
 </a>
 </li>
@@ -453,16 +457,14 @@ document.write(`
 <h2>Configuring KSTAR Parameters<a class="headerlink" href="#configuring-kstar-parameters" title="Link to this heading">#</a></h2>
 <ol class="arabic" start="5">
 <li><p>Make sure your uploaded dataset is selected in the “Upload your experiment” dropdown menu.</p></li>
-<li><p>Indicate the column(s) containing your quantitative sample data by selecting the appropriate columns from the “data_columns” dropdown menu. In this example, we will select to predict activity for four samples: “<a class="reference external" href="data:time:5">data:time:5</a>”, “<a class="reference external" href="data:time:15">data:time:15</a>”, “<a class="reference external" href="data:time:30">data:time:30</a>”, and “<a class="reference external" href="data:time:60">data:time:60</a>”, which are measurements taken at different time points after stimulation.</p>
+<li><p>Next, we will indicate where phosphorylation site information is located in your dataset so we can map to the KSTAR reference phosphoproteome.</p>
 <blockquote>
-<div><a class="reference internal image-reference" href="../_images/select_data_columns.png"><img alt="Data Columns Selection" src="../_images/select_data_columns.png" style="width: 600px;" />
-</a>
-<p>Alternatively, if your data columns each begin with the prefix “data:”, you can instead select the “Yes” option under “Automatically detect data columns?” to have KSTAR automatically identify these columns for you. We could do this instead of manually selecting the columns in the previous step.</p>
-</div></blockquote>
-</li>
-<li><p>Next, we will indicate where phosphorylation site information is located in your dataset. To run, KSTAR requires a column containing UniProtKB accessions (ex. ‘P01308’). In addition, KSTAR must include at least one of the following columns and will thrown an error if neither are included:</p>
-<blockquote>
-<div><ul class="simple">
+<div><div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>If your dataset has already been mapped to the KSTAR reference phosphoproteome (i.e. it contains columns named “KSTAR_ACCESSION” and “KSTAR_SITE”), you can select “Yes” under “Has your dataset already been mapped to the KSTAR reference phosphoproteome” and skip this step.</p>
+</div>
+<p>To run, KSTAR requires a column containing UniProtKB accessions (ex. ‘P01308’). In addition, KSTAR must include at least one of the following columns and will thrown an error if neither are included:</p>
+<ul class="simple">
 <li><p>Peptide sequences (ex. ‘AGLQyFPVGR’), recommended</p></li>
 <li><p>Site positions (ex. ‘S1234’)</p></li>
 </ul>
@@ -470,11 +472,22 @@ document.write(`
 <a class="reference internal image-reference" href="../_images/mapping_columns.png"><img alt="Mapping Columns Selection" src="../_images/mapping_columns.png" style="width: 600px;" />
 </a>
 <p>You may also have multiple sites/peptides per row of your dataset. If this is the case, you can specify the delimiter (‘;’, ‘,’, etc.) used to separate these values in your dataset (C).</p>
-<p>In the case where you have already mapped your dataset to the KSTAR reference phosphoproteome (“KSTAR_ACCESSION”, “KSTAR_SITE” columns are present in the dataset), you can select “Yes” under “Has your dataset already been mapped to the KSTAR reference phosphoproteome” and skip this step.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>If both peptide and site information are provided, KSTAR will use the peptide information for analysis. If the peptides are not in the expected format (modifications indicated by lowercase letters), the Galaxy tool will attempt to reformat them prior to analysis. If peptides are not provided or could not be reformatted, KSTAR will then attempt to use provided site positions.</p>
+</div>
 </div></blockquote>
 </li>
-</ol>
-<ol class="arabic" start="7">
+<li><p>Indicate the column(s) containing your quantitative sample data by selecting the appropriate columns from the “data_columns” dropdown menu. In this example, we will select to predict activity for four samples: “<a class="reference external" href="data:time:5">data:time:5</a>”, “<a class="reference external" href="data:time:15">data:time:15</a>”, “<a class="reference external" href="data:time:30">data:time:30</a>”, and “<a class="reference external" href="data:time:60">data:time:60</a>”, which are measurements taken at different time points after stimulation.</p>
+<blockquote>
+<div><a class="reference internal image-reference" href="../_images/select_data_columns.png"><img alt="Data Columns Selection" src="../_images/select_data_columns.png" style="width: 600px;" />
+</a>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Alternatively, if your data columns each begin with the prefix “data:”, you can instead select the “Yes” option under “Automatically detect data columns?” to have KSTAR automatically identify these columns for you. We could do this instead of manually selecting the columns in the previous step.</p>
+</div>
+</div></blockquote>
+</li>
 <li><p>Next, we need to specify what sites should be used as evidence of activity for each sample column. The KSTAR galaxy tool provides several options for this under the “Sites to Use as Evidence”. What you choose will be dependent on your experimental design and biological question. Below is a table summarizing the available options:</p>
 <blockquote>
 <div><div class="pst-scrollable-table-container"><table class="table">
@@ -516,23 +529,26 @@ document.write(`
 </div></blockquote>
 </li>
 <li><p>Indicate the type of kinases you would like to generate predictions for by specifying the phosphotype under “Type of phosphorylation to consider”. You can choose from “ST” (Serine/Threonine kinases), “Y” (Tyrosine kinases), or “STY” (both Serine/Threonine and Tyrosine kinases). In this example, we will select “Y” to consider only tyrosine kinases as the example dataset was phosphotyrosine enriched.</p></li>
-<li><p>Depending on the option you selected in the previous step, you may need to provide additional parameters. For “Increasing Phosphorylation (Relative to Control)”, a threshold value is required to determine which sites are considered as evidence (i.e. sites with quantification above this threshold). To do this, you have two options:</p>
-<ul class="simple">
+<li><p>Depending on the option you selected in the previous step, you may need to provide additional parameters. For “Increasing Phosphorylation (Relative to Control)”, a threshold value is required to determine which sites are considered as evidence (i.e. sites with quantification above this threshold). To do this, you have two options:</p></li>
+</ol>
+<blockquote>
+<div><ol class="arabic simple">
 <li><p>Pick a threshold manually based on your knowledge of the dataset. For example, in this example, we have log2 fold change data, so we may want to capture sites with some minimum increase in phosphorylation. Here, we set “Automatically determine threshold based on data distribution” to “No” and set the threshold to 0.2.</p></li>
-</ul>
+</ol>
 <blockquote>
 <div><a class="reference internal image-reference" href="../_images/manual_evidence_selection.png"><img alt="Evidence Selection" src="../_images/manual_evidence_selection.png" style="width: 600px;" />
 </a>
-<ul class="simple">
+<ol class="arabic simple" start="2">
 <li><p>Or, you can have KSTAR automatically determine an appropriate threshold based on the data distribution. To do this, set “Automatically determine threshold based on data distribution” to “Yes”. You will need to specify a minimum threshold (to ensure biological relevance). Here, given that we have log2 fold change data, we wouldn’t want to capture sites with decreases in phosphorylation, so let’s set the minimum threshold to 0.</p></li>
-</ul>
+</ol>
 <a class="reference internal image-reference" href="../_images/auto_evidence_selection.png"><img alt="Evidence Selection" src="../_images/auto_evidence_selection.png" style="width: 600px;" />
 </a>
 <p>By default, KSTAR selects the largest threshold that both captures a sufficient number of sites on average across all samples and ensures that there is not too much overlap in evidence between samples. You can adjust these parameters if desired under “Advanced options for automatic threshold selection”. Most important of these is whether to consider both evidence size and overlap between samples, or just one of these factors. You can also adjust the desired evidence size and overlap if you like.</p>
 <a class="reference internal image-reference" href="../_images/advanced_evidence_selection.png"><img alt="Advanced Evidence Selection" src="../_images/advanced_evidence_selection.png" style="width: 600px;" />
 </a>
 </div></blockquote>
-</li>
+</div></blockquote>
+<ol class="arabic simple" start="11">
 <li><p>Once happy with your parameter selections, click the “Run Tool” button at the bottom of the form. This will submit your KSTAR job to the Galaxy server for processing and you should see 2-4 new data boxes appear in the right “History” panel. Depending on the size of your dataset and the current load on the Galaxy server, this may take a little bit of time. You can monitor the progress of your job in the “History” panel on the right-hand side of the screen. You might see a couple of things:</p>
 <ul class="simple">
 <li><p>If the job is completed successfully, it will be marked with a green checkmark.</p></li>
@@ -545,52 +561,86 @@ document.write(`
 <section id="kstar-outputs">
 <h2>KSTAR Outputs<a class="headerlink" href="#kstar-outputs" title="Link to this heading">#</a></h2>
 <p>Once the KSTAR job is complete, you will see two to four new dataset collections in your History panel:</p>
-<ol class="arabic simple">
-<li><dl class="simple">
-<dt><strong>Run Info</strong>: General run information</dt><dd><ul class="simple">
-<li><p><strong>params</strong>: json file with all parameters used for the KSTAR run</p></li>
-<li><p><strong>errors</strong>: text file with any warnings or errors encountered during processing (will be empty if the run completed without any issues)</p></li>
-<li><p><strong>log</strong>: text file with a list of all output files generated by KSTAR during the run</p></li>
-</ul>
-</dd>
-</dl>
-</li>
-<li><dl class="simple">
-<dt><strong>Mapping Data</strong>: collection of data including the original dataset mapped to the KSTAR reference phosphoproteome. If you had already mapped your data, this will not be present.</dt><dd><ul class="simple">
-<li><p>mapped_experiment: The original dataset with additional columns for KSTAR_ACCESSION and KSTAR_SITE</p></li>
-<li><p>mapping_stats: Summary statistics about the mapping process (number of sites mapped or lost etc.)</p></li>
-<li><p>removed_sites: rows/sites that were removed during the mapping process and the reason for their removal</p></li>
-</ul>
-</dd>
-</dl>
-</li>
-</ol>
-<ol class="arabic simple" start="4">
-<li><dl class="simple">
-<dt><strong>Tyr_Kinase_Outputs</strong>: The main output of KSTAR for tyrosine kinases. Will be empty if you selected ST phosphotype.</dt><dd><ul class="simple">
-<li><p>experiment_Y_binarized_experiment: The binarized evidence matrix used for KSTAR activity calculation, indicating which sites were used as evidence for each sample column</p></li>
-<li><p>experiment_Y_mann_whitney_activities: The predicted kinase activity scores for each sample column</p></li>
-<li><p>experiment_Y_mann_whitney_fpr: The false positive rates associated with each kinase activity prediction</p></li>
-<li><p>experiment_Y_summary_pdf: A short three page summary of KSTAR results, including parameters, top kinases, dotplot, and evidence characteristics</p></li>
-<li><p>Y_threshold_plot: if you chose to use a threshold for evidence selection, this plot will show the number of sites and similarity between columns at different threshold values to help you understand the threshold selection process</p></li>
-<li><p>Y_failures: indicates whether activity prediction succeeded, failed completely, or was able to predict activity for only some columns</p></li>
-</ul>
-</dd>
-</dl>
-</li>
-<li><dl class="simple">
-<dt><strong>SerThr_Kinase_Outputs</strong>: The main output of KSTAR for serine/threonine kinases. Will be empty if you selected Y phosphotype.</dt><dd><ul class="simple">
-<li><p>experiment_ST_binarized_experiment: The binarized evidence matrix used for KSTAR activity calculation, indicating which sites were used as evidence for each sample column</p></li>
-<li><p>experiment_ST_mann_whitney_activities: The predicted kinase activity scores for each sample column</p></li>
-<li><p>experiment_ST_mann_whitney_fpr: The false positive rates associated with each kinase activity prediction</p></li>
-<li><p>experiment_ST_summary_pdf: A short three page summary of KSTAR results, including parameters, top kinases, dotplot, and evidence characteristics</p></li>
-<li><p>ST_threshold_plot: if you chose to use a threshold for evidence selection, this plot will show the number of sites and similarity between columns at different threshold values to help you understand the threshold selection process</p></li>
-<li><p>ST_failures: indicates whether activity prediction succeeded, failed completely, or was able to predict activity for only some columns</p></li>
-</ul>
-</dd>
-</dl>
-</li>
-</ol>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Collection Name</p></th>
+<th class="head"><p>File Name</p></th>
+<th class="head"><p>File type</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td rowspan="3"><p>Run Info</p></td>
+<td><p>params</p></td>
+<td><p>json</p></td>
+<td><p>Parameters for KSTAR run</p></td>
+</tr>
+<tr class="row-odd"><td><p>errors</p></td>
+<td><p>txt</p></td>
+<td><p>Any warnings or errors encountered during processing</p></td>
+</tr>
+<tr class="row-even"><td><p>log</p></td>
+<td><p>txt</p></td>
+<td><p>Log of all files generated during the run</p></td>
+</tr>
+<tr class="row-odd"><td rowspan="3"><p>Mapping Data</p></td>
+<td><p>mapping_stats</p></td>
+<td><p>txt</p></td>
+<td><p>Statistics about success of mapping to reference</p></td>
+</tr>
+<tr class="row-even"><td><p>removed_sites</p></td>
+<td><p>tsv/csv</p></td>
+<td><p>Sites removed during mapping and reason for removal</p></td>
+</tr>
+<tr class="row-odd"><td><p>mapped_experiment</p></td>
+<td><p>tsv/csv</p></td>
+<td><p>Original dataset with additional columns for KSTAR_ACCESSION and KSTAR_SITE</p></td>
+</tr>
+<tr class="row-even"><td rowspan="5"><p>Tyr Kinase Outputs</p></td>
+<td><p>experiment_Y_binarized_experiment</p></td>
+<td><p>tsv/csv</p></td>
+<td><p>Binarized evidence matrix used for KSTAR activity calculation</p></td>
+</tr>
+<tr class="row-odd"><td><p>experiment_Y_mann_whitney_activities</p></td>
+<td><p>tsv/csv</p></td>
+<td><p>KSTAR activity scores for Y kinases</p></td>
+</tr>
+<tr class="row-even"><td><p>experiment_Y_mann_whitney_fpr</p></td>
+<td><p>tsv/csv</p></td>
+<td><p>False positive rates for Y kinase activity predictions</p></td>
+</tr>
+<tr class="row-odd"><td><p>experiment_Y_summary_pdf</p></td>
+<td><p>pdf</p></td>
+<td><p>Three-page summary of KSTAR results for Y kinases</p></td>
+</tr>
+<tr class="row-even"><td><p>Y_threshold_plot</p></td>
+<td><p>png</p></td>
+<td><p>Plot showing dataset characteristics at different threshold values (if using thresholds)</p></td>
+</tr>
+<tr class="row-odd"><td rowspan="5"><p>SerThr Kinase Outputs</p></td>
+<td><p>experiment_ST_binarized_experiment</p></td>
+<td><p>tsv/csv</p></td>
+<td><p>Binarized evidence matrix used for KSTAR activity calculation</p></td>
+</tr>
+<tr class="row-even"><td><p>experiment_ST_mann_whitney_activities</p></td>
+<td><p>tsv/csv</p></td>
+<td><p>KSTAR activity scores for ST kinases</p></td>
+</tr>
+<tr class="row-odd"><td><p>experiment_ST_mann_whitney_fpr</p></td>
+<td><p>tsv/csv</p></td>
+<td><p>False positive rates for ST kinase activity predictions</p></td>
+</tr>
+<tr class="row-even"><td><p>experiment_ST_summary_pdf</p></td>
+<td><p>pdf</p></td>
+<td><p>Three-page summary of KSTAR results for ST kinases</p></td>
+</tr>
+<tr class="row-odd"><td><p>ST_threshold_plot</p></td>
+<td><p>png</p></td>
+<td><p>Plot showing dataset characteristics at different threshold values (if using thresholds)</p></td>
+</tr>
+</tbody>
+</table>
+</div>
 <p>You can download any or all of these datasets by clicking on the data and selecting the “Download” option from the pop-up menu.</p>
 </section>
 </section>
@@ -607,12 +657,12 @@ document.write(`
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="../Overview/ways_to_run.html"
+       href="../Overview/KSTAR.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">Options for Running KSTAR</p>
+        <p class="prev-next-title">KSTAR Reference</p>
       </div>
     </a>
     <a class="right-next"

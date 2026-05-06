@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>KSTAR in Parallel &#8212; KSTAR 1.1.0 documentation</title>
+    <title>KSTAR in Parallel &#8212; KSTAR 1.1.1 documentation</title>
   
   
   
@@ -36,7 +36,7 @@
 <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
   <script src="../../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
 
-    <script src="../../_static/documentation_options.js?v=051bfb12"></script>
+    <script src="../../_static/documentation_options.js?v=bee7790f"></script>
     <script src="../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
@@ -44,8 +44,8 @@
     <script>DOCUMENTATION_OPTIONS.pagename = 'Advanced/Parallel/parallel';</script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="Frequently Asked Questions" href="../faq.html" />
-    <link rel="prev" title="Pregenerated Random actiivities" href="../Pregenerated_Experiments.html" />
+    <link rel="next" title="Network Generation" href="../Pruning.html" />
+    <link rel="prev" title="Updating Configuration" href="../Configuration.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   </head>
@@ -133,7 +133,7 @@
   
   
   
-    <p class="title logo__title">KSTAR 1.1.0 documentation</p>
+    <p class="title logo__title">KSTAR 1.1.1 documentation</p>
   
 </a></div>
         <div class="sidebar-primary-item">
@@ -160,6 +160,8 @@
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Galaxy Tutorial:</span></p>
 <ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="../../Galaxy/Running_KSTAR.html">Run KSTAR on Galaxy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Galaxy/Analyzing_Results.html">Analyze Results</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Galaxy/Troubleshooting_Galaxy.html">Troubleshooting the KSTAR Tool</a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Python Tutorial (Just the Basics):</span></p>
 <ul class="nav bd-sidenav">
@@ -190,9 +192,11 @@
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Advanced Python Usage:</span></p>
 <ul class="current nav bd-sidenav">
-<li class="toctree-l1"><a class="reference internal" href="../Pruning.html">Network Generation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../Pregenerated_Experiments.html">Pregenerated Random actiivities</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Configuration.html">Updating Configuration</a></li>
 <li class="toctree-l1 current active"><a class="current reference internal" href="#">KSTAR in Parallel</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Pruning.html">Network Generation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../nonhuman_data.html">KSTAR with Non-Human Datasets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Pregenerated_Experiments.html">Pregenerated Random Activities</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../faq.html">Frequently Asked Questions</a></li>
 </ul>
 
@@ -419,31 +423,19 @@ document.write(`
                   
   <section id="kstar-in-parallel">
 <h1>KSTAR in Parallel<a class="headerlink" href="#kstar-in-parallel" title="Link to this heading">#</a></h1>
-<p>The base implementation of KSTAR operates with only a single processor. However, this can often be time consuming, particularly for datasets with
-many sites and/or many samples. It is possible to run KSTAR as a parallel process, either within your python environment or using a software
-package called nextflow. See the following sections for more details.</p>
+<p>The base implementation of KSTAR operates with only a single processor. However, this can often be time consuming, particularly for datasets with many sites and/or many samples. It is possible to run KSTAR as a parallel process, either within your python environment or using a software package called nextflow. See the following sections for more details.</p>
 <section id="option-1-running-kstar-using-multiprocessing">
 <h2>Option 1: Running KSTAR using Multiprocessing<a class="headerlink" href="#option-1-running-kstar-using-multiprocessing" title="Link to this heading">#</a></h2>
-<p>Within python, several KSTAR functions can be run in parallel using the multiprocessing module. For these functions, switching to multiprocessing
-simply requires changing the ‘PROCESSES’ parameter from 1 (default) to the number of processes you would like to run in parallel.</p>
+<p>Within python, several KSTAR functions can be run in parallel using the multiprocessing module. For these functions, switching to multiprocessing simply requires changing the ‘PROCESSES’ parameter from 1 (default) to the number of processes you would like to run in parallel.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Activity Calculation</span>
-<span class="n">kinact_dict</span> <span class="o">=</span> <span class="n">calculate</span><span class="o">.</span><span class="n">run_kstar_analysis</span><span class="p">(</span><span class="n">experiment</span><span class="p">,</span> <span class="n">activity_log</span><span class="p">,</span> <span class="n">networks</span><span class="p">,</span> <span class="n">PROCESSES</span> <span class="o">=</span> <span class="mi">4</span><span class="p">)</span>
-
-<span class="c1"># Normalization</span>
-<span class="n">calculate</span><span class="o">.</span><span class="n">normalize_analysis</span><span class="p">(</span><span class="n">kinact_dict</span><span class="p">,</span> <span class="n">activity_log</span><span class="p">,</span> <span class="n">num_random_experiments</span><span class="p">,</span> <span class="n">target_alpha</span><span class="p">,</span> <span class="n">PROCESSES</span> <span class="o">=</span> <span class="mi">4</span><span class="p">)</span>
-
-<span class="c1"># Mann Whitney Calculation</span>
-<span class="n">calculate</span><span class="o">.</span><span class="n">Mann_Whitney_analysis</span><span class="p">(</span><span class="n">kinact_dict</span><span class="p">,</span> <span class="n">activity_log</span><span class="p">,</span> <span class="n">number_sig_trials</span> <span class="o">=</span> <span class="mi">100</span><span class="p">,</span> <span class="n">PROCESSES</span> <span class="o">=</span> <span class="mi">4</span><span class="p">)</span>
+<span class="n">kinact_dict</span> <span class="o">=</span> <span class="n">calculate</span><span class="o">.</span><span class="n">run_kstar_analysis</span><span class="p">(</span><span class="n">experiment</span><span class="p">,</span> <span class="n">PROCESSES</span> <span class="o">=</span> <span class="mi">4</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>While this strategy helps to improve the speed of analysis, it can be very memory intensive for large datasets. For large tyrosine datasets
-and most serine/threonine datasets, we recommend running KSTAR using nextflow, described in the following section.</p>
+<p>While this strategy helps to improve the speed of analysis, it can be more memory intensive for large datasets. For large datasets, we have also implemented a highly parallel version of KSTAR with nextflow, described in the following section.</p>
 </section>
 <section id="option-2-running-large-datasets-with-nextflow">
 <h2>Option 2: Running Large Datasets with Nextflow<a class="headerlink" href="#option-2-running-large-datasets-with-nextflow" title="Link to this heading">#</a></h2>
-<p>While our standard implementation of KSTAR can be run on most phosphotyrosine datasets and some small phosphoserine/threonine datasets, the memory
-and time costs are often too high for many large datasets. For these cases, we have implemented a highly parallel version of KSTAR implemented
-with the nextflow software package. The remainder of this section will detail how to install and run KSTAR with nextflow.</p>
+<p>While our standard implementation of KSTAR can be run on most datasets, especially if using pregenerated random activities (default), the memory and time costs may be too high for large datasets. For these cases, we have implemented a highly parallel version of KSTAR implemented with the nextflow software package. The remainder of this section will detail how to install and run KSTAR with nextflow.</p>
 <section id="requirements">
 <h3>Requirements<a class="headerlink" href="#requirements" title="Link to this heading">#</a></h3>
 <p>The nextflow pipeline takes advantage of either Docker or Singularity containers. These are compatible with POSIX operating
@@ -704,20 +696,20 @@ nextflow<span class="w"> </span>run<span class="w"> </span>main.nf<span class="w
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="../Pregenerated_Experiments.html"
+       href="../Configuration.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">Pregenerated Random actiivities</p>
+        <p class="prev-next-title">Updating Configuration</p>
       </div>
     </a>
     <a class="right-next"
-       href="../faq.html"
+       href="../Pruning.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">Frequently Asked Questions</p>
+        <p class="prev-next-title">Network Generation</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>

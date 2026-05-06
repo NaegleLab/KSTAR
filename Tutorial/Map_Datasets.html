@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Map Dataset to Reference &#8212; KSTAR 1.1.0 documentation</title>
+    <title>Map Dataset to Reference &#8212; KSTAR 1.1.1 documentation</title>
   
   
   
@@ -37,7 +37,7 @@
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
   <script src="../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
 
-    <script src="../_static/documentation_options.js?v=051bfb12"></script>
+    <script src="../_static/documentation_options.js?v=bee7790f"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
@@ -136,7 +136,7 @@
   
   
   
-    <p class="title logo__title">KSTAR 1.1.0 documentation</p>
+    <p class="title logo__title">KSTAR 1.1.1 documentation</p>
   
 </a></div>
         <div class="sidebar-primary-item">
@@ -163,6 +163,8 @@
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Galaxy Tutorial:</span></p>
 <ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="../Galaxy/Running_KSTAR.html">Run KSTAR on Galaxy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Galaxy/Analyzing_Results.html">Analyze Results</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Galaxy/Troubleshooting_Galaxy.html">Troubleshooting the KSTAR Tool</a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Python Tutorial (Just the Basics):</span></p>
 <ul class="current nav bd-sidenav">
@@ -193,9 +195,11 @@
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Advanced Python Usage:</span></p>
 <ul class="nav bd-sidenav">
-<li class="toctree-l1"><a class="reference internal" href="../Advanced/Pruning.html">Network Generation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../Advanced/Pregenerated_Experiments.html">Pregenerated Random actiivities</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Advanced/Configuration.html">Updating Configuration</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../Advanced/Parallel/parallel.html">KSTAR in Parallel</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Advanced/Pruning.html">Network Generation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Advanced/nonhuman_data.html">KSTAR with Non-Human Datasets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Advanced/Pregenerated_Experiments.html">Pregenerated Random Activities</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../Advanced/faq.html">Frequently Asked Questions</a></li>
 </ul>
 
@@ -410,13 +414,9 @@ document.write(`
 <h1>Map Dataset to Reference<a class="headerlink" href="#Map-Dataset-to-Reference" title="Link to this heading">#</a></h1>
 <section id="Download-and-Process-Dataset-of-Interest">
 <h2>Download and Process Dataset of Interest<a class="headerlink" href="#Download-and-Process-Dataset-of-Interest" title="Link to this heading">#</a></h2>
-<p>Prior to predicting kinase activities, datasets need to be mapped to KinPred to obtain the Uniprot ID, phosphosite, and the +/-7 peptide sequence that will be used by KSTAR to identify which kinases are associated with each phosphosite. In order to map kinase activities, the dataframe containing phosphoproteomic data should contain each peptides Uniprot accession, as well as either the site number or peptide sequence. If the peptide sequence is used, it should be formatted with only the
-phosphorylated peptides being lowercased. For example, if a peptide sequence is annotated with ‘(ph)’ in front of the phosphorylated amino acid, you would need to remove the ‘(ph)’ from the sequence and lowercase the phosphorylated amino acid. So, the peptide sequence SGLAYCPND(ph)YHQLFSPR would become SGLAYCPNDyHQLFSPR.</p>
-<p>It is recommended to use the peptide sequence rather than the site number when possible, as this is more likely to be found in the most recent version of KinPred. An example of the processed dataset can be seen below, which is a trimmed, processed, and mapped version of the dataset published publically (Chylek, 2014). You can download this data from the original publication below or the pre-mapped version at <a class="reference external" href="https://figshare.com/articles/dataset/KSTAR_Supplementary_Data/14919726">FigShare</a>.</p>
-<p>Reference: L. A. Chylek, V. Akimov, J. Dengjel, K. T. G. Rigbolt, B. Hu, W. S. Hlavacek, and B. Blagoev. Phosphorylation Site Dynamics of Early T-cell Receptor Signaling. PLoS ONE, 9(8):e104240,</p>
-<ol class="arabic simple" start="2014">
-<li></li>
-</ol>
+<p>Prior to predicting kinase activities, datasets need to be mapped to the KSTAR reference phosphoproteome to match the information contained within the KSTAR kinase-substrate networks. It is recommended to use the peptide sequence rather than the site number when possible, as this is more likely to be found in the most recent version of KSTAR reference.</p>
+<p>For this tutorial, we will be using a dataset published by (Chylek, 2014), but you can use any processed dataset. Make sure it includes UniProt accessions and appropriately formatted peptides/sites as described in the ‘Preparing your Data’ section. See below for an example of what the data should look like.</p>
+<p>Reference: L. A. Chylek, V. Akimov, J. Dengjel, K. T. G. Rigbolt, B. Hu, W. S. Hlavacek, and B. Blagoev. Phosphorylation Site Dynamics of Early T-cell Receptor Signaling. PLoS ONE, 9(8):e104240, 2014.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
@@ -612,23 +612,15 @@ Aligning peptides/sites to reference sequences...
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-Mapping peptides/sites to reference sequences: 100%|███████████████████████████████████████████████████| 689/689 [00:00&lt;00:00, 2078.42it/s]
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-Mapping complete.
+Mapping peptides/sites to reference sequences: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████| 689/689 [00:00&lt;00:00, 1401.88it/s]
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
 <div class="prompt empty docutils container">
 </div>
-<div class="output_area stderr docutils container">
+<div class="output_area docutils container">
 <div class="highlight"><pre>
-
+Mapping complete.
 </pre></div></div>
 </div>
 <p>If you look at the ExperimentMapper class, you will find that five new columns have been added to the original dataset, which allows for easy mapping to KSTAR networks used in activity prediction.</p>

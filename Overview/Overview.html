@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Overview &#8212; KSTAR 1.1.0 documentation</title>
+    <title>Overview &#8212; KSTAR 1.1.1 documentation</title>
   
   
   
@@ -36,7 +36,7 @@
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
   <script src="../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
 
-    <script src="../_static/documentation_options.js?v=051bfb12"></script>
+    <script src="../_static/documentation_options.js?v=bee7790f"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
@@ -133,7 +133,7 @@
   
   
   
-    <p class="title logo__title">KSTAR 1.1.0 documentation</p>
+    <p class="title logo__title">KSTAR 1.1.1 documentation</p>
   
 </a></div>
         <div class="sidebar-primary-item">
@@ -161,6 +161,7 @@
 <ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="../Galaxy/Running_KSTAR.html">Run KSTAR on Galaxy</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../Galaxy/Analyzing_Results.html">Analyze Results</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Galaxy/Troubleshooting_Galaxy.html">Troubleshooting the KSTAR Tool</a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Python Tutorial (Just the Basics):</span></p>
 <ul class="nav bd-sidenav">
@@ -191,9 +192,11 @@
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Advanced Python Usage:</span></p>
 <ul class="nav bd-sidenav">
-<li class="toctree-l1"><a class="reference internal" href="../Advanced/Pruning.html">Network Generation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../Advanced/Pregenerated_Experiments.html">Pregenerated Random actiivities</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Advanced/Configuration.html">Updating Configuration</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../Advanced/Parallel/parallel.html">KSTAR in Parallel</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Advanced/Pruning.html">Network Generation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Advanced/nonhuman_data.html">KSTAR with Non-Human Datasets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Advanced/Pregenerated_Experiments.html">Pregenerated Random Activities</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../Advanced/faq.html">Frequently Asked Questions</a></li>
 </ul>
 
@@ -367,7 +370,9 @@ document.write(`
   </button>
 `);
 </script>
-
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
 </div></div>
       
     </div>
@@ -383,6 +388,15 @@ document.write(`
     <div id="print-main-content">
         <div id="jb-print-toc">
             
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kstar-algorithm">KSTAR Algorithm</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#steps-of-a-kstar-run">Steps of a KSTAR Run</a></li>
+</ul>
+            </nav>
         </div>
     </div>
 </div>
@@ -394,14 +408,26 @@ document.write(`
                   
   <section id="overview">
 <h1>Overview<a class="headerlink" href="#overview" title="Link to this heading">#</a></h1>
-<p>KSTAR is a Python package for inferring kinase actiivities from phosphoproteomic data. It requires the following steps, given a phosphoproteomic dataset of interest.</p>
+<section id="kstar-algorithm">
+<h2>KSTAR Algorithm<a class="headerlink" href="#kstar-algorithm" title="Link to this heading">#</a></h2>
+<p>KSTAR is a Python package for inferring kinase activities from phosphoproteomic data in a bias- and error-aware manner, using a graph-based and statistical approach.</p>
+<p>In brief, KSTAR works by generating an ensemble of possible kinase-substrate networks based on weighted kinase-substrate predictions (by default, NetworKIN) and calculating the statistical enrichment of a kinase’s substrates in an experiment within each network. The final activity score is obtained by comparing the enrichment of the real experiment to the enrichment that would be expected from a random phosphoproteomic experiment.</p>
+<img alt="KSTAR Overview" class="align-center" src="../_images/KSTAR_method_simple.png" />
+<p>For more details about the algorithm, as well as best use cases, see the original publication: <a class="reference external" href="https://www.nature.com/articles/s41467-022-32017-5">KSTAR Paper</a></p>
+</section>
+<section id="steps-of-a-kstar-run">
+<h2>Steps of a KSTAR Run<a class="headerlink" href="#steps-of-a-kstar-run" title="Link to this heading">#</a></h2>
+<p>For most users, a KSTAR run will consist of the following steps:</p>
 <ol class="arabic simple">
-<li><p><a class="reference internal" href="../Advanced/Pruning.html"><span class="doc">Network Generation</span></a>: This produces an ensemble of binary, heuristically pruned kinase-substrate graphs to be used in subsequent analyses. For most users, pre-generated networks based on NetworKIN can be installed (see <a class="reference internal" href="../Tutorial/quickstart.html"><span class="doc">Getting Started</span></a>).</p></li>
 <li><p><a class="reference internal" href="../Tutorial/Map_Datasets.html"><span class="doc">Mapping Dataset to Reference Phosphoproteome</span></a>: Given that the proteome is regularly updated, this step maps phosphopeptides identified in the dataset to the reference phosphoproteome to ensure site positions match the kinase-substrate networks.</p></li>
 <li><p><a class="reference internal" href="../Tutorial/Activity_Calculation.html"><span class="doc">Kinase Activity Calculation</span></a>: Given sites identified in an experiment, for each experiment (column) in a dataset, calculate the likelihood that those sites were pulled randomly from the kinase-substrate networks.</p></li>
 <li><p><a class="reference internal" href="../Tutorial/plotting_tutorial.html"><span class="doc">Analysis/Plotting</span></a>: Various plotting and analysis functions are provided to visualize and interpret KSTAR results.</p></li>
 </ol>
-<p>For more details about the algorithm, as well as best use cases, see the original publication: <a class="reference external" href="https://www.nature.com/articles/s41467-022-32017-5">KSTAR Paper</a></p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>By default, a pregenerated human kinase-substrate network ensemble based on NetworKIN predictions will be used. However, KSTAR is flexible and can be used with any kinase-substrate prediction graph, not just NetworKIN. If you would like to use your own networks, you can follow the <a class="reference internal" href="../Advanced/Pruning.html"><span class="doc">Network Generation</span></a> tutorial to generate your own network ensemble for use with KSTAR.</p>
+</div>
+</section>
 </section>
 
 
@@ -439,6 +465,22 @@ document.write(`
             </div>
             
             
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kstar-algorithm">KSTAR Algorithm</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#steps-of-a-kstar-run">Steps of a KSTAR Run</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
               
             
           </div>

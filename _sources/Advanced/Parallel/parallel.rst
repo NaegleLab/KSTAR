@@ -1,38 +1,27 @@
 KSTAR in Parallel
 =================
 
-The base implementation of KSTAR operates with only a single processor. However, this can often be time consuming, particularly for datasets with 
-many sites and/or many samples. It is possible to run KSTAR as a parallel process, either within your python environment or using a software
-package called nextflow. See the following sections for more details.
+The base implementation of KSTAR operates with only a single processor. However, this can often be time consuming, particularly for datasets with many sites and/or many samples. It is possible to run KSTAR as a parallel process, either within your python environment or using a software package called nextflow. See the following sections for more details.
 
 Option 1: Running KSTAR using Multiprocessing
 ---------------------------------------------
 
-Within python, several KSTAR functions can be run in parallel using the multiprocessing module. For these functions, switching to multiprocessing
-simply requires changing the 'PROCESSES' parameter from 1 (default) to the number of processes you would like to run in parallel.
+Within python, several KSTAR functions can be run in parallel using the multiprocessing module. For these functions, switching to multiprocessing simply requires changing the 'PROCESSES' parameter from 1 (default) to the number of processes you would like to run in parallel.
 
 .. code-block:: python
 
    # Activity Calculation
-   kinact_dict = calculate.run_kstar_analysis(experiment, activity_log, networks, PROCESSES = 4)
-
-   # Normalization
-   calculate.normalize_analysis(kinact_dict, activity_log, num_random_experiments, target_alpha, PROCESSES = 4)
-   
-   # Mann Whitney Calculation
-   calculate.Mann_Whitney_analysis(kinact_dict, activity_log, number_sig_trials = 100, PROCESSES = 4)
+   kinact_dict = calculate.run_kstar_analysis(experiment, PROCESSES = 4)
 
 
-While this strategy helps to improve the speed of analysis, it can be very memory intensive for large datasets. For large tyrosine datasets
-and most serine/threonine datasets, we recommend running KSTAR using nextflow, described in the following section.
+
+While this strategy helps to improve the speed of analysis, it can be more memory intensive for large datasets. For large datasets, we have also implemented a highly parallel version of KSTAR with nextflow, described in the following section.
 
 
 Option 2: Running Large Datasets with Nextflow
 ----------------------------------------------
 
-While our standard implementation of KSTAR can be run on most phosphotyrosine datasets and some small phosphoserine/threonine datasets, the memory 
-and time costs are often too high for many large datasets. For these cases, we have implemented a highly parallel version of KSTAR implemented 
-with the nextflow software package. The remainder of this section will detail how to install and run KSTAR with nextflow.
+While our standard implementation of KSTAR can be run on most datasets, especially if using pregenerated random activities (default), the memory and time costs may be too high for large datasets. For these cases, we have implemented a highly parallel version of KSTAR implemented with the nextflow software package. The remainder of this section will detail how to install and run KSTAR with nextflow.
 
 Requirements
 ^^^^^^^^^^^^

@@ -24,6 +24,7 @@ This error is caused by issues with the uploaded dataset and will usually cause 
 
 1. Issues with the dataset format (e.g. peptides or sites not in the correct format)
 2. Too few sites in the dataset to generate a KSTAR run. This is most common for tyrosine kinase runs (especially for global phosphoproteomics). If you encounter this error, we don't recommend running KSTAR on this dataset as the results will likely not be meaningful given the small number of sites. If you want to run KSTAR on this dataset anyway, this is possible to do so via python (see :doc:`Python Quickstart<python-quickstart>` for more details).
+3. Too many sites in the dataset to generate a KSTAR run (no matched random activities). The max is 1000 sites for tyrosine runs and 20000 sites for serine/threonine runs. If you encounter this error, we recommend adjusting your evidence selection (e.g. using a more stringent threshold or using the Top N sites) option instead to include fewer sites as evidence and avoid this error. If you want to run KSTAR on this dataset anyway, this is possible to do so via python (see :doc:`Python Quickstart<python-quickstart>` for more details).
 
 
 Mapping Error (Exit Code 4)

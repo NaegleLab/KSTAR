@@ -1,5 +1,5 @@
 
-Pregenerated Random actiivities
+Pregenerated Random Activities
 ===============================
 
 In KSTARv1.0, we introduced the use of random experiments that were pre-generated and reused for future activity predictions, rather than generated at the time of activity prediction. This significantly reduced computational time, but does mean that the random experiments likely do not exactly match the true experiment as they did in the original implementation of KSTAR. 

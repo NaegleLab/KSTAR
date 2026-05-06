@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Frequently Asked Questions &#8212; KSTAR 1.1.0 documentation</title>
+    <title>Frequently Asked Questions &#8212; KSTAR 1.1.1 documentation</title>
   
   
   
@@ -36,7 +36,7 @@
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
   <script src="../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
 
-    <script src="../_static/documentation_options.js?v=051bfb12"></script>
+    <script src="../_static/documentation_options.js?v=bee7790f"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
@@ -44,7 +44,7 @@
     <script>DOCUMENTATION_OPTIONS.pagename = 'Advanced/faq';</script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="prev" title="KSTAR in Parallel" href="Parallel/parallel.html" />
+    <link rel="prev" title="Pregenerated Random Activities" href="Pregenerated_Experiments.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   </head>
@@ -132,7 +132,7 @@
   
   
   
-    <p class="title logo__title">KSTAR 1.1.0 documentation</p>
+    <p class="title logo__title">KSTAR 1.1.1 documentation</p>
   
 </a></div>
         <div class="sidebar-primary-item">
@@ -159,6 +159,8 @@
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Galaxy Tutorial:</span></p>
 <ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="../Galaxy/Running_KSTAR.html">Run KSTAR on Galaxy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Galaxy/Analyzing_Results.html">Analyze Results</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Galaxy/Troubleshooting_Galaxy.html">Troubleshooting the KSTAR Tool</a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Python Tutorial (Just the Basics):</span></p>
 <ul class="nav bd-sidenav">
@@ -189,9 +191,11 @@
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Advanced Python Usage:</span></p>
 <ul class="current nav bd-sidenav">
-<li class="toctree-l1"><a class="reference internal" href="Pruning.html">Network Generation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Pregenerated_Experiments.html">Pregenerated Random actiivities</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Configuration.html">Updating Configuration</a></li>
 <li class="toctree-l1"><a class="reference internal" href="Parallel/parallel.html">KSTAR in Parallel</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Pruning.html">Network Generation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nonhuman_data.html">KSTAR with Non-Human Datasets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Pregenerated_Experiments.html">Pregenerated Random Activities</a></li>
 <li class="toctree-l1 current active"><a class="current reference internal" href="#">Frequently Asked Questions</a></li>
 </ul>
 
@@ -408,36 +412,54 @@ document.write(`
 <section id="data-preparation">
 <h2>Data Preparation<a class="headerlink" href="#data-preparation" title="Link to this heading">#</a></h2>
 <p><strong>Q: Should the input values to KSTAR contain missing values, or should imputation be performed?</strong></p>
-<p>A: KSTAR can operate on datasets with missing values. We do not recommend removing sites from the data or imputing data - we assume that if a site is not observed in a sample (i.e. the reason for imputation) then it shouldn’t be used as evidence.</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>A: KSTAR can operate on datasets with missing values. We do not recommend removing sites from the data or imputing data - we assume that if a site is not observed in a sample (i.e. the reason for imputation) then it shouldn&#39;t be used as evidence. 
+</pre></div>
+</div>
 <p><strong>Q: How should data be normalized prior to use with KSTAR?</strong></p>
-<p>A: While we have not done a comprehensive analysis of the impact of different normalization strategies, we have had success analyzing datasets with many different normalization strategies (median centering, normalizing to untreated condition, normalizing to pooled sample, unnormalized data, etc.). Your normalization strategy (and ultimate data threshold) should match your biological question and how you want data to be included. For example, if you are treating a cell line with drug, it may make the most sense to normalize to an untreated condition and apply a threshold that uses sites unaffected by treatment as evidence.</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>A: While we have not done a comprehensive analysis of the impact of different normalization strategies, we have had success analyzing datasets with many different normalization strategies (median centering, normalizing to untreated condition, normalizing to pooled sample, unnormalized data, etc.). Your normalization strategy (and ultimate data threshold) should match your biological question and how you want data to be included. For example, if you are treating a cell line with drug, it may make the most sense to normalize to an untreated condition and apply a threshold that uses sites unaffected by treatment as evidence.
+</pre></div>
+</div>
 </section>
 <section id="choosing-parameter-values">
 <h2>Choosing Parameter Values<a class="headerlink" href="#choosing-parameter-values" title="Link to this heading">#</a></h2>
 <p><strong>Q: How should we determine the threshold to apply to our dataset?</strong></p>
-<p>A: Several factors can go into this decision:</p>
-<ol class="arabic simple">
-<li><p>Is the data normalized to some condition, and if so how? The threshold should make sense for the quantification values in your dataset. A threshold value of 1 may make sense for a stimulation experiment where data has been normalized to the untreated condition</p></li>
-<li><p>Stringent threshold values may reduce the evidence size (number of observed phosphorylation sites) in a sample to be too low for a high confidence activity prediction. We usually recommend having at least 50 sites within a sample for best results. You can use the test_threshold() function in the KinaseActivity class to get an idea of the impact of your threshold decision on evidence size.</p></li>
-<li><p>Similarly to 2, you will want to make sure that the threshold is not too relaxed such that all samples have highly similar sites used as evidence (usually not an issue, but keep it in mind)</p></li>
-</ol>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>A: Several factors can go into this decision:
+1. Is the data normalized to some condition, and if so how? The threshold should make sense for the quantification values in your dataset. A threshold value of 1 may make sense for a stimulation experiment where data has been normalized to the untreated condition
+2. Stringent threshold values may reduce the evidence size (number of observed phosphorylation sites) in a sample to be too low for a high confidence activity prediction. We usually recommend having at least 50 sites within a sample for best results. You can use the test_threshold() function in the KinaseActivity class to get an idea of the impact of your threshold decision on evidence size.
+3. Similarly to 2, you will want to make sure that the threshold is not too relaxed such that all samples have highly similar sites used as evidence (usually not an issue, but keep it in mind)
+</pre></div>
+</div>
 <p><strong>Q: When should you use the evidence_size parameter instead of the threshold</strong></p>
-<p>A: In general, if your data involves a direct comparison between samples (i.e. perturbations resulting in a fold change), using a threshold is generally recommended, as it provides a very clean interpretation of the resulting activity predictions. For example, if you have log fold changes and use a threshold of 1, you are predicting activity based on sites that increased 2-fold upon perturbation. However, if your data does not have clear comparisons and the “meaning” behind the threshold is less clear (such as for single tissue samples), it may be advantageous to simply define the number of sites to use. This avoids setting an arbitrary quantification threshold and accounts for any variability in the total number of sites measured in each sample.</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>A: In general, if your data involves a direct comparison between samples (i.e. perturbations resulting in a fold change), using a threshold is generally recommended, as it provides a very clean interpretation of the resulting activity predictions. For example, if you have log fold changes and use a threshold of 1, you are predicting activity based on sites that increased 2-fold upon perturbation. However, if your data does not have clear comparisons and the &quot;meaning&quot; behind the threshold is less clear (such as for single tissue samples), it may be advantageous to simply define the number of sites to use. This avoids setting an arbitrary quantification threshold and accounts for any variability in the total number of sites measured in each sample.
+</pre></div>
+</div>
 <p><strong>Q: What does the ‘agg’ parameter mean? How do we choose which is best for our data?</strong></p>
-<p>A: There are certain cases where the same phosphorylation site will appear across the dataset multiple times, most commonly when there are peptides with multiple different modifications. For example, if a double phosphotyrosine site exists, there are three possible peptides that could be observed: yY, Yy, YY. In this situation, the agg parameter dictates how to combine the quantification values for a single phosphorylation site. For those with experience with groupby pandas functionality, the chosen parameter goes directly into the pandas groupby (<em>data.groupby([‘KSTAR_ACCESSION’, ‘KSTAR_SITE’].agg(‘mean’)</em>). ‘mean’ will take the average, ‘median’ will take the median, ‘max’ will take the largest quantification value, etc..</p>
-<p>One small exception is if ‘count’ is selected. This will still go into the groupby function, but rather than aggregate the quantification values, it simply counts the number of times a site appears across the dataset. This should only be used when wanting to use all phosphorylation sites observed in a sample (threshold should be set to 1).</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>A: There are certain cases where the same phosphorylation site will appear across the dataset multiple times, most commonly when there are peptides with multiple different modifications. For example, if a double phosphotyrosine site exists, there are three possible peptides that could be observed: yY, Yy, YY. In this situation, the agg parameter dictates how to combine the quantification values for a single phosphorylation site. For those with experience with groupby pandas functionality, the chosen parameter goes directly into the pandas groupby (*data.groupby([&#39;KSTAR_ACCESSION&#39;, &#39;KSTAR_SITE&#39;].agg(&#39;mean&#39;)*). &#39;mean&#39; will take the average, &#39;median&#39; will take the median, &#39;max&#39; will take the largest quantification value, etc.. 
+
+One small exception is if &#39;count&#39; is selected. This will still go into the groupby function, but rather than aggregate the quantification values, it simply counts the number of times a site appears across the dataset. This should only be used when wanting to use all phosphorylation sites observed in a sample (threshold should be set to 1).
+</pre></div>
+</div>
 <p><strong>Q: What is the required number of random experiments, and why is 150 the default?</strong></p>
-<p>A: We settled on 150 random experiments and 100 significant trials, with the idea that it provided a good balance between statistical power and computational intensity. The total number of random experiments will change the statistical range/power of the Mann Whitney tests and the number of trials will set the lower bound on FPR calculation. So at 100 trials, you know that if you do not see more activity in any random experiments than you did for the real experiment, that your FPR is less than 1%. Whereas if you did 10 trials, you only know it’s less than 10%.</p>
-<p>It’s important to note that the number of significant trials can not be greater than the number of random experiments.</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>A: We settled on 150 random experiments and 100 significant trials, with the idea that it provided a good balance between statistical power and computational intensity. The total number of random experiments will change the statistical range/power of the Mann Whitney tests and the number of trials will set the lower bound on FPR calculation. So at 100 trials, you know that if you do not see more activity in any random experiments than you did for the real experiment, that your FPR is less than 1%. Whereas if you did 10 trials, you only know it&#39;s less than 10%. 
+
+It&#39;s important to note that the number of significant trials can not be greater than the number of random experiments.
+</pre></div>
+</div>
 </section>
 <section id="interpreting-results">
 <h2>Interpreting Results<a class="headerlink" href="#interpreting-results" title="Link to this heading">#</a></h2>
 <p><strong>Q: Are kinase activities comparable across samples?</strong></p>
-<p>A: There is some evidence to suggest that they are, as long as the evidence size (number of phosphorylation sites used as evidence of kinase activity in a given sample) are similar. In our thresholding sensitivity analysis (Supplementary Figure 2/3 from our publication), we see that activity predictions are fairly stable as long as evidence size is within ~100-400 tyrosine sites or ~1000 serine/threonine sites. We also found that we were able to replicate tissue-specific kinase activities across multiple independent experiments, regardless of the similarity of the underlying mass spec data.</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>A: There is some evidence to suggest that they are, as long as the evidence size (number of phosphorylation sites used as evidence of kinase activity in a given sample) are similar. In our thresholding sensitivity analysis (Supplementary Figure 2/3 from our publication), we see that activity predictions are fairly stable as long as evidence size is within ~100-400 tyrosine sites or ~1000 serine/threonine sites. We also found that we were able to replicate tissue-specific kinase activities across multiple independent experiments, regardless of the similarity of the underlying mass spec data.
+</pre></div>
+</div>
 <p><strong>Q: How can we identify which sites are indicative of activity for a given kinase/identify what an active kinase is interacting with?</strong></p>
-<p>A: You can use the analysis.interactions module to get the sites that contribute most to a kinase’s activity prediction, based on the number of different KSTAR networks an interaction between a kinase and observed substrate is predicted. The more networks an interaction is found in, the higher confidence there is in that interaction being specific to that kinase.</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>A: You can use the analysis.interactions module to get the sites that contribute most to a kinase&#39;s activity prediction, based on the number of different KSTAR networks an interaction between a kinase and observed substrate is predicted. The more networks an interaction is found in, the higher confidence there is in that interaction being specific to that kinase.
+</pre></div>
+</div>
 <p><strong>Q: How do we define an active kinase from KSTAR results?</strong></p>
-<p>A: In most cases, we use the false positive rate, which we typically set to 5%. In some cases where we want/need to capture more of the results, we have expanded this cutoff to 10%. However, we do sometimes see high false positive rates even when the activity score is high due to the distribution of study bias in the underlying experiment. In these instances, you may still consider these as activated, but the results should be treated with caution as it is possible to obtain the same activity score from a random experiment with the same distribution of study bias.</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>A: In most cases, we use the false positive rate, which we typically set to 5%. In some cases where we want/need to capture more of the results, we have expanded this cutoff to 10%. However, we do sometimes see high false positive rates even when the activity score is high due to the distribution of study bias in the underlying experiment. In these instances, you may still consider these as activated, but the results should be treated with caution as it is possible to obtain the same activity score from a random experiment with the same distribution of study bias.
+</pre></div>
+</div>
 </section>
 </section>
 
@@ -453,12 +475,12 @@ document.write(`
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="Parallel/parallel.html"
+       href="Pregenerated_Experiments.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">KSTAR in Parallel</p>
+        <p class="prev-next-title">Pregenerated Random Activities</p>
       </div>
     </a>
 </div>

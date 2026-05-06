@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Getting Started &#8212; KSTAR 1.1.0 documentation</title>
+    <title>Getting Started &#8212; KSTAR 1.1.1 documentation</title>
   
   
   
@@ -36,7 +36,7 @@
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
   <script src="../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
 
-    <script src="../_static/documentation_options.js?v=051bfb12"></script>
+    <script src="../_static/documentation_options.js?v=bee7790f"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
@@ -45,7 +45,7 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Map Dataset to Reference" href="Map_Datasets.html" />
-    <link rel="prev" title="&lt;no title&gt;" href="../Galaxy/Analyzing_Results.html" />
+    <link rel="prev" title="Troubleshooting the KSTAR Tool" href="../Galaxy/Troubleshooting_Galaxy.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   </head>
@@ -133,7 +133,7 @@
   
   
   
-    <p class="title logo__title">KSTAR 1.1.0 documentation</p>
+    <p class="title logo__title">KSTAR 1.1.1 documentation</p>
   
 </a></div>
         <div class="sidebar-primary-item">
@@ -160,6 +160,8 @@
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Galaxy Tutorial:</span></p>
 <ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="../Galaxy/Running_KSTAR.html">Run KSTAR on Galaxy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Galaxy/Analyzing_Results.html">Analyze Results</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Galaxy/Troubleshooting_Galaxy.html">Troubleshooting the KSTAR Tool</a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Python Tutorial (Just the Basics):</span></p>
 <ul class="current nav bd-sidenav">
@@ -190,9 +192,11 @@
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Advanced Python Usage:</span></p>
 <ul class="nav bd-sidenav">
-<li class="toctree-l1"><a class="reference internal" href="../Advanced/Pruning.html">Network Generation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../Advanced/Pregenerated_Experiments.html">Pregenerated Random actiivities</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Advanced/Configuration.html">Updating Configuration</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../Advanced/Parallel/parallel.html">KSTAR in Parallel</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Advanced/Pruning.html">Network Generation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Advanced/nonhuman_data.html">KSTAR with Non-Human Datasets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Advanced/Pregenerated_Experiments.html">Pregenerated Random Activities</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../Advanced/faq.html">Frequently Asked Questions</a></li>
 </ul>
 
@@ -400,7 +404,6 @@ document.write(`
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#download-networks">Download Networks</a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#for-kstar-version-1-0-4-and-newer">for KSTAR version 1.0.4 and newer</a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#for-kstar-version-0-5-3-and-older">for KSTAR version 0.5.3 and older</a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#if-using-self-generated-networks">If Using Self-generated Networks</a></li>
 </ul>
 </li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#configure-kstar-to-point-to-the-correct-network-directory">Configure KSTAR to point to the correct network directory</a></li>
@@ -487,17 +490,6 @@ document.write(`
 </ol>
 </div></blockquote>
 </section>
-<section id="if-using-self-generated-networks">
-<h4>If Using Self-generated Networks<a class="headerlink" href="#if-using-self-generated-networks" title="Link to this heading">#</a></h4>
-<p>Instead, you may wish to generate your own networks with different parameters or based on a different kinase-substrate prediction graph. To do this, follow the steps below:</p>
-<blockquote>
-<div><ol class="arabic simple">
-<li><p>Identify and download the weighted kinase-substrate prediction graph you would like to use for network generation. This should include weighted edges indicating the likelihood that a kinase phosphorylates a particular substrate, and should include predictions for all sites in the phosphoproteome.</p></li>
-<li><p>Follow the <span class="xref std std-doc">tutorial for network generation</span> to produce pruned networks from your weighted network (found in Tutorial section of this documentation).</p></li>
-<li><p>Store the generated networks in an easily accessible location. Individual network files should be placed in a directory within the network directory in a folder titled ‘INDIVIDUAL_NETWORKS’.</p></li>
-</ol>
-</div></blockquote>
-</section>
 </section>
 <section id="configure-kstar-to-point-to-the-correct-network-directory">
 <h3>Configure KSTAR to point to the correct network directory<a class="headerlink" href="#configure-kstar-to-point-to-the-correct-network-directory" title="Link to this heading">#</a></h3>
@@ -540,12 +532,12 @@ document.write(`
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="../Galaxy/Analyzing_Results.html"
+       href="../Galaxy/Troubleshooting_Galaxy.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">&lt;no title&gt;</p>
+        <p class="prev-next-title">Troubleshooting the KSTAR Tool</p>
       </div>
     </a>
     <a class="right-next"
@@ -584,7 +576,6 @@ document.write(`
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#download-networks">Download Networks</a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#for-kstar-version-1-0-4-and-newer">for KSTAR version 1.0.4 and newer</a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#for-kstar-version-0-5-3-and-older">for KSTAR version 0.5.3 and older</a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#if-using-self-generated-networks">If Using Self-generated Networks</a></li>
 </ul>
 </li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#configure-kstar-to-point-to-the-correct-network-directory">Configure KSTAR to point to the correct network directory</a></li>

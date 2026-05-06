@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Updating Configuration &#8212; KSTAR 1.1.1 documentation</title>
+    <title>KSTAR with Non-Human Datasets &#8212; KSTAR 1.1.1 documentation</title>
   
   
   
@@ -41,11 +41,11 @@
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'Advanced/Configuration';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'Advanced/nonhuman_data';</script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="KSTAR in Parallel" href="Parallel/parallel.html" />
-    <link rel="prev" title="Analysis of HER2 Positive Patients using Microbiopsies (Satpathy 2021)" href="../Examples/Microbiopsy_Analysis.html" />
+    <link rel="next" title="Pregenerated Random Activities" href="Pregenerated_Experiments.html" />
+    <link rel="prev" title="Network Generation" href="Pruning.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   </head>
@@ -192,10 +192,10 @@
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Advanced Python Usage:</span></p>
 <ul class="current nav bd-sidenav">
-<li class="toctree-l1 current active"><a class="current reference internal" href="#">Updating Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Configuration.html">Updating Configuration</a></li>
 <li class="toctree-l1"><a class="reference internal" href="Parallel/parallel.html">KSTAR in Parallel</a></li>
 <li class="toctree-l1"><a class="reference internal" href="Pruning.html">Network Generation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="nonhuman_data.html">KSTAR with Non-Human Datasets</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">KSTAR with Non-Human Datasets</a></li>
 <li class="toctree-l1"><a class="reference internal" href="Pregenerated_Experiments.html">Pregenerated Random Activities</a></li>
 <li class="toctree-l1"><a class="reference internal" href="faq.html">Frequently Asked Questions</a></li>
 </ul>
@@ -269,7 +269,7 @@
       
       
       
-      <li><a href="https://github.com/NaegleLab/KSTAR/issues/new?title=Issue%20on%20page%20%2FAdvanced/Configuration.html&body=Your%20issue%20content%20here." target="_blank"
+      <li><a href="https://github.com/NaegleLab/KSTAR/issues/new?title=Issue%20on%20page%20%2FAdvanced/nonhuman_data.html&body=Your%20issue%20content%20here." target="_blank"
    class="btn btn-sm btn-source-issues-button dropdown-item"
    title="Open an issue"
    data-bs-placement="left" data-bs-toggle="tooltip"
@@ -299,7 +299,7 @@
       
       
       
-      <li><a href="../_sources/Advanced/Configuration.rst" target="_blank"
+      <li><a href="../_sources/Advanced/nonhuman_data.rst" target="_blank"
    class="btn btn-sm btn-download-source-button dropdown-item"
    title="Download source file"
    data-bs-placement="left" data-bs-toggle="tooltip"
@@ -370,7 +370,9 @@ document.write(`
   </button>
 `);
 </script>
-
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
 </div></div>
       
     </div>
@@ -381,11 +383,20 @@ document.write(`
               
 
 <div id="jb-print-docs-body" class="onlyprint">
-    <h1>Updating Configuration</h1>
+    <h1>KSTAR with Non-Human Datasets</h1>
     <!-- Table of contents -->
     <div id="print-main-content">
         <div id="jb-print-toc">
             
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#convert-ids-peptide-sequence-to-human-homologs-with-ptmorer">Convert IDs/peptide sequence to human homologs with PTMoreR</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#run-kstar-as-normal">Run KSTAR as normal</a></li>
+</ul>
+            </nav>
         </div>
     </div>
 </div>
@@ -395,56 +406,117 @@ document.write(`
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section id="updating-configuration">
-<h1>Updating Configuration<a class="headerlink" href="#updating-configuration" title="Link to this heading">#</a></h1>
-<p>If desired, you can alter a number of default options used by KSTAR. To update these, you can use the <a class="reference internal" href="../Overview/KSTAR.html#kstar.config.update_configuration" title="kstar.config.update_configuration"><code class="xref py py-func docutils literal notranslate"><span class="pre">update_configuration</span></code></a> function. Most of these are related to how to handle pregenerated random experiments (see <span class="xref std std-doc">Pregenerated_Experiments</span>), which were introduced in KSTAR v1.0.4:</p>
-<div class="pst-scrollable-table-container"><table class="table">
-<thead>
-<tr class="row-odd"><th class="head"><p>Config Parameter</p></th>
-<th class="head"><p>Global Name</p></th>
-<th class="head"><p>Description</p></th>
-<th class="head"><p>Default Value</p></th>
-</tr>
-</thead>
-<tbody>
-<tr class="row-even"><td><p>network_dir</p></td>
-<td><p>NETWORK_DIR</p></td>
-<td><p>where all network files/random experiments are stored</p></td>
-<td><p>./NETWORKS/</p></td>
-</tr>
-<tr class="row-odd"><td><p>y_network_name</p></td>
-<td><p>NETWORK_NAME[‘Y’]</p></td>
-<td><p>default name of tyrosine network within NETWORK_DIR to use</p></td>
-<td><p>Default</p></td>
-</tr>
-<tr class="row-even"><td><p>st_network_name</p></td>
-<td><p>NETWORK_NAME[‘ST’]</p></td>
-<td><p>default name of serine/threonine network within NETWORK_DIR to use</p></td>
-<td><p>Default</p></td>
-</tr>
-<tr class="row-odd"><td><p>use_pregenerated_random_activities</p></td>
-<td><p>USE_PREGENERATED_RANDOM_ACTIVITIES</p></td>
-<td><p>boolean, whether to use pregenerated random activities</p></td>
-<td><p>True</p></td>
-</tr>
-<tr class="row-even"><td><p>save_random_experiments</p></td>
-<td><p>SAVE_RANDOM_EXPERIMENTS</p></td>
-<td><p>boolean, whether to save random experiments when generated</p></td>
-<td><p>False</p></td>
-</tr>
-<tr class="row-odd"><td><p>save_new_random_activities</p></td>
-<td><p>SAVE_NEW_RANDOM_ACTIVITIES</p></td>
-<td><p>boolean, whether to save random activities when generated from scratch</p></td>
-<td><p>False</p></td>
-</tr>
-<tr class="row-even"><td><p>custom_pregenerated_activities_dir</p></td>
-<td><p>CUSTOM_RANDOM_ACTIVITIES_DIR</p></td>
-<td><p>file path to where new random activities are stored and accessed in future runs</p></td>
-<td><p>None</p></td>
-</tr>
-</tbody>
-</table>
+  <section id="kstar-with-non-human-datasets">
+<h1>KSTAR with Non-Human Datasets<a class="headerlink" href="#kstar-with-non-human-datasets" title="Link to this heading">#</a></h1>
+<p>By default, KSTAR can only work with data originating from human samples. This is largely due to limited kinase-substrate information for non-human proteins and the fact that prediction networks were generated using human data.</p>
+<p>However, it is possible to run KSTAR on non-human data by matching proteins/phosphosites from the original dataset (such as mouse) to homologous human proteins/phosphosites prior to running KSTAR. The easiest way to do this by using a recent tool that was published by another group, called <a class="reference external" href="https://doi.org/10.1016/j.crmeth.2024.100859">PTMoreR</a>, for mapping phosphorylation sites between species. This tutorial will guide you how to run KSTAR on non-human data. In brief, you will follow these steps (* indicate new steps).</p>
+<ol class="arabic simple">
+<li><p><a href="#id1"><span class="problematic" id="id2">*</span></a>Extract UniProt IDs and peptide sequence for upload to PTMoreR</p></li>
+<li><p><a href="#id3"><span class="problematic" id="id4">*</span></a>Homology map to homologous human proteins with PTMoreR</p></li>
+<li><p><a href="#id5"><span class="problematic" id="id6">*</span></a>Append human IDs and peptide sequence to original dataset</p></li>
+<li><p>Process the dataset as normal (mapping to reference phosphoproteome, etc.)</p></li>
+<li><p>Run through KSTAR</p></li>
+<li><p>Analyze</p></li>
+</ol>
+<section id="convert-ids-peptide-sequence-to-human-homologs-with-ptmorer">
+<h2>Convert IDs/peptide sequence to human homologs with PTMoreR<a class="headerlink" href="#convert-ids-peptide-sequence-to-human-homologs-with-ptmorer" title="Link to this heading">#</a></h2>
+<p>The next step is to convert the original dataset (for example, mouse) to human homologs. One way this can be done is with the <a class="reference external" href="https://yslproteomics.shinyapps.io/PTMoreR/">PTMoreR tool</a>.</p>
+<ol class="arabic">
+<li><p>In most cases, you will need to reformat the peptide sequence into a format expected by PTMoreR (needs to have a specific label for the modification, ‘#’ by default). For example, if you have peptide sequences with phosphosites indicated by lowercase letters, you can use the following function to extract the necessary information and reformat the peptide sequence for PTMoreR,</p>
+<blockquote>
+<div><div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">format_peptide_for_ptmorer</span><span class="p">(</span><span class="n">peptide</span><span class="p">):</span>
+    <span class="c1"># Replace lowercase letters with uppercase and add &#39;#&#39; after the phosphorylated residue</span>
+    <span class="n">formatted_peptide</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+    <span class="k">for</span> <span class="n">char</span> <span class="ow">in</span> <span class="n">peptide</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">char</span><span class="o">.</span><span class="n">islower</span><span class="p">():</span>
+            <span class="n">formatted_peptide</span> <span class="o">+=</span> <span class="n">char</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span> <span class="o">+</span> <span class="s1">&#39;#&#39;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">formatted_peptide</span> <span class="o">+=</span> <span class="n">char</span>
+    <span class="k">return</span> <span class="n">formatted_peptide</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">get_data_for_ptmorer</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">id_col</span><span class="o">=</span><span class="s1">&#39;accession_id&#39;</span><span class="p">,</span> <span class="n">peptide_col</span><span class="o">=</span><span class="s1">&#39;peptide_sequence&#39;</span><span class="p">):</span>
+    <span class="c1"># Extract UniProt IDs and format peptide sequence for PTMoreR</span>
+    <span class="n">df</span><span class="p">[</span><span class="s1">&#39;Uploaded.Peptides&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">peptide_col</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">format_peptide_for_ptmorer</span><span class="p">)</span>
+
+    <span class="c1">#rename id column to &#39;Uniprot.ID&#39; for PTMoreR</span>
+    <span class="n">df</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="n">id_col</span><span class="p">:</span> <span class="s1">&#39;UniProt.ID&#39;</span><span class="p">},</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">df</span><span class="p">[[</span><span class="s1">&#39;UniProt.ID&#39;</span><span class="p">,</span> <span class="s1">&#39;Uploaded.Peptides&#39;</span><span class="p">]]</span>
+
+<span class="n">df</span> <span class="o">=</span> <span class="n">get_data_for_ptmorer</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+<span class="n">df</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="s1">&#39;data_for_ptmorer.csv&#39;</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</pre></div>
 </div>
+</div></blockquote>
+</li>
+<li><p>Navigate to the <a class="reference external" href="https://yslproteomics.shinyapps.io/PTMoreR/">PTMoreR tool</a>.</p></li>
+<li><dl class="simple">
+<dt>Follow the PTMoreR instructions until Step 3</dt><dd><ol class="arabic simple">
+<li><p>Upload the formatted dataset, indicating how modifications are labeled and which species the data is from</p></li>
+<li><p>On Step 2, click calculate. You don’t need to check the box “Check if containing some regular sequence”</p></li>
+<li><dl class="simple">
+<dt>Once Step 2 completes, move to Step 3. Specify the parameters for homology mapping/alignment. We recommend using the default parameters, except:</dt><dd><ul class="simple">
+<li><p>Set ‘Central amino acid matching degree’ to Exact Matching</p></li>
+<li><p>Check “Whether setting BLOSUM50 score”</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><p>Click calculate</p></li>
+<li><p>Once Step 3 completes, download the results table</p></li>
+</ol>
+</dd>
+</dl>
+</li>
+</ol>
+<ol class="arabic" start="5">
+<li><p>Check how successful the mapping was:</p>
+<blockquote>
+<div><div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Load the original dataset and the PTMoreR results</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s1">&#39;original_dataset.csv&#39;</span><span class="p">)</span>
+<span class="n">ptmorer_results</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s1">&#39;ptmorer_results.csv&#39;</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Fraction of sites successfully mapped:&#39;</span><span class="p">,</span> <span class="n">ptmorer_results</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">/</span><span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+</pre></div>
+</div>
+</div></blockquote>
+</li>
+</ol>
+<ol class="arabic" start="4">
+<li><p>Append the human UniProt IDs and peptide sequences to the original dataset, matching on the original UniProt ID and peptide sequence. You can use the following code to do this:</p>
+<blockquote>
+<div><div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Load the original dataset and the PTMoreR results</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s1">&#39;original_dataset.csv&#39;</span><span class="p">)</span>
+<span class="n">ptmorer_results</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s1">&#39;ptmorer_results.csv&#39;</span><span class="p">)</span>
+
+<span class="c1">#process the PTMoreR results</span>
+<span class="c1">#grab site information</span>
+<span class="n">ptmorer_results</span><span class="p">[</span><span class="s1">&#39;Human Site&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ptmorer_results</span><span class="p">[</span><span class="s1">&#39;Center.amino.acids.Other&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="n">ptmorer_results</span><span class="p">[</span><span class="s1">&#39;PROindex.from.Other&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
+
+<span class="c1">#grab only the columns we need</span>
+<span class="n">ptmorer_results</span> <span class="o">=</span> <span class="n">ptmorer_results</span><span class="p">[[</span><span class="s1">&#39;PRO.from.Database&#39;</span><span class="p">,</span>  <span class="s1">&#39;Pep.upload&#39;</span><span class="p">,</span> <span class="s1">&#39;PRO.from.Other&#39;</span><span class="p">,</span> <span class="s1">&#39;Human Site&#39;</span><span class="p">,</span> <span class="s1">&#39;Seqwindows.Other&#39;</span><span class="p">]]</span>
+
+<span class="c1">#rename to more informative column names</span>
+<span class="n">ptmorer_results</span> <span class="o">=</span> <span class="n">ptmorer_results</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;PRO.from.Database&#39;</span><span class="p">:</span><span class="s1">&#39;UniProt.ID&#39;</span><span class="p">,</span> <span class="s1">&#39;Pep.upload&#39;</span><span class="p">:</span><span class="s1">&#39;Uploaded.Peptides&#39;</span><span class="p">,</span> <span class="s1">&#39;PRO.from.Other&#39;</span><span class="p">:</span><span class="s1">&#39;Human Accession&#39;</span><span class="p">,</span> <span class="s1">&#39;Seqwindows.Other&#39;</span><span class="p">:</span><span class="s1">&#39;Human Blasted Peptide&#39;</span><span class="p">})</span>
+
+
+<span class="c1">#lowercase the modified residue for use with KSTAR</span>
+<span class="n">ptmorer_results</span><span class="p">[</span><span class="s1">&#39;Human Blasted Peptide&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ptmorer_results</span><span class="p">[</span><span class="s1">&#39;Human Blasted Peptide&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">7</span><span class="p">]</span> <span class="o">+</span> <span class="n">x</span><span class="p">[</span><span class="mi">7</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">+</span> <span class="n">x</span><span class="p">[</span><span class="mi">8</span><span class="p">:])</span>
+
+<span class="c1"># Merge the datasets on the original UniProt ID and peptide sequence</span>
+<span class="n">merged_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">ptmorer_results</span><span class="p">,</span> <span class="n">left_on</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;accession_id&#39;</span><span class="p">,</span> <span class="s1">&#39;peptide_sequence&#39;</span><span class="p">],</span> <span class="n">right_on</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;UniProt.ID&#39;</span><span class="p">,</span> <span class="s1">&#39;Uploaded.Peptides&#39;</span><span class="p">],</span> <span class="n">how</span><span class="o">=</span><span class="s1">&#39;left&#39;</span><span class="p">)</span>
+
+<span class="c1"># Now merged_df contains the original data along with the human UniProt IDs and peptide sequences from PTMoreR</span>
+</pre></div>
+</div>
+</div></blockquote>
+</li>
+</ol>
+</section>
+<section id="run-kstar-as-normal">
+<h2>Run KSTAR as normal<a class="headerlink" href="#run-kstar-as-normal" title="Link to this heading">#</a></h2>
+<p>Once human information has been appended to the original dataset, you can run KSTAR as normal, making sure to specify the appropriate columns containing the human UniProt IDs and peptide sequences (not the original species)</p>
+</section>
 </section>
 
 
@@ -459,20 +531,20 @@ document.write(`
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="../Examples/Microbiopsy_Analysis.html"
+       href="Pruning.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">Analysis of HER2 Positive Patients using Microbiopsies (Satpathy 2021)</p>
+        <p class="prev-next-title">Network Generation</p>
       </div>
     </a>
     <a class="right-next"
-       href="Parallel/parallel.html"
+       href="Pregenerated_Experiments.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">KSTAR in Parallel</p>
+        <p class="prev-next-title">Pregenerated Random Activities</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -482,6 +554,22 @@ document.write(`
             </div>
             
             
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#convert-ids-peptide-sequence-to-human-homologs-with-ptmorer">Convert IDs/peptide sequence to human homologs with PTMoreR</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#run-kstar-as-normal">Run KSTAR as normal</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
               
             
           </div>

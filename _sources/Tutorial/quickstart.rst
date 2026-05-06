@@ -69,14 +69,7 @@ In addition to the resource files above, KSTAR also requires heuristically prune
     1. Go to `Network Figshare <https://figshare.com/articles/dataset/NETWORKS/14944305>`_
     2. Download the networks, decompress/unzip the files, and store in an easily accessible folder.
 
-If Using Self-generated Networks
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Instead, you may wish to generate your own networks with different parameters or based on a different kinase-substrate prediction graph. To do this, follow the steps below:
-
-    1. Identify and download the weighted kinase-substrate prediction graph you would like to use for network generation. This should include weighted edges indicating the likelihood that a kinase phosphorylates a particular substrate, and should include predictions for all sites in the phosphoproteome.
-    2. Follow the :doc:`tutorial for network generation<Tutorial/Pruning.md>` to produce pruned networks from your weighted network (found in Tutorial section of this documentation).
-    3. Store the generated networks in an easily accessible location. Individual network files should be placed in a directory within the network directory in a folder titled 'INDIVIDUAL_NETWORKS'.
 
 Configure KSTAR to point to the correct network directory
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

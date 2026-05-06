@@ -3,7 +3,7 @@ Options for Running KSTAR
 
 .. container:: sphinx-features
 
-   .. admonition:: On Galaxy Web Server (Coming Soon!)
+   .. admonition:: On Galaxy Web Server
       :class: sphinx-feature
 
       Run KSTAR without any coding necessary using the `Galaxy web server`_. This is the recommended option for non-coding users, but has fewer options for downstream analysis. See the :ref:`linked tutorial<kstar-galaxy>` for more details.

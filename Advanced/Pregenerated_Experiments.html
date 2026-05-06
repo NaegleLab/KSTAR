@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Pregenerated Random actiivities &#8212; KSTAR 1.1.0 documentation</title>
+    <title>Pregenerated Random Activities &#8212; KSTAR 1.1.1 documentation</title>
   
   
   
@@ -36,7 +36,7 @@
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
   <script src="../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
 
-    <script src="../_static/documentation_options.js?v=051bfb12"></script>
+    <script src="../_static/documentation_options.js?v=bee7790f"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
@@ -44,8 +44,8 @@
     <script>DOCUMENTATION_OPTIONS.pagename = 'Advanced/Pregenerated_Experiments';</script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="KSTAR in Parallel" href="Parallel/parallel.html" />
-    <link rel="prev" title="Network Generation" href="Pruning.html" />
+    <link rel="next" title="Frequently Asked Questions" href="faq.html" />
+    <link rel="prev" title="KSTAR with Non-Human Datasets" href="nonhuman_data.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   </head>
@@ -133,7 +133,7 @@
   
   
   
-    <p class="title logo__title">KSTAR 1.1.0 documentation</p>
+    <p class="title logo__title">KSTAR 1.1.1 documentation</p>
   
 </a></div>
         <div class="sidebar-primary-item">
@@ -160,6 +160,8 @@
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Galaxy Tutorial:</span></p>
 <ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="../Galaxy/Running_KSTAR.html">Run KSTAR on Galaxy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Galaxy/Analyzing_Results.html">Analyze Results</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Galaxy/Troubleshooting_Galaxy.html">Troubleshooting the KSTAR Tool</a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Python Tutorial (Just the Basics):</span></p>
 <ul class="nav bd-sidenav">
@@ -190,9 +192,11 @@
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Advanced Python Usage:</span></p>
 <ul class="current nav bd-sidenav">
-<li class="toctree-l1"><a class="reference internal" href="Pruning.html">Network Generation</a></li>
-<li class="toctree-l1 current active"><a class="current reference internal" href="#">Pregenerated Random actiivities</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Configuration.html">Updating Configuration</a></li>
 <li class="toctree-l1"><a class="reference internal" href="Parallel/parallel.html">KSTAR in Parallel</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Pruning.html">Network Generation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nonhuman_data.html">KSTAR with Non-Human Datasets</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Pregenerated Random Activities</a></li>
 <li class="toctree-l1"><a class="reference internal" href="faq.html">Frequently Asked Questions</a></li>
 </ul>
 
@@ -379,7 +383,7 @@ document.write(`
               
 
 <div id="jb-print-docs-body" class="onlyprint">
-    <h1>Pregenerated Random actiivities</h1>
+    <h1>Pregenerated Random Activities</h1>
     <!-- Table of contents -->
     <div id="print-main-content">
         <div id="jb-print-toc">
@@ -406,8 +410,8 @@ document.write(`
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section id="pregenerated-random-actiivities">
-<h1>Pregenerated Random actiivities<a class="headerlink" href="#pregenerated-random-actiivities" title="Link to this heading">#</a></h1>
+  <section id="pregenerated-random-activities">
+<h1>Pregenerated Random Activities<a class="headerlink" href="#pregenerated-random-activities" title="Link to this heading">#</a></h1>
 <p>In KSTARv1.0, we introduced the use of random experiments that were pre-generated and reused for future activity predictions, rather than generated at the time of activity prediction. This significantly reduced computational time, but does mean that the random experiments likely do not exactly match the true experiment as they did in the original implementation of KSTAR.</p>
 <p>By default, KSTARv1.0 will use pregenerated random experiments with a similar size and bias distribution as the real experiment (greater than 150 sites, within 25% of the pregenerated number of sites). If there are no appropriate pregenerated experiments, the random experiments will be generated from scratch.</p>
 <section id="adjusting-pregenerated-experiments-use">
@@ -462,20 +466,20 @@ document.write(`
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="Pruning.html"
+       href="nonhuman_data.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">Network Generation</p>
+        <p class="prev-next-title">KSTAR with Non-Human Datasets</p>
       </div>
     </a>
     <a class="right-next"
-       href="Parallel/parallel.html"
+       href="faq.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">KSTAR in Parallel</p>
+        <p class="prev-next-title">Frequently Asked Questions</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>

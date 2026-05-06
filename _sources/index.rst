@@ -15,6 +15,7 @@ KSTAR
 	Overview/Dependencies
 	Overview/data_prep
 	Overview/ways_to_run
+	Overview/KSTAR
 
 .. toctree::
 	:maxdepth: 4
@@ -43,11 +44,11 @@ KSTAR
 	:maxdepth: 4
 	:caption: Advanced Python Usage:
 	
-	Overview/KSTAR
 	Advanced/Configuration
-	Advanced/Pruning
-	Advanced/Pregenerated_Experiments
 	Advanced/Parallel/parallel
+	Advanced/Pruning
+	Advanced/nonhuman_data
+	Advanced/Pregenerated_Experiments
 	Advanced/faq
 
 
