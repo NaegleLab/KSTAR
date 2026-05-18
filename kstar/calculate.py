@@ -226,6 +226,8 @@ class KinaseActivity:
         # if data columns is None, set data columns to be columns with data: in front
         self.set_data_columns(data_columns=data_columns)
 
+        
+
 
 
     def _report_warning(self, message):
@@ -627,7 +629,7 @@ class KinaseActivity:
         """
         #if not indicated, use default desired evidence size
         if desired_evidence_size is None:
-            desired_evidence_size = 1500 if self.phospho_type == 'ST' else 150 
+            desired_evidence_size = 1500 if self.phospho_type == 'ST' else 200
 
         # find evidence with minimum threshold
         if greater:
@@ -836,7 +838,7 @@ class KinaseActivity:
         elif consider_similarity:
             recommended_threshold = threshold_by_similarity
 
-        print(f"Final recommended threshold = {recommended_threshold})")
+        print(f"Final recommended threshold = {recommended_threshold}")
 
 
         return recommended_threshold
@@ -958,7 +960,7 @@ class KinaseActivity:
             raise ValueError(f"ERROR: Unrecognized phosphoType '{self.phospho_type}'. Must be 'Y' or 'ST'.")
         return pregen_compendia_dist
 
-    def determine_if_pregen(self, dataset, max_diff_from_pregenerated=0.25, min_dataset_size_for_pregenerated=150):
+    def determine_if_pregen(self, dataset, max_diff_from_pregenerated=0.25, min_dataset_size_for_pregenerated=50):
         """
         Given a dataset size and compendia distribution, determine if pregenerated data should be used, and output the location of the file to use.
 
@@ -1109,7 +1111,7 @@ class KinaseActivity:
             else:
                 self.network_check = True
         
-    def setup_pregenerated(self, use_pregenerated_random_activities=None, default_pregen_only = False, save_new_random_activities=None,  custom_pregenerated_path=None, require_pregenerated = False, max_diff_from_pregenerated=0.25, min_dataset_size_for_pregenerated=150):
+    def setup_pregenerated(self, use_pregenerated_random_activities=None, default_pregen_only = False, save_new_random_activities=None,  custom_pregenerated_path=None, require_pregenerated = False, max_diff_from_pregenerated=0.25, min_dataset_size_for_pregenerated=50):
         """
         For each dataset, determine if pregenerated data can be used based on dataset size and compendia distribution, and identify the specific pregenerated experiment directory to use for each experiment
 
@@ -1210,7 +1212,7 @@ class KinaseActivity:
             self.logger.info("Did not use pregenerated random experiments, all random experiments were generated from scratch for all columns.")
 
 
-    def get_random_activities(self, num_random_experiments=150, use_pregenerated_random_activities=None, default_pregen_only = False, save_new_random_activities=None,  custom_pregenerated_path=None, save_random_experiments=None, require_pregenerated = False, max_diff_from_pregenerated=0.25, min_dataset_size_for_pregenerated=150, show_taskbar = True, PROCESSES=1):
+    def get_random_activities(self, num_random_experiments=150, use_pregenerated_random_activities=None, default_pregen_only = False, save_new_random_activities=None,  custom_pregenerated_path=None, save_random_experiments=None, require_pregenerated = False, max_diff_from_pregenerated=0.25, min_dataset_size_for_pregenerated=50, show_taskbar = True, PROCESSES=1):
         """
         Generate random experiments and calculate kinase activities.Either uses pre-generated activity lists or
         generates new random experiments based on the provided parameters.
@@ -1789,6 +1791,7 @@ class KinaseActivity:
         self.threshold = threshold
         self.evidence_size = evidence_size
         self.greater = greater
+        self.agg = agg
 
         #check data columns are valid and have evidence
         if drop_empty_columns:
@@ -1862,7 +1865,53 @@ class KinaseActivity:
         self.dataset_sizes = {col: evidence_binary[col].sum() for col in self.data_columns}
         return evidence_binary
 
-    def calculate_kinase_activities(self, agg='mean', threshold=1.0, evidence_size=None, greater=True, min_evidence_size = 0, PROCESSES=1):
+    def autothreshold(self, greater=True, **kwargs):
+        """
+        Use the recommend_threshold function to determine the optimal threshold to use and set the threshold attribute for the dataset to this value
+
+        Will first look for a threshold that maintains all data columns, but will attempt to find a threshold that allows for some column loss if a threshold cannot be found that maintains all columns with at least min_evidence_size sites as evidence (if min_evidence_size is provided in kwargs)
+
+        Parameters
+        ----------
+        greater: Boolean
+            whether to keep sites that have a numerical value >=threshold (TRUE, default) or <=threshold (FALSE)
+        min_threshold: float, optional
+            the minimum threshold to consider
+        max_threshold: float, optional
+            the maximum threshold to consider
+        **kwargs:
+            parameters to pass to the recommend_threshold function, such as method for determining threshold and parameters for that method, and min_evidence_size for determining whether to allow column loss or not
+
+        Returns
+        --------------
+        threshold : float or list
+            the threshold(s) determined to be optimal across datasets
+        """
+        #make sure min and max thresholds are set appropriately
+        if greater and 'min_threshold' not in kwargs:
+            raise ValueError("To automatically determine threshold, please provide a 'min_threshold' value.")
+        if not greater and 'max_threshold' not in kwargs:
+            raise ValueError("To automatically determine threshold, please provide a 'max_threshold' value.")
+
+        #determine best threshold for each phospho type
+        try:
+            #identify optimal threshold, ensuring that no columns are lost due to insufficient evidence size
+            threshold = self.recommend_threshold(**kwargs)
+        except DatasetSizeError as de:
+            #if the above fails, warn user and loosen restriction to select a threshold that may cause some columns to be lost
+            if min_evidence_size in kwargs:
+                min_evidence_size = kwargs['min_evidence_size']
+            else:
+                min_evidence_size = 20
+            self._report_warning(f"Could not find valid threshold where all dataset columns have at least {min_evidence_size} phosphosites used as evidence. Loosening restriction to allow columns to be lost")
+
+            threshold = self.recommend_threshold(allow_column_loss = True, **kwargs)
+
+            self.log.info(f"Determined threshold: {threshold}")
+
+        return threshold
+
+    def calculate_kinase_activities(self, agg='mean', threshold=1.0, evidence_size=None, greater=True, min_evidence_size = 0, PROCESSES=1, **kwargs):
         """
         Calculates combined activity of experiments based that uses a threshold value to determine if an experiment sees a site or not
         To use values use 'mean' as agg
@@ -1874,8 +1923,8 @@ class KinaseActivity:
         data_columns : list
             columns that represent experimental result, if None, takes the columns that start with `data:'' in experiment.
             Pass this value in as a list, if seeking to calculate on fewer than all available data columns
-        threshold : float
-            threshold value used to filter rows
+        threshold : float or 'auto'
+            threshold value used to filter rows. If 'auto', threshold will be automatically determined using the recommend threshold function for each dataset
         evidence_size : int or None
             the number of sites to use for prediction for each sample. If a value is provided, this will override the threshold, and will instead obtain the N sites with the greatest abundance within each sample (or lowest if greater=False).
         agg : {'count', 'mean'}
@@ -1889,6 +1938,8 @@ class KinaseActivity:
             minimum number of sites required for a data column to be considered for activity calculation
         PROCESSES : int
             number of processes to use for multiprocessing
+        **kwargs:
+            only relevant if threshold is set to 'auto'. Additional parameters to pass to the recommend_threshold function, such as method for determining threshold and parameters for that method.
 
         New attributes
         --------------
@@ -1903,6 +1954,12 @@ class KinaseActivity:
         if evidence_size is None:
             self.threshold = threshold
             self.evidence_size = None
+
+            #if threshold is set to auto, determine threshold using recommend threshold function
+            if threshold == 'auto':
+                self.logger.info("Automatically determining threshold using recommend_threshold function")
+                self.threshold = self.autothreshold(greater = greater, **kwargs)
+
         else:
             self.threshold = None
             self.evidence_size = evidence_size
@@ -2177,9 +2234,19 @@ class KinaseActivity:
         else:
             return activities, fpr
     
-    def run_kstar(self, agg='mean', threshold=1.0, evidence_size=None, greater=True, min_evidence_size = 0, use_pregenerated_random_activities=None, default_pregen_only = False, save_new_random_activities=None,  custom_pregenerated_path=None, require_pregenerated = False, max_diff_from_pregenerated=0.25, min_dataset_size_for_pregenerated=150, selection_type = 'KSTAR_NUM_COMPENDIA_CLASS', num_random_experiments = 150, save_random_experiments = False, show_taskbar = True, PROCESSES = 1):
+    def run_kstar(self, agg='mean', threshold=1.0, evidence_size=None, greater=True, min_evidence_size = 0, use_pregenerated_random_activities=None, default_pregen_only = False, save_new_random_activities=None,  custom_pregenerated_path=None, require_pregenerated = False, max_diff_from_pregenerated=0.25, min_dataset_size_for_pregenerated=50, selection_type = 'KSTAR_NUM_COMPENDIA_CLASS', num_random_experiments = 150, save_random_experiments = False, show_taskbar = True, PROCESSES = 1, **kwargs):
         """
         Run the entire KSTAR workflow for all data columns, including calculating enrichment in the real experiment, loading or generating random activity distribution, and calculating Mann-Whitney U test p-value and FPR for each kinase."""
+        #if threshold is set to auto, determine threshold using recommend threshold function
+        if evidence_size is None and threshold == 'auto':
+            #if threshold is set to auto, determine threshold using recommend threshold function
+            self.logger.info("Automatically determining threshold using recommend_threshold function")
+            threshold = self.autothreshold(greater = greater, **kwargs)
+        elif evidence_size is not None and threshold is not None:
+            self._report_warning("Evidence size is provided, which takes precedence over threshold. Ignoring threshold parameter (including direction to automatically determine one).")
+
+
+
         #binarize evidence
         self.evidence_binary = self.create_binary_evidence(agg=agg, threshold=threshold, evidence_size=evidence_size, greater=greater, min_evidence_size=min_evidence_size)
 
@@ -2993,7 +3060,12 @@ def run_kstar_analysis_deprecated(experiment, odir, name='experiment', phospho_t
 def check_parameters(odir, phospho_types=['Y', 'ST'], kinases = None, data_columns=None, threshold=1.0, evidence_size=None, greater=True,  **kwargs):
     #find relevant kwargs
     init_kwargs = helpers.extract_relevant_kwargs(KinaseActivity.__init__, **kwargs)
-    run_kwargs = helpers.extract_relevant_kwargs(KinaseActivity.run_kstar, **kwargs)
+
+    run_kwargs = helpers.extract_relevant_kwargs(KinaseActivity.run_kstar, **kwargs)    
+    autothreshold_kwargs = helpers.extract_relevant_kwargs(KinaseActivity.recommend_threshold, **kwargs)
+    if len(autothreshold_kwargs) > 0:
+        #add to run_kwargs to ensure autothresholding is performed if any autothreshold kwargs are provided
+        run_kwargs.update(autothreshold_kwargs)
 
     save_kwargs = helpers.extract_relevant_kwargs(save_kstar, **kwargs)
     identified_kwargs = set(run_kwargs.keys()).union(set(save_kwargs.keys())).union(set(init_kwargs.keys()))
@@ -3113,10 +3185,11 @@ def run_kstar_analysis(experiment, odir, name='experiment', phospho_types=['Y', 
         kinact = KinaseActivity(experiment_sub, odir = odir, name = name, data_columns=data_columns, phospho_type=phospho_type, kinases=kinases[phospho_type], **init_kwargs)
         #make sure thresholding parameters are valid (unless evidence_size is provided)
         if evidence_size[phospho_type] is None:
-            good_params = kinact.check_valid_threshold(threshold = threshold[phospho_type], greater = greater, agg = agg, min_evidence_size = min_evidence_size, allow_column_loss=allow_column_loss)
-            if not good_params:
-                print(f"Skipping kinase activity calculations for {phospho_type} kinases due to no data columns with sufficient evidence after thresholding. Please consider adjusting threshold.")
-                continue
+            if threshold[phospho_type] != 'auto':
+                good_params = kinact.check_valid_threshold(threshold = threshold[phospho_type], greater = greater, agg = agg, min_evidence_size = min_evidence_size, allow_column_loss=allow_column_loss)
+                if not good_params:
+                    print(f"Skipping kinase activity calculations for {phospho_type} kinases due to no data columns with sufficient evidence after thresholding. Please consider adjusting threshold.")
+                    continue
 
 
 
