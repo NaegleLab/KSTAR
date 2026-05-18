@@ -419,7 +419,7 @@ def convert_ids_from_df(df, accession_col, from_id = 'UniProtKB_AC-ID', to_id = 
 
     return df, missing_rows
 
-def automatic_id_conversion(df, accession_col, taxonID = 9606, remove_unmapped = True, id_sep = None):
+def automatic_id_conversion(df, accession_col, taxonID = 9606, keep_isoform_info = False,remove_unmapped = True, id_sep = None):
     """
     Given a dataframe with an accession column, automatically detect the type of accession and convert it to UniProtKB accessions using uniprot mapping services. This is useful for datasets that may have a mix of different types of accessions or when the type of accession is not specified.
 
@@ -479,6 +479,11 @@ def automatic_id_conversion(df, accession_col, taxonID = 9606, remove_unmapped =
     #combine split dfs and missing df
     df = pd.concat(list(split_dfs.values()), ignore_index = True)
     missing_rows = pd.concat(list(missed.values()), ignore_index = True)
+
+    #remove isoform information if keep_isoform_information is false (remove '-1', '-2', etc. from accessions)
+    if not keep_isoform_info:
+        df['Accession'] = df['Accession'].apply(lambda x: get_unique_uniprot_ids(x, id_sep = id_sep) if isinstance(x, str) else x)
+
 
     num_mapped = df['Accession'].notna().sum()
     num_missed = missing_rows.shape[0]
@@ -704,4 +709,33 @@ def identify_most_common_accession_type(accessions):
     
     #return the most common type
     most_common_type = max(type_counts, key=type_counts.get)
+
+    if most_common_type == 'genename/unrecognized' and len(type_counts) > 1:
+        #check if there is a second most common type that is not 'genename/unrecognized' and if so, return that type instead since it is likely that the accessions are actually that type but some gene names are mixed in or there is some error in the accessions
+        second_most_common_type = sorted(type_counts, key=type_counts.get, reverse=True)[1]
+        return second_most_common_type
+    
     return most_common_type
+
+def get_unique_uniprot_ids(id_string, id_sep = None):
+    """
+    Given a string of accessions separated by a separator, return a list of the unique UniProtKB accessions in the string, removing any isoform information (e.g. '-1') from the accessions. This is useful for ensuring that all accessions are in a consistent format for mapping to the KSTAR reference and there won't be redundant entries when mapping to the same UniProtKB accession with different isoform information.
+
+    Parameters
+    ----------
+    id_string : str
+        String of accessions separated by a separator
+    id_sep : str
+        Separator for multiple accessions in the same cell (default is ';')
+    
+    Returns
+    -------
+    string
+        String of unique UniProtKB accessions separated by the same separator, with isoform information removed
+    """
+    if id_sep is not None:
+        accessions = id_string.split(id_sep)
+        unique_accessions = np.unique([acc.split('-')[0] for acc in accessions])
+        return id_sep.join(unique_accessions)
+    else:
+        return id_string.split('-')[0]

@@ -7,7 +7,7 @@ import os
 import tqdm
 import numpy as np
 from kstar import config, helpers
-from kstar.dataset_processing import peptides
+from kstar.dataset_processing import peptides, accessions
 
 
 class ExperimentMapper:
@@ -43,6 +43,10 @@ class ExperimentMapper:
     data_columns: list, or empty
         The list of data columns to use. If this is empty, logger will look for anything that starts with statement data: and those values
         Default is None.
+    auto_convert_ids: boolean
+        Whether to attempt to automatically convert provided accessions if not in the expected UniProt format
+    auto_format_peptides: boolean
+        Whether to attempt to automatically reformat peptides that are not in the expected format (modified residues should be lowercase and only S, T, Y should be modified, no special characters). If reformating fails, will attempt to use site column if provided.
 
     
     Attributes
@@ -56,11 +60,13 @@ class ExperimentMapper:
     data_columns: list
         indicates which columns will be used as data
     
+    
 
     """ 
     #for documentation purposes convert non required parameters to kwargs
     #def __init__(self, experiment, columns, logger, *kwargs): 
-    def __init__(self, experiment, columns, odir='./', name = 'experiment', window = 7, data_columns = None, logger = None, sequences=None, compendia=None, show_taskbar = True, pep_format_separator = ';'): 
+    def __init__(self, experiment, columns, odir='./', name = 'experiment', window = 7, data_columns = None, logger = None, sequences=None, compendia=None, show_taskbar = True, prot_id_separator = ';', pep_format_separator = ';', auto_convert_ids = False, auto_format_peptides = False):
+
         self.experiment = experiment
         self.sequences = sequences if sequences is not None else config.HUMAN_REF_SEQUENCES
         self.compendia = compendia if compendia is not None else config.HUMAN_REF_COMPENDIA
@@ -69,6 +75,14 @@ class ExperimentMapper:
 
         if 'peptide' not in columns.keys() and 'site' not in columns.keys():
             raise ValueError('ExperimentMapper requires either site or peptide as keys in dictionary')
+        
+        if 'accession_id' not in columns.keys():
+                raise ValueError('ExperimentMapper requires accession_id as a dictionary key')
+        
+            #check to make sure provided columns exist
+        for key in columns.keys():
+            if columns[key] not in self.experiment.columns:
+                raise ValueError(f"Provided column '{columns[key]}' for '{key}' not found in experiment dataframe columns.")
 
         #set up logger
         #if directory doesn't exist yet, create it
@@ -89,20 +103,35 @@ class ExperimentMapper:
             return '-'.join(acc)
         
         print('Processing provided accessions...')
-        if 'accession_id' not in columns.keys():
-            raise ValueError('ExperimentMapper requires accession_id as a dictionary key')
-        else:
-            #check if accession column has NaN values
-            if self.experiment[columns['accession_id']].isna().any():
-                self.logger.warning("NaN values found in accession ID column. These rows will be removed during mapping.")
-                self.experiment = self.experiment.dropna(subset=[columns['accession_id']]).copy()
-            
-            #check if accession column has multiple accessions separated by ';'. If so, separate into unique rows
-            if self.experiment[columns['accession_id']].str.contains(';').any():
-                self.logger.warning("Multiple accession IDs found in some rows. These will be split into multiple rows for mapping.")
-                self.experiment[columns['accession_id']] = self.experiment[columns['accession_id']].str.split(';')
-                self.experiment = self.experiment.explode(columns['accession_id']).reset_index(drop=True).copy()
-            self.experiment[config.KSTAR_ACCESSION] = self.experiment[columns['accession_id']].apply(set_accession_id) 
+
+
+        #check if accession column has NaN values
+        if self.experiment[columns['accession_id']].isna().any():
+            self.logger.warning("NaN values found in accession ID column. These rows will be removed during mapping.")
+            self.experiment = self.experiment.dropna(subset=[columns['accession_id']]).copy()
+        
+        #check if accession column has multiple accessions separated by ';'. If so, separate into unique rows
+        if self.experiment[columns['accession_id']].str.contains(prot_id_separator).any():
+            self.logger.warning("Multiple accession IDs found in some rows. These will be split into multiple rows for mapping.")
+            self.experiment[columns['accession_id']] = self.experiment[columns['accession_id']].str.split(prot_id_separator)
+            self.experiment = self.experiment.explode(columns['accession_id']).reset_index(drop=True).copy()
+
+        #check if IDs need to be converted to match reference accessions
+        if auto_convert_ids:
+            accession_types = np.unique(self.experiment.apply(lambda x: accessions.identify_accession_type_in_row(x, columns['accession_id'], id_sep=None), axis=1))
+            if len(accession_types) > 1:
+                self._report_warning('Multiple types of accession IDs found in the accession_id column, rather than just the expected SwissProt accession IDs. Attempting to convert all accessions using UniProt REST API to match IDs in reference.')
+                self.experiment, missed = accessions.automatic_id_conversion(self.experiment, accession_col = columns['accession_id'], remove_unmapped = True, id_sep = None)
+                columns['accession_id'] = 'Accession'
+            elif accession_types[0] != 'UniProtKB':
+                self._report_warning(f"Accession IDs in the accession_id column appear to be {accession_types[0]} instead of UniProtKB accessions used in reference. Attempting to convert all accessions using UniProt REST API to match reference accessions.")
+                self.experiment, missed = accessions.automatic_id_conversion(self.experiment, accession_col = columns['accession_id'], remove_unmapped = True, id_sep = None)
+                columns['accession_id'] = 'Accession'
+            else:
+                self._report_info("All accession IDs are in the correct format.")
+
+
+        self.experiment[config.KSTAR_ACCESSION] = self.experiment[columns['accession_id']].apply(set_accession_id) 
 
         if 'peptide' in columns.keys():
             #check if peptide column has NaN values
@@ -112,13 +141,53 @@ class ExperimentMapper:
 
             #check format
             pep_check = self.experiment[columns['peptide']].apply(lambda x: peptides.check_peptide_format(x, pep_format_separator)).all()
-            if not pep_check and 'site' not in columns.keys():
-                raise peptides.PeptideSequenceFormat('Peptide column provided but not in the correct format (modified residues should be lowercase and only S, T, Y should be modified, no special characters). Please check the format of the peptide column. To reformat peptides, you can use the kstar.dataset_processing.peptides module.')
-            else:
-                self._report_warning('Some peptides are not in the correct format (modified residues should be lowercase and only S, T, Y should be modified, no special characters). Please check the format of the peptide column. To reformat peptides, you can use the kstar.dataset_processing.peptides module.')            
+            if not pep_check and auto_format_peptides: 
+                #if format is not correct, attempt to reformat if auto_convert is true
+                self._report_warning("Some peptides are not in the correct format (modified residues should be lowercase and only S, T, Y should be modified, no special characters). Attempting to reformat...")
+                try:
+                    tmp_experiment = self.experiment.copy()
+                    #separate multiple peptides if separator is present and attempt to reformat each one
+                    if tmp_experiment[columns['peptide']].apply(lambda x: pep_format_separator in str(x) if x == x else False).any():
+                        tmp_experiment[columns['peptide']] = tmp_experiment[columns['peptide']].apply(lambda x: x.split(pep_format_separator) if isinstance(x, str) else x)
+                        tmp_experiment = tmp_experiment.explode(columns['peptide'])
+                        tmp_experiment[columns['peptide']] = tmp_experiment[columns['peptide']].apply(lambda x: x.strip() if isinstance(x, str) else x)
+
+
+                    #format peptides for KSTAR
+                    tmp_experiment = peptides.format_peptide_from_df(tmp_experiment, columns['peptide'], new_peptide_col = 'Formatted Peptide')
+                    #set peptide column to formatted peptide column and update columns dictionary
+                    columns['peptide'] = 'Formatted Peptide'
+
+                    #save experiment and new columns
+                    self.experiment = tmp_experiment.copy()
+                    pep_check = True
+                except peptides.PeptideSequenceError as pse:
+                    if 'site' not in columns.keys():
+                        raise peptides.PeptideSequenceError("Unable to reformat automatically. Primary issue detected: " + str(pse) + " Additionally, site column not provided, so cannot attempt to use site column instead. Please check the format of the peptide column.")
+                    else:
+                        self.logger.warning("Unable to reformat automatically. Primary issue detected: " + str(pse) + "Attempting to use site column instead")
+                except Exception as e:
+                    if 'site' not in columns.keys():
+                        message = "Unable to reformat automatically. Primary issue detected: " + str(e) + " Additionally, site column not provided, so cannot attempt to use site column instead. Please check the format of the peptide column."
+                        #raise exception
+                        raise Exception(message)
+                    else:
+                        self.logger.warning("Unable to reformat automatically. Primary issue detected: " + str(e) + " Attempting to use site column instead")
+
+            #throw error if peptide column is not in correct format and site column is not provided
+            if 'site' not in columns.keys() and not pep_check:
+                raise peptides.PeptideSequenceError('Peptide column provided but not in the correct format (modified residues should be lowercase and only S, T, Y should be modified, no special characters). Please check the format of the peptide column. To reformat peptides, you can either set auto_format_peptides=True or use the kstar.dataset_processing.peptides module.')
+            elif not pep_check:
+
+                self.columns.pop('peptide')
+
+                
+            #elif not pep_check:
+            #    self._report_warning('Some peptides are not in the correct format (modified residues should be lowercase and only S, T, Y should be modified, no special characters). Please check the format of the peptide column. To reformat peptides, you can use the kstar.dataset_processing.peptides module.')    
+
             
             #separate if multiple peptides are present in a cell
-            if self.experiment[columns['peptide']].str.contains(pep_format_separator).any():
+            elif self.experiment[columns['peptide']].str.contains(pep_format_separator).any():
                 self.logger.warning("Multiple peptides found in some rows. These will be split into multiple rows for mapping.")
                 self.experiment[columns['peptide']] = self.experiment[columns['peptide']].str.split(pep_format_separator)
                 self.experiment = self.experiment.explode(columns['peptide']).reset_index(drop=True).copy()
@@ -130,9 +199,13 @@ class ExperimentMapper:
         if 'site' in columns.keys():
             #check to make sure site column is in correct format
             site_check = self.experiment[columns['site']].apply(lambda x: peptides.check_site_format(x)).all()
+            if not site_check:
+                columns.pop('site')
+        else:
+            site_check = False
 
         if not pep_check and not site_check:
-            raise peptides.PeptideSequenceFormat('Peptide/site columns provided but are not in the correct format. Please make sure that the peptide column has modified residues in lowercase and only S, T, Y are modified, and that the site column is in the format S/T/Y<pos>, e.g. Y15 or S345. Only one is required, but peptide is recommended for more accurate mapping to reference. To reformat peptides/sites, you can use the kstar.dataset_processing.peptides module.')
+            raise peptides.PeptideSequenceError('Peptide/site columns provided but are not in the correct format. Please make sure that the peptide column has modified residues in lowercase and only S, T, Y are modified, and that the site column is in the format S/T/Y<pos>, e.g. Y15 or S345. Only one is required, but peptide is recommended for more accurate mapping to reference. To reformat peptides/sites, you can use the kstar.dataset_processing.peptides module.')
 
 
        
@@ -150,8 +223,11 @@ class ExperimentMapper:
         accession_not_found['Error'] = 'Accession not present in reference'
         self.not_mapped = pd.concat([self.not_mapped, accession_not_found], ignore_index=True)
 
-        #keep only those accessions that are found in compendia
+        #check for accessions that are not found in compendia
         self.experiment = self.experiment[self.experiment[config.KSTAR_ACCESSION].isin(self.compendia[config.KSTAR_ACCESSION])]
+        if len(self.experiment) == 0:
+            raise ValueError("No accessions in experiment were found in reference compendia, cannot proceed with mapping. Please check that the accession IDs are correct and in the expected format, and that they match the reference accessions. If they are not in the expected format, you can attempt to use automatic ID conversion by setting auto_convert_ids to True when initializing ExperimentMapper.")
+        
         print('Aligning peptides/sites to reference sequences...')
         #align peptides/sites to reference sequences
         self.align_sites(window, show_taskbar=show_taskbar)
@@ -184,6 +260,18 @@ class ExperimentMapper:
         self.columns = columns
 
         print('Mapping complete.')
+
+    def _report_info(self, message):
+        """
+        Reports an info message to both the logger and standard output
+
+        Parameters
+        ----------
+        message : str
+            info message to report
+        """
+        print(message)
+        self.logger.info(message)
 
     def _report_warning(self, message):
         """
@@ -399,6 +487,9 @@ class ExperimentMapper:
 
 
 def check_single_peptide_format(peptide):
+    """
+    Checks that a single peptide is in the correct format, where only letters are used and that only lowercased letters are S, T, or Y.
+    """
     #make sure only letters are used and that only lowercased letters are S, T, or Y
     if not isinstance(peptide, str):
         return False
@@ -414,6 +505,9 @@ def check_single_peptide_format(peptide):
 
 
 def check_peptide_format(peptide, separator = ';'):
+    """
+    Checks that a peptide or peptides are in the correct format, where only letters are used and that only lowercased letters are S, T, or Y. If multiple peptides are present, they should be separated by a separator (default is ';') and each peptide will be checked for correct format.
+    """
     #make sure only letters are used and that only lowercased letters are S, T, or Y
     if not isinstance(peptide, str):
         return False
@@ -559,7 +653,7 @@ def peptide_site_number(peptide, sequence, site = None, modification_types = Non
     if len(mod_sites) == 0:
         return None
 
-    peptide_locations = find_peptide_locations(peptide.upper(), sequence) 
+    #peptide_locations = find_peptide_locations(peptide.upper(), sequence) 
 
 
     relative_location = mod_sites[0][1] # only looking at first mod site location
@@ -568,7 +662,7 @@ def peptide_site_number(peptide, sequence, site = None, modification_types = Non
     # get all locations where peptide appears in sequence
     peptide_locations = find_peptide_locations(peptide.upper(), sequence) 
     if len(peptide_locations)>0:
-        if site is not None:
+        if isinstance(site, str):
             # get closest peptide location to provided site
             site_num = int(re.sub("[^0-9]", "", str(site))) #remove all letters and make int
             closeness = np.inf
