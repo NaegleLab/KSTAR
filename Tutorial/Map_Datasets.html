@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Map Dataset to Reference &#8212; KSTAR 1.1.1 documentation</title>
+    <title>Map Dataset to Reference &#8212; KSTAR 1.2.0 documentation</title>
   
   
   
@@ -37,7 +37,7 @@
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
   <script src="../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
 
-    <script src="../_static/documentation_options.js?v=bee7790f"></script>
+    <script src="../_static/documentation_options.js?v=db04a367"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
@@ -136,7 +136,7 @@
   
   
   
-    <p class="title logo__title">KSTAR 1.1.1 documentation</p>
+    <p class="title logo__title">KSTAR 1.2.0 documentation</p>
   
 </a></div>
         <div class="sidebar-primary-item">
@@ -165,6 +165,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../Galaxy/Running_KSTAR.html">Run KSTAR on Galaxy</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../Galaxy/Analyzing_Results.html">Analyze Results</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../Galaxy/Troubleshooting_Galaxy.html">Troubleshooting the KSTAR Tool</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Galaxy/FAQ.html">Frequently Asked Questions about Tool</a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Python Tutorial (Just the Basics):</span></p>
 <ul class="current nav bd-sidenav">
@@ -572,7 +573,7 @@ document.write(`
 <li><p><em>peptide</em>: amino acid sequence with phosphorylation sites lowercased</p></li>
 <li><p><em>site</em>: modified amino acid + modification location, such as Y11</p></li>
 </ul>
-<p>It is recommended to use the peptide sequence when possible.</p>
+<p>It is recommended to use the peptide sequence when possible. If your data is not in the correct format, you can optionally set <code class="docutils literal notranslate"><span class="pre">auto_format_peptides=True</span></code> to have KSTAR attempt to convert your peptide sequences to the correct format and/or <code class="docutils literal notranslate"><span class="pre">auto_convert_ids=True</span></code> to have KSTAR attempt to convert you accessions to UniProtKB accessions.</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
 </pre></div>
@@ -581,6 +582,8 @@ document.write(`
 <span class="n">accession_col</span> <span class="o">=</span> <span class="s1">&#39;query_accession&#39;</span>
 <span class="n">peptide_col</span> <span class="o">=</span> <span class="s1">&#39;peptide&#39;</span>
 <span class="n">mapDict</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;accession_id&#39;</span><span class="p">:</span><span class="s1">&#39;query_accession&#39;</span><span class="p">,</span> <span class="s1">&#39;peptide&#39;</span><span class="p">:</span><span class="s1">&#39;peptide&#39;</span><span class="p">}</span>
+<span class="n">auto_format_peptides</span> <span class="o">=</span> <span class="kc">False</span>
+<span class="n">auto_convert_ids</span><span class="o">=</span> <span class="kc">False</span>
 </pre></div>
 </div>
 </div>
@@ -593,7 +596,9 @@ document.write(`
 <span class="n">exp_mapper</span> <span class="o">=</span> <span class="n">mapping</span><span class="o">.</span><span class="n">ExperimentMapper</span><span class="p">(</span><span class="n">experiment</span> <span class="o">=</span> <span class="n">df</span><span class="p">,</span>
                                       <span class="n">columns</span> <span class="o">=</span> <span class="n">mapDict</span><span class="p">,</span>
                                       <span class="n">odir</span> <span class="o">=</span> <span class="n">odir</span><span class="p">,</span>
-                                      <span class="n">name</span> <span class="o">=</span> <span class="n">name</span><span class="p">)</span>
+                                      <span class="n">name</span> <span class="o">=</span> <span class="n">name</span><span class="p">,</span>
+                                      <span class="n">auto_convert_ids</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                                      <span class="n">auto_format_peptides</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -604,6 +609,7 @@ document.write(`
 <div class="highlight"><pre>
 Warning: Could not find network directory as specified in configuration file. If you have not downloaded networks, please do so using config.install_network_files(). If using your own networks, please update the configuration file using config.update_configuration() to point to correct directory and network name
 Processing provided accessions...
+Checking peptide column format...
 Aligning peptides/sites to reference sequences...
 </pre></div></div>
 </div>
@@ -612,7 +618,7 @@ Aligning peptides/sites to reference sequences...
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-Mapping peptides/sites to reference sequences: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████| 689/689 [00:00&lt;00:00, 1401.88it/s]
+Mapping peptides/sites to reference sequences: 100%|████████████████████████| 689/689 [00:00&lt;00:00, 1839.39it/s]
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">

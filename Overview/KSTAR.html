@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>KSTAR Reference &#8212; KSTAR 1.1.1 documentation</title>
+    <title>KSTAR Reference &#8212; KSTAR 1.2.0 documentation</title>
   
   
   
@@ -36,7 +36,7 @@
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
   <script src="../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
 
-    <script src="../_static/documentation_options.js?v=bee7790f"></script>
+    <script src="../_static/documentation_options.js?v=db04a367"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
@@ -133,7 +133,7 @@
   
   
   
-    <p class="title logo__title">KSTAR 1.1.1 documentation</p>
+    <p class="title logo__title">KSTAR 1.2.0 documentation</p>
   
 </a></div>
         <div class="sidebar-primary-item">
@@ -162,6 +162,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../Galaxy/Running_KSTAR.html">Run KSTAR on Galaxy</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../Galaxy/Analyzing_Results.html">Analyze Results</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../Galaxy/Troubleshooting_Galaxy.html">Troubleshooting the KSTAR Tool</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Galaxy/FAQ.html">Frequently Asked Questions about Tool</a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Python Tutorial (Just the Basics):</span></p>
 <ul class="nav bd-sidenav">
@@ -496,16 +497,8 @@ document.write(`
 </li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#the-kstar-pdf-class">The “KSTAR_PDF” class</a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#kstar.plot.KSTAR_PDF"><code class="docutils literal notranslate"><span class="pre">KSTAR_PDF</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#kstar.plot.KSTAR_PDF.create_dotplot"><code class="docutils literal notranslate"><span class="pre">KSTAR_PDF.create_dotplot()</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#kstar.plot.KSTAR_PDF.dotplot_page"><code class="docutils literal notranslate"><span class="pre">KSTAR_PDF.dotplot_page()</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#kstar.plot.KSTAR_PDF.evidence_count_plot"><code class="docutils literal notranslate"><span class="pre">KSTAR_PDF.evidence_count_plot()</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#kstar.plot.KSTAR_PDF.evidence_overlap_plot"><code class="docutils literal notranslate"><span class="pre">KSTAR_PDF.evidence_overlap_plot()</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#kstar.plot.KSTAR_PDF.evidence_page"><code class="docutils literal notranslate"><span class="pre">KSTAR_PDF.evidence_page()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#kstar.plot.KSTAR_PDF.footer"><code class="docutils literal notranslate"><span class="pre">KSTAR_PDF.footer()</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#kstar.plot.KSTAR_PDF.generate"><code class="docutils literal notranslate"><span class="pre">KSTAR_PDF.generate()</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#kstar.plot.KSTAR_PDF.summary_page"><code class="docutils literal notranslate"><span class="pre">KSTAR_PDF.summary_page()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#kstar.plot.KSTAR_PDF.table"><code class="docutils literal notranslate"><span class="pre">KSTAR_PDF.table()</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#kstar.plot.KSTAR_PDF.top_kinases_table"><code class="docutils literal notranslate"><span class="pre">KSTAR_PDF.top_kinases_table()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -979,9 +972,8 @@ including the parameters used for generation. Primarily used when running bash s
 <h2>The “ExperimentMapper” class<a class="headerlink" href="#the-experimentmapper-class" title="Link to this heading">#</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="kstar.mapping.ExperimentMapper">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">kstar.mapping.</span></span><span class="sig-name descname"><span class="pre">ExperimentMapper</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">experiment</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">columns</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">odir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'./'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'experiment'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">window</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">7</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_columns</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sequences</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">compendia</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kstar.mapping.ExperimentMapper" title="Link to this definition">#</a></dt>
-<dd><p>Given an experiment object and reference sequences, map the phosphorylation sites to the common reference.
-Inputs</p>
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">kstar.mapping.</span></span><span class="sig-name descname"><span class="pre">ExperimentMapper</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">experiment</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">columns</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">odir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'./'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'experiment'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">window</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">7</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_columns</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sequences</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">compendia</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show_taskbar</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prot_id_separator</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">';'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pep_format_separator</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">';'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">auto_convert_ids</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">auto_format_peptides</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kstar.mapping.ExperimentMapper" title="Link to this definition">#</a></dt>
+<dd><p>Given an experiment object and reference sequences, map the phosphorylation sites to the common reference.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
@@ -1012,6 +1004,10 @@ Default is 7.</p>
 <dt><strong>data_columns: list, or empty</strong></dt><dd><p>The list of data columns to use. If this is empty, logger will look for anything that starts with statement data: and those values
 Default is None.</p>
 </dd>
+<dt><strong>auto_convert_ids: boolean</strong></dt><dd><p>Whether to attempt to automatically convert provided accessions if not in the expected UniProt format</p>
+</dd>
+<dt><strong>auto_format_peptides: boolean</strong></dt><dd><p>Whether to attempt to automatically reformat peptides that are not in the expected format (modified residues should be lowercase and only S, T, Y should be modified, no special characters). If reformating fails, will attempt to use site column if provided.</p>
+</dd>
 </dl>
 </dd>
 <dt class="field-even">Attributes<span class="colon">:</span></dt>
@@ -1030,7 +1026,7 @@ Default is None.</p>
 <p class="rubric">Methods</p>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#kstar.mapping.ExperimentMapper.align_sites" title="kstar.mapping.ExperimentMapper.align_sites"><code class="xref py py-obj docutils literal notranslate"><span class="pre">align_sites</span></code></a>([window])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#kstar.mapping.ExperimentMapper.align_sites" title="kstar.mapping.ExperimentMapper.align_sites"><code class="xref py py-obj docutils literal notranslate"><span class="pre">align_sites</span></code></a>([window, show_taskbar])</p></td>
 <td><p>Map the peptide/sites to the common sequence reference and remove and report errors for sites that do not align as expected.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#kstar.mapping.ExperimentMapper.get_experiment" title="kstar.mapping.ExperimentMapper.get_experiment"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_experiment</span></code></a>()</p></td>
@@ -1059,7 +1055,7 @@ Default is None.</p>
 </div>
 <dl class="py method">
 <dt class="sig sig-object py" id="kstar.mapping.ExperimentMapper.align_sites">
-<span class="sig-name descname"><span class="pre">align_sites</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">window</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">7</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kstar.mapping.ExperimentMapper.align_sites" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">align_sites</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">window</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">7</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show_taskbar</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kstar.mapping.ExperimentMapper.align_sites" title="Link to this definition">#</a></dt>
 <dd><p>Map the peptide/sites to the common sequence reference and remove and report errors for sites that do not align as expected.
 expMapper.align_sites(window=7). Operates on the experiment dataframe of class.</p>
 <dl class="field-list simple">
@@ -1281,7 +1277,7 @@ the Mann Whitney U-test</p>
 </div>
 <dl class="py method">
 <dt class="sig sig-object py" id="kstar.calculate.KinaseActivity.calculate_kinase_activities">
-<span class="sig-name descname"><span class="pre">calculate_kinase_activities</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">agg</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'mean'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">evidence_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">greater</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_evidence_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">PROCESSES</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kstar.calculate.KinaseActivity.calculate_kinase_activities" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">calculate_kinase_activities</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">agg</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'mean'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">evidence_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">greater</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_evidence_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">PROCESSES</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kstar.calculate.KinaseActivity.calculate_kinase_activities" title="Link to this definition">#</a></dt>
 <dd><p>Calculates combined activity of experiments based that uses a threshold value to determine if an experiment sees a site or not
 To use values use ‘mean’ as agg</p>
 <blockquote>
@@ -1294,7 +1290,7 @@ To use values use ‘mean’ as agg</p>
 <dt><strong>data_columns</strong><span class="classifier">list</span></dt><dd><p>columns that represent experimental result, if None, takes the columns that start with <a href="#id1"><span class="problematic" id="id2">`</span></a>data:’’ in experiment.
 Pass this value in as a list, if seeking to calculate on fewer than all available data columns</p>
 </dd>
-<dt><strong>threshold</strong><span class="classifier">float</span></dt><dd><p>threshold value used to filter rows</p>
+<dt><strong>threshold</strong><span class="classifier">float or ‘auto’</span></dt><dd><p>threshold value used to filter rows. If ‘auto’, threshold will be automatically determined using the recommend threshold function for each dataset</p>
 </dd>
 <dt><strong>evidence_size</strong><span class="classifier">int or None</span></dt><dd><p>the number of sites to use for prediction for each sample. If a value is provided, this will override the threshold, and will instead obtain the N sites with the greatest abundance within each sample (or lowest if greater=False).</p>
 </dd>
@@ -1310,6 +1306,8 @@ Pass this value in as a list, if seeking to calculate on fewer than all availabl
 <dt><strong>min_evidence_size</strong><span class="classifier">int</span></dt><dd><p>minimum number of sites required for a data column to be considered for activity calculation</p>
 </dd>
 <dt><strong>PROCESSES</strong><span class="classifier">int</span></dt><dd><p>number of processes to use for multiprocessing</p>
+</dd>
+<dt><strong>**kwargs:</strong></dt><dd><p>only relevant if threshold is set to ‘auto’. Additional parameters to pass to the recommend_threshold function, such as method for determining threshold and parameters for that method.</p>
 </dd>
 </dl>
 </dd>
@@ -1339,7 +1337,7 @@ duplicates and considering whether a site is included as evidence or not</p>
 <dl class="field-list">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl>
-<dt><strong>threshold</strong><span class="classifier">float</span></dt><dd><p>threshold value used to filter rows</p>
+<dt><strong>threshold</strong><span class="classifier">float, list</span></dt><dd><p>threshold value used to filter rows</p>
 </dd>
 <dt><strong>evidence_size: None or int</strong></dt><dd><p>the number of sites to use for prediction for each sample. If a value is provided, this will override the threshold, and will instead obtain the N sites with the greatest abundance within each sample.</p>
 </dd>
@@ -1400,7 +1398,7 @@ This is uniquified and rows that are never used are removed.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="kstar.calculate.KinaseActivity.get_random_activities">
-<span class="sig-name descname"><span class="pre">get_random_activities</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_random_experiments</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">150</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_pregenerated_random_activities</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default_pregen_only</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_new_random_activities</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">custom_pregenerated_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_random_experiments</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">require_pregenerated</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_diff_from_pregenerated</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.25</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_dataset_size_for_pregenerated</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">150</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">PROCESSES</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kstar.calculate.KinaseActivity.get_random_activities" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">get_random_activities</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_random_experiments</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">150</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_pregenerated_random_activities</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default_pregen_only</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_new_random_activities</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">custom_pregenerated_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_random_experiments</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">require_pregenerated</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_diff_from_pregenerated</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.25</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_dataset_size_for_pregenerated</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">50</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show_taskbar</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">PROCESSES</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kstar.calculate.KinaseActivity.get_random_activities" title="Link to this definition">#</a></dt>
 <dd><p>Generate random experiments and calculate kinase activities.Either uses pre-generated activity lists or
 generates new random experiments based on the provided parameters.</p>
 <dl class="field-list simple">
@@ -1562,7 +1560,7 @@ be all columns that start with data:</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="kstar.calculate.KinaseActivity.test_threshold_range">
-<span class="sig-name descname"><span class="pre">test_threshold_range</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">min_threshold</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_threshold</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">step</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">agg</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'mean'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">greater</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_evidence_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">desired_evidence_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show_recommended</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kstar.calculate.KinaseActivity.test_threshold_range" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">test_threshold_range</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">min_threshold</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_threshold</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">step</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">agg</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'mean'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">greater</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_evidence_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">desired_evidence_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">desired_similarity</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show_recommended</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kstar.calculate.KinaseActivity.test_threshold_range" title="Link to this definition">#</a></dt>
 <dd><p>Given a range of threshold values, calculate the distribution of evidence sizes (i.e. number of sites used in prediction for each sample in the experiment) and Jaccard similarity between samples at each threshold</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -1581,6 +1579,8 @@ be all columns that start with data:</p>
 </dd>
 <dt><strong>desired_evidence_size: int or None</strong></dt><dd><p>target evidence size to use for plotting. If None, will use 150 for phospho_type ‘Y’ and 1500 for phospho_type ‘ST’</p>
 </dd>
+<dt><strong>desired_similarity: float or None</strong></dt><dd><p>target similarity to use for plotting. If None, will use 0.6 for phospho_type ‘Y’ and 0.7 for phospho_type ‘ST’</p>
+</dd>
 <dt><strong>show_recommended: bool</strong></dt><dd><p>whether to show recommended evidence size and similarity lines on the plots</p>
 </dd>
 </dl>
@@ -1595,7 +1595,7 @@ be all columns that start with data:</p>
 <span id="master-functions-for-running-kstar-pipeline"></span><h3>Master Functions for Running KSTAR Pipeline<a class="headerlink" href="#module-kstar.calculate" title="Link to this heading">#</a></h3>
 <dl class="py function">
 <dt class="sig sig-object py" id="kstar.calculate.Mann_Whitney_analysis">
-<span class="sig-prename descclassname"><span class="pre">kstar.calculate.</span></span><span class="sig-name descname"><span class="pre">Mann_Whitney_analysis</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">kinact_dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">PROCESSES</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kstar.calculate.Mann_Whitney_analysis" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">kstar.calculate.</span></span><span class="sig-name descname"><span class="pre">Mann_Whitney_analysis</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">kinact_dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show_taskbar</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">PROCESSES</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kstar.calculate.Mann_Whitney_analysis" title="Link to this definition">#</a></dt>
 <dd><p>For a kinact_dict, where random generation and activity has already been run for the phospho_types of interest,
 this will calculate the Mann-Whitney U test for comparing the array of p-values for real data
 to those of random data, across the number of networks used.
@@ -1667,7 +1667,7 @@ activity summary (see summarize_activities)</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="kstar.calculate.randomized_analysis">
-<span class="sig-prename descclassname"><span class="pre">kstar.calculate.</span></span><span class="sig-name descname"><span class="pre">randomized_analysis</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">kinact_dict</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kstar.calculate.randomized_analysis" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">kstar.calculate.</span></span><span class="sig-name descname"><span class="pre">randomized_analysis</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">kinact_dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show_taskbar</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kstar.calculate.randomized_analysis" title="Link to this definition">#</a></dt>
 <dd><p>Perform randomized analysis on kinase activity data.</p>
 <dl class="field-list">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -1713,7 +1713,7 @@ num_random_experiments : int, optional</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="kstar.calculate.run_kstar_analysis">
-<span class="sig-prename descclassname"><span class="pre">kstar.calculate.</span></span><span class="sig-name descname"><span class="pre">run_kstar_analysis</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">experiment</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">odir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'experiment'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">phospho_types</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">['Y',</span> <span class="pre">'ST']</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_columns</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">evidence_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">greater</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_output</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">PROCESSES</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kstar.calculate.run_kstar_analysis" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">kstar.calculate.</span></span><span class="sig-name descname"><span class="pre">run_kstar_analysis</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">experiment</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">odir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'experiment'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">phospho_types</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">['Y',</span> <span class="pre">'ST']</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kinases</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_columns</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">evidence_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">greater</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">agg</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'mean'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_evidence_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">allow_column_loss</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_output</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show_taskbar</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">PROCESSES</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kstar.calculate.run_kstar_analysis" title="Link to this definition">#</a></dt>
 <dd><p>Given a mapped experiment, run the KSTAR analysis pipeline.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -1726,21 +1726,27 @@ num_random_experiments : int, optional</p>
 </dd>
 <dt><strong>phospho_types: list</strong></dt><dd><p>List of phospho types to analyze</p>
 </dd>
-<dt><strong>network_dir: string</strong></dt><dd><p>Directory containing network data</p>
+<dt><strong>kinases: list or dict</strong></dt><dd><p>List of kinases to analyze, or dictionary with keys for each phospho_type and values as lists of kinases to analyze for each phospho_type. If None, will run on all kinases in the network.</p>
 </dd>
 <dt><strong>data_columns: list</strong></dt><dd><p>Columns to use from the data</p>
 </dd>
 <dt><strong>agg: string</strong></dt><dd><p>Aggregation method</p>
 </dd>
-<dt><strong>threshold: float</strong></dt><dd><p>Threshold for analysis</p>
+<dt><strong>threshold: float, list, or dict</strong></dt><dd><p>Threshold cutoff for determining evidence for each column. Can be provided as a single float value, a list of float values, or dictionary with keys for each phospho_type (if you want to use different thresholds for each phosphotype)</p>
 </dd>
-<dt><strong>evidence_size: int</strong></dt><dd><p>Size of evidence</p>
+<dt><strong>evidence_size: int</strong></dt><dd><p>Number of phosphosites to use as evidence for analysis, which will overide thresholding if provided. Can be provided as a single int value, a list of int values, or dictionary with keys for each phospho_type (if you want to use different evidence sizes for each phosphotype)</p>
 </dd>
-<dt><strong>greater: bool</strong></dt><dd><p>Whether to use greater comparison</p>
+<dt><strong>greater: bool</strong></dt><dd><p>Whether to use sites with values greater than or equal to the threshold (True, default) or less than or equal to the threshold (False) as evidence. If using evidence_size, this will determine whether to take the top N sites with values greater than or equal to the threshold (True) or less than or equal to the threshold (False)</p>
+</dd>
+<dt><strong>agg: string</strong></dt><dd><p>Method for aggregating quantification values for duplicate site entries in the datset</p>
+</dd>
+<dt><strong>min_evidence_size: int</strong></dt><dd><p>Minimum size of evidence required to run kinase activity analysis on a column</p>
+</dd>
+<dt><strong>allow_column_loss: bool</strong></dt><dd><p>Whether to allow columns to be removed if they do not fit desired criteria after evidence selection</p>
 </dd>
 <dt><strong>PROCESSES: int</strong></dt><dd><p>Number of processes to use</p>
 </dd>
-<dt><strong>**kwargs</strong></dt><dd><p>Additional keyword arguments for enrichment_analysis, randomized_analysis, and save_kstar functions.</p>
+<dt><strong>**kwargs</strong></dt><dd><p>Additional keyword arguments for KinaseActivity initialization, run, and save.</p>
 </dd>
 </dl>
 </dd>
@@ -2133,26 +2139,10 @@ is in place</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="kstar.plot.KSTAR_PDF">
 <em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">kstar.plot.</span></span><span class="sig-name descname"><span class="pre">KSTAR_PDF</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">activities</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fpr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">odir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">binarized_experiment</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">param_dict</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kstar.plot.KSTAR_PDF" title="Link to this definition">#</a></dt>
-<dd><p>Class to generate a PDF report from KSTAR analysis results, built on fdpf2 module</p>
+<dd><p>Class to generate a PDF report from KSTAR analysis results.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Attributes<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
-<dt><strong>activities</strong><span class="classifier">pandas DataFrame</span></dt><dd><p>DataFrame of mann whitney kinase activities</p>
-</dd>
-<dt><strong>fpr</strong><span class="classifier">pandas DataFrame</span></dt><dd><p>DataFrame of false positive rates corresponding to activities</p>
-</dd>
-<dt><strong>odir</strong><span class="classifier">str</span></dt><dd><p>Output directory for saving the PDF report</p>
-</dd>
-<dt><strong>name</strong><span class="classifier">str</span></dt><dd><p>Name of the experiment/run, used for file naming</p>
-</dd>
-<dt><strong>binarized_experiment</strong><span class="classifier">pandas DataFrame</span></dt><dd><p>Binarized experiment indicating which sites were used as evidence in each column</p>
-</dd>
-<dt><strong>param_dict</strong><span class="classifier">dict</span></dt><dd><p>Dictionary of parameters used in the KSTAR run</p>
-</dd>
-</dl>
-</dd>
-<dt class="field-even">Attributes<span class="colon">:</span></dt>
-<dd class="field-even"><dl class="simple">
 <dt><strong>MARKDOWN_LINK_COLOR</strong></dt><dd></dd>
 <dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">accept_page_break</span></code></dt><dd><p>Whenever a page break condition is met, this <cite>&#64;property</cite> method is called, and the break is issued or not depending on the returned value.</p>
 </dd>
@@ -2162,7 +2152,7 @@ is in place</p>
 <dt><strong>current_font</strong></dt><dd></dd>
 <dt><strong>current_font_is_set_on_page</strong></dt><dd></dd>
 <dt><strong>dash_pattern</strong></dt><dd></dd>
-<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">default_page_dimensions</span></code></dt><dd><p>Return a pair (width, height) in the unit specified to FPDF constructor</p>
+<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">default_page_dimensions</span></code></dt><dd><p>Return a pair (width, height) in points units (1/72 of inch)</p>
 </dd>
 <dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">denom_lift</span></code></dt><dd><p>Return lift factor for denominator text.</p>
 </dd>
@@ -2215,6 +2205,12 @@ is in place</p>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">HTML2FPDF_CLASS</span></code></p></td>
 <td><p>alias of <code class="xref py py-class docutils literal notranslate"><span class="pre">HTML2FPDF</span></code></p></td>
 </tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">MultiCellHeightResult</span></code></p></td>
+<td><p>alias of <code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">MultiCellPageBreakResult</span></code></p></td>
+<td><p>alias of <code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></p></td>
+</tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_action</span></code>(action, x, y, w, h, **kwargs)</p></td>
 <td><p>Puts an Action annotation on a rectangular area of the page.</p></td>
 </tr>
@@ -2251,16 +2247,10 @@ is in place</p>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">code39</span></code>(text, x, y[, w, h])</p></td>
 <td><p>Barcode 3of9</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#kstar.plot.KSTAR_PDF.create_dotplot" title="kstar.plot.KSTAR_PDF.create_dotplot"><code class="xref py py-obj docutils literal notranslate"><span class="pre">create_dotplot</span></code></a>()</p></td>
-<td><p>Generate a standard activity dotplot for use in the PDF report</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">dashed_line</span></code>(x1, y1, x2, y2[, dash_length, ...])</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">dashed_line</span></code>(x1, y1, x2, y2[, dash_length, ...])</p></td>
 <td><p>Draw a dashed line between two points.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#kstar.plot.KSTAR_PDF.dotplot_page" title="kstar.plot.KSTAR_PDF.dotplot_page"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dotplot_page</span></code></a>([regenerate_plots])</p></td>
-<td><p>Create a PDF page that includes the KSTAR dotplot figure and information on where to find the figure and underlying data in the output directory</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">draw_path</span></code>(path[, debug_stream])</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">draw_path</span></code>(path[, debug_stream, copy])</p></td>
 <td><p>Add a pre-constructed path to the document.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">draw_vector_glyph</span></code>(path, font)</p></td>
@@ -2278,32 +2268,20 @@ is in place</p>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">embed_file</span></code>([file_path, bytes, basename, ...])</p></td>
 <td><p>Embed a file into the PDF as an attachment (and, for PDF/A-3 or PDF/A-4f, as an Associated File).</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#kstar.plot.KSTAR_PDF.evidence_count_plot" title="kstar.plot.KSTAR_PDF.evidence_count_plot"><code class="xref py py-obj docutils literal notranslate"><span class="pre">evidence_count_plot</span></code></a>(data_columns)</p></td>
-<td><p>Creates a barplot showing the number of sites used as evidence in each column of the experiment</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#kstar.plot.KSTAR_PDF.evidence_overlap_plot" title="kstar.plot.KSTAR_PDF.evidence_overlap_plot"><code class="xref py py-obj docutils literal notranslate"><span class="pre">evidence_overlap_plot</span></code></a>(data_columns)</p></td>
-<td><p>Creates a heatmap showing the Jaccard index of evidence overlap between columns in the experiment</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#kstar.plot.KSTAR_PDF.evidence_page" title="kstar.plot.KSTAR_PDF.evidence_page"><code class="xref py py-obj docutils literal notranslate"><span class="pre">evidence_page</span></code></a>([regenerate_plots])</p></td>
-<td><p>Create a PDF page that includes the total number of sites used as evidence for each column and the jaccard similarity of evidence between columns</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">file_attachment_annotation</span></code>(file_path, x, y)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">file_attachment_annotation</span></code>(file_path, x, y)</p></td>
 <td><p>Puts a file attachment annotation on a rectangular area of the page.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">file_id</span></code>()</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">file_id</span></code>()</p></td>
 <td><p>This method can be overridden in inherited classes in order to define a custom file identifier.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">font_face</span></code>()</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">font_face</span></code>()</p></td>
 <td><p>Return a <cite>fpdf.fonts.FontFace</cite> instance representing a subset of properties of this GraphicsState.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#kstar.plot.KSTAR_PDF.footer" title="kstar.plot.KSTAR_PDF.footer"><code class="xref py py-obj docutils literal notranslate"><span class="pre">footer</span></code></a>()</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#kstar.plot.KSTAR_PDF.footer" title="kstar.plot.KSTAR_PDF.footer"><code class="xref py py-obj docutils literal notranslate"><span class="pre">footer</span></code></a>()</p></td>
 <td><p>Override the footer method to add a page number at the bottom center of each page.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">free_text_annotation</span></code>(text[, x, y, w, h])</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">free_text_annotation</span></code>(text[, x, y, w, h])</p></td>
 <td><p>Puts a free text annotation on a rectangular area of the page.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#kstar.plot.KSTAR_PDF.generate" title="kstar.plot.KSTAR_PDF.generate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">generate</span></code></a>([regenerate_plots])</p></td>
-<td><p>Generates the PDF report by creating each page in sequence and saving the final PDF to the output directory</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_fallback_font</span></code>(char[, style])</p></td>
 <td><p>Returns which fallback font has the requested glyph.</p></td>
@@ -2533,40 +2511,37 @@ is in place</p>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">start_section</span></code>(name[, level, strict])</p></td>
 <td><p>Start a section in the document outline.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#kstar.plot.KSTAR_PDF.summary_page" title="kstar.plot.KSTAR_PDF.summary_page"><code class="xref py py-obj docutils literal notranslate"><span class="pre">summary_page</span></code></a>()</p></td>
-<td><p>Create a PDF page that indicates the parameters used in the KSTAR run and the key kinases identified for each column</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#kstar.plot.KSTAR_PDF.table" title="kstar.plot.KSTAR_PDF.table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">table</span></code></a>(data[, header, column_widths, row_height])</p></td>
+<td><p>Inserts a table, that can be built using the <cite>fpdf.table.Table</cite> object yield.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#kstar.plot.KSTAR_PDF.table" title="kstar.plot.KSTAR_PDF.table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">table</span></code></a>(data[, header, column_widths, row_height])</p></td>
-<td><p>Builds a table in the PDF</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">text</span></code>(x, y[, text])</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">text</span></code>(x, y[, text])</p></td>
 <td><p>Prints a character string.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">text_annotation</span></code>(x, y, text[, w, h, name])</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">text_annotation</span></code>(x, y, text[, w, h, name])</p></td>
 <td><p>Puts a text annotation on a rectangular area of the page.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">text_columns</span></code>([text, img, img_fill_width, ...])</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">text_columns</span></code>([text, img, img_fill_width, ...])</p></td>
 <td><p>Establish a layout with multiple columns to fill with text. Args:     text (str, optional): A first piece of text to insert. ncols (int, optional): the number of columns to create. (Default: 1). gutter (float, optional): The distance between the columns. (Default: 10). balance: (bool, optional): Specify whether multiple columns should end at approximately         the same height, if they don't fill the page. (Default: False)     text_align (Align or str, optional): The alignment of the text within the region. (Default: &quot;LEFT&quot;)     line_height (float, optional): A multiplier relative to the font size changing the         vertical space occupied by a line of text. (Default: 1.0). l_margin (float, optional): Override the current left page margin. r_margin (float, optional): Override the current right page margin. print_sh (bool, optional): Treat a soft-hyphen (u00ad) as a printable character,         instead of a line breaking opportunity. (Default: False)     wrapmode (fpdf.enums.WrapMode, optional): &quot;WORD&quot; for word based line wrapping,         &quot;CHAR&quot; for character based line wrapping. (Default: &quot;WORD&quot;)     skip_leading_spaces (bool, optional): On each line, any space characters at the         beginning will be skipped if True. (Default: False).</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#kstar.plot.KSTAR_PDF.top_kinases_table" title="kstar.plot.KSTAR_PDF.top_kinases_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">top_kinases_table</span></code></a>()</p></td>
-<td><p>Constructs a table of the top 5 most active significant kinases per sample and adds it to the PDF page</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">transform</span></code>(transform)</p></td>
+<td><p>Apply a transformation matrix to the current graphics state.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">unbreakable</span></code>()</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">unbreakable</span></code>()</p></td>
 <td><p>Ensures that all rendering performed in this context appear on a single page by performing page break beforehand if need be.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">use_font_face</span></code>(font_face)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">use_font_face</span></code>(font_face)</p></td>
 <td><p>Sets the provided <cite>fpdf.fonts.FontFace</cite> in a local context, then restore font settings back to they were initially.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">use_pattern</span></code>(shading)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">use_pattern</span></code>(shading)</p></td>
 <td><p>Create a context for using a shading pattern on the current page.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">will_page_break</span></code>(height)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">will_page_break</span></code>(height)</p></td>
 <td><p>Let you know if adding an element will trigger a page break, based on its height and the current ordinate (<cite>y</cite> position).</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">write</span></code>([h, text, link, print_sh, wrapmode])</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">write</span></code>([h, text, link, print_sh, wrapmode])</p></td>
 <td><p>Prints text from the current position.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">write_html</span></code>(text, *args, **kwargs)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">write_html</span></code>(text, *args, **kwargs)</p></td>
 <td><p>Parse HTML and convert it to PDF.</p></td>
 </tr>
 </tbody>
@@ -2574,10 +2549,34 @@ is in place</p>
 </div>
 <div class="pst-scrollable-table-container"><table class="table">
 <tbody>
-<tr class="row-odd"><td><p><strong>add_highlight</strong></p></td>
+<tr class="row-odd"><td><p><strong>MultiCellLinesResult</strong></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><strong>clear_text_region</strong></p></td>
+<tr class="row-even"><td><p><strong>add_highlight</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p><strong>clear_text_region</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><strong>create_dotplot</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p><strong>dotplot_page</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><strong>evidence_count_plot</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p><strong>evidence_overlap_plot</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><strong>evidence_page</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p><strong>filter_unicode_chars</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><strong>generate</strong></p></td>
 <td></td>
 </tr>
 <tr class="row-odd"><td><p><strong>is_current_text_region</strong></p></td>
@@ -2595,6 +2594,12 @@ is in place</p>
 <tr class="row-odd"><td><p><strong>set_xmp_metadata</strong></p></td>
 <td></td>
 </tr>
+<tr class="row-even"><td><p><strong>summary_page</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p><strong>top_kinases_table</strong></p></td>
+<td></td>
+</tr>
 <tr class="row-even"><td><p><strong>use_text_style</strong></p></td>
 <td></td>
 </tr>
@@ -2605,118 +2610,63 @@ is in place</p>
 </table>
 </div>
 <dl class="py method">
-<dt class="sig sig-object py" id="kstar.plot.KSTAR_PDF.create_dotplot">
-<span class="sig-name descname"><span class="pre">create_dotplot</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#kstar.plot.KSTAR_PDF.create_dotplot" title="Link to this definition">#</a></dt>
-<dd><p>Generate a standard activity dotplot for use in the PDF report</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="kstar.plot.KSTAR_PDF.dotplot_page">
-<span class="sig-name descname"><span class="pre">dotplot_page</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">regenerate_plots</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kstar.plot.KSTAR_PDF.dotplot_page" title="Link to this definition">#</a></dt>
-<dd><p>Create a PDF page that includes the KSTAR dotplot figure and information on where to find the figure and underlying data in the output directory</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><dl class="simple">
-<dt><strong>regenerate_plots</strong><span class="classifier">bool, optional</span></dt><dd><p>Whether to regenerate the dotplot figure even if it already exists in the output directory</p>
-</dd>
-</dl>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="kstar.plot.KSTAR_PDF.evidence_count_plot">
-<span class="sig-name descname"><span class="pre">evidence_count_plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_columns</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kstar.plot.KSTAR_PDF.evidence_count_plot" title="Link to this definition">#</a></dt>
-<dd><p>Creates a barplot showing the number of sites used as evidence in each column of the experiment</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><dl class="simple">
-<dt><strong>data_columns</strong><span class="classifier">list</span></dt><dd><p>List of column names in the experiment to include in the plot</p>
-</dd>
-</dl>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="kstar.plot.KSTAR_PDF.evidence_overlap_plot">
-<span class="sig-name descname"><span class="pre">evidence_overlap_plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_columns</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kstar.plot.KSTAR_PDF.evidence_overlap_plot" title="Link to this definition">#</a></dt>
-<dd><p>Creates a heatmap showing the Jaccard index of evidence overlap between columns in the experiment</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><dl class="simple">
-<dt><strong>data_columns</strong><span class="classifier">list</span></dt><dd><p>List of column names in the experiment to include in the plot</p>
-</dd>
-</dl>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="kstar.plot.KSTAR_PDF.evidence_page">
-<span class="sig-name descname"><span class="pre">evidence_page</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">regenerate_plots</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kstar.plot.KSTAR_PDF.evidence_page" title="Link to this definition">#</a></dt>
-<dd><p>Create a PDF page that includes the total number of sites used as evidence for each column and the jaccard similarity of evidence between columns</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><dl class="simple">
-<dt><strong>regenerate_plots</strong><span class="classifier">bool, optional</span></dt><dd><p>Whether to regenerate the evidence plots even if they already exist in the output directory</p>
-</dd>
-</dl>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
 <dt class="sig sig-object py" id="kstar.plot.KSTAR_PDF.footer">
 <span class="sig-name descname"><span class="pre">footer</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#kstar.plot.KSTAR_PDF.footer" title="Link to this definition">#</a></dt>
 <dd><p>Override the footer method to add a page number at the bottom center of each page.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="kstar.plot.KSTAR_PDF.generate">
-<span class="sig-name descname"><span class="pre">generate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">regenerate_plots</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kstar.plot.KSTAR_PDF.generate" title="Link to this definition">#</a></dt>
-<dd><p>Generates the PDF report by creating each page in sequence and saving the final PDF to the output directory</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><dl class="simple">
-<dt><strong>regenerate_plots</strong><span class="classifier">bool, optional</span></dt><dd><p>Whether to regenerate all plots even if they already exist in the output directory</p>
-</dd>
-</dl>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="kstar.plot.KSTAR_PDF.summary_page">
-<span class="sig-name descname"><span class="pre">summary_page</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#kstar.plot.KSTAR_PDF.summary_page" title="Link to this definition">#</a></dt>
-<dd><p>Create a PDF page that indicates the parameters used in the KSTAR run and the key kinases identified for each column</p>
-</dd></dl>
-
-<dl class="py method">
 <dt class="sig sig-object py" id="kstar.plot.KSTAR_PDF.table">
 <span class="sig-name descname"><span class="pre">table</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">header</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">column_widths</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">40</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">row_height</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#kstar.plot.KSTAR_PDF.table" title="Link to this definition">#</a></dt>
-<dd><p>Builds a table in the PDF</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><dl class="simple">
-<dt><strong>data</strong><span class="classifier">pandas DataFrame</span></dt><dd><p>DataFrame containing the data to be included in the table</p>
+<dd><p>Inserts a table, that can be built using the <cite>fpdf.table.Table</cite> object yield.
+Detailed usage documentation: <a class="reference external" href="https://py-pdf.github.io/fpdf2/Tables.html">https://py-pdf.github.io/fpdf2/Tables.html</a></p>
+<dl>
+<dt>Args:</dt><dd><p>rows: optional. Sequence of rows (iterable) of str to initiate the table cells with text content.
+align (str, fpdf.enums.Align): optional, default to CENTER. Sets the table horizontal position</p>
+<blockquote>
+<div><p>relative to the page, when it’s not using the full page width.</p>
+</div></blockquote>
+<dl class="simple">
+<dt>borders_layout (str, fpdf.enums.TableBordersLayout): optional, default to ALL. Control what cell</dt><dd><p>borders are drawn.</p>
 </dd>
-<dt><strong>header</strong><span class="classifier">list, optional</span></dt><dd><p>List of header names for the table columns. If None, uses DataFrame column names.</p>
+<dt>cell_fill_color (int, tuple, fpdf.drawing.DeviceCMYK, fpdf.drawing.DeviceGray, fpdf.drawing.DeviceRGB): optional.</dt><dd><p>Defines the cells background color.</p>
 </dd>
-<dt><strong>column_widths</strong><span class="classifier">int or list, optional</span></dt><dd><p>Width of each column in the table. If an integer is provided, all columns will have
-the same width. If a list is provided, it should contain the width for each column.</p>
-</dd>
-<dt><strong>row_height</strong><span class="classifier">int, optional</span></dt><dd><p>Height of each row in the table.</p>
+<dt>cell_fill_mode (str, fpdf.enums.TableCellFillMode): optional. Defines which cells are filled</dt><dd><p>with color in the background.</p>
 </dd>
 </dl>
+<p>col_widths (int, tuple): optional. Sets column width. Can be a single number or a sequence of numbers.
+first_row_as_headings (bool): optional, default to True. If False, the first row of the table</p>
+<blockquote>
+<div><p>is not styled differently from the others.</p>
+</div></blockquote>
+<p>gutter_height (float): optional vertical space between rows.
+gutter_width (float): optional horizontal space between columns.
+headings_style (fpdf.fonts.FontFace): optional, default to bold.</p>
+<blockquote>
+<div><p>Defines the visual style of the top headings row: size, color, emphasis…</p>
+</div></blockquote>
+<p>line_height (number): optional. Defines how much vertical space a line of text will occupy.
+markdown (bool): optional, default to False. Enable markdown interpretation of cells textual content.
+text_align (str, fpdf.enums.Align): optional, default to JUSTIFY. Control text alignment inside cells.
+v_align (str, fpdf.enums.VAlign): optional, default to CENTER. Control vertical alignment of cells content.
+width (number): optional. Sets the table width.
+wrapmode (fpdf.enums.WrapMode): “WORD” for word based line wrapping (default),</p>
+<blockquote>
+<div><p>“CHAR” for character based line wrapping.</p>
+</div></blockquote>
+<dl class="simple">
+<dt>padding (number, tuple, Padding): optional. Sets the cell padding. Can be a single number or a sequence</dt><dd><p>of numbers, default:0
+If padding for left or right ends up being non-zero then the respective c_margin is ignored.</p>
+</dd>
+<dt>outer_border_width (number): optional. The outer_border_width will trigger rendering of the outer</dt><dd><p>border of the table with the given width regardless of any other defined border styles.</p>
+</dd>
+<dt>num_heading_rows (number): optional. Sets the number of heading rows, default value is 1. If this value is not 1,</dt><dd><p>first_row_as_headings needs to be True if num_heading_rows&gt;1 and False if num_heading_rows=0. For backwards compatibility,
+first_row_as_headings is used in case num_heading_rows is 1.</p>
 </dd>
 </dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="kstar.plot.KSTAR_PDF.top_kinases_table">
-<span class="sig-name descname"><span class="pre">top_kinases_table</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#kstar.plot.KSTAR_PDF.top_kinases_table" title="Link to this definition">#</a></dt>
-<dd><p>Constructs a table of the top 5 most active significant kinases per sample and adds it to the PDF page</p>
+<p>repeat_headings (fpdf.enums.TableHeadingsDisplay): optional, indicates whether to print table headings on every page, default to 1.</p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
@@ -3296,16 +3246,8 @@ to append an accession column of uniprot IDS</p>
 </li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#the-kstar-pdf-class">The “KSTAR_PDF” class</a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#kstar.plot.KSTAR_PDF"><code class="docutils literal notranslate"><span class="pre">KSTAR_PDF</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#kstar.plot.KSTAR_PDF.create_dotplot"><code class="docutils literal notranslate"><span class="pre">KSTAR_PDF.create_dotplot()</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#kstar.plot.KSTAR_PDF.dotplot_page"><code class="docutils literal notranslate"><span class="pre">KSTAR_PDF.dotplot_page()</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#kstar.plot.KSTAR_PDF.evidence_count_plot"><code class="docutils literal notranslate"><span class="pre">KSTAR_PDF.evidence_count_plot()</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#kstar.plot.KSTAR_PDF.evidence_overlap_plot"><code class="docutils literal notranslate"><span class="pre">KSTAR_PDF.evidence_overlap_plot()</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#kstar.plot.KSTAR_PDF.evidence_page"><code class="docutils literal notranslate"><span class="pre">KSTAR_PDF.evidence_page()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#kstar.plot.KSTAR_PDF.footer"><code class="docutils literal notranslate"><span class="pre">KSTAR_PDF.footer()</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#kstar.plot.KSTAR_PDF.generate"><code class="docutils literal notranslate"><span class="pre">KSTAR_PDF.generate()</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#kstar.plot.KSTAR_PDF.summary_page"><code class="docutils literal notranslate"><span class="pre">KSTAR_PDF.summary_page()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#kstar.plot.KSTAR_PDF.table"><code class="docutils literal notranslate"><span class="pre">KSTAR_PDF.table()</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#kstar.plot.KSTAR_PDF.top_kinases_table"><code class="docutils literal notranslate"><span class="pre">KSTAR_PDF.top_kinases_table()</span></code></a></li>
 </ul>
 </li>
 </ul>

@@ -43,6 +43,9 @@ Uploading Your Phosphoproteomic Data
         :alt: Browse and Upload Data, Step 2
         :width: 600px
 
+    .. warning:: 
+        The file type must be a CSV or tabular/tsv. It will not appear as an option if it is not one of these formats. Galaxy usually does a good job of autodetecting the file format, but you may want to specify it explicitly when uploading. You can do this in the drop down menu appearing next to the file name after you select the file to upload. 
+
 4. When you close the window, you should see your uploaded dataset in the right panel, called the "History" panel. It should also now appear as an option in the dropdown menu under the "Upload your experiment" section. As a side note, you can choose to give the history a name by clicking on the pencil icon at the top of the History panel.
 
     .. image:: ./tutorial_images/uploaded.png
@@ -53,16 +56,15 @@ Configuring KSTAR Parameters
 ----------------------------
 
 5. Make sure your uploaded dataset is selected in the "Upload your experiment" dropdown menu.
+
+.. note:: If your dataset has already been mapped to the KSTAR reference phosphoproteome (i.e. it contains columns named "KSTAR_ACCESSION" and "KSTAR_SITE"), you can select "Yes" under "Has your dataset already been mapped to the KSTAR reference phosphoproteome" and skip the next step (go directly to step 7).
+
 6. Next, we will indicate where phosphorylation site information is located in your dataset so we can map to the KSTAR reference phosphoproteome.
-    
-    .. note:: If your dataset has already been mapped to the KSTAR reference phosphoproteome (i.e. it contains columns named "KSTAR_ACCESSION" and "KSTAR_SITE"), you can select "Yes" under "Has your dataset already been mapped to the KSTAR reference phosphoproteome" and skip this step.
 
-    To run, KSTAR requires a column containing UniProtKB accessions (ex. 'P01308'). In addition, KSTAR must include at least one of the following columns and will thrown an error if neither are included:
+    To run, KSTAR requires a column containing UniProtKB accessions (ex. 'P01308'). In addition, KSTAR must include at least one of the following columns and will thrown an error if neither are included: 
 
-    
-    - Peptide sequences (ex. 'AGLQyFPVGR'), recommended
-    - Site positions (ex. 'S1234')
-
+    * (recommended) Peptide sequences in a format like 'AGLQyFPVGR'
+    * Site positions in a format like 'S1234'
 
     Select the appropriate columns for "accession_column", "peptide_column", and/or "site_column" from the respective dropdown menus. In this example, we will select "query_accession" for the accession IDs (A) and "peptide" for the peptide sequences (B).
 
@@ -70,7 +72,7 @@ Configuring KSTAR Parameters
         :alt: Mapping Columns Selection
         :width: 600px
 
-    You may also have multiple sites/peptides per row of your dataset. If this is the case, you can specify the delimiter (';', ',', etc.) used to separate these values in your dataset (C).
+    You may also have multiple sites/peptides per row of your dataset. If this is the case, you can specify the delimiter (;, comma, etc.) used to separate these values in your dataset (C).
 
     .. note:: If both peptide and site information are provided, KSTAR will use the peptide information for analysis. If the peptides are not in the expected format (modifications indicated by lowercase letters), the Galaxy tool will attempt to reformat them prior to analysis. If peptides are not provided or could not be reformatted, KSTAR will then attempt to use provided site positions.
 
@@ -105,7 +107,7 @@ Configuring KSTAR Parameters
 
 10. Depending on the option you selected in the previous step, you may need to provide additional parameters. For "Increasing Phosphorylation (Relative to Control)", a threshold value is required to determine which sites are considered as evidence (i.e. sites with quantification above this threshold). To do this, you have two options:
 
-   1. Pick a threshold manually based on your knowledge of the dataset. For example, in this example, we have log2 fold change data, so we may want to capture sites with some minimum increase in phosphorylation. Here, we set "Automatically determine threshold based on data distribution" to "No" and set the threshold to 0.2.
+    1. Pick a threshold manually based on your knowledge of the dataset. For example, in this example, we have log2 fold change data, so we may want to capture sites with some minimum increase in phosphorylation. Here, we set "Automatically determine threshold based on data distribution" to "No" and set the threshold to 0.2.
 
     .. image:: ./tutorial_images/manual_evidence_selection.png
         :alt: Evidence Selection
@@ -118,10 +120,11 @@ Configuring KSTAR Parameters
         :width: 600px
 
     By default, KSTAR selects the largest threshold that both captures a sufficient number of sites on average across all samples and ensures that there is not too much overlap in evidence between samples. You can adjust these parameters if desired under "Advanced options for automatic threshold selection". Most important of these is whether to consider both evidence size and overlap between samples, or just one of these factors. You can also adjust the desired evidence size and overlap if you like.
-    
+
     .. image:: ./tutorial_images/advanced_evidence_selection.png
         :alt: Advanced Evidence Selection
         :width: 600px
+        
 11. Once happy with your parameter selections, click the "Run Tool" button at the bottom of the form. This will submit your KSTAR job to the Galaxy server for processing and you should see 2-4 new data boxes appear in the right "History" panel. Depending on the size of your dataset and the current load on the Galaxy server, this may take a little bit of time. You can monitor the progress of your job in the "History" panel on the right-hand side of the screen. You might see a couple of things:
 
     - If the job is completed successfully, it will be marked with a green checkmark.
