@@ -1,4 +1,5 @@
 from encodings.idna import dots
+import string
 import numpy as np
 import fpdf
 import pandas as pd
@@ -950,8 +951,15 @@ class KSTAR_PDF(fpdf.FPDF):
             activities = -np.log10(activities)
 
         self.activities = activities
+        #convert data columns to readable strings by fpdf
+        self.activities.columns = [self.filter_unicode_chars(col) for col in self.activities.columns]
         self.fpr = fpr
+        self.fpr.columns = [self.filter_unicode_chars(col) for col in self.fpr.columns]
         self.binarized_experiment = binarized_experiment
+        self.binarized_experiment.columns = [self.filter_unicode_chars(col) for col in self.binarized_experiment.columns]
+
+        #check if there are special characters in the column names that may cause issues with font, remove them if so
+
         self.odir = odir
         self.name = name
         self.param_dict = param_dict
@@ -1004,6 +1012,21 @@ class KSTAR_PDF(fpdf.FPDF):
                     raise ValueError('column_widths must be an integer or a list of integers')
             self.ln(row_height)
 
+    def filter_unicode_chars(self, text):
+        if not isinstance(text, str):
+            text = str(text)
+        allowed_chars = set(string.printable)
+
+        #below translator code taken directly from stack overflow post https://stackoverflow.com/questions/59552782/how-to-convert-characters-from-greek-to-english-python)
+        greek_alphabet = 'ΑαΒβΓγΔδΕεΖζΗηΘθΙιΚκΛλΜμΝνΞξΟοΠπΡρΣσςΤτΥυΦφΧχΨψΩω'
+        latin_alphabet = 'AaBbGgDdEeZzHhJjIiKkLlMmNnXxOoPpRrSssTtUuFfQqYyWw'
+        greek2latin = str.maketrans(greek_alphabet, latin_alphabet)
+        filtered_text = text.translate(greek2latin)
+
+        #remove any remaining non-allowed characters
+        filtered_text = ''.join(c for c in filtered_text if c in allowed_chars)
+        return filtered_text
+
     def mapping_page(self):
         pass
 
@@ -1030,9 +1053,12 @@ class KSTAR_PDF(fpdf.FPDF):
                 if isinstance(value, (bool, float, int, str)) and key not in ['network_check', 'network_directory', 'pregenerated_experiments_path', 'mann_whitney', 'kinases', 'randomized']:
                     self.set_font('Helvetica', 'B', 10)
                     #set cell width to 
-                    self.cell(w=53, h=4, text=f'{key}: ', border=0, new_x='RIGHT', new_y='TOP', align='R')
+                    self.cell(w=53, h=4, text=f'{self.filter_unicode_chars(key)}: ', border=0, new_x='RIGHT', new_y='TOP', align='R')
                     self.set_font('Helvetica', '', 10)
-                    self.cell(w=0, h=4, txt=f'{value}', border=0, new_x='LMARGIN', new_y='NEXT', align='L')
+                    self.cell(w=0, h=4, txt=f'{self.filter_unicode_chars(value)}', border=0, new_x='LMARGIN', new_y='NEXT', align='L')
+
+
+
             self.ln(10)
         
         # Summary statistics
@@ -1276,6 +1302,7 @@ class KSTAR_PDF(fpdf.FPDF):
 
         #trim 'data:' from column names
         data_columns = [col.replace('data:','') for col in data_columns]
+        #convert common greek letters to 
         top_kinases = pd.DataFrame({'Sample':data_columns, '# of Sig. Kinases':num_sig_list, 'Top 5 Kinases':top5_list})
 
         self.table(top_kinases, column_widths = [50, 30, 100], row_height=6)

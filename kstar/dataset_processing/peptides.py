@@ -1,7 +1,10 @@
 import re
 import numpy as np
 import string
+from collections import defaultdict
 
+
+possible_indicators = ['^', '*', '#', '(Phospho)', '(ph)', '[Phospho]', '[ph]']
 def check_for_modification(peptide):
     """
     Check if a peptide sequence contains any modified residues (lowercase s, t, or y)
@@ -181,7 +184,7 @@ def detect_peptide_format(peptide:str, ignore_unrecognized = False):
     parentheses = '(' in peptide
     bracket = '[' in peptide
     #check for possible indicators of phosphorylation
-    other_indicator_symbols = ['*', '#']
+    other_indicator_symbols = ['^', '*', '#']
     other_indicators = any([x in peptide for x in other_indicator_symbols])
     #check for other special characters that are not parentheses/brackets/underscores/other indicators
     others_chars = set(string.punctuation).difference(['(',')','.','[',']', '_'] + other_indicator_symbols)
@@ -310,7 +313,8 @@ def format_peptide(peptide, format = 'acceptable', indicator = None, after = Tru
         Reformatted peptide sequence with modified residues as lowercase s, t, or y, and other symbols/annotations removed.
     """
     if format == 'acceptable':
-        return peptide
+        new_pep = check_and_correct_nonphospho(peptide)
+        return new_pep
     elif format == 'centered_uppercase':
         new_pep = fix_centered_uppercase_peptide_seq(peptide)
     elif format == 'annotated':
@@ -358,13 +362,65 @@ def format_peptide_list(peptide_list, format = 'annotated', indicator = '*', aft
         formatted_peptides.append(new_pep)
     return formatted_peptides
 
+def validate_indicator_at_position(peptide, indicator, indicator_index, appears_after_mod):
+    """
+    Given a peptide sequence, an indicator symbol/string, and where that indicator should be located, ensure that the indicator is appropriately preceded or followed by an S, T, or Y residue to confirm that it is likely indicating a phosphorylation site rather than some other annotation.
+
+    Parameters
+    ----------
+    peptide : str
+        The peptide sequence to validate.
+    indicator : str
+        The indicator symbol/string to validate (Ex. '*', '#', '(Phospho)', '(ph)', '[Phospho]', '[ph]').
+    indicator_index : int
+        The index of the indicator in the peptide sequence.
+    appears_after_mod : bool
+        Whether the indicator should appear after the modified residue.
+
+    Returns
+    -------
+    bool
+        True if the indicator is appropriately placed, False otherwise.
+    """
+    #check if preceded or followed by S,T, or Y
+    if appears_after_mod:
+        if indicator_index == 0:
+            return False
+        else:
+            return peptide[indicator_index - 1] in ['S', 'T', 'Y']
+    else:
+        if indicator_index == len(peptide) - len(indicator):
+            return False
+        else:
+            return peptide[indicator_index + len(indicator)] in ['S', 'T', 'Y']
+
+
+def validate_indicator(peptide, indicator, appears_after_mod):
+    """
+    Given a peptide sequence and an indicator symbol/string, validate that the indicator is appropriately placed in the peptide sequence to indicate a phosphorylation site rather than some other annotation. This is done by checking all instances of the indicator in the peptide and confirming that each one is appropriately preceded or followed by an S, T, or Y residue based on where the indicator is supposed to be located.
+
+    Parameters
+    ----------
+    peptide : str
+        The peptide sequence to validate.
+    indicator : str
+        The indicator symbol/string to validate (Ex. '*', '#', '(Phospho)', '(ph)', '[Phospho]', '[ph]').
+    appears_after_mod : bool
+        Whether the indicator should appear after the modified residue.
+    """
+    indicator_indices = [i for i in range(len(peptide)) if peptide.startswith(indicator, i)]
+    valid_list = list()
+    for indicator_index in indicator_indices:
+        valid = validate_indicator_at_position(peptide, indicator, indicator_index, appears_after_mod)
+        valid_list.append(valid)
+    return all(valid_list)
+
 def detect_annotation(peptide):
     """
     Identify the indicator/annotation used in a peptide sequence to denote phosphorylation sites.
     
     :param peptide: Description
     """
-    possible_indicators = ['*', '#', '(Phospho)', '(ph)', '[Phospho]', '[ph]']
     present_indicators = set([indicator for indicator in possible_indicators if indicator in peptide])
     if len(present_indicators) == 0:
         raise PeptideSequenceError('No recognized modification indicators found in the peptide sequence, you will need to manually indicate what indicator to use.')
@@ -425,20 +481,36 @@ def format_peptide_from_df(df, peptide_col, new_peptide_col = None, autodetect =
     if detected_format == 'annotated':
         if ('indicator' in kwargs and 'after' not in kwargs) or ('after' in kwargs and 'indicator' not in kwargs):
             raise ValueError('If one of `indicator` or `after` is provided, both must be provided together.')
-        if 'indicator' not in kwargs or 'after' not in kwargs:
+        elif 'indicator' not in kwargs or 'after' not in kwargs:
             #make sure multiple indicators are not present and detect which one is used
-            indicators_found = set()
+            indicator_counts = defaultdict(int)
             for pep in peptides:
-                if any([x in pep for x in ['*', '#', '(Phospho)', '(ph)', '[Phospho]', '[ph]']]):
-                    indicator, after = detect_annotation(pep)
-                    indicators_found.add((indicator, after))
+                #for each peptide, check if indicator is present than validate that it is appropriately placed to indicate a modification site, then count the valid indicators
+                if any([x in pep for x in possible_indicators]):
+                    try:
+                        indicator, after = detect_annotation(pep)
+                        indicator_counts[(indicator, after)] += 1
+                    except PeptideSequenceError:
+                        continue
 
-            if len(indicators_found) > 1:
-                raise PeptideSequenceError('Multiple modification indicators detected in the peptide list, you will need to manually indicate what indicator to use.')
+            if len(indicator_counts) == 0:
+                raise PeptideSequenceError('No recognizable indicators found for annotated format. Please specify which indicator is used via the `indicator` and `after` keyword arguments.')
+            
+            elif len(indicator_counts) > 1:
+                print('Multiple indicators found for annotated format. Using the most common one for formatting, but please verify that this is correct.')
+                indicator, after = max(indicator_counts, key=indicator_counts.get)
+            else:
+                indicator, after = list(indicator_counts.keys())[0]
+        else:
+            indicator = kwargs['indicator']
+            after = kwargs['after']
+    else:
+        indicator = None
+        after = None
 
 
     
-    formatted_peptides = format_peptide_list(peptides, format=detected_format, **kwargs)
+    formatted_peptides = format_peptide_list(peptides, format=detected_format, indicator = indicator, after = after)
 
     #add formatted peptides to dataframe
     new_peptide_col = new_peptide_col if new_peptide_col is not None else 'Formatted Peptide'
@@ -451,6 +523,59 @@ def format_peptide_from_df(df, peptide_col, new_peptide_col = None, autodetect =
         print('\nPeptide formatting complete. Please verify that the formatted peptides are correct before proceeding.\nYou can see the detected format for each peptide in the column: ', format_col)
 
     return df
+
+def check_single_peptide_format(peptide):
+    """
+    Given a single peptide sequence, check that it only contains letters and that any modified residues are denoted by lowercase s, t, or y. This is the expected format for peptides to be used in downstream analysis, so this function can be used to validate that formatting has been done correctly.
+    """
+    #make sure only letters are used and that only lowercased letters are S, T, or Y
+    if not isinstance(peptide, str):
+        return False
+    
+    if not peptide.isalpha():
+        return False
+    
+    modified_residues = [res for res in peptide if res.islower()]
+    if not all(res in ['s', 't', 'y'] for res in modified_residues):
+        return False
+    
+    return True
+
+def check_peptide_format(peptide, separator = ';'):
+    #make sure only letters are used and that only lowercased letters are S, T, or Y
+    if not isinstance(peptide, str):
+        return False
+    
+    #separate multiple peptides if separator is present and check each one
+    if separator in peptide:
+        peptides = peptide.split(separator)
+        return all(check_single_peptide_format(p.strip()) for p in peptides)
+    else:
+        return check_single_peptide_format(peptide)
+    
+def check_site_format(site, separator = ';'):
+    #check site format (e.g., S123)
+    if not isinstance(site, str):
+        return False
+    
+    if len(site) < 2:
+        return False
+    
+    if separator in site:
+        sites = site.split(separator)
+        return all(check_site_format(s.strip()) for s in sites)
+    else:
+    
+        residue = site[0]
+        position = site[1:]
+
+        if residue not in ['S', 'T', 'Y']:
+            return False
+        
+        if not position.isdigit():
+            return False
+        
+        return True
 
 
 
