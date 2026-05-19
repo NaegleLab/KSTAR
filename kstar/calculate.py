@@ -352,6 +352,9 @@ class KinaseActivity:
             for col in self.evidence.columns:
                 if col.startswith('data:'):
                     self.data_columns.append(col)
+            
+            if len(self.data_columns) == 0:
+                raise ValueError("No data columns found in evidence. Please check that data columns have 'data:' prefix or are provided when initializing KinaseActivity class.")
         else:
             #make sure inputted data columns are in evidence (check if any have 'data:') in front, if not add it
             final_data_columns = []
@@ -1896,7 +1899,7 @@ class KinaseActivity:
         #determine best threshold for each phospho type
         try:
             #identify optimal threshold, ensuring that no columns are lost due to insufficient evidence size
-            threshold = self.recommend_threshold(**kwargs)
+            threshold = self.recommend_threshold(greater = greater, **kwargs)
         except DatasetSizeError as de:
             #if the above fails, warn user and loosen restriction to select a threshold that may cause some columns to be lost
             if min_evidence_size in kwargs:
@@ -1905,7 +1908,7 @@ class KinaseActivity:
                 min_evidence_size = 20
             self._report_warning(f"Could not find valid threshold where all dataset columns have at least {min_evidence_size} phosphosites used as evidence. Loosening restriction to allow columns to be lost")
 
-            threshold = self.recommend_threshold(allow_column_loss = True, **kwargs)
+            threshold = self.recommend_threshold(greater = greater, allow_column_loss = True, **kwargs)
 
             self.log.info(f"Determined threshold: {threshold}")
 

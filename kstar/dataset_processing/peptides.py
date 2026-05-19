@@ -553,7 +553,7 @@ def check_peptide_format(peptide, separator = ';'):
     else:
         return check_single_peptide_format(peptide)
     
-def check_site_format(site):
+def check_site_format(site, separator = ';'):
     #check site format (e.g., S123)
     if not isinstance(site, str):
         return False
@@ -561,16 +561,21 @@ def check_site_format(site):
     if len(site) < 2:
         return False
     
-    residue = site[0]
-    position = site[1:]
+    if separator in site:
+        sites = site.split(separator)
+        return all(check_site_format(s.strip()) for s in sites)
+    else:
+    
+        residue = site[0]
+        position = site[1:]
 
-    if residue not in ['S', 'T', 'Y']:
-        return False
-    
-    if not position.isdigit():
-        return False
-    
-    return True
+        if residue not in ['S', 'T', 'Y']:
+            return False
+        
+        if not position.isdigit():
+            return False
+        
+        return True
 
 
 

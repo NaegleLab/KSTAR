@@ -130,10 +130,14 @@ class ExperimentMapper:
             else:
                 self._report_info("All accession IDs are in the correct format.")
 
-
+        #make sure accession column contains information in reference
+        if not self.experiment[columns['accession_id']].isin(self.compendia[config.KSTAR_ACCESSION]).any():
+            raise ValueError("Provided accession IDs do not match any accessions in reference compendia. Please check that the accession IDs are UniProtKB IDs. To convert them automatically to UniProtKB IDs,, you can attempt to use automatic ID conversion by setting `auto_convert_ids=True` when initializing ExperimentMapper.")
+        #set accessions
         self.experiment[config.KSTAR_ACCESSION] = self.experiment[columns['accession_id']].apply(set_accession_id) 
 
         if 'peptide' in columns.keys():
+            print('Checking peptide column format...')
             #check if peptide column has NaN values
             if self.experiment[columns['peptide']].isna().any():
                 self.logger.warning("NaN values found in peptide column. These rows will be removed during mapping.")
@@ -191,21 +195,30 @@ class ExperimentMapper:
                 self.logger.warning("Multiple peptides found in some rows. These will be split into multiple rows for mapping.")
                 self.experiment[columns['peptide']] = self.experiment[columns['peptide']].str.split(pep_format_separator)
                 self.experiment = self.experiment.explode(columns['peptide']).reset_index(drop=True).copy()
+                
         else:
             pep_check = False
 
         
         
         if 'site' in columns.keys():
-            #check to make sure site column is in correct format
-            site_check = self.experiment[columns['site']].apply(lambda x: peptides.check_site_format(x)).all()
+            #if peptides not provided, separate site column if multiple sites are present in a cell
+            if not pep_check and self.experiment[columns['site']].str.contains(pep_format_separator).any():
+                self.logger.warning("Multiple sites found in some rows. These will be split into multiple rows for mapping.")
+                self.experiment[columns['site']] = self.experiment[columns['site']].str.split(pep_format_separator)
+                self.experiment = self.experiment.explode(columns['site']).reset_index(drop=True).copy()
+                self.experiment[columns['site']] = self.experiment[columns['site']].apply(lambda x: x.strip() if isinstance(x, str) else x)
+
+
+            #check to make sure site column is in correct format (mostly)
+            site_check = self.experiment[columns['site']].apply(lambda x: peptides.check_site_format(x)).sum() >= 0.7*len(self.experiment)
             if not site_check:
                 columns.pop('site')
         else:
             site_check = False
 
         if not pep_check and not site_check:
-            raise peptides.PeptideSequenceError('Peptide/site columns provided but are not in the correct format. Please make sure that the peptide column has modified residues in lowercase and only S, T, Y are modified, and that the site column is in the format S/T/Y<pos>, e.g. Y15 or S345. Only one is required, but peptide is recommended for more accurate mapping to reference. To reformat peptides/sites, you can use the kstar.dataset_processing.peptides module.')
+            raise peptides.PeptideSequenceError('Peptide and/or site column provided but are not in the correct format. Please make sure that the peptide column has modified residues in lowercase and only S, T, Y are modified, and that the site column is in the format S/T/Y<pos>, e.g. Y15 or S345. Only one is required, but peptide is recommended for more accurate mapping to reference. To reformat peptides/sites, you can use the kstar.dataset_processing.peptides module.')
 
 
        
