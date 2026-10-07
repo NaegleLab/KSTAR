@@ -1685,7 +1685,10 @@ class KinaseActivity:
         """
         individual_network_dir = os.path.join(self.network_directory, 'INDIVIDUAL_NETWORKS')
         for filename in os.listdir(individual_network_dir):
-            net_num = filename.split('_')[1]
+            if 'compendia' in filename:
+                net_num = filename.split('_')[-6]
+            else:
+                net_num = filename.split('_')[-5]
             if filename.endswith('.tsv'):
                 file_path = os.path.join(individual_network_dir, filename)
                 network = pd.read_csv(file_path, sep='\t')
