@@ -205,7 +205,7 @@ def parse_network_information(network_directory, file_type = 'txt'):
 				"unique_network_id": re.search(r"Unique Network ID:\s+([a-fA-F0-9]+)", content).group(1),
 				"unique_reference_id": re.search(r"Unique Reference ID:\s+([a-fA-F0-9]+)", content).group(1),
 				"date_run": re.search(r"Date Run\s+([\d-]+\s[\d:.]+)", content).group(1),
-				"network_used": re.search(r"Network Used\s+([^\n]+)", content).group(1).strip(),
+				# "network_used": re.search(r"Network Used\s+([^\n]+)", content).group(1).strip(),
 				"phospho_type": re.search(r"Phospho Type\s+(\w+)", content).group(1),
 				"kinase_size": int(re.search(r"Kinase Size\s+(\d+)", content).group(1)),
 				"site_limit": int(re.search(r"Site Limit\s+(\d+)", content).group(1)),
